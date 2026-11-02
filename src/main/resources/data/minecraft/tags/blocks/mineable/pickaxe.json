@@ -7,6 +7,8 @@
     "simple_bytestorage:crafting_terminal",
     "simple_bytestorage:assembler",
     "simple_bytestorage:pattern_terminal",
-    "simple_bytestorage:pattern_encoding_terminal"
+    "simple_bytestorage:pattern_encoding_terminal",
+    "simple_bytestorage:cable",
+    "simple_bytestorage:pattern_provider"
   ]
 }

@@ -23,6 +23,7 @@ public class PatternEncodingTerminalScreen extends AbstractContainerScreen<Patte
 
     private UiButton encodeButton;
     private UiButton clearButton;
+    private UiButton modeButton;
 
     public PatternEncodingTerminalScreen(PatternEncodingTerminalMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -48,6 +49,22 @@ public class PatternEncodingTerminalScreen extends AbstractContainerScreen<Patte
                 () -> Component.empty(), UiButton.Icon.CROSS,
                 () -> sendButton(PatternEncodingTerminalMenu.BUTTON_CLEAR))
                 .tooltip(Component.translatable("gui.simple_bytestorage.encoder.clear"));
+
+        this.modeButton = new UiButton(this.leftPos + 108, this.topPos + 74, 58, 14,
+                this::modeLabel, UiButton.Icon.NONE,
+                () -> sendButton(PatternEncodingTerminalMenu.BUTTON_MODE));
+    }
+
+    private Component modeLabel() {
+        return Component.translatable(this.menu.isProcessing()
+                ? "gui.simple_bytestorage.encoder.mode.processing"
+                : "gui.simple_bytestorage.encoder.mode.crafting");
+    }
+
+    private Component modeTooltip() {
+        return Component.translatable(this.menu.isProcessing()
+                ? "gui.simple_bytestorage.encoder.mode.processing.tip"
+                : "gui.simple_bytestorage.encoder.mode.crafting.tip");
     }
 
     /** Кнопка «Записати» доступна, коли є шаблон, відомий результат і вільний вихідний слот. */
@@ -71,7 +88,11 @@ public class PatternEncodingTerminalScreen extends AbstractContainerScreen<Patte
         super.render(graphics, mouseX, mouseY, partialTick);
         this.encodeButton.render(graphics, this.font, mouseX, mouseY);
         this.clearButton.render(graphics, this.font, mouseX, mouseY);
+        this.modeButton.render(graphics, this.font, mouseX, mouseY);
         this.renderTooltip(graphics, mouseX, mouseY);
+        if (this.modeButton.isOver(mouseX, mouseY)) {
+            graphics.renderTooltip(this.font, modeTooltip(), mouseX, mouseY);
+        }
         this.clearButton.renderTooltip(graphics, this.font, mouseX, mouseY);
         this.renderEmptySlotHint(graphics, mouseX, mouseY);
     }
@@ -79,7 +100,8 @@ public class PatternEncodingTerminalScreen extends AbstractContainerScreen<Patte
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (this.encodeButton.mouseClicked(mouseX, mouseY, button)
-                || this.clearButton.mouseClicked(mouseX, mouseY, button)) {
+                || this.clearButton.mouseClicked(mouseX, mouseY, button)
+                || this.modeButton.mouseClicked(mouseX, mouseY, button)) {
             return true;
         }
         return super.mouseClicked(mouseX, mouseY, button);
@@ -111,7 +133,8 @@ public class PatternEncodingTerminalScreen extends AbstractContainerScreen<Patte
 
         // Панель рецепту та панель результату
         GuiStyle.panel(graphics, x + 6, y + 18, 76, 74);
-        GuiStyle.label(graphics, Component.translatable("gui.simple_bytestorage.encoder.recipe"), x + 10, y + 22);
+        GuiStyle.label(graphics, Component.translatable(this.menu.isProcessing()
+                ? "gui.simple_bytestorage.encoder.inputs" : "gui.simple_bytestorage.encoder.recipe"), x + 10, y + 22);
         GuiStyle.panel(graphics, x + 104, y + 18, 66, 74);
         GuiStyle.label(graphics, Component.translatable("gui.simple_bytestorage.encoder.result"), x + 108, y + 22);
         GuiStyle.arrow(graphics, x + 86, y + 57);

@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "simple_bytestorage:block/pattern_provider"
+    }
+  }
+}

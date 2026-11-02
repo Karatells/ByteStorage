@@ -62,9 +62,19 @@ public interface IPatternStorage {
         private final ItemStack output;
         private final List<ItemStack> grid;
         private final List<ItemStack> inputs;
+        private final boolean processing;
 
         public PatternData(String id, ItemStack output, List<ItemStack> grid) {
+            this(id, output, grid, false);
+        }
+
+        /**
+         * @param processing true — «процесний» шаблон для машини (піч, дробарка...): у клітинках лежать
+         *                   предмети з кількостями, а не розкладка верстака.
+         */
+        public PatternData(String id, ItemStack output, List<ItemStack> grid, boolean processing) {
             this.id = id;
+            this.processing = processing;
             this.output = output.copy();
             this.grid = new ArrayList<>(GRID_SIZE);
             for (int i = 0; i < GRID_SIZE; i++) {
@@ -73,7 +83,9 @@ public interface IPatternStorage {
                     this.grid.add(ItemStack.EMPTY);
                 } else {
                     ItemStack one = cell.copy();
-                    one.setCount(1);
+                    if (!processing) {
+                        one.setCount(1);
+                    }
                     this.grid.add(one);
                 }
             }
@@ -81,7 +93,16 @@ public interface IPatternStorage {
         }
 
         public PatternData(ItemStack output, List<ItemStack> grid) {
-            this(makeId(output, grid), output, grid);
+            this(makeId(output, grid, false), output, grid, false);
+        }
+
+        public static PatternData processing(ItemStack output, List<ItemStack> inputs) {
+            return new PatternData(makeId(output, inputs, true), output, inputs, true);
+        }
+
+        /** Чи це шаблон для машини (кладеться в Шину Шаблонів), а не крафт верстака. */
+        public boolean isProcessing() {
+            return processing;
         }
 
         /** Унікальний ключ шаблону (стабільний для того самого рецепту). */
@@ -125,6 +146,7 @@ public interface IPatternStorage {
                 list.add(cell.save(new CompoundTag()));
             }
             tag.put("Grid", list);
+            tag.putBoolean("Processing", processing);
             return tag;
         }
 
@@ -135,11 +157,12 @@ public interface IPatternStorage {
             for (int i = 0; i < list.size() && i < GRID_SIZE; i++) {
                 grid.add(ItemStack.of(list.getCompound(i)));
             }
+            boolean processing = tag.getBoolean("Processing");
             String id = tag.getString("Id");
             if (id.isEmpty()) {
-                id = makeId(output, grid);
+                id = makeId(output, grid, processing);
             }
-            return new PatternData(id, output, grid);
+            return new PatternData(id, output, grid, processing);
         }
 
         public void write(FriendlyByteBuf buf) {
@@ -148,6 +171,7 @@ public interface IPatternStorage {
             for (ItemStack cell : grid) {
                 buf.writeItem(cell);
             }
+            buf.writeBoolean(processing);
         }
 
         public static PatternData read(FriendlyByteBuf buf) {
@@ -157,7 +181,8 @@ public interface IPatternStorage {
             for (int i = 0; i < GRID_SIZE; i++) {
                 grid.add(buf.readItem());
             }
-            return new PatternData(id, output, grid);
+            boolean processing = buf.readBoolean();
+            return new PatternData(id, output, grid, processing);
         }
 
         /** Склеює однакові предмети (з урахуванням NBT) у список «предмет × кількість». */
@@ -184,16 +209,22 @@ public interface IPatternStorage {
 
         /** Ключ: ім'я предмета-результату + 8 hex-цифр хеша всього рецепту. */
         public static String makeId(ItemStack output, List<ItemStack> grid) {
+            return makeId(output, grid, false);
+        }
+
+        public static String makeId(ItemStack output, List<ItemStack> grid, boolean processing) {
             StringBuilder sb = new StringBuilder();
+            sb.append(processing ? "P:" : "C:");
+            sb.append(output.getCount()).append('x');
             sb.append(stackKey(output)).append('>');
             for (int i = 0; i < GRID_SIZE; i++) {
                 ItemStack cell = i < grid.size() ? grid.get(i) : ItemStack.EMPTY;
-                sb.append(cell.isEmpty() ? "-" : stackKey(cell)).append(';');
+                sb.append(cell.isEmpty() ? "-" : (processing ? cell.getCount() + "x" : "") + stackKey(cell)).append(';');
             }
             net.minecraft.resources.ResourceLocation key =
                     net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(output.getItem());
             String path = key != null ? key.getPath() : "unknown";
-            return path + "_" + String.format("%08x", sb.toString().hashCode());
+            return (processing ? "proc_" : "") + path + "_" + String.format("%08x", sb.toString().hashCode());
         }
 
         private static String stackKey(ItemStack stack) {

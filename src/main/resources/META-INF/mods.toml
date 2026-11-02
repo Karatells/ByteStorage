@@ -4,7 +4,7 @@ license="MIT"
 
 [[mods]]
 modId="simple_bytestorage"
-version="1.0.0+build.4"
+version="1.0.0+build.5"
 displayName="SimpleAE: ByteStorage"
 authors="SimpleAE Team"
 description='''

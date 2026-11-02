@@ -7,7 +7,9 @@ import com.simpleae.bytestorage.api.storage.INetworkStorage;
 import com.simpleae.bytestorage.api.storage.IPatternStorage;
 import com.simpleae.bytestorage.api.storage.IPatternStorage.PatternData;
 import com.simpleae.bytestorage.block.entity.AssemblerBlockEntity;
+import com.simpleae.bytestorage.block.entity.PatternProviderBlockEntity;
 import com.simpleae.bytestorage.block.entity.PatternTerminalBlockEntity;
+import com.simpleae.bytestorage.storage.PatternStorage;
 import com.simpleae.bytestorage.network.packet.PatternOrderPacket;
 import com.simpleae.bytestorage.network.packet.SimpleByteStoragePackets;
 import com.simpleae.bytestorage.network.packet.SyncPatternDataPacket;
@@ -117,6 +119,18 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
             for (IGridNode node : grid.getNodes()) {
                 if (node instanceof AssemblerBlockEntity) {
                     assemblers++;
+                } else if (node instanceof PatternProviderBlockEntity provider) {
+                    // Процесні шаблони з Шин Шаблонів теж показуємо в списку
+                    for (PatternData pattern : provider.getPatterns()) {
+                        boolean known = false;
+                        for (PatternData existing : list) {
+                            known |= existing.getId().equals(pattern.getId());
+                        }
+                        if (!known) {
+                            list.add(pattern);
+                            flags.add(PatternStorage.hasInputs(grid, pattern));
+                        }
+                    }
                 }
             }
         }
@@ -164,7 +178,7 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
         }
         PatternData pattern = grid.getPatternStorage().getPattern(patternId);
         if (pattern == null) {
-            serverPlayer.displayClientMessage(Component.translatable("msg.simple_bytestorage.order.no_pattern"), true);
+            orderProcessing(serverPlayer, grid, patternId, amount);
             return;
         }
 
@@ -207,6 +221,47 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
             accepted += entry.getKey().enqueue(patternId, entry.getValue());
         }
 
+        if (accepted <= 0) {
+            serverPlayer.displayClientMessage(Component.translatable("msg.simple_bytestorage.order.queue_full"), true);
+        } else {
+            serverPlayer.displayClientMessage(Component.translatable("msg.simple_bytestorage.order.ok",
+                    accepted, pattern.getOutput().getHoverName()), true);
+        }
+    }
+
+    /** Замовлення процесного шаблону: ділимо крафти між усіма шинами, які його містять. */
+    private void orderProcessing(ServerPlayer serverPlayer, IGrid grid, String patternId, int amount) {
+        List<PatternProviderBlockEntity> holders = new ArrayList<>();
+        PatternData pattern = null;
+        for (IGridNode node : grid.getNodes()) {
+            if (node instanceof PatternProviderBlockEntity provider) {
+                PatternData found = provider.findPattern(patternId);
+                if (found != null) {
+                    holders.add(provider);
+                    pattern = found;
+                }
+            }
+        }
+        if (pattern == null) {
+            serverPlayer.displayClientMessage(Component.translatable("msg.simple_bytestorage.order.no_pattern"), true);
+            return;
+        }
+        int total = Math.max(1, Math.min(MAX_ORDER, amount));
+        int accepted = 0;
+        for (int i = 0; i < total; i++) {
+            PatternProviderBlockEntity best = null;
+            int bestLoad = Integer.MAX_VALUE;
+            for (PatternProviderBlockEntity provider : holders) {
+                if (provider.getPendingCrafts() < bestLoad) {
+                    bestLoad = provider.getPendingCrafts();
+                    best = provider;
+                }
+            }
+            if (best == null || best.enqueue(patternId, 1) <= 0) {
+                break;
+            }
+            accepted++;
+        }
         if (accepted <= 0) {
             serverPlayer.displayClientMessage(Component.translatable("msg.simple_bytestorage.order.queue_full"), true);
         } else {

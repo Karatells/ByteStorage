@@ -2,6 +2,8 @@ package com.simpleae.bytestorage;
 
 import com.simpleae.bytestorage.api.storage.CellTier;
 import com.simpleae.bytestorage.block.AssemblerBlock;
+import com.simpleae.bytestorage.block.CableBlock;
+import com.simpleae.bytestorage.block.PatternProviderBlock;
 import com.simpleae.bytestorage.block.CraftingTerminalBlock;
 import com.simpleae.bytestorage.block.DriveBlock;
 import com.simpleae.bytestorage.block.NetworkControllerBlock;
@@ -9,6 +11,8 @@ import com.simpleae.bytestorage.block.PatternEncodingTerminalBlock;
 import com.simpleae.bytestorage.block.PatternTerminalBlock;
 import com.simpleae.bytestorage.block.TerminalBlock;
 import com.simpleae.bytestorage.block.entity.AssemblerBlockEntity;
+import com.simpleae.bytestorage.block.entity.CableBlockEntity;
+import com.simpleae.bytestorage.block.entity.PatternProviderBlockEntity;
 import com.simpleae.bytestorage.block.entity.CraftingTerminalBlockEntity;
 import com.simpleae.bytestorage.block.entity.DriveBlockEntity;
 import com.simpleae.bytestorage.block.entity.NetworkControllerBlockEntity;
@@ -19,6 +23,7 @@ import com.simpleae.bytestorage.client.gui.AssemblerScreen;
 import com.simpleae.bytestorage.client.gui.CraftingTerminalScreen;
 import com.simpleae.bytestorage.client.gui.DriveScreen;
 import com.simpleae.bytestorage.client.gui.PatternEncodingTerminalScreen;
+import com.simpleae.bytestorage.client.gui.PatternProviderScreen;
 import com.simpleae.bytestorage.client.gui.PatternTerminalScreen;
 import com.simpleae.bytestorage.client.gui.TerminalScreen;
 import com.simpleae.bytestorage.item.ByteStorageCellItem;
@@ -27,6 +32,7 @@ import com.simpleae.bytestorage.menu.AssemblerMenu;
 import com.simpleae.bytestorage.menu.CraftingTerminalMenu;
 import com.simpleae.bytestorage.menu.DriveMenu;
 import com.simpleae.bytestorage.menu.PatternEncodingTerminalMenu;
+import com.simpleae.bytestorage.menu.PatternProviderMenu;
 import com.simpleae.bytestorage.menu.PatternTerminalMenu;
 import com.simpleae.bytestorage.menu.TerminalMenu;
 import com.simpleae.bytestorage.network.packet.SimpleByteStoragePackets;
@@ -200,6 +206,39 @@ public class SimpleByteStorage {
     public static final RegistryObject<MenuType<PatternEncodingTerminalMenu>> PATTERN_ENCODING_TERMINAL_MENU = 
             MENU_TYPES.register("pattern_encoding_terminal", () -> IForgeMenuType.create(PatternEncodingTerminalMenu::new));
 
+    // --- 7b. Кабель (Cable) ---
+    public static final RegistryObject<Block> CABLE_BLOCK = BLOCKS.register("cable",
+            () -> new CableBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .strength(1.0F)
+                    .sound(SoundType.METAL)
+                    .noOcclusion()));
+
+    public static final RegistryObject<Item> CABLE_BLOCK_ITEM = ITEMS.register("cable",
+            () -> new BlockItem(CABLE_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistryObject<BlockEntityType<CableBlockEntity>> CABLE_BLOCK_ENTITY =
+            BLOCK_ENTITIES.register("cable",
+                    () -> BlockEntityType.Builder.of(CableBlockEntity::new, CABLE_BLOCK.get()).build(null));
+
+    // --- 7c. Шина Шаблонів (Pattern Provider) ---
+    public static final RegistryObject<Block> PATTERN_PROVIDER_BLOCK = BLOCKS.register("pattern_provider",
+            () -> new PatternProviderBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .requiresCorrectToolForDrops()
+                    .strength(3.0F)
+                    .sound(SoundType.METAL)));
+
+    public static final RegistryObject<Item> PATTERN_PROVIDER_BLOCK_ITEM = ITEMS.register("pattern_provider",
+            () -> new BlockItem(PATTERN_PROVIDER_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistryObject<BlockEntityType<PatternProviderBlockEntity>> PATTERN_PROVIDER_BLOCK_ENTITY =
+            BLOCK_ENTITIES.register("pattern_provider",
+                    () -> BlockEntityType.Builder.of(PatternProviderBlockEntity::new, PATTERN_PROVIDER_BLOCK.get()).build(null));
+
+    public static final RegistryObject<MenuType<PatternProviderMenu>> PATTERN_PROVIDER_MENU =
+            MENU_TYPES.register("pattern_provider", () -> IForgeMenuType.create(PatternProviderMenu::new));
+
     // --- 8. Предмет Шаблону Крафту (Pattern Item) ---
     public static final RegistryObject<Item> PATTERN_ITEM = ITEMS.register("pattern",
             () -> new PatternItem(new Item.Properties().stacksTo(1)));
@@ -230,6 +269,8 @@ public class SimpleByteStorage {
                         output.accept(ASSEMBLER_BLOCK.get());
                         output.accept(PATTERN_TERMINAL_BLOCK.get());
                         output.accept(PATTERN_ENCODING_TERMINAL_BLOCK.get());
+                        output.accept(CABLE_BLOCK.get());
+                        output.accept(PATTERN_PROVIDER_BLOCK.get());
                         output.accept(PATTERN_ITEM.get());
                         output.accept(CELL_1K.get());
                         output.accept(CELL_4K.get());
@@ -268,6 +309,7 @@ public class SimpleByteStorage {
             MenuScreens.register(ASSEMBLER_MENU.get(), AssemblerScreen::new);
             MenuScreens.register(PATTERN_TERMINAL_MENU.get(), PatternTerminalScreen::new);
             MenuScreens.register(PATTERN_ENCODING_TERMINAL_MENU.get(), PatternEncodingTerminalScreen::new);
+            MenuScreens.register(PATTERN_PROVIDER_MENU.get(), PatternProviderScreen::new);
         });
     }
 }

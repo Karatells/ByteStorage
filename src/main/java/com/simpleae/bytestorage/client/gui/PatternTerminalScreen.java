@@ -152,8 +152,14 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
             Component status = Component.translatable(ready
                     ? "gui.simple_bytestorage.pattern.ready"
                     : "gui.simple_bytestorage.pattern.missing");
-            graphics.drawString(this.font, this.font.plainSubstrByWidth(status.getString(), textMax),
-                    rowX + 26, rowY + 13, ready ? GuiStyle.TEXT_GOOD : GuiStyle.TEXT_WARN, false);
+            int statusX = rowX + 26;
+            if (pattern.isProcessing()) {
+                String tag = Component.translatable("gui.simple_bytestorage.pattern.tag.process").getString();
+                graphics.drawString(this.font, tag, statusX, rowY + 13, GuiStyle.ACCENT, false);
+                statusX += this.font.width(tag) + 4;
+            }
+            graphics.drawString(this.font, this.font.plainSubstrByWidth(status.getString(), textMax - (statusX - rowX - 26)),
+                    statusX, rowY + 13, ready ? GuiStyle.TEXT_GOOD : GuiStyle.TEXT_WARN, false);
 
             int removeX = rowX + ROW_W - REMOVE_W - 3;
             int orderX = removeX - ORDER_W - 2;
@@ -170,7 +176,9 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
                         Component.translatable("gui.simple_bytestorage.pattern.order.tip1"),
                         Component.translatable("gui.simple_bytestorage.pattern.order.tip2"));
             } else if (removeHover) {
-                hoverTooltip = List.of(Component.translatable("gui.simple_bytestorage.pattern.remove"));
+                hoverTooltip = List.of(Component.translatable(pattern.isProcessing()
+                        ? "gui.simple_bytestorage.pattern.remove.bus"
+                        : "gui.simple_bytestorage.pattern.remove"));
             } else if (rowHover) {
                 hoverTooltip = patternTooltip(pattern);
             }
@@ -265,7 +273,7 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
                 return true;
             }
             if (inside(mouseX, mouseY, removeX, rowY + 2, REMOVE_W, 18)) {
-                if (Screen.hasShiftDown()) {
+                if (Screen.hasShiftDown() && !pattern.isProcessing()) {
                     SimpleByteStoragePackets.sendToServer(
                             new PatternOrderPacket(PatternOrderPacket.ACTION_REMOVE, pattern.getId(), 0));
                 }

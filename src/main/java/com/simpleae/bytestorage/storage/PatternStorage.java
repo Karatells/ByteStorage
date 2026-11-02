@@ -69,7 +69,11 @@ public class PatternStorage implements IPatternStorage {
 
     @Override
     public boolean canCraft(IGrid grid, String id) {
-        PatternData pattern = getPattern(id);
+        return hasInputs(grid, getPattern(id));
+    }
+
+    /** Чи є в пулі мережі всі інгредієнти шаблону (для будь-якого типу шаблону). */
+    public static boolean hasInputs(IGrid grid, PatternData pattern) {
         if (pattern == null || grid == null) {
             return false;
         }

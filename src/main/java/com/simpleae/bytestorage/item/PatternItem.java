@@ -27,6 +27,7 @@ public class PatternItem extends Item {
     public static final String TAG_ID = "PatternId";
     public static final String TAG_OUTPUT = "PatternOutput";
     public static final String TAG_GRID = "PatternGrid";
+    public static final String TAG_PROCESSING = "PatternProcessing";
 
     public PatternItem(Properties properties) {
         super(properties.stacksTo(1));
@@ -60,6 +61,9 @@ public class PatternItem extends Item {
         for (int i = 0; i < list.size(); i++) {
             grid.add(ItemStack.of(list.getCompound(i)));
         }
+        if (tag.getBoolean(TAG_PROCESSING)) {
+            return PatternData.processing(output, grid);
+        }
         return new PatternData(output, grid);
     }
 
@@ -70,6 +74,7 @@ public class PatternItem extends Item {
         CompoundTag tag = stack.getOrCreateTag();
         tag.putBoolean(TAG_PROGRAMMED, true);
         tag.putString(TAG_ID, pattern.getId());
+        tag.putBoolean(TAG_PROCESSING, pattern.isProcessing());
         tag.put(TAG_OUTPUT, pattern.getOutput().save(new CompoundTag()));
         ListTag list = new ListTag();
         for (ItemStack cell : pattern.getGrid()) {
@@ -87,6 +92,7 @@ public class PatternItem extends Item {
         if (tag != null) {
             tag.remove(TAG_PROGRAMMED);
             tag.remove(TAG_ID);
+            tag.remove(TAG_PROCESSING);
             tag.remove(TAG_OUTPUT);
             tag.remove(TAG_GRID);
             if (tag.isEmpty()) {
@@ -118,6 +124,10 @@ public class PatternItem extends Item {
             return;
         }
 
+        if (pattern.isProcessing()) {
+            tooltip.add(Component.translatable("tooltip.simple_bytestorage.pattern.processing")
+                    .withStyle(ChatFormatting.AQUA));
+        }
         tooltip.add(Component.translatable("tooltip.simple_bytestorage.pattern.result")
                 .withStyle(ChatFormatting.GRAY)
                 .append(pattern.getOutput().getHoverName().copy().withStyle(ChatFormatting.GREEN))

@@ -45,11 +45,14 @@ public class PatternEncodingTerminalBlockEntity extends BlockEntity implements I
 
     private IGrid grid;
 
+    /** Режим: false — крафт верстака (в глобальний список), true — процесний шаблон для Шини Шаблонів. */
+    private boolean processing = false;
+
     private final ItemStackHandler inventory = new ItemStackHandler(INV_SIZE) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
-            if (slot >= RECIPE_GRID_START && slot < RECIPE_GRID_START + RECIPE_GRID_SIZE) {
+            if (!processing && slot >= RECIPE_GRID_START && slot < RECIPE_GRID_START + RECIPE_GRID_SIZE) {
                 updateResultPreview();
             }
         }
@@ -130,11 +133,23 @@ public class PatternEncodingTerminalBlockEntity extends BlockEntity implements I
         }
     }
 
-    /** Очистити сітку рецепту. */
+    /** Очистити сітку рецепту (і результат у процесному режимі). */
     public void clearRecipeGrid() {
         for (int i = 0; i < RECIPE_GRID_SIZE; i++) {
             inventory.setStackInSlot(RECIPE_GRID_START + i, ItemStack.EMPTY);
         }
+        inventory.setStackInSlot(RESULT_PREVIEW_SLOT, ItemStack.EMPTY);
+    }
+
+    public boolean isProcessing() {
+        return processing;
+    }
+
+    /** Перемкнути режим кодування; сітка очищається, бо рецепти двох режимів несумісні. */
+    public void toggleProcessing() {
+        this.processing = !this.processing;
+        clearRecipeGrid();
+        setChanged();
     }
 
     /**
@@ -156,16 +171,32 @@ public class PatternEncodingTerminalBlockEntity extends BlockEntity implements I
         }
 
         List<ItemStack> recipeGrid = getRecipeGrid();
-        ItemStack output = PatternCrafting.computeResult(level, recipeGrid);
-        if (output.isEmpty()) {
-            return Component.translatable("msg.simple_bytestorage.encode.no_recipe");
+        PatternData data;
+        ItemStack output;
+        if (processing) {
+            output = inventory.getStackInSlot(RESULT_PREVIEW_SLOT).copy();
+            if (output.isEmpty()) {
+                return Component.translatable("msg.simple_bytestorage.encode.no_output");
+            }
+            boolean hasInput = false;
+            for (ItemStack cell : recipeGrid) {
+                hasInput |= !cell.isEmpty();
+            }
+            if (!hasInput) {
+                return Component.translatable("msg.simple_bytestorage.encode.no_input");
+            }
+            // Процесний шаблон не потрапляє в глобальний список: його кладуть у Шину Шаблонів біля машини.
+            data = PatternData.processing(output, recipeGrid);
+        } else {
+            output = PatternCrafting.computeResult(level, recipeGrid);
+            if (output.isEmpty()) {
+                return Component.translatable("msg.simple_bytestorage.encode.no_recipe");
+            }
+            if (grid == null || !grid.getState().isActive() || grid.getPatternStorage() == null) {
+                return Component.translatable("msg.simple_bytestorage.encode.no_network");
+            }
+            data = grid.getPatternStorage().addPattern(output, recipeGrid);
         }
-
-        if (grid == null || !grid.getState().isActive() || grid.getPatternStorage() == null) {
-            return Component.translatable("msg.simple_bytestorage.encode.no_network");
-        }
-
-        PatternData data = grid.getPatternStorage().addPattern(output, recipeGrid);
 
         ItemStack encoded = template.copy();
         encoded.setCount(1);
@@ -174,7 +205,9 @@ public class PatternEncodingTerminalBlockEntity extends BlockEntity implements I
         inventory.setStackInSlot(BLANK_PATTERN_SLOT, ItemStack.EMPTY);
         inventory.setStackInSlot(PROGRAMMED_PATTERN_SLOT, encoded);
 
-        return Component.translatable("msg.simple_bytestorage.encode.success", output.getHoverName());
+        return Component.translatable(processing
+                ? "msg.simple_bytestorage.encode.success_processing"
+                : "msg.simple_bytestorage.encode.success", output.getHoverName());
     }
 
     /** Предмети, які треба повернути гравцеві при руйнуванні блоку. */
@@ -197,11 +230,13 @@ public class PatternEncodingTerminalBlockEntity extends BlockEntity implements I
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.put("EncoderInventory", inventory.serializeNBT());
+        tag.putBoolean("Processing", processing);
     }
 
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
+        processing = tag.getBoolean("Processing");
         if (tag.contains("EncoderInventory")) {
             inventory.deserializeNBT(tag.getCompound("EncoderInventory"));
         }

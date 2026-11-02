@@ -9,6 +9,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -32,6 +34,7 @@ public class PatternEncodingTerminalMenu extends AbstractContainerMenu {
 
     public static final int BUTTON_ENCODE = 0;
     public static final int BUTTON_CLEAR = 1;
+    public static final int BUTTON_MODE = 2;
 
     public static final int SLOT_BLANK = 0;
     public static final int SLOT_ENCODED = 1;
@@ -52,6 +55,7 @@ public class PatternEncodingTerminalMenu extends AbstractContainerMenu {
     public static final int PLAYER_INV_Y = 139;
 
     private final PatternEncodingTerminalBlockEntity encoder;
+    private final ContainerData data;
 
     public PatternEncodingTerminalMenu(int containerId, Inventory playerInventory, FriendlyByteBuf extraData) {
         this(containerId, playerInventory,
@@ -61,6 +65,26 @@ public class PatternEncodingTerminalMenu extends AbstractContainerMenu {
     public PatternEncodingTerminalMenu(int containerId, Inventory playerInventory, PatternEncodingTerminalBlockEntity encoder) {
         super(SimpleByteStorage.PATTERN_ENCODING_TERMINAL_MENU.get(), containerId);
         this.encoder = encoder;
+
+        // Режим кодування синхронізується з сервера (на клієнті encoder теж існує, але його стан не оновлюється)
+        this.data = playerInventory.player.level().isClientSide
+                ? new SimpleContainerData(1)
+                : new ContainerData() {
+                    @Override
+                    public int get(int index) {
+                        return encoder.isProcessing() ? 1 : 0;
+                    }
+
+                    @Override
+                    public void set(int index, int value) {
+                    }
+
+                    @Override
+                    public int getCount() {
+                        return 1;
+                    }
+                };
+        this.addDataSlots(this.data);
 
         // 0: шаблон
         this.addSlot(new SlotItemHandler(encoder.getInventoryHandler(),
@@ -129,6 +153,10 @@ public class PatternEncodingTerminalMenu extends AbstractContainerMenu {
         }
     }
 
+    public boolean isProcessing() {
+        return data.get(0) != 0;
+    }
+
     public PatternEncodingTerminalBlockEntity getEncoder() {
         return encoder;
     }
@@ -140,26 +168,59 @@ public class PatternEncodingTerminalMenu extends AbstractContainerMenu {
     }
 
     private static void setGhost(Slot slot, ItemStack source) {
-        if (source.isEmpty()) {
+        setGhost(slot, source, 1);
+    }
+
+    private static void setGhost(Slot slot, ItemStack source, int count) {
+        if (source.isEmpty() || count <= 0) {
             slot.set(ItemStack.EMPTY);
             return;
         }
         ItemStack ghost = source.copy();
-        ghost.setCount(1);
+        ghost.setCount(Math.min(count, ghost.getMaxStackSize()));
         slot.set(ghost);
+    }
+
+    /** Клік по слоту-привиду в процесному режимі: ЛКМ — стак з курсору, ПКМ — +1, порожня рука — очистити. */
+    private void clickCountedGhost(Slot slot, int button, ItemStack carried) {
+        ItemStack current = slot.getItem();
+        if (carried.isEmpty()) {
+            if (button == 1 && !current.isEmpty() && current.getCount() > 1) {
+                ItemStack less = current.copy();
+                less.shrink(1);
+                slot.set(less);
+            } else {
+                slot.set(ItemStack.EMPTY);
+            }
+            return;
+        }
+        if (button == 1) {
+            if (!current.isEmpty() && ItemStack.isSameItemSameTags(current, carried)) {
+                setGhost(slot, carried, current.getCount() + 1);
+            } else {
+                setGhost(slot, carried, 1);
+            }
+        } else {
+            setGhost(slot, carried, carried.getCount());
+        }
     }
 
     @Override
     public void clicked(int slotId, int button, ClickType clickType, Player player) {
-        if (isGridSlot(slotId)
+        boolean processing = isProcessing();
+        boolean ghostSlot = isGridSlot(slotId) || (processing && slotId == SLOT_RESULT);
+        if (ghostSlot
                 && (clickType == ClickType.PICKUP || clickType == ClickType.QUICK_MOVE || clickType == ClickType.SWAP)) {
             Slot slot = this.slots.get(slotId);
             if (clickType == ClickType.SWAP) {
                 if (button >= 0 && button < 9) {
-                    setGhost(slot, player.getInventory().getItem(button));
+                    ItemStack from = player.getInventory().getItem(button);
+                    setGhost(slot, from, processing ? from.getCount() : 1);
                 }
             } else if (clickType == ClickType.QUICK_MOVE) {
                 setGhost(slot, ItemStack.EMPTY);
+            } else if (processing) {
+                clickCountedGhost(slot, button, this.getCarried());
             } else {
                 // PICKUP: предмет з курсору «копіюється» у клітинку, порожня рука — очищує її.
                 setGhost(slot, this.getCarried());
@@ -183,6 +244,10 @@ public class PatternEncodingTerminalMenu extends AbstractContainerMenu {
         }
         if (id == BUTTON_CLEAR) {
             encoder.clearRecipeGrid();
+            return true;
+        }
+        if (id == BUTTON_MODE) {
+            encoder.toggleProcessing();
             return true;
         }
         return false;
@@ -210,8 +275,14 @@ public class PatternEncodingTerminalMenu extends AbstractContainerMenu {
                 }
             } else {
                 // Не-шаблон: «намалювати» у першій вільній клітинці сітки (предмет не витрачається).
+                boolean processing = isProcessing();
                 for (int i = SLOT_GRID_START; i < SLOT_GRID_END; i++) {
                     Slot gridSlot = this.slots.get(i);
+                    if (processing && gridSlot.hasItem()
+                            && ItemStack.isSameItemSameTags(gridSlot.getItem(), stackInSlot)) {
+                        setGhost(gridSlot, stackInSlot, gridSlot.getItem().getCount() + 1);
+                        break;
+                    }
                     if (!gridSlot.hasItem()) {
                         setGhost(gridSlot, stackInSlot);
                         break;
