@@ -107,5 +107,7 @@
   "gui.simple_bytestorage.queue.empty": "No active orders",
   "item.simple_bytestorage.speed_card": "Speed Card",
   "tooltip.simple_bytestorage.speed_card": "Put into Assembler upgrade slots: each card speeds up crafting",
-  "gui.simple_bytestorage.assembler.upgrades": "Upgrades"
+  "gui.simple_bytestorage.assembler.upgrades": "Upgrades",
+  "gui.simple_bytestorage.drive.filter": "Whitelist (empty = any item)",
+  "gui.simple_bytestorage.drive.priority.tip": "Insert priority (higher is filled first). Shift: ±10"
 }

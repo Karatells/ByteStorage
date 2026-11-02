@@ -107,5 +107,7 @@
   "gui.simple_bytestorage.queue.empty": "Немає активних замовлень",
   "item.simple_bytestorage.speed_card": "Карта прискорення",
   "tooltip.simple_bytestorage.speed_card": "Вставляється в слоти покращень Асемблера: кожна карта прискорює крафт",
-  "gui.simple_bytestorage.assembler.upgrades": "Покращення"
+  "gui.simple_bytestorage.assembler.upgrades": "Покращення",
+  "gui.simple_bytestorage.drive.filter": "Білий список (порожньо = будь-які)",
+  "gui.simple_bytestorage.drive.priority.tip": "Пріоритет вставки (вище — заповнюється першим). Shift: ±10"
 }

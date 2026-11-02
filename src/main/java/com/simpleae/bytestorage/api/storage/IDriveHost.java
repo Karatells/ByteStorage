@@ -31,4 +31,18 @@ public interface IDriveHost extends IGridNode {
      */
     default void onCellContentsChanged() {
     }
+
+    /**
+     * Пріоритет вставки: накопичувачі з вищим пріоритетом заповнюються першими.
+     */
+    default int getPriority() {
+        return 0;
+    }
+
+    /**
+     * Білий список: чи може цей накопичувач приймати предмет (порожній список = приймає все).
+     */
+    default boolean acceptsItem(net.minecraft.world.item.ItemStack stack) {
+        return true;
+    }
 }

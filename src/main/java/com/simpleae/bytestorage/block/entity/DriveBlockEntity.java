@@ -38,6 +38,17 @@ import java.util.List;
 public class DriveBlockEntity extends BlockEntity implements IDriveHost, MenuProvider {
 
     public static final int CELL_SLOTS = 10;
+    public static final int FILTER_SLOTS = 9;
+    public static final int MAX_PRIORITY = 999;
+
+    private int priority = 0;
+    /** Білий список (слоти-привиди). */
+    private final ItemStackHandler filter = new ItemStackHandler(FILTER_SLOTS) {
+        @Override
+        protected void onContentsChanged(int slot) {
+            setChanged();
+        }
+    };
 
     private IGrid grid;
     private final ItemStackHandler driveInventory = new ItemStackHandler(CELL_SLOTS) {
@@ -84,6 +95,35 @@ public class DriveBlockEntity extends BlockEntity implements IDriveHost, MenuPro
     @Override
     public int getCellCount() {
         return CELL_SLOTS;
+    }
+
+    public ItemStackHandler getFilterInventory() {
+        return filter;
+    }
+
+    @Override
+    public int getPriority() {
+        return priority;
+    }
+
+    public void addPriority(int delta) {
+        priority = Math.max(-MAX_PRIORITY, Math.min(MAX_PRIORITY, priority + delta));
+        setChanged();
+    }
+
+    @Override
+    public boolean acceptsItem(ItemStack stack) {
+        boolean any = false;
+        for (int i = 0; i < FILTER_SLOTS; i++) {
+            ItemStack entry = filter.getStackInSlot(i);
+            if (!entry.isEmpty()) {
+                any = true;
+                if (ItemStack.isSameItemSameTags(entry, stack)) {
+                    return true;
+                }
+            }
+        }
+        return !any;
     }
 
     @Override
@@ -166,11 +206,17 @@ public class DriveBlockEntity extends BlockEntity implements IDriveHost, MenuPro
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.put("DriveInventory", driveInventory.serializeNBT());
+        tag.put("Filter", filter.serializeNBT());
+        tag.putInt("Priority", priority);
     }
 
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
+        priority = tag.getInt("Priority");
+        if (tag.contains("Filter")) {
+            filter.deserializeNBT(tag.getCompound("Filter"));
+        }
         if (tag.contains("DriveInventory")) {
             driveInventory.deserializeNBT(tag.getCompound("DriveInventory"));
         }

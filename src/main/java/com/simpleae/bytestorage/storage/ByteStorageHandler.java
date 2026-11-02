@@ -127,26 +127,33 @@ public class ByteStorageHandler implements INetworkStorage {
         ItemStack unacceptedOverflow = stack.copy();
         unacceptedOverflow.shrink(canAcceptTotal);
 
-        List<ICellInventory> allCells = new ArrayList<>();
+        // Накопичувачі, що приймають предмет (білий список), згруповані за пріоритетом: вищий — першим.
+        java.util.TreeMap<Integer, List<ICellInventory>> tiers = new java.util.TreeMap<>(Collections.reverseOrder());
         for (IDriveHost drive : connectedDrives) {
-            allCells.addAll(drive.getActiveCellInventories());
-        }
-
-        // Стратегія розумної вставки (дефрагментація):
-        // 1-й прохід: додаємо у ті диски, де ЦЕЙ предмет вже зберігається
-        for (ICellInventory cell : allCells) {
-            if (toDistribute.isEmpty()) break;
-            if (hasItem(cell, toDistribute)) {
-                toDistribute = cell.insertItem(toDistribute, simulate);
+            if (drive.acceptsItem(toDistribute)) {
+                tiers.computeIfAbsent(drive.getPriority(), k -> new ArrayList<>())
+                        .addAll(drive.getActiveCellInventories());
             }
         }
 
-        // 2-й прохід: якщо залишилось, додаємо у будь-які диски з вільними байтами
-        if (!toDistribute.isEmpty()) {
+        for (List<ICellInventory> allCells : tiers.values()) {
+            if (toDistribute.isEmpty()) break;
+
+            // Усередині рівня: 1-й прохід — диски, де ЦЕЙ предмет уже зберігається (дефрагментація)
             for (ICellInventory cell : allCells) {
                 if (toDistribute.isEmpty()) break;
-                if (!cell.isFull()) {
+                if (hasItem(cell, toDistribute)) {
                     toDistribute = cell.insertItem(toDistribute, simulate);
+                }
+            }
+
+            // 2-й прохід: будь-які диски рівня з вільними байтами
+            if (!toDistribute.isEmpty()) {
+                for (ICellInventory cell : allCells) {
+                    if (toDistribute.isEmpty()) break;
+                    if (!cell.isFull()) {
+                        toDistribute = cell.insertItem(toDistribute, simulate);
+                    }
                 }
             }
         }
