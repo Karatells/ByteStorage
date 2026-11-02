@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "simple_bytestorage:terminal"
+    },
+    {
+      "item": "minecraft:book"
+    },
+    {
+      "item": "minecraft:redstone"
+    }
+  ],
+  "result": {
+    "item": "simple_bytestorage:pattern_encoding_terminal",
+    "count": 1
+  }
+}
