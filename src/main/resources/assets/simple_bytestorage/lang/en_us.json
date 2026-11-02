@@ -109,5 +109,11 @@
   "tooltip.simple_bytestorage.speed_card": "Put into Assembler upgrade slots: each card speeds up crafting",
   "gui.simple_bytestorage.assembler.upgrades": "Upgrades",
   "gui.simple_bytestorage.drive.filter": "Whitelist (empty = any item)",
-  "gui.simple_bytestorage.drive.priority.tip": "Insert priority (higher is filled first). Shift: ±10"
+  "gui.simple_bytestorage.drive.priority.tip": "Insert priority (higher is filled first). Shift: ±10",
+  "block.simple_bytestorage.io_bus": "ME I/O Bus",
+  "item.simple_bytestorage.io_bus": "ME I/O Bus",
+  "gui.simple_bytestorage.iobus.import": "Mode: Import",
+  "gui.simple_bytestorage.iobus.export": "Mode: Export",
+  "gui.simple_bytestorage.iobus.import.tip": "Pulls items from the adjacent inventory into the network. List = whitelist (empty = everything). Click to switch.",
+  "gui.simple_bytestorage.iobus.export.tip": "Keeps the listed amount of each item in the adjacent inventory, taking it from the network. Left click on a slot sets the stack count, right click adds 1. Click to switch."
 }

@@ -239,6 +239,24 @@ public class SimpleByteStorage {
     public static final RegistryObject<MenuType<PatternProviderMenu>> PATTERN_PROVIDER_MENU =
             MENU_TYPES.register("pattern_provider", () -> IForgeMenuType.create(PatternProviderMenu::new));
 
+    // --- 7d. I/O-шина (Import/Export Bus) ---
+    public static final RegistryObject<Block> IO_BUS_BLOCK = BLOCKS.register("io_bus",
+            () -> new com.simpleae.bytestorage.block.IoBusBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .requiresCorrectToolForDrops()
+                    .strength(3.0F)
+                    .sound(SoundType.METAL)));
+
+    public static final RegistryObject<Item> IO_BUS_BLOCK_ITEM = ITEMS.register("io_bus",
+            () -> new BlockItem(IO_BUS_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistryObject<BlockEntityType<com.simpleae.bytestorage.block.entity.IoBusBlockEntity>> IO_BUS_BLOCK_ENTITY =
+            BLOCK_ENTITIES.register("io_bus",
+                    () -> BlockEntityType.Builder.of(com.simpleae.bytestorage.block.entity.IoBusBlockEntity::new, IO_BUS_BLOCK.get()).build(null));
+
+    public static final RegistryObject<MenuType<com.simpleae.bytestorage.menu.IoBusMenu>> IO_BUS_MENU =
+            MENU_TYPES.register("io_bus", () -> IForgeMenuType.create(com.simpleae.bytestorage.menu.IoBusMenu::new));
+
     // --- 8. Предмет Шаблону Крафту (Pattern Item) ---
     public static final RegistryObject<Item> PATTERN_ITEM = ITEMS.register("pattern",
             () -> new PatternItem(new Item.Properties().stacksTo(1)));
@@ -275,6 +293,7 @@ public class SimpleByteStorage {
                         output.accept(PATTERN_ENCODING_TERMINAL_BLOCK.get());
                         output.accept(CABLE_BLOCK.get());
                         output.accept(PATTERN_PROVIDER_BLOCK.get());
+                        output.accept(IO_BUS_BLOCK.get());
                         output.accept(PATTERN_ITEM.get());
                         output.accept(SPEED_CARD.get());
                         output.accept(CELL_1K.get());
@@ -315,6 +334,7 @@ public class SimpleByteStorage {
             MenuScreens.register(PATTERN_TERMINAL_MENU.get(), PatternTerminalScreen::new);
             MenuScreens.register(PATTERN_ENCODING_TERMINAL_MENU.get(), PatternEncodingTerminalScreen::new);
             MenuScreens.register(PATTERN_PROVIDER_MENU.get(), PatternProviderScreen::new);
+            MenuScreens.register(IO_BUS_MENU.get(), com.simpleae.bytestorage.client.gui.IoBusScreen::new);
         });
     }
 }

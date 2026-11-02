@@ -9,6 +9,7 @@
     "simple_bytestorage:pattern_terminal",
     "simple_bytestorage:pattern_encoding_terminal",
     "simple_bytestorage:cable",
-    "simple_bytestorage:pattern_provider"
+    "simple_bytestorage:pattern_provider",
+    "simple_bytestorage:io_bus"
   ]
 }

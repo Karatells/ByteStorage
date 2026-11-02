@@ -109,5 +109,11 @@
   "tooltip.simple_bytestorage.speed_card": "Вставляется в слоты улучшений Ассемблера: каждая карта ускоряет крафт",
   "gui.simple_bytestorage.assembler.upgrades": "Улучшения",
   "gui.simple_bytestorage.drive.filter": "Белый список (пусто = любые)",
-  "gui.simple_bytestorage.drive.priority.tip": "Приоритет вставки (выше — заполняется первым). Shift: ±10"
+  "gui.simple_bytestorage.drive.priority.tip": "Приоритет вставки (выше — заполняется первым). Shift: ±10",
+  "block.simple_bytestorage.io_bus": "ME I/O-шина",
+  "item.simple_bytestorage.io_bus": "ME I/O-шина",
+  "gui.simple_bytestorage.iobus.import": "Режим: импорт",
+  "gui.simple_bytestorage.iobus.export": "Режим: экспорт",
+  "gui.simple_bytestorage.iobus.import.tip": "Забирает предметы из соседнего инвентаря в сеть. Список — белый (пусто = всё). Клик — переключить.",
+  "gui.simple_bytestorage.iobus.export.tip": "Держит в соседнем инвентаре указанное количество каждого предмета, беря из сети. ЛКМ по слоту задаёт размер стака, ПКМ — +1. Клик — переключить."
 }
