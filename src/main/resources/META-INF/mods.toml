@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+
+[[mods]]
+modId="simple_bytestorage"
+version="1.0.0+build.3"
+displayName="SimpleAE: ByteStorage"
+authors="SimpleAE Team"
+description='''
+Спрощений аналог Applied Energistics 2 з механікою байтового зберігання:
+- 1 предмет = 1 байт
+- Без ліміту на унікальні типи предметів
+'''
+
+[[dependencies.simple_bytestorage]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.simple_bytestorage]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"

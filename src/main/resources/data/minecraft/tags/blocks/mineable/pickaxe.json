@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "simple_bytestorage:controller",
+    "simple_bytestorage:drive",
+    "simple_bytestorage:terminal",
+    "simple_bytestorage:crafting_terminal",
+    "simple_bytestorage:assembler",
+    "simple_bytestorage:pattern_terminal",
+    "simple_bytestorage:pattern_encoding_terminal"
+  ]
+}

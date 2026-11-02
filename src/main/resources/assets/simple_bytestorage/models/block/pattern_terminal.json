@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "simple_bytestorage:block/machine_casing",
+    "north": "simple_bytestorage:block/pattern_terminal_front",
+    "south": "simple_bytestorage:block/machine_casing",
+    "east": "simple_bytestorage:block/machine_casing",
+    "west": "simple_bytestorage:block/machine_casing",
+    "up": "simple_bytestorage:block/machine_top",
+    "down": "simple_bytestorage:block/machine_bottom"
+  }
+}

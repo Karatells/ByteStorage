@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "simple_bytestorage:block/terminal" },
+    "facing=east":  { "model": "simple_bytestorage:block/terminal", "y": 90 },
+    "facing=south": { "model": "simple_bytestorage:block/terminal", "y": 180 },
+    "facing=west":  { "model": "simple_bytestorage:block/terminal", "y": 270 }
+  }
+}

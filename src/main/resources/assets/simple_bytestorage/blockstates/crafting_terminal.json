@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "simple_bytestorage:block/crafting_terminal" },
+    "facing=east": { "model": "simple_bytestorage:block/crafting_terminal", "y": 90 },
+    "facing=south": { "model": "simple_bytestorage:block/crafting_terminal", "y": 180 },
+    "facing=west": { "model": "simple_bytestorage:block/crafting_terminal", "y": 270 }
+  }
+}

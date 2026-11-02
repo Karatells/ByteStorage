@@ -1,0 +1,219 @@
+package com.simpleae.bytestorage.client.gui;
+
+import com.simpleae.bytestorage.api.storage.IByteStorageCell;
+import com.simpleae.bytestorage.api.storage.ICellInventory;
+import com.simpleae.bytestorage.block.entity.AssemblerBlockEntity;
+import com.simpleae.bytestorage.menu.AssemblerMenu;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
+
+import java.util.List;
+import java.util.Locale;
+
+/**
+ * Екран Асемблера.
+ *
+ *   ┌ Асемблер ───────────────────────────┐
+ *   │ [картка] ═══ прогрес ═══►  [результат]
+ *   │            статус                    │
+ *   │ Буфер (вміст картки): [ ][ ][ ] ...  │
+ *   │ [Скасувати]              Черга: N    │
+ *   │ Інвентар гравця 3×9 + хотбар         │
+ */
+public class AssemblerScreen extends AbstractContainerScreen<AssemblerMenu> {
+
+    private static final int BAR_X = 40;
+    private static final int BAR_Y = 31;
+    private static final int BAR_W = 86;
+    private static final int RESULT_X = 145;
+    private static final int RESULT_Y = 27;
+    private static final int BUFFER_ICONS = 9;
+
+    private Button cancelButton;
+
+    public AssemblerScreen(AssemblerMenu menu, Inventory playerInventory, Component title) {
+        super(menu, playerInventory, title);
+        this.imageWidth = 176;
+        this.imageHeight = 217;
+        this.titleLabelX = 8;
+        this.titleLabelY = 6;
+        this.inventoryLabelX = 8;
+        this.inventoryLabelY = 126;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        this.cancelButton = Button.builder(
+                Component.translatable("gui.simple_bytestorage.assembler.cancel"),
+                button -> {
+                    Minecraft mc = Minecraft.getInstance();
+                    if (mc.gameMode != null) {
+                        mc.gameMode.handleInventoryButtonClick(this.menu.containerId, AssemblerMenu.BUTTON_CANCEL);
+                    }
+                }
+        ).bounds(this.leftPos + 8, this.topPos + 105, 70, 16).build();
+        this.addRenderableWidget(this.cancelButton);
+    }
+
+    @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        this.cancelButton.active = this.menu.getQueue() > 0 || this.menu.isBusy();
+
+        this.renderBackground(graphics);
+        super.render(graphics, mouseX, mouseY, partialTick);
+        this.renderDynamic(graphics, mouseX, mouseY);
+        this.renderTooltip(graphics, mouseX, mouseY);
+    }
+
+    @Override
+    protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+        int x = this.leftPos;
+        int y = this.topPos;
+
+        GuiStyle.renderWindowFrame(graphics, x, y, this.imageWidth, this.imageHeight);
+
+        // Верхня панель: картка → прогрес → результат
+        GuiStyle.renderPanel(graphics, x + 6, y + 18, 164, 44, null);
+        GuiStyle.renderMenuSlot(graphics, x, y, this.menu.slots.get(AssemblerMenu.SLOT_CARD), GuiStyle.COLOR_SLOT_BUFFER);
+        GuiStyle.renderProgressBar(graphics, x + BAR_X, y + BAR_Y, BAR_W, 10, progressFraction());
+        GuiStyle.renderSlotBox(graphics, x + RESULT_X - 1, y + RESULT_Y - 1, GuiStyle.COLOR_SLOT_RESULT);
+
+        // Панель буфера
+        GuiStyle.renderPanel(graphics, x + 6, y + 66, 164, 36,
+                Component.translatable("gui.simple_bytestorage.assembler.buffer").getString());
+        for (int i = 0; i < BUFFER_ICONS; i++) {
+            GuiStyle.renderSlotBox(graphics, x + 14 + i * 17, y + 83, 0xFF3A3F47);
+        }
+
+        GuiStyle.renderPlayerSlots(graphics, x, y, this.menu.slots, AssemblerMenu.PLAYER_START);
+    }
+
+    private float progressFraction() {
+        if (this.menu.getPhase() == AssemblerBlockEntity.PHASE_CRAFTING) {
+            return (float) this.menu.getProgress() / this.menu.getProgressMax();
+        }
+        if (this.menu.getPhase() == AssemblerBlockEntity.PHASE_DELIVERING) {
+            return 1.0F;
+        }
+        return 0.0F;
+    }
+
+    /** Предмети поверх фону: прев'ю результату, вміст буфера, статус, черга. */
+    private void renderDynamic(GuiGraphics graphics, int mouseX, int mouseY) {
+        int x = this.leftPos;
+        int y = this.topPos;
+
+        // Прев'ю результату поточного крафту
+        ItemStack output = this.menu.getCurrentOutput();
+        if (!output.isEmpty()
+                && this.menu.getPhase() != AssemblerBlockEntity.PHASE_IDLE) {
+            graphics.renderItem(output, x + RESULT_X, y + RESULT_Y);
+            graphics.renderItemDecorations(this.font, output, x + RESULT_X, y + RESULT_Y);
+            if (isOver(mouseX, mouseY, x + RESULT_X, y + RESULT_Y, 16, 16)) {
+                graphics.renderTooltip(this.font, output, mouseX, mouseY);
+            }
+        }
+
+        // Статус
+        Component status = statusText();
+        graphics.drawCenteredString(this.font, status, x + 88, y + 48, statusColor());
+
+        // Вміст буфера (картки)
+        ItemStack card = this.menu.getCard();
+        if (!card.isEmpty() && card.getItem() instanceof IByteStorageCell cell) {
+            ICellInventory inventory = cell.getCellInventory(card);
+            List<ItemStack> stored = inventory.getStoredItems();
+            int shown = Math.min(stored.size(), BUFFER_ICONS);
+            for (int i = 0; i < shown; i++) {
+                ItemStack stack = stored.get(i);
+                int ix = x + 15 + i * 17;
+                int iy = y + 84;
+                graphics.renderItem(stack, ix, iy);
+                graphics.renderItemDecorations(this.font, stack, ix, iy, shortCount(stack.getCount()));
+                if (isOver(mouseX, mouseY, ix, iy, 16, 16)) {
+                    graphics.renderTooltip(this.font, stack, mouseX, mouseY);
+                }
+            }
+            if (stored.size() > BUFFER_ICONS) {
+                graphics.drawString(this.font, "+" + (stored.size() - BUFFER_ICONS),
+                        x + 14 + BUFFER_ICONS * 17 + 2, y + 88, GuiStyle.COLOR_PANEL_HEADER_TEXT, false);
+            }
+        }
+
+        // Черга
+        String queue = Component.translatable("gui.simple_bytestorage.assembler.queue", this.menu.getQueue()).getString();
+        graphics.drawString(this.font, queue, x + 170 - this.font.width(queue), y + 109,
+                GuiStyle.COLOR_TEXT_TITLE, false);
+    }
+
+    private Component statusText() {
+        if (this.menu.getCard().isEmpty()) {
+            return Component.translatable("gui.simple_bytestorage.assembler.wait.no_card");
+        }
+        switch (this.menu.getPhase()) {
+            case AssemblerBlockEntity.PHASE_CRAFTING:
+                return Component.translatable("gui.simple_bytestorage.assembler.crafting");
+            case AssemblerBlockEntity.PHASE_DELIVERING:
+                return this.menu.getWaitReason() == AssemblerBlockEntity.WAIT_NETWORK_FULL
+                        ? Component.translatable("gui.simple_bytestorage.assembler.wait.network_full")
+                        : Component.translatable("gui.simple_bytestorage.assembler.delivering");
+            default:
+                break;
+        }
+        if (this.menu.getQueue() <= 0) {
+            return Component.translatable("gui.simple_bytestorage.assembler.idle");
+        }
+        switch (this.menu.getWaitReason()) {
+            case AssemblerBlockEntity.WAIT_RESOURCES:
+                return Component.translatable("gui.simple_bytestorage.assembler.wait.resources");
+            case AssemblerBlockEntity.WAIT_CARD_BUSY:
+                return Component.translatable("gui.simple_bytestorage.assembler.wait.card_busy");
+            case AssemblerBlockEntity.WAIT_CARD_SMALL:
+                return Component.translatable("gui.simple_bytestorage.assembler.wait.card_small");
+            case AssemblerBlockEntity.WAIT_NETWORK_OFF:
+                return Component.translatable("gui.simple_bytestorage.assembler.wait.network_off");
+            default:
+                return Component.translatable("gui.simple_bytestorage.assembler.wait.start");
+        }
+    }
+
+    private int statusColor() {
+        if (this.menu.getCard().isEmpty()) {
+            return GuiStyle.COLOR_PANEL_HEADER_TEXT;
+        }
+        if (this.menu.getPhase() != AssemblerBlockEntity.PHASE_IDLE) {
+            return 0xFF55FF55;
+        }
+        if (this.menu.getQueue() > 0 && this.menu.getWaitReason() != AssemblerBlockEntity.WAIT_NONE) {
+            return 0xFFFFAA33;
+        }
+        return GuiStyle.COLOR_TEXT_MUTED;
+    }
+
+    private static String shortCount(int count) {
+        if (count >= 1_000_000) {
+            return String.format(Locale.ROOT, "%.1fM", count / 1_000_000.0);
+        }
+        if (count >= 1_000) {
+            return String.format(Locale.ROOT, "%.1fk", count / 1_000.0);
+        }
+        return count > 1 ? String.valueOf(count) : "";
+    }
+
+    private static boolean isOver(int mx, int my, int x, int y, int w, int h) {
+        return mx >= x && mx < x + w && my >= y && my < y + h;
+    }
+
+    @Override
+    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+        graphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, GuiStyle.COLOR_TEXT_TITLE, false);
+        graphics.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY,
+                GuiStyle.COLOR_TEXT_TITLE, false);
+    }
+}
