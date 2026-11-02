@@ -6,7 +6,7 @@ plugins {
 group = 'com.simpleae'
 // Повна версія мода: <версія>+build.<номер_зборки>
 // Після кожної нової збірки змініть номер збірки (build.N), напр. 1.0.0+build.5
-version = '1.0.0+build.5'
+version = '1.0.0+build.6'
 
 java {
     toolchain {
@@ -22,10 +22,16 @@ minecraft {
 repositories {
     mavenCentral()
     maven { url = 'https://maven.minecraftforge.net/' }
+    maven { url = 'https://dvs1.progwml6.com/files/maven/' } // JEI
+    maven { url = 'https://modmaven.dev' }                   // JEI (дзеркало)
 }
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.20.1-47.2.0'
+
+    // JEI — лише API для компіляції (інтеграція необов'язкова: без JEI мод працює)
+    compileOnly fg.deobf('mezz.jei:jei-1.20.1-common-api:15.20.0.106')
+    compileOnly fg.deobf('mezz.jei:jei-1.20.1-forge-api:15.20.0.106')
 }
 
 jar {

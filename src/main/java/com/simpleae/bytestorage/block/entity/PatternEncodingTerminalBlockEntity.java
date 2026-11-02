@@ -141,6 +141,34 @@ public class PatternEncodingTerminalBlockEntity extends BlockEntity implements I
         inventory.setStackInSlot(RESULT_PREVIEW_SLOT, ItemStack.EMPTY);
     }
 
+    /**
+     * Заповнити сітку рецептом ззовні (JEI). Режим перемикається за потреби; для режиму «Процес»
+     * також виставляється результат.
+     */
+    public void applyRecipe(boolean wantProcessing, List<ItemStack> inputs, ItemStack output) {
+        if (level == null || level.isClientSide) {
+            return;
+        }
+        if (wantProcessing != processing) {
+            toggleProcessing();
+        } else {
+            clearRecipeGrid();
+        }
+        int slots = Math.min(RECIPE_GRID_SIZE, inputs.size());
+        for (int i = 0; i < slots; i++) {
+            ItemStack in = inputs.get(i);
+            if (in.isEmpty()) {
+                continue;
+            }
+            ItemStack ghost = in.copy();
+            ghost.setCount(wantProcessing ? Math.min(ghost.getCount(), ghost.getMaxStackSize()) : 1);
+            inventory.setStackInSlot(RECIPE_GRID_START + i, ghost);
+        }
+        if (wantProcessing && !output.isEmpty()) {
+            inventory.setStackInSlot(RESULT_PREVIEW_SLOT, output.copy());
+        }
+    }
+
     public boolean isProcessing() {
         return processing;
     }
