@@ -38,17 +38,17 @@ public class AssemblerScreen extends AbstractContainerScreen<AssemblerMenu> {
     public AssemblerScreen(AssemblerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 176;
-        this.imageHeight = 217;
+        this.imageHeight = 239;
         this.titleLabelX = 8;
         this.titleLabelY = 6;
         this.inventoryLabelX = 8;
-        this.inventoryLabelY = 126;
+        this.inventoryLabelY = 148;
     }
 
     @Override
     protected void init() {
         super.init();
-        this.cancelButton = new UiButton(this.leftPos + 8, this.topPos + 105, 70, 16,
+        this.cancelButton = new UiButton(this.leftPos + 8, this.topPos + 127, 70, 16,
                 () -> Component.translatable("gui.simple_bytestorage.assembler.cancel"), UiButton.Icon.NONE, () -> {
             Minecraft mc = Minecraft.getInstance();
             if (mc.gameMode != null) {
@@ -92,6 +92,12 @@ public class AssemblerScreen extends AbstractContainerScreen<AssemblerMenu> {
         GuiStyle.label(graphics, Component.translatable("gui.simple_bytestorage.assembler.buffer"), x + 10, y + 70);
         for (int i = 0; i < BUFFER_ICONS; i++) {
             GuiStyle.slot(graphics, x + 7 + i * 18, y + 82, GuiStyle.SLOT_POOL);
+        }
+
+        GuiStyle.panel(graphics, x + 6, y + 104, 164, 22);
+        GuiStyle.label(graphics, Component.translatable("gui.simple_bytestorage.assembler.upgrades"), x + 10, y + 111);
+        for (int i = AssemblerMenu.UPGRADE_START; i < AssemblerMenu.UPGRADE_END; i++) {
+            GuiStyle.menuSlot(graphics, x, y, this.menu.slots.get(i), GuiStyle.SLOT_OUTPUT);
         }
 
         GuiStyle.inventoryLabel(graphics, this.playerInventoryTitle, x + this.inventoryLabelX, y + this.inventoryLabelY);
@@ -166,7 +172,7 @@ public class AssemblerScreen extends AbstractContainerScreen<AssemblerMenu> {
 
         // Черга
         String queue = Component.translatable("gui.simple_bytestorage.assembler.queue", this.menu.getQueue()).getString();
-        graphics.drawString(this.font, queue, x + 170 - this.font.width(queue), y + 109,
+        graphics.drawString(this.font, queue, x + 170 - this.font.width(queue), y + 131,
                 GuiStyle.TEXT_TITLE, false);
     }
 

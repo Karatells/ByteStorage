@@ -52,6 +52,8 @@ public class AssemblerBlockEntity extends BlockEntity implements IGridNode, Menu
 
     public static final int BUFFER_SLOT = 0;
     public static final int CRAFT_TICKS_PER_RECIPE = 40;
+    public static final int UPGRADE_SLOTS = 4;
+    private static final int MIN_CRAFT_TICKS = 4;
     public static final int MAX_QUEUE = 9999;
 
     // Фази
@@ -100,6 +102,24 @@ public class AssemblerBlockEntity extends BlockEntity implements IGridNode, Menu
         }
     };
 
+    /** Слоти покращень: карти прискорення. */
+    private final ItemStackHandler upgrades = new ItemStackHandler(UPGRADE_SLOTS) {
+        @Override
+        public boolean isItemValid(int slot, ItemStack stack) {
+            return stack.getItem() instanceof com.simpleae.bytestorage.item.SpeedCardItem;
+        }
+
+        @Override
+        public int getSlotLimit(int slot) {
+            return 1;
+        }
+
+        @Override
+        protected void onContentsChanged(int slot) {
+            setChanged();
+        }
+    };
+
     private final List<Job> jobs = new ArrayList<>();
     private int phase = PHASE_IDLE;
     private int progress = 0;
@@ -112,7 +132,7 @@ public class AssemblerBlockEntity extends BlockEntity implements IGridNode, Menu
         public int get(int index) {
             return switch (index) {
                 case DATA_PROGRESS -> progress;
-                case DATA_PROGRESS_MAX -> CRAFT_TICKS_PER_RECIPE;
+                case DATA_PROGRESS_MAX -> getCraftTicks();
                 case DATA_PHASE -> phase;
                 case DATA_QUEUE -> getPendingCrafts();
                 case DATA_WAIT -> waitReason;
@@ -185,6 +205,38 @@ public class AssemblerBlockEntity extends BlockEntity implements IGridNode, Menu
 
     public IItemHandler getInventoryHandler() {
         return inventory;
+    }
+
+    public IItemHandler getUpgradeHandler() {
+        return upgrades;
+    }
+
+    public int getSpeedCards() {
+        int cards = 0;
+        for (int i = 0; i < UPGRADE_SLOTS; i++) {
+            if (!upgrades.getStackInSlot(i).isEmpty()) {
+                cards++;
+            }
+        }
+        return cards;
+    }
+
+    /** Тіків на один крафт: 40 / (1 + кількість карт), не менше 4. */
+    public int getCraftTicks() {
+        return Math.max(MIN_CRAFT_TICKS, CRAFT_TICKS_PER_RECIPE / (1 + getSpeedCards()));
+    }
+
+    public java.util.List<ItemStack> getDroppedItems() {
+        java.util.List<ItemStack> drops = new ArrayList<>();
+        if (!getBufferCell().isEmpty()) {
+            drops.add(getBufferCell().copy());
+        }
+        for (int i = 0; i < UPGRADE_SLOTS; i++) {
+            if (!upgrades.getStackInSlot(i).isEmpty()) {
+                drops.add(upgrades.getStackInSlot(i).copy());
+            }
+        }
+        return drops;
     }
 
     public ItemStack getBufferCell() {
@@ -300,7 +352,7 @@ public class AssemblerBlockEntity extends BlockEntity implements IGridNode, Menu
             case PHASE_CRAFTING -> {
                 setWait(WAIT_NONE);
                 progress++;
-                if (progress >= CRAFT_TICKS_PER_RECIPE) {
+                if (progress >= getCraftTicks()) {
                     finishCraft();
                 }
             }
@@ -538,6 +590,7 @@ public class AssemblerBlockEntity extends BlockEntity implements IGridNode, Menu
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.put("Inventory", inventory.serializeNBT());
+        tag.put("Upgrades", upgrades.serializeNBT());
         tag.putInt("Phase", phase);
         tag.putInt("Progress", progress);
         tag.put("Current", currentOutput.save(new CompoundTag()));
@@ -554,6 +607,9 @@ public class AssemblerBlockEntity extends BlockEntity implements IGridNode, Menu
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
+        if (tag.contains("Upgrades")) {
+            upgrades.deserializeNBT(tag.getCompound("Upgrades"));
+        }
         if (tag.contains("Inventory")) {
             inventory.deserializeNBT(tag.getCompound("Inventory"));
         }

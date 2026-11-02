@@ -243,6 +243,10 @@ public class SimpleByteStorage {
     public static final RegistryObject<Item> PATTERN_ITEM = ITEMS.register("pattern",
             () -> new PatternItem(new Item.Properties().stacksTo(1)));
 
+    // --- 8b. Карта прискорення (Speed Card) ---
+    public static final RegistryObject<Item> SPEED_CARD = ITEMS.register("speed_card",
+            () -> new com.simpleae.bytestorage.item.SpeedCardItem(new Item.Properties().stacksTo(16)));
+
     // --- 9. Диски зберігання (Storage Cells: 1k, 4k, 16k, 64k) ---
     public static final RegistryObject<Item> CELL_1K = ITEMS.register("cell_1k",
             () -> new ByteStorageCellItem(CellTier.TIER_1K, new Item.Properties()));
@@ -272,6 +276,7 @@ public class SimpleByteStorage {
                         output.accept(CABLE_BLOCK.get());
                         output.accept(PATTERN_PROVIDER_BLOCK.get());
                         output.accept(PATTERN_ITEM.get());
+                        output.accept(SPEED_CARD.get());
                         output.accept(CELL_1K.get());
                         output.accept(CELL_4K.get());
                         output.accept(CELL_16K.get());

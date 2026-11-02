@@ -26,12 +26,16 @@ public class AssemblerMenu extends AbstractContainerMenu {
     public static final int BUTTON_CANCEL = 0;
 
     public static final int SLOT_CARD = 0;
-    public static final int PLAYER_START = 1;
+    public static final int UPGRADE_START = 1;
+    public static final int UPGRADE_END = UPGRADE_START + AssemblerBlockEntity.UPGRADE_SLOTS;
+    public static final int PLAYER_START = UPGRADE_END;
     public static final int PLAYER_END = PLAYER_START + 36;
 
     public static final int CARD_X = 15;
     public static final int CARD_Y = 27;
-    public static final int PLAYER_INV_Y = 136;
+    public static final int PLAYER_INV_Y = 158;
+    public static final int UPGRADE_X = 98;
+    public static final int UPGRADE_Y = 106;
 
     private final AssemblerBlockEntity assembler;
     private final ContainerData data;
@@ -63,6 +67,10 @@ public class AssemblerMenu extends AbstractContainerMenu {
                 return 1;
             }
         });
+
+        for (int i = 0; i < AssemblerBlockEntity.UPGRADE_SLOTS; i++) {
+            this.addSlot(new SlotItemHandler(assembler.getUpgradeHandler(), i, UPGRADE_X + i * 18, UPGRADE_Y));
+        }
 
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
@@ -134,12 +142,16 @@ public class AssemblerMenu extends AbstractContainerMenu {
         ItemStack stackInSlot = slot.getItem();
         ItemStack original = stackInSlot.copy();
 
-        if (index == SLOT_CARD) {
+        if (index == SLOT_CARD || (index >= UPGRADE_START && index < UPGRADE_END)) {
             if (!this.moveItemStackTo(stackInSlot, PLAYER_START, PLAYER_END, true)) {
                 return ItemStack.EMPTY;
             }
         } else if (stackInSlot.getItem() instanceof IByteStorageCell) {
             if (!this.moveItemStackTo(stackInSlot, SLOT_CARD, SLOT_CARD + 1, false)) {
+                return ItemStack.EMPTY;
+            }
+        } else if (stackInSlot.getItem() instanceof com.simpleae.bytestorage.item.SpeedCardItem) {
+            if (!this.moveItemStackTo(stackInSlot, UPGRADE_START, UPGRADE_END, false)) {
                 return ItemStack.EMPTY;
             }
         } else {

@@ -104,5 +104,8 @@
   "gui.simple_bytestorage.queue.active": "In progress · left: %s",
   "gui.simple_bytestorage.queue.waiting": "Queued · crafts: %s",
   "gui.simple_bytestorage.queue.cancel": "Cancel all orders of this pattern",
-  "gui.simple_bytestorage.queue.empty": "No active orders"
+  "gui.simple_bytestorage.queue.empty": "No active orders",
+  "item.simple_bytestorage.speed_card": "Speed Card",
+  "tooltip.simple_bytestorage.speed_card": "Put into Assembler upgrade slots: each card speeds up crafting",
+  "gui.simple_bytestorage.assembler.upgrades": "Upgrades"
 }

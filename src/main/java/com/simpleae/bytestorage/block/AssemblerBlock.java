@@ -92,9 +92,8 @@ public class AssemblerBlock extends BaseEntityBlock {
         if (!state.is(newState.getBlock())) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof AssemblerBlockEntity assembler) {
-                ItemStack card = assembler.getBufferCell();
-                if (!card.isEmpty()) {
-                    Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), card.copy());
+                for (ItemStack drop : assembler.getDroppedItems()) {
+                    Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), drop);
                 }
             }
             super.onRemove(state, level, pos, newState, isMoving);

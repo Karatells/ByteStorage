@@ -104,5 +104,8 @@
   "gui.simple_bytestorage.queue.active": "В роботі · залишилось: %s",
   "gui.simple_bytestorage.queue.waiting": "У черзі · крафтів: %s",
   "gui.simple_bytestorage.queue.cancel": "Скасувати всі замовлення цього шаблону",
-  "gui.simple_bytestorage.queue.empty": "Немає активних замовлень"
+  "gui.simple_bytestorage.queue.empty": "Немає активних замовлень",
+  "item.simple_bytestorage.speed_card": "Карта прискорення",
+  "tooltip.simple_bytestorage.speed_card": "Вставляється в слоти покращень Асемблера: кожна карта прискорює крафт",
+  "gui.simple_bytestorage.assembler.upgrades": "Покращення"
 }
