@@ -235,13 +235,15 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (super.mouseClicked(mouseX, mouseY, button)) {
+        // ВАЖЛИВО: AbstractContainerScreen.mouseClicked завжди повертає true (навіть без слотів),
+        // тому кліки по рядках списку обробляємо ДО виклику super.
+        if (button == 0 && handleListClick(mouseX, mouseY)) {
             return true;
         }
-        if (button != 0) {
-            return false;
-        }
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
 
+    private boolean handleListClick(double mouseX, double mouseY) {
         List<PatternData> list = filtered();
         int end = Math.min(list.size(), this.scrollOffset + ROWS);
         for (int i = this.scrollOffset; i < end; i++) {
