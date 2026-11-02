@@ -242,6 +242,18 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
             Component status = Component.translatable(ready
                     ? "gui.simple_bytestorage.pattern.ready"
                     : "gui.simple_bytestorage.pattern.missing");
+            if (!ready) {
+                // Назва першого бракуючого інгредієнта
+                int mask = this.menu.getMissingMask(pattern.getId());
+                List<ItemStack> inputs = pattern.getInputs();
+                for (int k = 0; k < inputs.size() && k < 31; k++) {
+                    if ((mask & (1 << k)) != 0) {
+                        status = Component.translatable("gui.simple_bytestorage.pattern.missing_item",
+                                inputs.get(k).getHoverName());
+                        break;
+                    }
+                }
+            }
             int statusX = rowX + 26;
             if (pattern.isProcessing()) {
                 String tag = Component.translatable("gui.simple_bytestorage.pattern.tag.process").getString();
@@ -349,8 +361,14 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
         lines.add(pattern.getOutput().getHoverName().copy()
                 .append(Component.literal(" x" + pattern.getOutput().getCount())));
         lines.add(Component.translatable("tooltip.simple_bytestorage.pattern.ingredients"));
-        for (ItemStack input : pattern.getInputs()) {
-            lines.add(Component.literal("  • ").append(input.getHoverName()).append(" x" + input.getCount()));
+        int mask = this.menu.getMissingMask(pattern.getId());
+        List<ItemStack> inputs = pattern.getInputs();
+        for (int i = 0; i < inputs.size(); i++) {
+            ItemStack input = inputs.get(i);
+            boolean missing = i < 31 && (mask & (1 << i)) != 0;
+            lines.add(Component.literal(missing ? "  ✗ " : "  ✓ ")
+                    .append(input.getHoverName()).append(" x" + input.getCount())
+                    .withStyle(missing ? net.minecraft.ChatFormatting.RED : net.minecraft.ChatFormatting.GREEN));
         }
         return lines;
     }

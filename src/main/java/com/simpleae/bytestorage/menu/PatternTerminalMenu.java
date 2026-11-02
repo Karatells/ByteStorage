@@ -52,6 +52,7 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
     // Клієнтські дані
     private final List<PatternData> patterns = new ArrayList<>();
     private final Set<String> craftable = new HashSet<>();
+    private final Map<String, Integer> missingMasks = new HashMap<>();
     private int usedBytes;
     private int capacityBytes;
     private int assemblerCount;
@@ -102,7 +103,7 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
     private void sync(ServerPlayer serverPlayer) {
         IGrid grid = terminal.getGrid();
         List<PatternData> list = new ArrayList<>();
-        List<Boolean> flags = new ArrayList<>();
+        List<Integer> flags = new ArrayList<>();
         int used = 0;
         int capacity = 0;
         int assemblers = 0;
@@ -111,7 +112,7 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
             IPatternStorage storage = grid.getPatternStorage();
             for (PatternData pattern : storage.getAllPatterns()) {
                 list.add(pattern);
-                flags.add(storage.canCraft(grid, pattern.getId()));
+                flags.add(PatternStorage.missingMask(grid, pattern));
             }
             INetworkStorage networkStorage = grid.getStorage();
             if (networkStorage != null) {
@@ -130,7 +131,7 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
                         }
                         if (!known) {
                             list.add(pattern);
-                            flags.add(PatternStorage.hasInputs(grid, pattern));
+                            flags.add(PatternStorage.missingMask(grid, pattern));
                         }
                     }
                 }
@@ -154,7 +155,7 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
         }
         for (int i = 0; i < list.size(); i++) {
             signature = signature * 31 + list.get(i).getId().hashCode();
-            signature = signature * 31 + (flags.get(i) ? 1 : 0);
+            signature = signature * 31 + flags.get(i);
         }
         signature = signature * 31 + used;
         signature = signature * 31 + capacity;
@@ -257,15 +258,17 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
     // --- Клієнтські дані ---
 
     public void updateClientData(int used, int capacity, int assemblers,
-                                 List<PatternData> newPatterns, List<Boolean> flags) {
+                                 List<PatternData> newPatterns, List<Integer> flags) {
         this.usedBytes = used;
         this.capacityBytes = capacity;
         this.assemblerCount = assemblers;
         this.patterns.clear();
         this.patterns.addAll(newPatterns);
         this.craftable.clear();
+        this.missingMasks.clear();
         for (int i = 0; i < newPatterns.size() && i < flags.size(); i++) {
-            if (flags.get(i)) {
+            this.missingMasks.put(newPatterns.get(i).getId(), flags.get(i));
+            if (flags.get(i) == 0) {
                 this.craftable.add(newPatterns.get(i).getId());
             }
         }
@@ -331,6 +334,11 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
 
     public List<PatternData> getPatterns() {
         return patterns;
+    }
+
+    /** Маска бракуючих інгредієнтів шаблону (біт i = i-й вхід). */
+    public int getMissingMask(String id) {
+        return missingMasks.getOrDefault(id, 0);
     }
 
     public boolean isCraftable(String id) {

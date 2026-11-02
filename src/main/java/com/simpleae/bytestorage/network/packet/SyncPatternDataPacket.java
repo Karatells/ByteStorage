@@ -24,12 +24,12 @@ public class SyncPatternDataPacket {
     private final int capacityBytes;
     private final int assemblerCount;
     private final List<PatternData> patterns;
-    private final List<Boolean> craftable;
+    private final List<Integer> craftable;
     private final List<CraftPlanPacket.Entry> queue;
     private final List<String> queueIds;
 
     public SyncPatternDataPacket(int usedBytes, int capacityBytes, int assemblerCount,
-                                 List<PatternData> patterns, List<Boolean> craftable,
+                                 List<PatternData> patterns, List<Integer> craftable,
                                  List<String> queueIds, List<CraftPlanPacket.Entry> queue) {
         this.queueIds = queueIds;
         this.queue = queue;
@@ -49,7 +49,7 @@ public class SyncPatternDataPacket {
         this.craftable = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
             this.patterns.add(PatternData.read(buf));
-            this.craftable.add(buf.readBoolean());
+            this.craftable.add(buf.readInt());
         }
         int queueSize = buf.readVarInt();
         this.queueIds = new ArrayList<>(queueSize);
@@ -70,7 +70,7 @@ public class SyncPatternDataPacket {
         buf.writeVarInt(patterns.size());
         for (int i = 0; i < patterns.size(); i++) {
             patterns.get(i).write(buf);
-            buf.writeBoolean(craftable.get(i));
+            buf.writeInt(craftable.get(i));
         }
         buf.writeVarInt(queue.size());
         for (int i = 0; i < queue.size(); i++) {

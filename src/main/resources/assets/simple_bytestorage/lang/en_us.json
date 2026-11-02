@@ -125,5 +125,6 @@
   "msg.simple_bytestorage.wireless.unreachable": "Terminal is out of reach (chunk not loaded or removed)",
   "msg.simple_bytestorage.wireless.no_network": "The network is offline",
   "msg.simple_bytestorage.wireless.no_energy": "Not enough energy: Shift + click the bound Terminal to charge",
-  "msg.simple_bytestorage.wireless.charged": "Charged: %s / %s FE"
+  "msg.simple_bytestorage.wireless.charged": "Charged: %s / %s FE",
+  "gui.simple_bytestorage.pattern.missing_item": "Missing: %s"
 }

@@ -72,6 +72,23 @@ public class PatternStorage implements IPatternStorage {
         return hasInputs(grid, getPattern(id));
     }
 
+    /** Бітова маска бракуючих інгредієнтів (біт i = i-й елемент {@code pattern.getInputs()}); 0 — все є. */
+    public static int missingMask(IGrid grid, PatternData pattern) {
+        if (pattern == null || grid == null || grid.getStorage() == null) {
+            return -1;
+        }
+        int mask = 0;
+        List<ItemStack> inputs = pattern.getInputs();
+        for (int i = 0; i < inputs.size() && i < 31; i++) {
+            ItemStack input = inputs.get(i);
+            ItemStack available = grid.getStorage().extractItem(input, input.getCount(), true);
+            if (available.isEmpty() || available.getCount() < input.getCount()) {
+                mask |= 1 << i;
+            }
+        }
+        return mask;
+    }
+
     /** Чи є в пулі мережі всі інгредієнти шаблону (для будь-якого типу шаблону). */
     public static boolean hasInputs(IGrid grid, PatternData pattern) {
         if (pattern == null || grid == null) {

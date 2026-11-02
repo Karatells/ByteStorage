@@ -125,5 +125,6 @@
   "msg.simple_bytestorage.wireless.unreachable": "Терминал недоступен (чанк не загружен или блок удалён)",
   "msg.simple_bytestorage.wireless.no_network": "Сеть выключена",
   "msg.simple_bytestorage.wireless.no_energy": "Не хватает энергии: Shift + клик по привязанному Терминалу — зарядить",
-  "msg.simple_bytestorage.wireless.charged": "Заряжено: %s / %s FE"
+  "msg.simple_bytestorage.wireless.charged": "Заряжено: %s / %s FE",
+  "gui.simple_bytestorage.pattern.missing_item": "Не хватает: %s"
 }
