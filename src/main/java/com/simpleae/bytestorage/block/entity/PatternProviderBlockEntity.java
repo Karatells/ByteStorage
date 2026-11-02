@@ -243,7 +243,7 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
     }
 
     /** Сусідні блоки з інвентарем, які не є нодами мережі. */
-    private List<BlockEntity> findMachines() {
+    private List<Machine> findMachines() {
         List<Machine> result = new ArrayList<>();
         for (Direction direction : Direction.values()) {
             BlockEntity be = level.getBlockEntity(worldPosition.relative(direction));
