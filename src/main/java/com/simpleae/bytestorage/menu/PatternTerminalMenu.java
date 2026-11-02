@@ -11,6 +11,7 @@ import com.simpleae.bytestorage.block.entity.PatternProviderBlockEntity;
 import com.simpleae.bytestorage.block.entity.PatternTerminalBlockEntity;
 import com.simpleae.bytestorage.storage.PatternStorage;
 import com.simpleae.bytestorage.util.CraftingService;
+import com.simpleae.bytestorage.network.packet.CraftPlanPacket;
 import com.simpleae.bytestorage.network.packet.PatternOrderPacket;
 import com.simpleae.bytestorage.network.packet.SimpleByteStoragePackets;
 import com.simpleae.bytestorage.network.packet.SyncPatternDataPacket;
@@ -162,6 +163,8 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
         }
         if (action == PatternOrderPacket.ACTION_ORDER) {
             order(serverPlayer, patternId, amount);
+        } else if (action == PatternOrderPacket.ACTION_PLAN) {
+            sendPlan(serverPlayer, patternId, amount);
         } else if (action == PatternOrderPacket.ACTION_REMOVE) {
             IGrid grid = terminal.getGrid();
             if (grid != null && grid.getPatternStorage() != null && grid.getPatternStorage().removePattern(patternId)) {
@@ -169,6 +172,22 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
                 forceSync = true;
             }
         }
+    }
+
+    private void sendPlan(ServerPlayer serverPlayer, String patternId, int amount) {
+        IGrid grid = terminal.getGrid();
+        if (grid == null || !grid.getState().isActive()) {
+            serverPlayer.displayClientMessage(Component.translatable("msg.simple_bytestorage.order.no_network"), true);
+            return;
+        }
+        PatternData root = CraftingService.findPattern(grid, patternId);
+        if (root == null) {
+            serverPlayer.displayClientMessage(Component.translatable("msg.simple_bytestorage.order.no_pattern"), true);
+            return;
+        }
+        int total = Math.max(1, Math.min(MAX_ORDER, amount));
+        CraftingService.Plan plan = CraftingService.plan(grid, root, total);
+        SimpleByteStoragePackets.sendToPlayer(CraftPlanPacket.of(patternId, total, plan), serverPlayer);
     }
 
     private void order(ServerPlayer serverPlayer, String patternId, int amount) {
@@ -230,6 +249,45 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
                 this.craftable.add(newPatterns.get(i).getId());
             }
         }
+    }
+
+    // --- План замовлення (клієнт) ---
+
+    private String planPatternId;
+    private int planAmount;
+    private List<CraftPlanPacket.Entry> planSteps = new ArrayList<>();
+    private List<CraftPlanPacket.Entry> planMissing = new ArrayList<>();
+
+    public void setClientPlan(String patternId, int amount,
+                              List<CraftPlanPacket.Entry> steps, List<CraftPlanPacket.Entry> missing) {
+        this.planPatternId = patternId;
+        this.planAmount = amount;
+        this.planSteps = steps;
+        this.planMissing = missing;
+    }
+
+    public void clearClientPlan() {
+        this.planPatternId = null;
+    }
+
+    public boolean hasClientPlan() {
+        return planPatternId != null;
+    }
+
+    public String getPlanPatternId() {
+        return planPatternId;
+    }
+
+    public int getPlanAmount() {
+        return planAmount;
+    }
+
+    public List<CraftPlanPacket.Entry> getPlanSteps() {
+        return planSteps;
+    }
+
+    public List<CraftPlanPacket.Entry> getPlanMissing() {
+        return planMissing;
     }
 
     public List<PatternData> getPatterns() {

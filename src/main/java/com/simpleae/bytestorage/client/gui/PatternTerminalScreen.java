@@ -2,6 +2,7 @@ package com.simpleae.bytestorage.client.gui;
 
 import com.simpleae.bytestorage.api.storage.IPatternStorage.PatternData;
 import com.simpleae.bytestorage.menu.PatternTerminalMenu;
+import com.simpleae.bytestorage.network.packet.CraftPlanPacket;
 import com.simpleae.bytestorage.network.packet.PatternOrderPacket;
 import com.simpleae.bytestorage.network.packet.SimpleByteStoragePackets;
 import net.minecraft.ChatFormatting;
@@ -102,6 +103,84 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
         this.filterButton.render(graphics, this.font, mouseX, mouseY);
         this.renderList(graphics, mouseX, mouseY);
         this.renderTooltip(graphics, mouseX, mouseY);
+        if (this.menu.hasClientPlan()) {
+            this.renderPlan(graphics, mouseX, mouseY);
+        }
+    }
+
+    // --- Вікно підтвердження замовлення ---
+
+    private static final int PLAN_X = 14;
+    private static final int PLAN_Y = 40;
+    private static final int PLAN_W = 202;
+    private static final int PLAN_H = 140;
+
+    private boolean planOk() {
+        return this.menu.getPlanMissing().isEmpty() && !this.menu.getPlanSteps().isEmpty();
+    }
+
+    private void renderPlan(GuiGraphics graphics, int mouseX, int mouseY) {
+        int x = this.leftPos + PLAN_X;
+        int y = this.topPos + PLAN_Y;
+        graphics.pose().pushPose();
+        graphics.pose().translate(0, 0, 400);
+
+        graphics.fill(this.leftPos + 6, this.topPos + 18, this.leftPos + this.imageWidth - 6,
+                this.topPos + this.imageHeight - 6, 0xB0000000);
+        GuiStyle.panel(graphics, x, y, PLAN_W, PLAN_H);
+        graphics.drawString(this.font, Component.translatable("gui.simple_bytestorage.plan.title",
+                this.menu.getPlanAmount()), x + 6, y + 5, GuiStyle.TEXT_TITLE, false);
+
+        GuiStyle.label(graphics, Component.translatable("gui.simple_bytestorage.plan.steps"), x + 6, y + 17);
+        int line = y + 28;
+        List<CraftPlanPacket.Entry> steps = this.menu.getPlanSteps();
+        for (int i = 0; i < steps.size() && i < 6; i++) {
+            CraftPlanPacket.Entry entry = steps.get(i);
+            String text = entry.count + "× " + entry.stack.getHoverName().getString();
+            if (entry.processing) {
+                text += " " + Component.translatable("gui.simple_bytestorage.pattern.tag.process").getString();
+            }
+            graphics.drawString(this.font, this.font.plainSubstrByWidth(text, PLAN_W - 16), x + 10, line,
+                    GuiStyle.TEXT_GOOD, false);
+            line += 10;
+        }
+        if (steps.size() > 6) {
+            graphics.drawString(this.font, "+" + (steps.size() - 6), x + 10, line, GuiStyle.TEXT_MUTED, false);
+        }
+
+        List<CraftPlanPacket.Entry> missing = this.menu.getPlanMissing();
+        if (!missing.isEmpty()) {
+            GuiStyle.label(graphics, Component.translatable("gui.simple_bytestorage.plan.missing"), x + 6, y + 92);
+            int mline = y + 102;
+            for (int i = 0; i < missing.size() && i < 3; i++) {
+                CraftPlanPacket.Entry entry = missing.get(i);
+                String text = entry.count + "× " + entry.stack.getHoverName().getString();
+                graphics.drawString(this.font, this.font.plainSubstrByWidth(text, PLAN_W - 16), x + 10, mline,
+                        GuiStyle.TEXT_BAD, false);
+                mline += 10;
+            }
+        }
+
+        UiButton.paint(graphics, this.font, x + 6, y + PLAN_H - 20, 92, 14,
+                Component.translatable("gui.simple_bytestorage.plan.start").getString(),
+                inside(mouseX, mouseY, x + 6, y + PLAN_H - 20, 92, 14), planOk());
+        UiButton.paint(graphics, this.font, x + PLAN_W - 98, y + PLAN_H - 20, 92, 14,
+                Component.translatable("gui.simple_bytestorage.plan.cancel").getString(),
+                inside(mouseX, mouseY, x + PLAN_W - 98, y + PLAN_H - 20, 92, 14), true);
+        graphics.pose().popPose();
+    }
+
+    private boolean handlePlanClick(double mouseX, double mouseY, int button) {
+        int x = this.leftPos + PLAN_X;
+        int y = this.topPos + PLAN_Y;
+        if (button == 0 && inside(mouseX, mouseY, x + 6, y + PLAN_H - 20, 92, 14) && planOk()) {
+            SimpleByteStoragePackets.sendToServer(new PatternOrderPacket(PatternOrderPacket.ACTION_ORDER,
+                    this.menu.getPlanPatternId(), this.menu.getPlanAmount()));
+            this.menu.clearClientPlan();
+        } else if (button == 0 && inside(mouseX, mouseY, x + PLAN_W - 98, y + PLAN_H - 20, 92, 14)) {
+            this.menu.clearClientPlan();
+        }
+        return true;
     }
 
     @Override
@@ -240,6 +319,9 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (this.menu.hasClientPlan()) {
+            return handlePlanClick(mouseX, mouseY, button);
+        }
         // ВАЖЛИВО: AbstractContainerScreen.mouseClicked завжди повертає true (навіть без слотів),
         // тому кліки по рядках списку обробляємо ДО виклику super.
         this.searchBox.setFocused(this.searchBox.isMouseOver(mouseX, mouseY));
@@ -269,7 +351,7 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
             if (inside(mouseX, mouseY, orderX, rowY + 2, ORDER_W, 18)) {
                 int amount = Screen.hasControlDown() ? 64 : (Screen.hasShiftDown() ? 10 : 1);
                 SimpleByteStoragePackets.sendToServer(
-                        new PatternOrderPacket(PatternOrderPacket.ACTION_ORDER, pattern.getId(), amount));
+                        new PatternOrderPacket(PatternOrderPacket.ACTION_PLAN, pattern.getId(), amount));
                 return true;
             }
             if (inside(mouseX, mouseY, removeX, rowY + 2, REMOVE_W, 18)) {
@@ -296,6 +378,9 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
 
     @Override
     public boolean charTyped(char codePoint, int modifiers) {
+        if (this.menu.hasClientPlan()) {
+            return true;
+        }
         if (this.searchBox.isFocused()) {
             return this.searchBox.charTyped(codePoint, modifiers);
         }
@@ -304,6 +389,12 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (this.menu.hasClientPlan()) {
+            if (keyCode == 256) {
+                this.menu.clearClientPlan();
+            }
+            return true;
+        }
         // Поки введення активне, клавіші (зокрема «E») не повинні закривати вікно.
         if (keyCode != 256 && this.searchBox != null && this.searchBox.isFocused()) {
             this.searchBox.keyPressed(keyCode, scanCode, modifiers);

@@ -14,6 +14,10 @@ public class PatternOrderPacket {
 
     public static final int ACTION_ORDER = 0;
     public static final int ACTION_REMOVE = 1;
+    /** Попросити сервер порахувати план замовлення (для вікна підтвердження). */
+    public static final int ACTION_PLAN = 2;
+    /** Скасувати всі замовлення цього шаблону в усіх Асемблерах та Шинах. */
+    public static final int ACTION_CANCEL = 3;
 
     private final int action;
     private final String patternId;

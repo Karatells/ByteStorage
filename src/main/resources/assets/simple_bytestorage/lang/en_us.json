@@ -93,5 +93,10 @@
   "msg.simple_bytestorage.encode.no_output": "Set the expected output (click the result slot with an item)",
   "msg.simple_bytestorage.encode.no_input": "Set at least one input",
   "msg.simple_bytestorage.encode.success_processing": "Process pattern encoded: %s. Put it into a Pattern Bus.",
-  "msg.simple_bytestorage.order.missing": "Missing %s x %s and no pattern to craft it"
+  "msg.simple_bytestorage.order.missing": "Missing %s x %s and no pattern to craft it",
+  "gui.simple_bytestorage.plan.title": "Confirm order (x%s)",
+  "gui.simple_bytestorage.plan.steps": "Will be crafted:",
+  "gui.simple_bytestorage.plan.missing": "Missing (no pattern to make it):",
+  "gui.simple_bytestorage.plan.start": "Start",
+  "gui.simple_bytestorage.plan.cancel": "Cancel"
 }

@@ -93,5 +93,10 @@
   "msg.simple_bytestorage.encode.no_output": "Задайте результат (клікніть предметом по слоту результату)",
   "msg.simple_bytestorage.encode.no_input": "Задайте хоча б один вхід",
   "msg.simple_bytestorage.encode.success_processing": "Шаблон процесу записано: %s. Вставте його в Шину шаблонів.",
-  "msg.simple_bytestorage.order.missing": "Бракує %s × %s, і немає шаблону для його крафту"
+  "msg.simple_bytestorage.order.missing": "Бракує %s × %s, і немає шаблону для його крафту",
+  "gui.simple_bytestorage.plan.title": "Підтвердіть замовлення (×%s)",
+  "gui.simple_bytestorage.plan.steps": "Буде скрафчено:",
+  "gui.simple_bytestorage.plan.missing": "Бракує (немає шаблону):",
+  "gui.simple_bytestorage.plan.start": "Почати",
+  "gui.simple_bytestorage.plan.cancel": "Скасувати"
 }
