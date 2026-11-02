@@ -67,7 +67,7 @@ public class CraftingTerminalMenu extends AbstractContainerMenu {
         this.craftMatrix = new TransientCraftingContainer(this, 3, 3);
 
         // Слот 0: Результат крафту
-        this.addSlot(new ResultSlot(player, craftMatrix, resultContainer, 0, 124, 35) {
+        this.addSlot(new ResultSlot(player, craftMatrix, resultContainer, 0, 124, 40) {
             @Override
             public void onTake(Player player, ItemStack stack) {
                 super.onTake(player, stack);
@@ -80,7 +80,7 @@ public class CraftingTerminalMenu extends AbstractContainerMenu {
         // Слоти 1-9: Крафтова сітка 3x3
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 3; col++) {
-                this.addSlot(new Slot(craftMatrix, col + row * 3, 30 + col * 18, 17 + row * 18));
+                this.addSlot(new Slot(craftMatrix, col + row * 3, 30 + col * 18, 20 + row * 18));
             }
         }
 

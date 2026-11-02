@@ -1,301 +1,208 @@
 package com.simpleae.bytestorage.client.gui;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
-import java.util.function.BooleanSupplier;
-
 /**
- * Единый оформляющий стиль интерфейсов мода SimpleAE: ByteStorage.
+ * Єдиний стиль інтерфейсів SimpleAE: ByteStorage — «ME-обладнання».
  *
- * Централизует цвета, размеры панелей, отрисовку слотов, индикаторов
- * прогресса и кнопок, чтобы все окна (Терминал, Асемблер, Терминал Шаблонов,
- * Терминал Кодирования) выглядели целостно и аккуратно.
+ * Темний шліфований метал (як текстури блоків), заглиблені панелі, неоново-бірюзовий акцент
+ * для активних елементів, помаранчевий/зелений/червоний — лише для статусів.
+ * Усі вікна мода малюються виключно через цей клас, тож зміна палітри тут міняє всі екрани.
  */
-public class GuiStyle {
+public final class GuiStyle {
 
-    // --- Основная палитра цветов (ARGB) ---
+    private GuiStyle() {
+    }
 
-    public static int COLOR_WINDOW_BG = 0xFFC6C6C6;      // светло-серый фон окна
-    public static int COLOR_WINDOW_BORDER_LIGHT = 0xFFFFFFFF;
-    public static int COLOR_WINDOW_BORDER_DARK = 0xFF555555;
+    // --- Палітра (ARGB) ---
 
-    public static int COLOR_PANEL_BG = 0xFF2A2D33;       // тёмная панель внутри окна
-    public static int COLOR_PANEL_BORDER = 0xFF373737;
-    public static int COLOR_PANEL_HEADER = 0xFF4B5360;   // заголовок панели
-    public static int COLOR_PANEL_HEADER_TEXT = 0xFFFFFFFF;
+    public static final int WINDOW_BG = 0xFF2C3037;
+    public static final int WINDOW_EDGE = 0xFF0B0D10;
+    public static final int BEVEL_LIGHT = 0xFF5A6372;
+    public static final int BEVEL_DARK = 0xFF181B20;
+    public static final int HEADER_BG = 0xFF1C1F25;
 
-    public static int COLOR_SLOT_BG = 0xFF1E2127;        // фон слота
-    public static int COLOR_SLOT_BORDER_SHADOW = 0xFF373737;
-    public static int COLOR_SLOT_BORDER_HIGHLIGHT = 0xFFFFFFFF;
+    public static final int ACCENT = 0xFF00D8F0;
+    public static final int ACCENT_DIM = 0xFF0A6C78;
+    public static final int ACCENT_FAINT = 0x3000D8F0;
 
-    public static int COLOR_SLOT_ACTIVE = 0xFF8595A8;    // активный/рабочий слот (сине-серый)
-    public static int COLOR_SLOT_CRAFT = 0xFF9E8A6E;     // слот крафтовой сетки (коричневый)
-    public static int COLOR_SLOT_RESULT = 0xFFB5963A;    // слот результата (золотой)
-    public static int COLOR_SLOT_BUFFER = 0xFF8595A8;    // слот буферной карты (сине-серый)
-    public static int COLOR_SLOT_OUTPUT = 0xFF6E7887;    // выходной слот (серо-синий)
-    public static int COLOR_SLOT_PLAYER = 0xFF8B8B8B;    // слоты инвентаря игрока
+    public static final int PANEL_BG = 0xFF1A1D23;
+    public static final int PANEL_EDGE_DARK = 0xFF0B0D10;
+    public static final int PANEL_EDGE_LIGHT = 0xFF454C58;
+    public static final int DISPLAY_BG = 0xFF0C1826;
 
-    public static int COLOR_TEXT_TITLE = 0xFF404040;
-    public static int COLOR_TEXT_LABEL = 0xFF707070;
-    public static int COLOR_TEXT_VALUE = 0xFFE0E0E0;
-    public static int COLOR_TEXT_MUTED = 0xFF9E9E9E;
-    public static int COLOR_TEXT_GOOD = 0xFF00AA00;
-    public static int COLOR_TEXT_BAD = 0xFFAA0000;
-    public static int COLOR_TEXT_WARNING = 0xFFD4A017;
+    public static final int SLOT_PLAYER = 0xFF1B1E24;
+    public static final int SLOT_POOL = 0xFF141B26;
+    public static final int SLOT_CARD = 0xFF1A2A3D;
+    public static final int SLOT_CRAFT = 0xFF2B2517;
+    public static final int SLOT_RESULT = 0xFF3A2D10;
+    public static final int SLOT_OUTPUT = 0xFF173236;
 
-    public static int COLOR_PROGRESS_BG = 0xFF373737;
-    public static int COLOR_PROGRESS_FILL = 0xFF00AA00;
-    public static int COLOR_PROGRESS_BORDER = 0xFF555555;
+    public static final int TEXT_TITLE = 0xFFE8F4FF;
+    public static final int TEXT_LABEL = 0xFF9FB0C4;
+    public static final int TEXT_MUTED = 0xFF6E7887;
+    public static final int TEXT_GOOD = 0xFF3DDC84;
+    public static final int TEXT_WARN = 0xFFFF9F1C;
+    public static final int TEXT_BAD = 0xFFFF5A47;
 
-    public static int COLOR_BUTTON_IDLE = 0xFF4B5360;
-    public static int COLOR_BUTTON_HOVER = 0xFF6E7887;
-    public static int COLOR_BUTTON_ACTIVE = 0xFF2A2D33;
-    public static int COLOR_BUTTON_DISABLED = 0xFF373737;
-    public static int COLOR_BUTTON_TEXT = 0xFFFFFFFF;
-    public static int COLOR_BUTTON_TEXT_DISABLED = 0xFF9E9E9E;
+    public static final int LED_GOOD = 0xFF00B464;
+    public static final int LED_WARN = 0xFFFF8C00;
+    public static final int LED_BAD = 0xFFDC2800;
 
-    public static int COLOR_SCROLL_TRACK = 0xFF20232A;
-    public static int COLOR_SCROLL_THUMB = 0xFF8B8B8B;
+    // --- Вікно ---
 
-    // --- Размеры ---
-
-    public static int SLOT_SIZE = 18;
-    public static int SLOT_PADDING = 1;
-    public static int PANEL_HEADER_HEIGHT = 14;
-
-    /**
-     * Отрисовка фирменной рамки окна (верхняя светлая фаска, нижняя тёмная).
-     */
-    public static void renderWindowFrame(GuiGraphics graphics, int x, int y, int width, int height) {
-        graphics.fill(x, y, x + width, y + height, COLOR_WINDOW_BG);
-        graphics.fill(x, y, x + width, y + 1, COLOR_WINDOW_BORDER_LIGHT);
-        graphics.fill(x, y, x + 1, y + height, COLOR_WINDOW_BORDER_LIGHT);
-        graphics.fill(x, y + height - 1, x + width, y + height, COLOR_WINDOW_BORDER_DARK);
-        graphics.fill(x + width - 1, y, x + width, y + height, COLOR_WINDOW_BORDER_DARK);
+    public static void window(GuiGraphics g, int x, int y, int w, int h, Component title) {
+        window(g, x, y, w, h, title, LED_GOOD);
     }
 
     /**
-     * Отрисовка внутренней панели с заголовком.
+     * Вікно: темний метал, фаски, смуга заголовка з бірюзовою лінією, світлодіод статусу, заклепки.
      */
-    public static void renderPanel(GuiGraphics graphics, int x, int y, int width, int height, String header) {
-        // Фон панели
-        graphics.fill(x, y, x + width, y + height, COLOR_PANEL_BG);
-        graphics.fill(x, y, x + width, y + 1, COLOR_PANEL_BORDER);
-        graphics.fill(x, y, x + 1, y + height, COLOR_PANEL_BORDER);
-        graphics.fill(x, y + height - 1, x + width, y + height, 0xFF101216);
-        graphics.fill(x + width - 1, y, x + width, y + height, 0xFF101216);
+    public static void window(GuiGraphics g, int x, int y, int w, int h, Component title, int ledColor) {
+        g.fill(x, y, x + w, y + h, WINDOW_EDGE);
+        g.fill(x + 1, y + 1, x + w - 1, y + h - 1, WINDOW_BG);
+        g.fill(x + 1, y + 1, x + w - 1, y + 2, BEVEL_LIGHT);
+        g.fill(x + 1, y + 1, x + 2, y + h - 1, BEVEL_LIGHT);
+        g.fill(x + 1, y + h - 2, x + w - 1, y + h - 1, BEVEL_DARK);
+        g.fill(x + w - 2, y + 1, x + w - 1, y + h - 1, BEVEL_DARK);
 
-        // Заголовок панели
-        if (header != null && !header.isEmpty()) {
-            int headerH = PANEL_HEADER_HEIGHT;
-            graphics.fill(x, y, x + width, y + headerH, COLOR_PANEL_HEADER);
-            graphics.fill(x, y + headerH - 1, x + width, y + headerH, COLOR_PANEL_BORDER);
-
-            Font font = net.minecraft.client.Minecraft.getInstance().font;
-            String headerText = font.plainSubstrByWidth(header, Math.max(0, width - 6));
-            graphics.drawString(font, headerText, x + 3, y + 3, COLOR_PANEL_HEADER_TEXT, false);
+        // Смуга заголовка
+        g.fill(x + 3, y + 3, x + w - 3, y + 16, HEADER_BG);
+        g.fill(x + 3, y + 15, x + w - 3, y + 16, ACCENT_DIM);
+        if (title != null) {
+            Font font = Minecraft.getInstance().font;
+            g.drawString(font, title, x + 8, y + 5, TEXT_TITLE, false);
         }
+        led(g, x + w - 11, y + 7, ledColor);
+
+        // Заклепки внизу
+        g.fill(x + 3, y + h - 5, x + 5, y + h - 3, 0xFF96A0AF);
+        g.fill(x + w - 5, y + h - 5, x + w - 3, y + h - 3, 0xFF96A0AF);
     }
 
-    /**
-     * Отрисовка одного рельефного слота Minecraft (как в инвентаре).
-     *
-     * @param innerColor цвет внутренней части слота (подсветка типа слота)
-     */
-    public static void renderSlotBox(GuiGraphics graphics, int x, int y, int innerColor) {
-        graphics.fill(x, y, x + SLOT_SIZE, y + 1, COLOR_SLOT_BORDER_SHADOW);           // верхняя тень
-        graphics.fill(x, y, x + 1, y + SLOT_SIZE, COLOR_SLOT_BORDER_SHADOW);           // левая тень
-        graphics.fill(x + 1, y + SLOT_SIZE - 1, x + SLOT_SIZE, y + SLOT_SIZE, COLOR_SLOT_BORDER_HIGHLIGHT); // нижний блик
-        graphics.fill(x + SLOT_SIZE - 1, y + 1, x + SLOT_SIZE, y + SLOT_SIZE, COLOR_SLOT_BORDER_HIGHLIGHT); // правый блик
-        graphics.fill(x + 1, y + 1, x + SLOT_SIZE - 1, y + SLOT_SIZE - 1, innerColor); // внутренняя часть
+    /** Світлодіод 3×3 з м'яким ореолом. */
+    public static void led(GuiGraphics g, int x, int y, int color) {
+        int halo = (color & 0x00FFFFFF) | 0x40000000;
+        g.fill(x - 1, y - 1, x + 4, y + 4, halo);
+        g.fill(x, y, x + 3, y + 3, color);
+        g.fill(x, y, x + 1, y + 1, 0x80FFFFFF);
     }
 
-    /**
-     * Отрисовка слота с подсветкой наведения.
-     */
-    public static void renderSlotBox(GuiGraphics graphics, int x, int y, int innerColor, boolean hovered) {
-        renderSlotBox(graphics, x, y, innerColor);
-        if (hovered) {
-            graphics.fill(x + 1, y + 1, x + SLOT_SIZE - 1, y + SLOT_SIZE - 1, 0x40FFFFFF);
-        }
+    // --- Панелі ---
+
+    /** Заглиблена панель. */
+    public static void panel(GuiGraphics g, int x, int y, int w, int h) {
+        g.fill(x, y, x + w, y + h, PANEL_EDGE_LIGHT);
+        g.fill(x, y, x + w - 1, y + h - 1, PANEL_EDGE_DARK);
+        g.fill(x + 1, y + 1, x + w - 1, y + h - 1, PANEL_BG);
     }
 
-    /**
-     * Отрисовка простой линии толщиной 1 px (используется для соединительных
-     * линий в схемах крафта/кодирования).
-     */
-    public static void drawLine(GuiGraphics graphics, int x1, int y1, int x2, int y2, int color) {
-        int dx = Math.abs(x2 - x1);
-        int dy = Math.abs(y2 - y1);
-        int sx = x1 < x2 ? 1 : -1;
-        int sy = y1 < y2 ? 1 : -1;
-        int err = dx - dy;
-
-        while (true) {
-            graphics.fill(x1, y1, x1 + 1, y1 + 1, color);
-            if (x1 == x2 && y1 == y2) {
-                break;
-            }
-            int e2 = err * 2;
-            if (e2 > -dy) {
-                err -= dy;
-                x1 += sx;
-            }
-            if (e2 < dx) {
-                err += dx;
-                y1 += sy;
-            }
-        }
+    /** «Екран» — синя заглиблена панель для списків і пулу предметів. */
+    public static void display(GuiGraphics g, int x, int y, int w, int h) {
+        g.fill(x, y, x + w, y + h, PANEL_EDGE_LIGHT);
+        g.fill(x, y, x + w - 1, y + h - 1, PANEL_EDGE_DARK);
+        g.fill(x + 1, y + 1, x + w - 1, y + h - 1, DISPLAY_BG);
     }
 
-    /**
-     * Отрисовка индикатора прогресса (горизонтальная полоса).
-     *
-     * @param progress значение от 0.0 до 1.0
-     */
-    public static void renderProgressBar(GuiGraphics graphics, int x, int y, int width, int height, float progress) {
-        progress = Math.min(1.0F, Math.max(0.0F, progress));
-
-        // Фон
-        graphics.fill(x, y, x + width, y + height, COLOR_PROGRESS_BG);
-        graphics.fill(x, y, x + width, y + 1, COLOR_PROGRESS_BORDER);
-        graphics.fill(x, y, x + 1, y + height, COLOR_PROGRESS_BORDER);
-        graphics.fill(x, y + height - 1, x + width, y + height, 0xFF101216);
-        graphics.fill(x + width - 1, y, x + width, y + height, 0xFF101216);
-
-        // Заполнение
-        int fillWidth = Math.max(0, (int) ((width - 2) * progress));
-        if (fillWidth > 0) {
-            int fillColor = progress >= 1.0F ? 0xFF00CC00 : COLOR_PROGRESS_FILL;
-            graphics.fill(x + 1, y + 1, x + 1 + fillWidth, y + height - 1, fillColor);
-            // блик на заполнении
-            graphics.fill(x + 1, y + 1, x + 1 + fillWidth, y + 2, 0x60FFFFFF);
-        }
-
-        // Текст百分比
-        // (вызывающий код может нарисовать текст поверх)
+    /** Підпис панелі: дрібний текст кольору TEXT_LABEL. */
+    public static void label(GuiGraphics g, Component text, int x, int y) {
+        g.drawString(Minecraft.getInstance().font, text, x, y, TEXT_LABEL, false);
     }
 
-    /**
-     * Отрисовка иконки предмета с количеством в указанной точке.
-     */
-    public static void renderItemStack(GuiGraphics graphics, ItemStack stack, int x, int y, float scale) {
-        if (stack.isEmpty()) return;
-        graphics.pose().pushPose();
-        graphics.pose().scale(scale, scale, 1.0F);
-        int scaledX = (int) (x / scale);
-        int scaledY = (int) (y / scale);
-        graphics.renderItem(stack, scaledX, scaledY);
-        graphics.renderItemDecorations(null, stack, scaledX, scaledY, String.valueOf(stack.getCount()));
-        graphics.pose().popPose();
+    // --- Слоти ---
+
+    /** Рамка слота 18×18 (boxX/boxY — лівий верхній кут рамки; предмет лежить на +1/+1). */
+    public static void slot(GuiGraphics g, int boxX, int boxY, int tint) {
+        g.fill(boxX, boxY, boxX + 18, boxY + 18, PANEL_EDGE_LIGHT);
+        g.fill(boxX, boxY, boxX + 17, boxY + 17, PANEL_EDGE_DARK);
+        g.fill(boxX + 1, boxY + 1, boxX + 17, boxY + 17, tint);
     }
 
-    /**
-     * Отрисовка иконки предмета (масштаб 1.0).
-     */
-    public static void renderItemStack(GuiGraphics graphics, ItemStack stack, int x, int y) {
-        renderItemStack(graphics, stack, x, y, 1.0F);
+    /** Слот з кольоровим контуром (результат, вихід). */
+    public static void slot(GuiGraphics g, int boxX, int boxY, int tint, int accent) {
+        g.fill(boxX, boxY, boxX + 18, boxY + 18, accent);
+        g.fill(boxX + 1, boxY + 1, boxX + 17, boxY + 17, tint);
     }
 
-    /**
-     * Создание стилизованной кнопки с поддержкой состояния enabled/disabled.
-     *
-     * @param onClick действие при клике
-     * @param enabledSupplier поставщик состояния активности (проверяется каждый кадр)
-     */
-    public static Button createButton(Component text, int x, int y, int width, int height,
-                                      Button.OnPress onClick, BooleanSupplier enabledSupplier) {
-        return Button.builder(text, btn -> onClick.onPress(btn))
-                .bounds(x, y, width, height)
-                .build();
+    public static void menuSlot(GuiGraphics g, int leftPos, int topPos, Slot slot, int tint) {
+        slot(g, leftPos + slot.x - 1, topPos + slot.y - 1, tint);
     }
 
-    /**
-     * Отрисовка полосы прокрутки (скроллбара).
-     */
-    public static void renderScrollBar(GuiGraphics graphics, int x, int y, int width, int height,
-                                       int scrollOffset, int maxScroll, int visibleItems, int totalItems) {
-        if (totalItems <= visibleItems) return;
-
-        graphics.fill(x, y, x + width, y + height, COLOR_SCROLL_TRACK);
-
-        int thumbH = Math.max(12, height * visibleItems / Math.max(1, totalItems));
-        int thumbY = y;
-        if (maxScroll > 0) {
-            thumbY += (height - thumbH) * scrollOffset / maxScroll;
-        }
-        thumbY = Math.min(y + height - thumbH, Math.max(y, thumbY));
-
-        graphics.fill(x + 1, thumbY, x + width - 1, thumbY + thumbH, COLOR_SCROLL_THUMB);
-        graphics.fill(x + 1, thumbY, x + width - 1, thumbY + 1, 0xFFAAAAAA);
-        graphics.fill(x + 1, thumbY + thumbH - 1, x + width - 1, thumbY + thumbH, 0xFF555555);
+    public static void menuSlot(GuiGraphics g, int leftPos, int topPos, Slot slot, int tint, int accent) {
+        slot(g, leftPos + slot.x - 1, topPos + slot.y - 1, tint, accent);
     }
 
-    /**
-     * Рисование многострочного текста с переносом по словам (упрощённо — по строкам).
-     */
-    public static void drawWrappedText(GuiGraphics graphics, net.minecraft.client.gui.Font font,
-                                       String text, int x, int y, int maxWidth, int color) {
-        String[] words = text.split(" ");
-        StringBuilder line = new StringBuilder();
-        int lineY = y;
-        for (String word : words) {
-            String test = line.length() == 0 ? word : line + " " + word;
-            if (font.width(test) > maxWidth && line.length() > 0) {
-                graphics.drawString(font, line.toString(), x, lineY, color, false);
-                lineY += 9;
-                line = new StringBuilder(word);
-            } else {
-                line.append(line.length() == 0 ? "" : " ").append(word);
-            }
-        }
-        if (line.length() > 0) {
-            graphics.drawString(font, line.toString(), x, lineY, color, false);
-        }
-    }
-
-    /**
-     * Рамка слота меню: slot.x / slot.y — позиція предмета, рамка на 1 px більша з кожного боку.
-     */
-    public static void renderMenuSlot(GuiGraphics graphics, int leftPos, int topPos, Slot slot, int innerColor) {
-        renderSlotBox(graphics, leftPos + slot.x - 1, topPos + slot.y - 1, innerColor);
-    }
-
-    /**
-     * Рамки для слотів інвентаря та хотбара гравця (слоти з індексу {@code from} до кінця списку).
-     */
-    public static void renderPlayerSlots(GuiGraphics graphics, int leftPos, int topPos, List<Slot> slots, int from) {
+    /** Рамки слотів інвентаря та хотбара гравця (з індексу {@code from} до кінця списку). */
+    public static void playerSlots(GuiGraphics g, int leftPos, int topPos, List<Slot> slots, int from) {
         for (int i = from; i < slots.size(); i++) {
-            renderMenuSlot(graphics, leftPos, topPos, slots.get(i), COLOR_SLOT_PLAYER);
+            menuSlot(g, leftPos, topPos, slots.get(i), SLOT_PLAYER);
         }
     }
 
-    /**
-     * Проста стрілка вправо (14×11 px) для схем «вхід → вихід».
-     */
-    public static void renderArrow(GuiGraphics graphics, int x, int y) {
-        int dark = 0xFF555555;
-        int light = 0xFFB8B8B8;
-        graphics.fill(x, y + 3, x + 9, y + 8, dark);
-        graphics.fill(x + 1, y + 4, x + 9, y + 7, light);
+    /** Тонкий роздільник між інвентарем і хотбаром не потрібен; підпис «Інвентар» — дрібний, зліва. */
+    public static void inventoryLabel(GuiGraphics g, Component text, int x, int y) {
+        g.drawString(Minecraft.getInstance().font, text, x, y, TEXT_LABEL, false);
+    }
+
+    // --- Індикатори ---
+
+    /** Сегментований індикатор прогресу (бірюзовий LED-бар). */
+    public static void progress(GuiGraphics g, int x, int y, int w, int h, float fraction) {
+        bar(g, x, y, w, h, fraction, ACCENT, true);
+    }
+
+    /** Смуга заповнення (пам'ять): колір залежить від рівня заповнення. */
+    public static void meter(GuiGraphics g, int x, int y, int w, int h, float fraction) {
+        int color = fraction >= 0.95F ? LED_BAD : (fraction >= 0.75F ? LED_WARN : ACCENT);
+        bar(g, x, y, w, h, fraction, color, false);
+    }
+
+    private static void bar(GuiGraphics g, int x, int y, int w, int h, float fraction, int color, boolean segments) {
+        fraction = Math.max(0.0F, Math.min(1.0F, fraction));
+        g.fill(x, y, x + w, y + h, PANEL_EDGE_LIGHT);
+        g.fill(x, y, x + w - 1, y + h - 1, PANEL_EDGE_DARK);
+        g.fill(x + 1, y + 1, x + w - 1, y + h - 1, DISPLAY_BG);
+        int fill = (int) ((w - 2) * fraction);
+        if (fill > 0) {
+            g.fill(x + 1, y + 1, x + 1 + fill, y + h - 1, color);
+            g.fill(x + 1, y + 1, x + 1 + fill, y + 2, 0x70FFFFFF);
+            if (segments) {
+                for (int sx = x + 7; sx < x + 1 + fill; sx += 6) {
+                    g.fill(sx, y + 1, sx + 1, y + h - 1, 0x60000000);
+                }
+            }
+        }
+    }
+
+    /** Стрілка вправо 14×11 бірюзового кольору. */
+    public static void arrow(GuiGraphics g, int x, int y) {
+        g.fill(x, y + 4, x + 9, y + 7, ACCENT_DIM);
+        g.fill(x, y + 4, x + 9, y + 5, ACCENT);
         for (int j = 0; j < 6; j++) {
-            graphics.fill(x + 8 + j, y + j, x + 9 + j, y + 11 - j, dark);
+            g.fill(x + 8 + j, y + j, x + 9 + j, y + 11 - j, ACCENT_DIM);
         }
         for (int j = 1; j < 5; j++) {
-            graphics.fill(x + 8 + j, y + j + 1, x + 9 + j, y + 10 - j, light);
+            g.fill(x + 8 + j, y + j + 1, x + 9 + j, y + 10 - j, ACCENT);
         }
     }
 
-    @FunctionalInterface
-    public interface OnPress {
-        void onPress(Button button);
+    /** Вертикальна смуга прокрутки. */
+    public static void scrollbar(GuiGraphics g, int x, int y, int w, int h,
+                                 int offset, int maxScroll, int visible, int total) {
+        g.fill(x, y, x + w, y + h, PANEL_EDGE_DARK);
+        g.fill(x + 1, y + 1, x + w - 1, y + h - 1, PANEL_BG);
+        if (total <= visible || maxScroll <= 0) {
+            return;
+        }
+        int thumbH = Math.max(10, (h - 2) * visible / Math.max(1, total));
+        int thumbY = y + 1 + (h - 2 - thumbH) * offset / maxScroll;
+        g.fill(x + 1, thumbY, x + w - 1, thumbY + thumbH, ACCENT_DIM);
+        g.fill(x + 1, thumbY, x + w - 1, thumbY + 1, ACCENT);
     }
 }

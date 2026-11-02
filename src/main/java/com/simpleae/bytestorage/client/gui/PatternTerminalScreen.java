@@ -4,8 +4,8 @@ import com.simpleae.bytestorage.api.storage.IPatternStorage.PatternData;
 import com.simpleae.bytestorage.menu.PatternTerminalMenu;
 import com.simpleae.bytestorage.network.packet.PatternOrderPacket;
 import com.simpleae.bytestorage.network.packet.SimpleByteStoragePackets;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -38,7 +38,7 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
     private static final NumberFormat FORMAT = NumberFormat.getInstance(Locale.US);
 
     private EditBox searchBox;
-    private Button filterButton;
+    private UiButton filterButton;
     private boolean onlyCraftable = false;
     private int scrollOffset = 0;
 
@@ -52,19 +52,20 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
     protected void init() {
         super.init();
 
-        this.searchBox = new EditBox(this.font, this.leftPos + 8, this.topPos + 17, 148, 16,
-                Component.translatable("gui.simple_bytestorage.pattern.search"));
+        this.searchBox = new EditBox(this.font, this.leftPos + 12, this.topPos + 21, 140, 10, Component.empty());
         this.searchBox.setMaxLength(48);
-        this.searchBox.setHint(Component.translatable("gui.simple_bytestorage.pattern.search"));
+        this.searchBox.setBordered(false);
+        this.searchBox.setTextColor(GuiStyle.TEXT_TITLE);
+        this.searchBox.setHint(Component.translatable("gui.simple_bytestorage.pattern.search")
+                .withStyle(ChatFormatting.DARK_GRAY));
         this.searchBox.setResponder(value -> this.scrollOffset = 0);
         this.addRenderableWidget(this.searchBox);
 
-        this.filterButton = Button.builder(filterLabel(), button -> {
+        this.filterButton = new UiButton(this.leftPos + 160, this.topPos + 19, 62, 14,
+                this::filterLabel, UiButton.Icon.NONE, () -> {
             this.onlyCraftable = !this.onlyCraftable;
             this.scrollOffset = 0;
-            button.setMessage(filterLabel());
-        }).bounds(this.leftPos + 160, this.topPos + 17, 62, 16).build();
-        this.addRenderableWidget(this.filterButton);
+        });
     }
 
     private Component filterLabel() {
@@ -98,6 +99,7 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
+        this.filterButton.render(graphics, this.font, mouseX, mouseY);
         this.renderList(graphics, mouseX, mouseY);
         this.renderTooltip(graphics, mouseX, mouseY);
     }
@@ -106,14 +108,16 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
     protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
         int x = this.leftPos;
         int y = this.topPos;
-        GuiStyle.renderWindowFrame(graphics, x, y, this.imageWidth, this.imageHeight);
-        GuiStyle.renderPanel(graphics, x + 8, y + 36, 214, 148, null);
-        GuiStyle.renderPanel(graphics, x + 8, y + 188, 214, 18, null);
+        int led = this.menu.getCapacityBytes() <= 0 ? GuiStyle.LED_BAD : GuiStyle.LED_GOOD;
+        GuiStyle.window(graphics, x, y, this.imageWidth, this.imageHeight, this.title, led);
+        GuiStyle.display(graphics, x + 8, y + 19, 148, 14);
+        GuiStyle.display(graphics, x + 8, y + 36, 214, 148);
+        GuiStyle.panel(graphics, x + 8, y + 188, 214, 18);
     }
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(this.font, this.title, 8, 6, GuiStyle.COLOR_TEXT_TITLE, false);
+        // Усе малюється у renderBg через GuiStyle
     }
 
     private void renderList(GuiGraphics graphics, int mouseX, int mouseY) {
@@ -134,8 +138,8 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
             boolean ready = this.menu.isCraftable(pattern.getId());
             boolean rowHover = inside(mouseX, mouseY, rowX, rowY, ROW_W, ROW_H - 2);
 
-            graphics.fill(rowX, rowY, rowX + ROW_W, rowY + ROW_H - 2, rowHover ? 0xFF3A404A : 0xFF2B3038);
-            graphics.fill(rowX, rowY, rowX + 2, rowY + ROW_H - 2, ready ? 0xFF00B464 : 0xFF8A3A2A);
+            graphics.fill(rowX, rowY, rowX + ROW_W, rowY + ROW_H - 2, rowHover ? 0xFF1E2E40 : 0xFF141B26);
+            graphics.fill(rowX, rowY, rowX + 2, rowY + ROW_H - 2, ready ? GuiStyle.LED_GOOD : GuiStyle.LED_BAD);
 
             ItemStack output = pattern.getOutput();
             graphics.renderItem(output, rowX + 5, rowY + 3);
@@ -144,12 +148,12 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
             int textMax = ROW_W - 26 - ORDER_W - REMOVE_W - 10;
             graphics.drawString(this.font,
                     this.font.plainSubstrByWidth(output.getHoverName().getString(), textMax),
-                    rowX + 26, rowY + 3, 0xFFFFFFFF, false);
+                    rowX + 26, rowY + 3, GuiStyle.TEXT_TITLE, false);
             Component status = Component.translatable(ready
                     ? "gui.simple_bytestorage.pattern.ready"
                     : "gui.simple_bytestorage.pattern.missing");
             graphics.drawString(this.font, this.font.plainSubstrByWidth(status.getString(), textMax),
-                    rowX + 26, rowY + 13, ready ? 0xFF55FF55 : 0xFFFF7755, false);
+                    rowX + 26, rowY + 13, ready ? GuiStyle.TEXT_GOOD : GuiStyle.TEXT_WARN, false);
 
             int removeX = rowX + ROW_W - REMOVE_W - 3;
             int orderX = removeX - ORDER_W - 2;
@@ -157,9 +161,9 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
             boolean orderHover = inside(mouseX, mouseY, orderX, btnY, ORDER_W, 18);
             boolean removeHover = inside(mouseX, mouseY, removeX, btnY, REMOVE_W, 18);
 
-            drawButton(graphics, orderX, btnY, ORDER_W, 18, orderHover,
-                    Component.translatable("gui.simple_bytestorage.pattern.order").getString());
-            drawButton(graphics, removeX, btnY, REMOVE_W, 18, removeHover, "×");
+            UiButton.paint(graphics, this.font, orderX, btnY, ORDER_W, 18,
+                    Component.translatable("gui.simple_bytestorage.pattern.order").getString(), orderHover, true);
+            UiButton.paint(graphics, this.font, removeX, btnY, REMOVE_W, 18, "×", removeHover, true);
 
             if (orderHover) {
                 hoverTooltip = List.of(
@@ -177,11 +181,11 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
                     Component.translatable(this.menu.getPatterns().isEmpty()
                             ? "gui.simple_bytestorage.pattern.empty"
                             : "gui.simple_bytestorage.pattern.nothing_found").getString(),
-                    x + this.imageWidth / 2, y + 100, GuiStyle.COLOR_TEXT_MUTED);
+                    x + this.imageWidth / 2, y + 100, GuiStyle.TEXT_MUTED);
         }
 
         if (list.size() > ROWS) {
-            GuiStyle.renderScrollBar(graphics, x + 210, y + LIST_Y, 8, ROWS * ROW_H - 2,
+            GuiStyle.scrollbar(graphics, x + 210, y + LIST_Y, 8, ROWS * ROW_H - 2,
                     this.scrollOffset, max, ROWS, list.size());
         }
 
@@ -203,13 +207,6 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
         return lines;
     }
 
-    private void drawButton(GuiGraphics graphics, int bx, int by, int bw, int bh, boolean hover, String text) {
-        graphics.fill(bx, by, bx + bw, by + bh, hover ? GuiStyle.COLOR_BUTTON_HOVER : GuiStyle.COLOR_BUTTON_IDLE);
-        graphics.fill(bx, by, bx + bw, by + 1, 0xFF7F8998);
-        graphics.fill(bx, by + bh - 1, bx + bw, by + bh, 0xFF20242A);
-        graphics.drawCenteredString(this.font, text, bx + bw / 2, by + (bh - 8) / 2, GuiStyle.COLOR_BUTTON_TEXT);
-    }
-
     private void renderStatus(GuiGraphics graphics) {
         int x = this.leftPos;
         int y = this.topPos;
@@ -217,12 +214,12 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
         int color;
         if (this.menu.getCapacityBytes() <= 0) {
             text = Component.translatable("gui.simple_bytestorage.pattern.no_network").getString();
-            color = GuiStyle.COLOR_PANEL_HEADER_TEXT;
+            color = GuiStyle.TEXT_MUTED;
         } else {
             text = Component.translatable("gui.simple_bytestorage.pattern.status",
                     FORMAT.format(this.menu.getUsedBytes()), FORMAT.format(this.menu.getCapacityBytes()),
                     this.menu.getAssemblerCount()).getString();
-            color = 0xFF55FF55;
+            color = GuiStyle.TEXT_GOOD;
         }
         graphics.drawString(this.font, this.font.plainSubstrByWidth(text, 206), x + 12, y + 193, color, false);
     }
@@ -237,6 +234,14 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         // ВАЖЛИВО: AbstractContainerScreen.mouseClicked завжди повертає true (навіть без слотів),
         // тому кліки по рядках списку обробляємо ДО виклику super.
+        this.searchBox.setFocused(this.searchBox.isMouseOver(mouseX, mouseY));
+        if (this.searchBox.isFocused()) {
+            this.searchBox.mouseClicked(mouseX, mouseY, button);
+            return true;
+        }
+        if (this.filterButton.mouseClicked(mouseX, mouseY, button)) {
+            return true;
+        }
         if (button == 0 && handleListClick(mouseX, mouseY)) {
             return true;
         }
@@ -279,6 +284,14 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
             this.scrollOffset = Math.max(this.scrollOffset - 1, 0);
         }
         return true;
+    }
+
+    @Override
+    public boolean charTyped(char codePoint, int modifiers) {
+        if (this.searchBox.isFocused()) {
+            return this.searchBox.charTyped(codePoint, modifiers);
+        }
+        return super.charTyped(codePoint, modifiers);
     }
 
     @Override

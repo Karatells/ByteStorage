@@ -6,7 +6,6 @@ import com.simpleae.bytestorage.block.entity.AssemblerBlockEntity;
 import com.simpleae.bytestorage.menu.AssemblerMenu;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -34,7 +33,7 @@ public class AssemblerScreen extends AbstractContainerScreen<AssemblerMenu> {
     private static final int RESULT_Y = 27;
     private static final int BUFFER_ICONS = 9;
 
-    private Button cancelButton;
+    private UiButton cancelButton;
 
     public AssemblerScreen(AssemblerMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -49,26 +48,30 @@ public class AssemblerScreen extends AbstractContainerScreen<AssemblerMenu> {
     @Override
     protected void init() {
         super.init();
-        this.cancelButton = Button.builder(
-                Component.translatable("gui.simple_bytestorage.assembler.cancel"),
-                button -> {
-                    Minecraft mc = Minecraft.getInstance();
-                    if (mc.gameMode != null) {
-                        mc.gameMode.handleInventoryButtonClick(this.menu.containerId, AssemblerMenu.BUTTON_CANCEL);
-                    }
-                }
-        ).bounds(this.leftPos + 8, this.topPos + 105, 70, 16).build();
-        this.addRenderableWidget(this.cancelButton);
+        this.cancelButton = new UiButton(this.leftPos + 8, this.topPos + 105, 70, 16,
+                () -> Component.translatable("gui.simple_bytestorage.assembler.cancel"), UiButton.Icon.NONE, () -> {
+            Minecraft mc = Minecraft.getInstance();
+            if (mc.gameMode != null) {
+                mc.gameMode.handleInventoryButtonClick(this.menu.containerId, AssemblerMenu.BUTTON_CANCEL);
+            }
+        }).enabledWhen(() -> this.menu.getQueue() > 0 || this.menu.isBusy());
     }
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.cancelButton.active = this.menu.getQueue() > 0 || this.menu.isBusy();
-
         this.renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
+        this.cancelButton.render(graphics, this.font, mouseX, mouseY);
         this.renderDynamic(graphics, mouseX, mouseY);
         this.renderTooltip(graphics, mouseX, mouseY);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (this.cancelButton.mouseClicked(mouseX, mouseY, button)) {
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
@@ -76,22 +79,36 @@ public class AssemblerScreen extends AbstractContainerScreen<AssemblerMenu> {
         int x = this.leftPos;
         int y = this.topPos;
 
-        GuiStyle.renderWindowFrame(graphics, x, y, this.imageWidth, this.imageHeight);
+        GuiStyle.window(graphics, x, y, this.imageWidth, this.imageHeight, this.title, ledColor());
 
         // Верхня панель: картка → прогрес → результат
-        GuiStyle.renderPanel(graphics, x + 6, y + 18, 164, 44, null);
-        GuiStyle.renderMenuSlot(graphics, x, y, this.menu.slots.get(AssemblerMenu.SLOT_CARD), GuiStyle.COLOR_SLOT_BUFFER);
-        GuiStyle.renderProgressBar(graphics, x + BAR_X, y + BAR_Y, BAR_W, 10, progressFraction());
-        GuiStyle.renderSlotBox(graphics, x + RESULT_X - 1, y + RESULT_Y - 1, GuiStyle.COLOR_SLOT_RESULT);
+        GuiStyle.panel(graphics, x + 6, y + 18, 164, 44);
+        GuiStyle.menuSlot(graphics, x, y, this.menu.slots.get(AssemblerMenu.SLOT_CARD), GuiStyle.SLOT_CARD);
+        GuiStyle.progress(graphics, x + BAR_X, y + BAR_Y, BAR_W, 10, progressFraction());
+        GuiStyle.slot(graphics, x + RESULT_X - 1, y + RESULT_Y - 1, GuiStyle.SLOT_RESULT, GuiStyle.TEXT_WARN);
 
         // Панель буфера
-        GuiStyle.renderPanel(graphics, x + 6, y + 66, 164, 36,
-                Component.translatable("gui.simple_bytestorage.assembler.buffer").getString());
+        GuiStyle.display(graphics, x + 6, y + 66, 164, 36);
+        GuiStyle.label(graphics, Component.translatable("gui.simple_bytestorage.assembler.buffer"), x + 10, y + 70);
         for (int i = 0; i < BUFFER_ICONS; i++) {
-            GuiStyle.renderSlotBox(graphics, x + 14 + i * 17, y + 83, 0xFF3A3F47);
+            GuiStyle.slot(graphics, x + 7 + i * 18, y + 82, GuiStyle.SLOT_POOL);
         }
 
-        GuiStyle.renderPlayerSlots(graphics, x, y, this.menu.slots, AssemblerMenu.PLAYER_START);
+        GuiStyle.inventoryLabel(graphics, this.playerInventoryTitle, x + this.inventoryLabelX, y + this.inventoryLabelY);
+        GuiStyle.playerSlots(graphics, x, y, this.menu.slots, AssemblerMenu.PLAYER_START);
+    }
+
+    private int ledColor() {
+        if (this.menu.getCard().isEmpty()) {
+            return GuiStyle.LED_BAD;
+        }
+        if (this.menu.getPhase() != AssemblerBlockEntity.PHASE_IDLE) {
+            return GuiStyle.LED_GOOD;
+        }
+        if (this.menu.getQueue() > 0 && this.menu.getWaitReason() != AssemblerBlockEntity.WAIT_NONE) {
+            return GuiStyle.LED_WARN;
+        }
+        return 0xFF4A5260;
     }
 
     private float progressFraction() {
@@ -132,8 +149,8 @@ public class AssemblerScreen extends AbstractContainerScreen<AssemblerMenu> {
             int shown = Math.min(stored.size(), BUFFER_ICONS);
             for (int i = 0; i < shown; i++) {
                 ItemStack stack = stored.get(i);
-                int ix = x + 15 + i * 17;
-                int iy = y + 84;
+                int ix = x + 8 + i * 18;
+                int iy = y + 83;
                 graphics.renderItem(stack, ix, iy);
                 graphics.renderItemDecorations(this.font, stack, ix, iy, shortCount(stack.getCount()));
                 if (isOver(mouseX, mouseY, ix, iy, 16, 16)) {
@@ -141,15 +158,16 @@ public class AssemblerScreen extends AbstractContainerScreen<AssemblerMenu> {
                 }
             }
             if (stored.size() > BUFFER_ICONS) {
-                graphics.drawString(this.font, "+" + (stored.size() - BUFFER_ICONS),
-                        x + 14 + BUFFER_ICONS * 17 + 2, y + 88, GuiStyle.COLOR_PANEL_HEADER_TEXT, false);
+                String more = "+" + (stored.size() - BUFFER_ICONS);
+                graphics.drawString(this.font, more, x + 166 - this.font.width(more), y + 70,
+                        GuiStyle.TEXT_LABEL, false);
             }
         }
 
         // Черга
         String queue = Component.translatable("gui.simple_bytestorage.assembler.queue", this.menu.getQueue()).getString();
         graphics.drawString(this.font, queue, x + 170 - this.font.width(queue), y + 109,
-                GuiStyle.COLOR_TEXT_TITLE, false);
+                GuiStyle.TEXT_TITLE, false);
     }
 
     private Component statusText() {
@@ -185,15 +203,15 @@ public class AssemblerScreen extends AbstractContainerScreen<AssemblerMenu> {
 
     private int statusColor() {
         if (this.menu.getCard().isEmpty()) {
-            return GuiStyle.COLOR_PANEL_HEADER_TEXT;
+            return GuiStyle.TEXT_LABEL;
         }
         if (this.menu.getPhase() != AssemblerBlockEntity.PHASE_IDLE) {
-            return 0xFF55FF55;
+            return GuiStyle.TEXT_GOOD;
         }
         if (this.menu.getQueue() > 0 && this.menu.getWaitReason() != AssemblerBlockEntity.WAIT_NONE) {
-            return 0xFFFFAA33;
+            return GuiStyle.TEXT_WARN;
         }
-        return GuiStyle.COLOR_TEXT_MUTED;
+        return GuiStyle.TEXT_MUTED;
     }
 
     private static String shortCount(int count) {
@@ -212,8 +230,6 @@ public class AssemblerScreen extends AbstractContainerScreen<AssemblerMenu> {
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, GuiStyle.COLOR_TEXT_TITLE, false);
-        graphics.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY,
-                GuiStyle.COLOR_TEXT_TITLE, false);
+        // Усе малюється у renderBg через GuiStyle
     }
 }
