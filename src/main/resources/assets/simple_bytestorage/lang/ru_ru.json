@@ -92,5 +92,6 @@
   "gui.simple_bytestorage.provider.queue": "Очередь: %s крафтов",
   "msg.simple_bytestorage.encode.no_output": "Задайте результат (кликните предметом по слоту результата)",
   "msg.simple_bytestorage.encode.no_input": "Задайте хотя бы один вход",
-  "msg.simple_bytestorage.encode.success_processing": "Шаблон процесса записан: %s. Вставьте его в Шину шаблонов."
+  "msg.simple_bytestorage.encode.success_processing": "Шаблон процесса записан: %s. Вставьте его в Шину шаблонов.",
+  "msg.simple_bytestorage.order.missing": "Не хватает %s × %s, и нет шаблона для его крафта"
 }

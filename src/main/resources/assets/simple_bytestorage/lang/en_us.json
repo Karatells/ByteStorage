@@ -92,5 +92,6 @@
   "gui.simple_bytestorage.provider.queue": "Queue: %s crafts",
   "msg.simple_bytestorage.encode.no_output": "Set the expected output (click the result slot with an item)",
   "msg.simple_bytestorage.encode.no_input": "Set at least one input",
-  "msg.simple_bytestorage.encode.success_processing": "Process pattern encoded: %s. Put it into a Pattern Bus."
+  "msg.simple_bytestorage.encode.success_processing": "Process pattern encoded: %s. Put it into a Pattern Bus.",
+  "msg.simple_bytestorage.order.missing": "Missing %s x %s and no pattern to craft it"
 }
