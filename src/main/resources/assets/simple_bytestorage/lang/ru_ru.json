@@ -98,5 +98,11 @@
   "gui.simple_bytestorage.plan.steps": "Будет скрафчено:",
   "gui.simple_bytestorage.plan.missing": "Не хватает (нет шаблона):",
   "gui.simple_bytestorage.plan.start": "Начать",
-  "gui.simple_bytestorage.plan.cancel": "Отмена"
+  "gui.simple_bytestorage.plan.cancel": "Отмена",
+  "gui.simple_bytestorage.tab.patterns": "Шаблоны",
+  "gui.simple_bytestorage.tab.queue": "Очередь",
+  "gui.simple_bytestorage.queue.active": "В работе · осталось: %s",
+  "gui.simple_bytestorage.queue.waiting": "В очереди · крафтов: %s",
+  "gui.simple_bytestorage.queue.cancel": "Отменить все заказы этого шаблона",
+  "gui.simple_bytestorage.queue.empty": "Нет активных заказов"
 }

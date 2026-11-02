@@ -98,5 +98,11 @@
   "gui.simple_bytestorage.plan.steps": "Буде скрафчено:",
   "gui.simple_bytestorage.plan.missing": "Бракує (немає шаблону):",
   "gui.simple_bytestorage.plan.start": "Почати",
-  "gui.simple_bytestorage.plan.cancel": "Скасувати"
+  "gui.simple_bytestorage.plan.cancel": "Скасувати",
+  "gui.simple_bytestorage.tab.patterns": "Шаблони",
+  "gui.simple_bytestorage.tab.queue": "Черга",
+  "gui.simple_bytestorage.queue.active": "В роботі · залишилось: %s",
+  "gui.simple_bytestorage.queue.waiting": "У черзі · крафтів: %s",
+  "gui.simple_bytestorage.queue.cancel": "Скасувати всі замовлення цього шаблону",
+  "gui.simple_bytestorage.queue.empty": "Немає активних замовлень"
 }

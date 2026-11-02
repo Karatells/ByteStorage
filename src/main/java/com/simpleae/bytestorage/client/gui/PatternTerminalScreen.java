@@ -42,11 +42,12 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
     private UiButton filterButton;
     private boolean onlyCraftable = false;
     private int scrollOffset = 0;
+    private boolean queueTab = false;
 
     public PatternTerminalScreen(PatternTerminalMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 230;
-        this.imageHeight = 212;
+        this.imageHeight = 232;
     }
 
     @Override
@@ -98,10 +99,15 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        this.searchBox.visible = !queueTab;
         this.renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
-        this.filterButton.render(graphics, this.font, mouseX, mouseY);
-        this.renderList(graphics, mouseX, mouseY);
+        if (queueTab) {
+            this.renderQueue(graphics, mouseX, mouseY);
+        } else {
+            this.filterButton.render(graphics, this.font, mouseX, mouseY);
+            this.renderList(graphics, mouseX, mouseY);
+        }
         this.renderTooltip(graphics, mouseX, mouseY);
         if (this.menu.hasClientPlan()) {
             this.renderPlan(graphics, mouseX, mouseY);
@@ -192,6 +198,11 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
         GuiStyle.display(graphics, x + 8, y + 19, 148, 14);
         GuiStyle.display(graphics, x + 8, y + 36, 214, 148);
         GuiStyle.panel(graphics, x + 8, y + 188, 214, 18);
+        UiButton.paint(graphics, this.font, x + 8, y + 210, 104, 16,
+                Component.translatable("gui.simple_bytestorage.tab.patterns").getString(), !queueTab, true);
+        UiButton.paint(graphics, this.font, x + 118, y + 210, 104, 16,
+                Component.translatable("gui.simple_bytestorage.tab.queue").getString() + " ("
+                        + this.menu.getQueueEntries().size() + ")", queueTab, true);
     }
 
     @Override
@@ -283,6 +294,56 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
         }
     }
 
+    private void renderQueue(GuiGraphics graphics, int mouseX, int mouseY) {
+        int x = this.leftPos;
+        int y = this.topPos;
+        List<CraftPlanPacket.Entry> queue = this.menu.getQueueEntries();
+        int max = maxScroll(queue.size());
+        this.scrollOffset = Math.max(0, Math.min(this.scrollOffset, max));
+        int end = Math.min(queue.size(), this.scrollOffset + ROWS);
+        Component hover = null;
+
+        for (int i = this.scrollOffset; i < end; i++) {
+            CraftPlanPacket.Entry entry = queue.get(i);
+            int rowX = x + LIST_X;
+            int rowY = y + LIST_Y + (i - this.scrollOffset) * ROW_H;
+            boolean rowHover = inside(mouseX, mouseY, rowX, rowY, ROW_W, ROW_H - 2);
+            graphics.fill(rowX, rowY, rowX + ROW_W, rowY + ROW_H - 2, rowHover ? 0xFF1E2E40 : 0xFF141B26);
+            graphics.fill(rowX, rowY, rowX + 2, rowY + ROW_H - 2, entry.processing ? GuiStyle.LED_GOOD : GuiStyle.LED_WARN);
+
+            graphics.renderItem(entry.stack, rowX + 5, rowY + 3);
+            int textMax = ROW_W - 26 - REMOVE_W - 10;
+            graphics.drawString(this.font,
+                    this.font.plainSubstrByWidth(entry.stack.getHoverName().getString(), textMax),
+                    rowX + 26, rowY + 3, GuiStyle.TEXT_TITLE, false);
+            Component state = Component.translatable(entry.processing
+                    ? "gui.simple_bytestorage.queue.active" : "gui.simple_bytestorage.queue.waiting",
+                    entry.count);
+            graphics.drawString(this.font, this.font.plainSubstrByWidth(state.getString(), textMax),
+                    rowX + 26, rowY + 13, entry.processing ? GuiStyle.TEXT_GOOD : GuiStyle.TEXT_LABEL, false);
+
+            int cancelX = rowX + ROW_W - REMOVE_W - 3;
+            boolean cancelHover = inside(mouseX, mouseY, cancelX, rowY + 2, REMOVE_W, 18);
+            UiButton.paint(graphics, this.font, cancelX, rowY + 2, REMOVE_W, 18, "×", cancelHover, true);
+            if (cancelHover) {
+                hover = Component.translatable("gui.simple_bytestorage.queue.cancel");
+            }
+        }
+        if (queue.isEmpty()) {
+            graphics.drawCenteredString(this.font,
+                    Component.translatable("gui.simple_bytestorage.queue.empty").getString(),
+                    x + this.imageWidth / 2, y + 100, GuiStyle.TEXT_MUTED);
+        }
+        if (queue.size() > ROWS) {
+            GuiStyle.scrollbar(graphics, x + 210, y + LIST_Y, 8, ROWS * ROW_H - 2,
+                    this.scrollOffset, max, ROWS, queue.size());
+        }
+        renderStatus(graphics);
+        if (hover != null) {
+            graphics.renderTooltip(this.font, hover, mouseX, mouseY);
+        }
+    }
+
     private List<Component> patternTooltip(PatternData pattern) {
         List<Component> lines = new ArrayList<>();
         lines.add(pattern.getOutput().getHoverName().copy()
@@ -324,6 +385,23 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
         }
         // ВАЖЛИВО: AbstractContainerScreen.mouseClicked завжди повертає true (навіть без слотів),
         // тому кліки по рядках списку обробляємо ДО виклику super.
+        if (button == 0 && inside(mouseX, mouseY, this.leftPos + 8, this.topPos + 210, 104, 16)) {
+            this.queueTab = false;
+            this.scrollOffset = 0;
+            return true;
+        }
+        if (button == 0 && inside(mouseX, mouseY, this.leftPos + 118, this.topPos + 210, 104, 16)) {
+            this.queueTab = true;
+            this.scrollOffset = 0;
+            this.searchBox.setFocused(false);
+            return true;
+        }
+        if (this.queueTab) {
+            if (button == 0) {
+                handleQueueClick(mouseX, mouseY);
+            }
+            return super.mouseClicked(mouseX, mouseY, button);
+        }
         this.searchBox.setFocused(this.searchBox.isMouseOver(mouseX, mouseY));
         if (this.searchBox.isFocused()) {
             this.searchBox.mouseClicked(mouseX, mouseY, button);
@@ -336,6 +414,20 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
             return true;
         }
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    private void handleQueueClick(double mouseX, double mouseY) {
+        int end = Math.min(this.menu.getQueueEntries().size(), this.scrollOffset + ROWS);
+        for (int i = this.scrollOffset; i < end; i++) {
+            int rowX = this.leftPos + LIST_X;
+            int rowY = this.topPos + LIST_Y + (i - this.scrollOffset) * ROW_H;
+            int cancelX = rowX + ROW_W - REMOVE_W - 3;
+            if (inside(mouseX, mouseY, cancelX, rowY + 2, REMOVE_W, 18)) {
+                SimpleByteStoragePackets.sendToServer(
+                        new PatternOrderPacket(PatternOrderPacket.ACTION_CANCEL, this.menu.getQueueId(i), 0));
+                return;
+            }
+        }
     }
 
     private boolean handleListClick(double mouseX, double mouseY) {
@@ -367,7 +459,7 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        int max = maxScroll(filtered().size());
+        int max = maxScroll(queueTab ? this.menu.getQueueEntries().size() : filtered().size());
         if (delta < 0) {
             this.scrollOffset = Math.min(this.scrollOffset + 1, max);
         } else if (delta > 0) {

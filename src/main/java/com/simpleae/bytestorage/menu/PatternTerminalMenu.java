@@ -137,7 +137,21 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
             }
         }
 
+        List<String> queueIds = new ArrayList<>();
+        List<CraftPlanPacket.Entry> queue = new ArrayList<>();
+        if (grid != null && grid.getState().isActive()) {
+            for (CraftingService.QueueEntry entry : CraftingService.queue(grid)) {
+                queueIds.add(entry.pattern.getId());
+                queue.add(new CraftPlanPacket.Entry(entry.pattern.getOutput(), entry.crafts, entry.active));
+            }
+        }
+
         int signature = 17;
+        for (int i = 0; i < queue.size(); i++) {
+            signature = signature * 31 + queueIds.get(i).hashCode();
+            signature = signature * 31 + queue.get(i).count;
+            signature = signature * 31 + (queue.get(i).processing ? 1 : 0);
+        }
         for (int i = 0; i < list.size(); i++) {
             signature = signature * 31 + list.get(i).getId().hashCode();
             signature = signature * 31 + (flags.get(i) ? 1 : 0);
@@ -151,7 +165,7 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
             keepAliveTimer = 0;
             forceSync = false;
             SimpleByteStoragePackets.sendToPlayer(
-                    new SyncPatternDataPacket(used, capacity, assemblers, list, flags), serverPlayer);
+                    new SyncPatternDataPacket(used, capacity, assemblers, list, flags, queueIds, queue), serverPlayer);
         }
     }
 
@@ -163,6 +177,12 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
         }
         if (action == PatternOrderPacket.ACTION_ORDER) {
             order(serverPlayer, patternId, amount);
+        } else if (action == PatternOrderPacket.ACTION_CANCEL) {
+            IGrid grid = terminal.getGrid();
+            if (grid != null && grid.getState().isActive()) {
+                CraftingService.cancel(grid, patternId);
+                forceSync = true;
+            }
         } else if (action == PatternOrderPacket.ACTION_PLAN) {
             sendPlan(serverPlayer, patternId, amount);
         } else if (action == PatternOrderPacket.ACTION_REMOVE) {
@@ -288,6 +308,25 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
 
     public List<CraftPlanPacket.Entry> getPlanMissing() {
         return planMissing;
+    }
+
+    // --- Черга (клієнт) ---
+
+    private List<String> queueIds = new ArrayList<>();
+    private List<CraftPlanPacket.Entry> queueEntries = new ArrayList<>();
+
+    public void updateClientQueue(List<String> ids, List<CraftPlanPacket.Entry> entries) {
+        this.queueIds = ids;
+        this.queueEntries = entries;
+    }
+
+    /** Рядок черги: stack = результат, count = крафтів лишилось, processing = зараз виконується. */
+    public List<CraftPlanPacket.Entry> getQueueEntries() {
+        return queueEntries;
+    }
+
+    public String getQueueId(int index) {
+        return queueIds.get(index);
     }
 
     public List<PatternData> getPatterns() {

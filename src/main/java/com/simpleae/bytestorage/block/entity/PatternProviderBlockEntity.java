@@ -198,6 +198,21 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
         return accepted;
     }
 
+    /** Зведення черги: id шаблону → кількість крафтів. */
+    public java.util.Map<String, Integer> getJobSummary() {
+        java.util.Map<String, Integer> result = new java.util.LinkedHashMap<>();
+        for (Job job : jobs) {
+            result.merge(job.patternId, job.left, Integer::sum);
+        }
+        return result;
+    }
+
+    public void cancelPattern(String patternId) {
+        if (jobs.removeIf(job -> job.patternId.equals(patternId))) {
+            setChanged();
+        }
+    }
+
     public int getMachineCount() {
         return machineCount;
     }

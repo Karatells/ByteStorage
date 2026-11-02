@@ -98,5 +98,11 @@
   "gui.simple_bytestorage.plan.steps": "Will be crafted:",
   "gui.simple_bytestorage.plan.missing": "Missing (no pattern to make it):",
   "gui.simple_bytestorage.plan.start": "Start",
-  "gui.simple_bytestorage.plan.cancel": "Cancel"
+  "gui.simple_bytestorage.plan.cancel": "Cancel",
+  "gui.simple_bytestorage.tab.patterns": "Patterns",
+  "gui.simple_bytestorage.tab.queue": "Queue",
+  "gui.simple_bytestorage.queue.active": "In progress · left: %s",
+  "gui.simple_bytestorage.queue.waiting": "Queued · crafts: %s",
+  "gui.simple_bytestorage.queue.cancel": "Cancel all orders of this pattern",
+  "gui.simple_bytestorage.queue.empty": "No active orders"
 }

@@ -248,4 +248,65 @@ public final class CraftingService {
         }
         return accepted;
     }
+
+    // --- Черга мережі ---
+
+    /** Рядок зведеної черги мережі. */
+    public static final class QueueEntry {
+        public final PatternData pattern;
+        public int crafts;
+        public boolean active;
+        public int machines;
+
+        QueueEntry(PatternData pattern) {
+            this.pattern = pattern;
+        }
+    }
+
+    /** Усі замовлення в Асемблерах і Шинах мережі, зведені за шаблонами. */
+    public static List<QueueEntry> queue(IGrid grid) {
+        Map<String, QueueEntry> result = new LinkedHashMap<>();
+        for (IGridNode node : grid.getNodes()) {
+            Map<String, Integer> jobs = null;
+            String activeId = null;
+            if (node instanceof AssemblerBlockEntity assembler) {
+                jobs = assembler.getJobSummary();
+                for (String id : jobs.keySet()) {
+                    if (assembler.isWorkingOn(id)) {
+                        activeId = id;
+                    }
+                }
+            } else if (node instanceof PatternProviderBlockEntity provider) {
+                jobs = provider.getJobSummary();
+                if (!jobs.isEmpty()) {
+                    activeId = jobs.keySet().iterator().next();
+                }
+            }
+            if (jobs == null) {
+                continue;
+            }
+            for (Map.Entry<String, Integer> job : jobs.entrySet()) {
+                PatternData pattern = findPattern(grid, job.getKey());
+                if (pattern == null) {
+                    continue;
+                }
+                QueueEntry entry = result.computeIfAbsent(job.getKey(), k -> new QueueEntry(pattern));
+                entry.crafts += job.getValue();
+                entry.machines++;
+                entry.active |= job.getKey().equals(activeId);
+            }
+        }
+        return new ArrayList<>(result.values());
+    }
+
+    /** Скасувати всі замовлення шаблону в усіх машинах мережі. */
+    public static void cancel(IGrid grid, String patternId) {
+        for (IGridNode node : grid.getNodes()) {
+            if (node instanceof AssemblerBlockEntity assembler) {
+                assembler.cancelPattern(patternId);
+            } else if (node instanceof PatternProviderBlockEntity provider) {
+                provider.cancelPattern(patternId);
+            }
+        }
+    }
 }

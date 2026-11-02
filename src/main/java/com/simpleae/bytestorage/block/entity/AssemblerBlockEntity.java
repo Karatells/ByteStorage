@@ -251,6 +251,34 @@ public class AssemblerBlockEntity extends BlockEntity implements IGridNode, Menu
         syncToClient();
     }
 
+    /** Зведення черги: id шаблону → кількість крафтів (порядок черги). */
+    public java.util.Map<String, Integer> getJobSummary() {
+        java.util.Map<String, Integer> result = new java.util.LinkedHashMap<>();
+        for (Job job : jobs) {
+            result.merge(job.patternId, job.count, Integer::sum);
+        }
+        return result;
+    }
+
+    /** Чи виконується зараз крафт цього шаблону. */
+    public boolean isWorkingOn(String patternId) {
+        return phase != PHASE_IDLE && !jobs.isEmpty() && jobs.get(0).patternId.equals(patternId);
+    }
+
+    /** Скасувати всі замовлення одного шаблону (поточний крафт зупиняється, вміст карточки повертається в мережу). */
+    public void cancelPattern(String patternId) {
+        boolean head = isWorkingOn(patternId);
+        jobs.removeIf(job -> job.patternId.equals(patternId));
+        if (head) {
+            progress = 0;
+            currentOutput = ItemStack.EMPTY;
+            ICellInventory card = cardInventory();
+            phase = (card != null && !card.isEmpty()) ? PHASE_DELIVERING : PHASE_IDLE;
+            waitReason = WAIT_NONE;
+        }
+        syncToClient();
+    }
+
     // --- Серверний тік ---
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, AssemblerBlockEntity assembler) {
