@@ -115,5 +115,15 @@
   "gui.simple_bytestorage.iobus.import": "Mode: Import",
   "gui.simple_bytestorage.iobus.export": "Mode: Export",
   "gui.simple_bytestorage.iobus.import.tip": "Pulls items from the adjacent inventory into the network. List = whitelist (empty = everything). Click to switch.",
-  "gui.simple_bytestorage.iobus.export.tip": "Keeps the listed amount of each item in the adjacent inventory, taking it from the network. Left click on a slot sets the stack count, right click adds 1. Click to switch."
+  "gui.simple_bytestorage.iobus.export.tip": "Keeps the listed amount of each item in the adjacent inventory, taking it from the network. Left click on a slot sets the stack count, right click adds 1. Click to switch.",
+  "item.simple_bytestorage.wireless_terminal": "Wireless Terminal",
+  "tooltip.simple_bytestorage.wireless.energy": "Energy: %s / %s FE",
+  "tooltip.simple_bytestorage.wireless.bound": "Bound to terminal at %s, %s, %s",
+  "tooltip.simple_bytestorage.wireless.help": "Shift + right click a Terminal to bind. Shift + click it again to charge from the network.",
+  "msg.simple_bytestorage.wireless.bound": "Bound to terminal at %s, %s, %s",
+  "msg.simple_bytestorage.wireless.unbound": "Not bound: Shift + right click a Terminal",
+  "msg.simple_bytestorage.wireless.unreachable": "Terminal is out of reach (chunk not loaded or removed)",
+  "msg.simple_bytestorage.wireless.no_network": "The network is offline",
+  "msg.simple_bytestorage.wireless.no_energy": "Not enough energy: Shift + click the bound Terminal to charge",
+  "msg.simple_bytestorage.wireless.charged": "Charged: %s / %s FE"
 }

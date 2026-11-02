@@ -108,6 +108,11 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         return energyStorage.getEnergyStored();
     }
 
+    /** Забрати енергію з внутрішнього буфера контролера (для зарядки бездротового термінала). */
+    public int drawEnergy(int amount) {
+        return energyStorage.consumeInternalEnergy(Math.max(0, amount));
+    }
+
     public int getMaxEnergyStored() {
         return energyStorage.getMaxEnergyStored();
     }

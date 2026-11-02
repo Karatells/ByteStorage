@@ -115,5 +115,15 @@
   "gui.simple_bytestorage.iobus.import": "Режим: імпорт",
   "gui.simple_bytestorage.iobus.export": "Режим: експорт",
   "gui.simple_bytestorage.iobus.import.tip": "Забирає предмети із сусіднього інвентаря в мережу. Список — білий (порожньо = усе). Клік — перемкнути.",
-  "gui.simple_bytestorage.iobus.export.tip": "Тримає в сусідньому інвентарі вказану кількість кожного предмета, беручи з мережі. ЛКМ по слоту задає розмір стака, ПКМ — +1. Клік — перемкнути."
+  "gui.simple_bytestorage.iobus.export.tip": "Тримає в сусідньому інвентарі вказану кількість кожного предмета, беручи з мережі. ЛКМ по слоту задає розмір стака, ПКМ — +1. Клік — перемкнути.",
+  "item.simple_bytestorage.wireless_terminal": "Бездротовий термінал",
+  "tooltip.simple_bytestorage.wireless.energy": "Енергія: %s / %s FE",
+  "tooltip.simple_bytestorage.wireless.bound": "Прив'язаний до термінала %s, %s, %s",
+  "tooltip.simple_bytestorage.wireless.help": "Shift + ПКМ по Терміналу — прив'язати. Ще раз Shift + клік — зарядити від мережі.",
+  "msg.simple_bytestorage.wireless.bound": "Прив'язано до термінала %s, %s, %s",
+  "msg.simple_bytestorage.wireless.unbound": "Не прив'язаний: Shift + ПКМ по Терміналу",
+  "msg.simple_bytestorage.wireless.unreachable": "Термінал недоступний (чанк не завантажено або блок видалено)",
+  "msg.simple_bytestorage.wireless.no_network": "Мережа вимкнена",
+  "msg.simple_bytestorage.wireless.no_energy": "Не вистачає енергії: Shift + клік по прив'язаному Терміналу — зарядити",
+  "msg.simple_bytestorage.wireless.charged": "Заряджено: %s / %s FE"
 }

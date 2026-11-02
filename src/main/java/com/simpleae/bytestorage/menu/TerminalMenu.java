@@ -30,6 +30,7 @@ public class TerminalMenu extends AbstractContainerMenu {
 
     private final TerminalBlockEntity terminalEntity;
     private final Player player;
+    private final boolean wireless;
 
     // Клієнтський стан сховища
     private int clientTotalCapacity = 0;
@@ -46,7 +47,13 @@ public class TerminalMenu extends AbstractContainerMenu {
 
     // Серверний конструктор
     public TerminalMenu(int containerId, Inventory playerInventory, TerminalBlockEntity terminalEntity) {
+        this(containerId, playerInventory, terminalEntity, false);
+    }
+
+    /** @param wireless true — відкрито бездротовим терміналом: відстань до блока не обмежена. */
+    public TerminalMenu(int containerId, Inventory playerInventory, TerminalBlockEntity terminalEntity, boolean wireless) {
         super(SimpleByteStorage.TERMINAL_MENU.get(), containerId);
+        this.wireless = wireless;
         this.terminalEntity = terminalEntity;
         this.player = playerInventory.player;
 
@@ -66,6 +73,10 @@ public class TerminalMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         if (terminalEntity == null) return false;
+        if (wireless) {
+            net.minecraft.world.level.Level lvl = this.terminalEntity.getNodeLevel();
+            return lvl != null && lvl.getBlockState(this.terminalEntity.getNodePos()).is(SimpleByteStorage.TERMINAL_BLOCK.get());
+        }
         return stillValid(this.terminalEntity.getNodeLevel(), this.terminalEntity.getNodePos(), player, SimpleByteStorage.TERMINAL_BLOCK.get());
     }
 
