@@ -30,7 +30,8 @@ jobs:
       - name: Collect jars
         run: |
           mkdir -p dist
-          for f in build/libs/*.jar; do
+          for f in build/libs/*.jar scripting/build/libs/*.jar; do
+            [ -f "$f" ] || continue
             case "$f" in
               *-sources.jar|*-javadoc.jar) continue ;;
             esac
@@ -40,20 +41,31 @@ jobs:
             ver=$(grep -oP "^version\s*=\s*'\K[^']+" build.gradle)
             cp build/reobfJar/output.jar "dist/simple_bytestorage-${ver}.jar"
           fi
+          if [ -f scripting/build/reobfJar/output.jar ]; then
+            ver=$(grep -oP "^version\s*=\s*'\K[^']+" scripting/build.gradle)
+            cp scripting/build/reobfJar/output.jar "dist/simple_bytestorage_scripting-${ver}.jar"
+          fi
           ls -la dist
 
       # Каждый jar — отдельным артефактом
-      - name: Upload mod jar (reobf, for the game)
+      - name: Upload core mod jar (reobf, for the game)
         uses: actions/upload-artifact@v4
         with:
           name: simple_bytestorage-mod-jar
           path: dist/simple_bytestorage-*[0-9].jar
           if-no-files-found: warn
 
-      - name: Upload dev jar
+      - name: Upload scripting addon jar (optional addon)
         uses: actions/upload-artifact@v4
         with:
-          name: simple_bytestorage-dev-jar
+          name: simple_bytestorage_scripting-addon-jar
+          path: dist/simple_bytestorage_scripting-*[0-9].jar
+          if-no-files-found: warn
+
+      - name: Upload dev jars
+        uses: actions/upload-artifact@v4
+        with:
+          name: simple_bytestorage-dev-jars
           path: dist/*-dev.jar
           if-no-files-found: warn
 

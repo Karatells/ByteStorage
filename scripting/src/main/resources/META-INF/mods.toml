@@ -1,0 +1,35 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+
+[[mods]]
+modId="simple_bytestorage_scripting"
+version="1.0.0+build.7"
+displayName="SimpleAE: Scripting"
+authors="SimpleAE Team"
+description='''
+Необов'язковий аддон для SimpleAE: ByteStorage.
+Додає Логічну шину та Логічний термінал — JavaScript-скрипти (Rhino)
+для переміщення предметів між інтерфейсами мережі.
+'''
+
+[[dependencies.simple_bytestorage_scripting]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.simple_bytestorage_scripting]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.simple_bytestorage_scripting]]
+    modId="simple_bytestorage"
+    mandatory=true
+    versionRange="[1.0.0,)"
+    ordering="AFTER"
+    side="BOTH"

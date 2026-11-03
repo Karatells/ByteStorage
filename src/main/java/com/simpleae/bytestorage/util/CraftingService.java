@@ -249,6 +249,45 @@ public final class CraftingService {
         return accepted;
     }
 
+    // --- Стабільний API для аддонів ---
+
+    /**
+     * Замовляє автокрафт предмета за поточним станом мережі.
+     * Використовується аддонами (наприклад, SimpleAE: Scripting).
+     *
+     * @return кількість виконань шаблону, прийнятих у чергу (0 — шаблону немає, не вистачає ресурсів або немає машин)
+     */
+    public static int requestCraft(IGrid grid, ItemStack output, int amount) {
+        if (grid == null || output.isEmpty() || amount <= 0) {
+            return 0;
+        }
+        PatternData found = null;
+        String wanted = key(output);
+        for (PatternData pattern : allPatterns(grid)) {
+            if (key(pattern.getOutput()).equals(wanted)) {
+                found = pattern;
+                break;
+            }
+        }
+        if (found == null || routeError(grid, found) != null) {
+            return 0;
+        }
+        int perCraft = Math.max(1, found.getOutput().getCount());
+        int crafts = (amount + perCraft - 1) / perCraft;
+        Plan plan = plan(grid, found, crafts);
+        if (!plan.isOk()) {
+            return 0;
+        }
+        int accepted = 0;
+        for (Step step : plan.steps) {
+            int got = enqueue(grid, step.pattern, step.crafts);
+            if (step.pattern == found || step.pattern.getId().equals(found.getId())) {
+                accepted += got;
+            }
+        }
+        return accepted;
+    }
+
     // --- Черга мережі ---
 
     /** Рядок зведеної черги мережі. */

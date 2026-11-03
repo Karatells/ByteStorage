@@ -7,3 +7,5 @@ pluginManagement {
 }
 
 rootProject.name = 'simple_bytestorage'
+include 'scripting'
+project(':scripting').projectDir = file('scripting')

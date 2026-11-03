@@ -1,0 +1,61 @@
+plugins {
+    id 'java'
+    id 'net.minecraftforge.gradle'
+}
+
+group = 'com.simpleae'
+// Повна версія аддона: <версія>+build.<номер_зборки>
+version = '1.0.0+build.7'
+archivesBaseName = 'simple_bytestorage_scripting'
+
+evaluationDependsOn(':')
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+minecraft {
+    mappings channel: 'official', version: '1.20.1'
+    copyIdeResources = true
+}
+
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.minecraftforge.net/' }
+}
+
+configurations {
+    // Rhino вкладається ЛИШЕ в jar аддона (основний мод його не містить)
+    shade
+    compileOnly.extendsFrom shade
+}
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.2.0'
+
+    // Основний мод — лише для компіляції (у грі це окремий мод-залежність)
+    compileOnly project(':').sourceSets.main.output
+
+    shade 'org.mozilla:rhino:1.7.15'
+}
+
+jar {
+    manifest {
+        attributes([
+            "Specification-Title"     : "simple_bytestorage_scripting",
+            "Specification-Vendor"    : "SimpleAE",
+            "Specification-Version"   : "1",
+            "Implementation-Title"    : project.name,
+            "Implementation-Version"  : project.jar.archiveVersion,
+            "Implementation-Vendor"   : "SimpleAE"
+        ])
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from {
+        configurations.shade.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    exclude 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/MANIFEST.MF.orig'
+    finalizedBy 'reobfJar'
+}
