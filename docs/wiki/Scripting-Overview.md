@@ -32,8 +32,27 @@ Buttons:
 | Run / Stop | Starts or stops the script. |
 | Reload | Discards edits and reloads the script stored on the bus. |
 | − / + | Changes the run interval by 10 ticks. |
+| Set ID | Assigns the identifier typed in the ID field to the selected bus (see below). |
 
 The terminal must be within ~12 blocks of the player for actions to be accepted. If `opsOnly` is on and you aren't allowed, the terminal is read-only.
+
+## Identifiers
+
+Every Logic Bus can have an **identifier** (ID). A script always runs on one bus, but with an ID it can reach the inventories next to **other** buses of the same network, selected by name.
+
+- Allowed characters: letters, digits, `_`, `-`, `.`. Maximum 32 characters. Anything else is removed. IDs are case-sensitive. An empty ID means "no ID".
+- **IDs need not be unique.** Several buses with the same ID form a **group**: `side("up", "smelters")` returns **one endpoint** that covers the inventories above *all* buses with the ID `smelters`.
+- A script can only reach buses of **its own network**.
+
+### In the terminal
+
+The right-hand side of the Logic Terminal is the ID panel:
+
+- **Identifiers**: a list of every ID that already exists in this network, with the number of buses using it (`x3` = three buses). The ID of the selected bus is highlighted. **Click an ID** to copy it into the field below.
+- **Bus ID field** and **Set ID** button: type an ID and press the button to assign it to the selected bus. An empty field **removes** the ID.
+- In the bus list on the left, a bus with an ID is shown by its ID (in colour), otherwise by its coordinates. Hover a row to see ID and coordinates.
+
+Changing an ID does not stop the bus and doesn't need a re-save. The script sees the new value on its next run (`busId` is refreshed every run; `side(…, id)` looks buses up each call).
 
 ## Execution model
 
@@ -66,4 +85,4 @@ function tick() {
 
 ## Persistence
 
-Script text, enabled flag and interval are stored in the block entity's NBT. Script variables and the log are **not** persisted. After a world restart an enabled bus recompiles and continues.
+Script text, identifier, enabled flag and interval are stored in the block entity's NBT. Script variables and the log are **not** persisted. After a world restart an enabled bus recompiles and continues.

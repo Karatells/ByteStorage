@@ -1,6 +1,6 @@
 # Scripting Examples
 
-Paste an example into the Logic Terminal, press **Save**, then **Run**. Directions (`"up"`, `"north"`, …) are relative to the Logic Bus; change them to match your build. Item ids are 1.20.1 ids.
+Paste an example into the Logic Terminal, press **Save**, then **Run**. Examples marked *(IDs)* need buses with identifiers: select the bus, type the ID in the right-hand panel and press **Set ID**. Directions (`"up"`, `"north"`, …) are relative to the Logic Bus; change them to match your build. Item ids are 1.20.1 ids.
 
 ## 1. Import everything from a chest
 
@@ -191,3 +191,94 @@ function tick() {
 ```
 
 Budget errors (instruction, time, call limits) cannot be caught, they stop the bus.
+
+---
+
+# Examples with identifiers
+
+## 11. Feed a group of furnaces (IDs)
+
+Give every bus that sits next to a furnace the ID `smelters`. **One** script on any bus (even one without the ID) feeds all of them. `push` fills them in order.
+
+```js
+function tick() {
+  var furnaces = side("north", "smelters");   // north of every "smelters" bus
+  if (!furnaces) return;
+  furnaces.push("minecraft:raw_iron", 16);
+  furnaces.push("minecraft:coal", 8);
+}
+```
+
+## 12. Many input chests, many output chests (IDs)
+
+Buses with ID `inbox` have chests on top, buses with ID `outbox` have chests below.
+
+```js
+function tick() {
+  var inbox  = side("up", "inbox");
+  var outbox = side("down", "outbox");
+  if (inbox)  inbox.pull();                        // collect everything into the network
+  if (outbox) outbox.push("minecraft:cobblestone", 64);
+}
+```
+
+## 13. Sorting by group (IDs)
+
+```js
+var sources = side("up", "sort_in");
+var ores    = side("up", "sort_ores");
+var wood    = side("up", "sort_wood");
+
+function tick() {
+  if (!sources) return;
+  var stacks = sources.list();
+  for (var i = 0; i < stacks.length; i++) {
+    var id = stacks[i].id;
+    if (ores && /_ore$|^minecraft:raw_/.test(id))      sources.move(ores, id);
+    else if (wood && /_log$|_planks$/.test(id))        sources.move(wood, id);
+  }
+}
+```
+
+## 14. Status report for several groups (IDs)
+
+```js
+var groups = ["smelters", "inbox", "outbox"];
+
+function tick() {
+  var parts = [];
+  for (var i = 0; i < groups.length; i++) {
+    parts.push(groups[i] + "=" + buses(groups[i]));
+  }
+  log("buses:", parts.join(" "));
+}
+```
+
+## 15. One script, behaviour chosen by ID (IDs)
+
+The same script text can be pasted into several buses; `busId` tells each one who it is.
+
+```js
+function tick() {
+  var me = side("up");
+  if (!me) return;
+  if (busId === "importer")      me.pull();
+  else if (busId === "coal")     me.push("minecraft:coal", 32);
+  else                           log("no role for", busId || "(no id)");
+}
+```
+
+## 16. Fail-safe group access (IDs)
+
+```js
+function group(dir, id) {
+  var ep = side(dir, id);
+  if (!ep) log("group", id, "not found on side", dir, "(" + buses(id) + " buses)");
+  return ep;
+}
+
+function tick() {
+  var ep = group("up", "furnaces");
+  if (ep) ep.push("minecraft:coal", 8);
+}
+```

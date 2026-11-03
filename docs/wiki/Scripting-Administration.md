@@ -29,6 +29,8 @@ What the sandbox does:
 - **No Java access**: a deny-all class filter is set, no `Packages`/`java` globals, and the API returns only plain JS values.
 - **No** file, network, or command access.
 - Limits for instructions, time, items, API calls, interpreter stack depth, and craft orders.
+- A script can only look up buses of **its own network** (`side(dir, id)`, `buses(id)`); it cannot reach other networks.
+- Identifiers are sanitised on the server (letters, digits, `_ - .`, max 32).
 - Budget errors derive from `Error`, so scripts cannot swallow them with `try`/`catch`.
 - Known memory-amplifying built-ins (`String.prototype.repeat`, `padStart`, `padEnd`, `Array.prototype.fill`) are removed.
 
@@ -44,7 +46,7 @@ What it does **not** do:
 | Action | `opsOnly = false` | `opsOnly = true` |
 |---|---|---|
 | Read scripts and logs | anyone using the terminal | anyone using the terminal |
-| Save / run / stop / interval | anyone using the terminal | operators (level 2+) and the single-player owner |
+| Save / run / stop / interval / assign IDs | anyone using the terminal | operators (level 2+) and the single-player owner |
 
 The server also verifies that the player is within ~12 blocks of the terminal and that the bus belongs to the terminal's network.
 
@@ -52,4 +54,4 @@ The server also verifies that the player is within ~12 blocks of the terminal an
 
 - Without the addon jar, the blocks and items simply don't exist, and nothing else changes.
 - If you **remove** the addon from a world that already has Logic Buses, Forge will warn about missing registry entries and those blocks disappear. Remove them first if you care about the contents.
-- Clients need the addon too (it adds blocks and a GUI); the network channel versions must match.
+- Clients need the addon too (it adds blocks and a GUI); the network channel versions must match (channel protocol `2` since identifiers were added, so an old client can't join a new server).
