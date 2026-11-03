@@ -266,6 +266,9 @@ public class SimpleByteStorage {
             () -> new com.simpleae.bytestorage.item.SpeedCardItem(new Item.Properties().stacksTo(16)));
 
     // --- 8c. Бездротовий термінал ---
+    public static final RegistryObject<Item> GUIDE_BOOK = ITEMS.register("guide_book",
+            () -> new com.simpleae.bytestorage.item.GuideBookItem(new Item.Properties().stacksTo(1)));
+
     public static final RegistryObject<Item> WIRELESS_TERMINAL = ITEMS.register("wireless_terminal",
             () -> new com.simpleae.bytestorage.item.WirelessTerminalItem(new Item.Properties().stacksTo(1)));
 
@@ -301,6 +304,7 @@ public class SimpleByteStorage {
                         output.accept(PATTERN_ITEM.get());
                         output.accept(SPEED_CARD.get());
                         output.accept(WIRELESS_TERMINAL.get());
+                        output.accept(GUIDE_BOOK.get());
                         output.accept(CELL_1K.get());
                         output.accept(CELL_4K.get());
                         output.accept(CELL_16K.get());
@@ -332,6 +336,7 @@ public class SimpleByteStorage {
 
     private void clientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
+            com.simpleae.bytestorage.client.guide.GuideRegistry.registerBuiltin();
             MenuScreens.register(TERMINAL_MENU.get(), TerminalScreen::new);
             MenuScreens.register(CRAFTING_TERMINAL_MENU.get(), CraftingTerminalScreen::new);
             MenuScreens.register(DRIVE_MENU.get(), DriveScreen::new);

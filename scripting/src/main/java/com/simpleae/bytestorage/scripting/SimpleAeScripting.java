@@ -20,7 +20,10 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -83,6 +86,23 @@ public class SimpleAeScripting {
         TABS.register(modEventBus);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, ScriptingConfig.SPEC);
         modEventBus.addListener(this::commonSetup);
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            modEventBus.addListener(this::clientSetup);
+        }
+    }
+
+    /** Додає розділи про скрипти в Книгу-довідник основного мода. */
+    private void clientSetup(final FMLClientSetupEvent event) {
+        event.enqueueWork(() -> {
+            String[] ids = {"intro", "api", "examples", "admin"};
+            int order = 100;
+            for (String id : ids) {
+                com.simpleae.bytestorage.client.guide.GuideRegistry.register(
+                        new com.simpleae.bytestorage.client.guide.GuideRegistry.Chapter("scripting_" + id, order += 10,
+                                "guide.simple_bytestorage_scripting." + id + ".title",
+                                "guide.simple_bytestorage_scripting." + id + ".body"));
+            }
+        });
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {

@@ -5,7 +5,7 @@ plugins {
 
 group = 'com.simpleae'
 // Повна версія аддона: <версія>+build.<номер_зборки>
-version = '1.0.0+build.7'
+version = '1.0.0+build.8'
 archivesBaseName = 'simple_bytestorage_scripting'
 
 evaluationDependsOn(':')
