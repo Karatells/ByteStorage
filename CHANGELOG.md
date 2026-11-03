@@ -4,6 +4,10 @@ All notable changes to the **SimpleAE: ByteStorage** mod will be documented in t
 
 ## [Unreleased]
 
+### Added — аддон SimpleAE: Scripting (build 7)
+- Окремий необов'язковий мод у каталозі `scripting/` (той самий репозиторій, другий jar): Логічна шина + Логічний термінал, JavaScript через Rhino (вкладений лише в аддон), пісочниця з лімітами, серверний конфіг (enabled/opsOnly/ліміти). Див. `scripting/README.md`.
+- Основний мод: `CraftingService.requestCraft(grid, stack, amount)` — стабільна точка входу для аддонів. CI збирає два jar.
+
 ### Added — інтеграція з JEI (build 6)
 - Кнопка «+» у JEI переносить рецепт у Термінал Кодування Шаблонів: верстак → режим «Верстак», піч/плавильня/коптильня/каменерізка → режим «Процес» (входи + результат). Пакет `EncoderFillPacket`, протокол 4. JEI потрібен лише для компіляції (`compileOnly`), без нього мод працює як раніше.
 

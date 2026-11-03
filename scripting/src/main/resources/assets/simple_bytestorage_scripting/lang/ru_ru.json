@@ -1,0 +1,19 @@
+{
+  "itemGroup.simple_bytestorage_scripting": "SimpleAE: Скрипты",
+  "block.simple_bytestorage_scripting.logic_bus": "Логическая шина",
+  "block.simple_bytestorage_scripting.logic_terminal": "Логический терминал",
+  "gui.simple_bytestorage_scripting.save": "Сохранить",
+  "gui.simple_bytestorage_scripting.save.tip": "Сохранить скрипт (шина остановится до нажатия «Пуск»)",
+  "gui.simple_bytestorage_scripting.run": "Пуск",
+  "gui.simple_bytestorage_scripting.stop": "Стоп",
+  "gui.simple_bytestorage_scripting.run.tip": "Запустить/остановить скрипт",
+  "gui.simple_bytestorage_scripting.reload": "Загрузить",
+  "gui.simple_bytestorage_scripting.reload.tip": "Отменить правки, загрузить скрипт из шины",
+  "gui.simple_bytestorage_scripting.no_buses": "Нет Логических шин",
+  "gui.simple_bytestorage_scripting.loading": "Загрузка...",
+  "gui.simple_bytestorage_scripting.disabled": "Скрипты отключены администратором",
+  "gui.simple_bytestorage_scripting.offline": "Сеть не работает",
+  "gui.simple_bytestorage_scripting.readonly": "Только чтение: нужны права оператора",
+  "item.simple_bytestorage_scripting.logic_bus": "Логическая шина",
+  "item.simple_bytestorage_scripting.logic_terminal": "Логический терминал"
+}

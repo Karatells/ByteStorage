@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shapeless","category":"misc","ingredients":[{"item":"simple_bytestorage:io_bus"},{"item":"minecraft:comparator"},{"item":"minecraft:redstone"}],"result":{"item":"simple_bytestorage_scripting:logic_bus","count":1}}

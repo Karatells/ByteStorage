@@ -1,0 +1,19 @@
+{
+  "itemGroup.simple_bytestorage_scripting": "SimpleAE: Scripting",
+  "block.simple_bytestorage_scripting.logic_bus": "Logic Bus",
+  "block.simple_bytestorage_scripting.logic_terminal": "Logic Terminal",
+  "gui.simple_bytestorage_scripting.save": "Save",
+  "gui.simple_bytestorage_scripting.save.tip": "Save script (bus is stopped until you press Run)",
+  "gui.simple_bytestorage_scripting.run": "Run",
+  "gui.simple_bytestorage_scripting.stop": "Stop",
+  "gui.simple_bytestorage_scripting.run.tip": "Start/stop the script",
+  "gui.simple_bytestorage_scripting.reload": "Reload",
+  "gui.simple_bytestorage_scripting.reload.tip": "Discard edits, load script from the bus",
+  "gui.simple_bytestorage_scripting.no_buses": "No Logic Buses",
+  "gui.simple_bytestorage_scripting.loading": "Loading...",
+  "gui.simple_bytestorage_scripting.disabled": "Scripting disabled by server admin",
+  "gui.simple_bytestorage_scripting.offline": "Network offline",
+  "gui.simple_bytestorage_scripting.readonly": "Read-only: operators only",
+  "item.simple_bytestorage_scripting.logic_bus": "Logic Bus",
+  "item.simple_bytestorage_scripting.logic_terminal": "Logic Terminal"
+}

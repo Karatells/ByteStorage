@@ -1,0 +1,19 @@
+{
+  "itemGroup.simple_bytestorage_scripting": "SimpleAE: Скрипти",
+  "block.simple_bytestorage_scripting.logic_bus": "Логічна шина",
+  "block.simple_bytestorage_scripting.logic_terminal": "Логічний термінал",
+  "gui.simple_bytestorage_scripting.save": "Зберегти",
+  "gui.simple_bytestorage_scripting.save.tip": "Зберегти скрипт (шина зупиниться до натискання «Пуск»)",
+  "gui.simple_bytestorage_scripting.run": "Пуск",
+  "gui.simple_bytestorage_scripting.stop": "Стоп",
+  "gui.simple_bytestorage_scripting.run.tip": "Запустити/зупинити скрипт",
+  "gui.simple_bytestorage_scripting.reload": "Завантажити",
+  "gui.simple_bytestorage_scripting.reload.tip": "Скасувати правки, завантажити скрипт із шини",
+  "gui.simple_bytestorage_scripting.no_buses": "Немає Логічних шин",
+  "gui.simple_bytestorage_scripting.loading": "Завантаження...",
+  "gui.simple_bytestorage_scripting.disabled": "Скрипти вимкнено адміністратором",
+  "gui.simple_bytestorage_scripting.offline": "Мережа не працює",
+  "gui.simple_bytestorage_scripting.readonly": "Лише читання: потрібні права оператора",
+  "item.simple_bytestorage_scripting.logic_bus": "Логічна шина",
+  "item.simple_bytestorage_scripting.logic_terminal": "Логічний термінал"
+}
