@@ -4,6 +4,9 @@ All notable changes to the **SimpleAE: ByteStorage** mod will be documented in t
 
 ## [Unreleased]
 
+### Added — документація
+- `docs/wiki/`: англомовна вікі для обох модів (інструкції, рецепти, API скриптів, 10 прикладів, адміністрування) та workflow `wiki.yml` для автопублікації в GitHub Wiki.
+
 ### Added — Книга-довідник (build 8)
 - Предмет «Довідник SimpleAE» (рецепт: книга + кабель): екран з розділами про всі можливості мода (en/ru/uk). Одна книга на обидва мода: аддон Scripting додає в неї розділи про скрипти через `GuideRegistry.register` — без аддона цих розділів немає.
 
