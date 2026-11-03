@@ -13,4 +13,10 @@ public interface BusContext {
     BlockPos pos();
 
     void log(String message);
+
+    /** Ідентифікатор цієї шини ("" — не заданий). */
+    String identifier();
+
+    /** Усі Логічні шини цієї мережі з таким ідентифікатором (у стабільному порядку за позицією). */
+    java.util.List<BusContext> busesWithId(String id);
 }

@@ -6,6 +6,7 @@ import com.simpleae.bytestorage.scripting.net.ScriptActionPacket;
 import com.simpleae.bytestorage.scripting.net.ScriptStatePacket;
 import com.simpleae.bytestorage.scripting.net.ScriptingPackets;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
@@ -13,20 +14,28 @@ import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /** Редактор скриптів Логічних шин мережі. */
 public class LogicTerminalScreen extends Screen {
 
-    private static final int W = 360;
+    private static final int W = 466;
     private static final int H = 232;
     private static final int ROW_H = 16;
     private static final int LIST_ROWS = 12;
+    private static final int ID_ROWS = 9;
+    private static final int ID_X = 362;
 
     private final BlockPos terminal;
     private int left;
     private int top;
 
     private MultiLineEditBox editor;
+    private EditBox idBox;
+    private BlockPos idLoadedFor;
+    private String lastServerId = "";
+    private int idScroll = 0;
     private final List<UiButton> buttons = new ArrayList<>();
 
     private ScriptStatePacket state;
@@ -52,7 +61,20 @@ public class LogicTerminalScreen extends Screen {
         this.addRenderableWidget(this.editor);
         this.setInitialFocus(this.editor);
 
+        String previousId = this.idBox != null ? this.idBox.getValue() : "";
+        this.idBox = new EditBox(this.font, left + ID_X, top + 146, 96, 16, Component.empty());
+        this.idBox.setMaxLength(32);
+        this.idBox.setFilter(text -> text.matches("[A-Za-z0-9_.\\-]*"));
+        this.idBox.setHint(Component.translatable("gui.simple_bytestorage_scripting.id.hint"));
+        this.idBox.setValue(previousId);
+        this.addRenderableWidget(this.idBox);
+
         buttons.clear();
+        buttons.add(new UiButton(left + ID_X, top + 166, 96, 16,
+                () -> Component.translatable("gui.simple_bytestorage_scripting.id.set"), UiButton.Icon.NONE,
+                () -> send(ScriptActionPacket.SET_ID, 0, idBox.getValue()))
+                .enabledWhen(this::canAct).primary()
+                .tooltip(Component.translatable("gui.simple_bytestorage_scripting.id.set.tip")));
         int by = top + 142;
         buttons.add(new UiButton(left + 112, by, 52, 16,
                 () -> Component.translatable("gui.simple_bytestorage_scripting.save"), UiButton.Icon.NONE,
@@ -90,11 +112,41 @@ public class LogicTerminalScreen extends Screen {
         if (packet.withScript) {
             this.editor.setValue(packet.script);
         }
+        syncIdBox();
         if (selected == null && !autoSelected && !packet.buses.isEmpty()) {
             autoSelected = true;
             selected = packet.buses.get(0).pos();
             send(ScriptActionPacket.LIST, 0, "");
         }
+    }
+
+    private void syncIdBox() {
+        ScriptStatePacket.BusInfo info = selectedInfo();
+        if (info == null) {
+            idLoadedFor = null;
+            lastServerId = "";
+            idBox.setValue("");
+            return;
+        }
+        // Поле перезаписуємо лише при зміні вибору або коли id на сервері змінився (щоб не псувати введення)
+        if (!info.pos().equals(idLoadedFor) || !info.id().equals(lastServerId)) {
+            idBox.setValue(info.id());
+            idLoadedFor = info.pos();
+            lastServerId = info.id();
+        }
+    }
+
+    /** Унікальні ідентифікатори мережі з кількістю шин. */
+    private Map<String, Integer> idCounts() {
+        Map<String, Integer> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        if (state != null) {
+            for (ScriptStatePacket.BusInfo info : state.buses) {
+                if (!info.id().isEmpty()) {
+                    map.merge(info.id(), 1, Integer::sum);
+                }
+            }
+        }
+        return map;
     }
 
     private ScriptStatePacket.BusInfo selectedInfo() {
@@ -151,6 +203,16 @@ public class LogicTerminalScreen extends Screen {
             }
         }
         if (state != null && button == 0) {
+            int ix = left + ID_X;
+            int iy = top + 31;
+            if (mouseX >= ix && mouseX < ix + 96 && mouseY >= iy && mouseY < iy + ID_ROWS * 10) {
+                List<String> ids = new ArrayList<>(idCounts().keySet());
+                int index = idScroll + (int) ((mouseY - iy) / 10);
+                if (index >= 0 && index < ids.size()) {
+                    idBox.setValue(ids.get(index));
+                    return true;
+                }
+            }
             int lx = left + 6;
             int ly = top + 20;
             if (mouseX >= lx && mouseX < lx + 100 && mouseY >= ly && mouseY < ly + LIST_ROWS * ROW_H) {
@@ -167,6 +229,11 @@ public class LogicTerminalScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        if (state != null && mouseX >= left + ID_X) {
+            int max = Math.max(0, idCounts().size() - ID_ROWS);
+            idScroll = Math.max(0, Math.min(max, idScroll - (int) Math.signum(delta)));
+            return true;
+        }
         if (state != null && mouseX >= left + 6 && mouseX < left + 106) {
             int max = Math.max(0, state.buses.size() - LIST_ROWS);
             listScroll = Math.max(0, Math.min(max, listScroll - (int) Math.signum(delta)));
@@ -206,8 +273,10 @@ public class LogicTerminalScreen extends Screen {
                 int dot = info.status().startsWith("ERROR") ? GuiStyle.LED_BAD
                         : (info.enabled() ? GuiStyle.LED_GOOD : GuiStyle.LED_WARN);
                 g.fill(left + 10, ry + 4, left + 15, ry + 9, dot);
-                String name = info.pos().getX() + " " + info.pos().getY() + " " + info.pos().getZ();
-                g.drawString(this.font, this.font.plainSubstrByWidth(name, 84), left + 19, ry + 3, GuiStyle.TEXT_TITLE, false);
+                boolean hasId = !info.id().isEmpty();
+                String name = hasId ? info.id() : coords(info.pos());
+                g.drawString(this.font, this.font.plainSubstrByWidth(name, 84), left + 19, ry + 3,
+                        hasId ? GuiStyle.ACCENT : GuiStyle.TEXT_TITLE, false);
             }
             if (state.buses.isEmpty()) {
                 g.drawString(this.font, this.font.plainSubstrByWidth(
@@ -215,6 +284,8 @@ public class LogicTerminalScreen extends Screen {
                         left + 10, top + 26, GuiStyle.TEXT_MUTED, false);
             }
         }
+
+        drawIdPanel(g);
 
         // Лог / статус
         GuiStyle.display(g, left + 112, top + 162, 242, 64);
@@ -231,6 +302,47 @@ public class LogicTerminalScreen extends Screen {
         for (UiButton b : buttons) {
             b.renderTooltip(g, this.font, mouseX, mouseY);
         }
+        // Підказка з координатами шини під курсором
+        if (state != null && mouseX >= left + 6 && mouseX < left + 106
+                && mouseY >= top + 21 && mouseY < top + 21 + LIST_ROWS * ROW_H) {
+            int index = listScroll + (mouseY - top - 21) / ROW_H;
+            if (index >= 0 && index < state.buses.size()) {
+                ScriptStatePacket.BusInfo info = state.buses.get(index);
+                String text = (info.id().isEmpty() ? "" : info.id() + "  ") + coords(info.pos());
+                g.renderTooltip(this.font, Component.literal(text), mouseX, mouseY);
+            }
+        }
+    }
+
+    private static String coords(BlockPos pos) {
+        return pos.getX() + " " + pos.getY() + " " + pos.getZ();
+    }
+
+    /** Права панель: ідентифікатори мережі та поле для призначення. */
+    private void drawIdPanel(GuiGraphics g) {
+        GuiStyle.label(g, Component.translatable("gui.simple_bytestorage_scripting.id.list"), left + ID_X, top + 21);
+        GuiStyle.display(g, left + ID_X - 1, top + 30, 98, ID_ROWS * 10 + 2);
+        List<Map.Entry<String, Integer>> entries = new ArrayList<>(idCounts().entrySet());
+        if (entries.isEmpty()) {
+            g.drawString(this.font, this.font.plainSubstrByWidth(
+                    Component.translatable("gui.simple_bytestorage_scripting.id.none").getString(), 90),
+                    left + ID_X + 3, top + 34, GuiStyle.TEXT_MUTED, false);
+        }
+        ScriptStatePacket.BusInfo current = selectedInfo();
+        for (int row = 0; row < ID_ROWS; row++) {
+            int index = idScroll + row;
+            if (index >= entries.size()) {
+                break;
+            }
+            Map.Entry<String, Integer> entry = entries.get(index);
+            int ry = top + 31 + row * 10;
+            boolean mine = current != null && entry.getKey().equals(current.id());
+            String count = "x" + entry.getValue();
+            g.drawString(this.font, this.font.plainSubstrByWidth(entry.getKey(), 66), left + ID_X + 3, ry + 1,
+                    mine ? GuiStyle.ACCENT : GuiStyle.TEXT_TITLE, false);
+            g.drawString(this.font, count, left + ID_X + 93 - this.font.width(count), ry + 1, GuiStyle.TEXT_MUTED, false);
+        }
+        GuiStyle.label(g, Component.translatable("gui.simple_bytestorage_scripting.id.field"), left + ID_X, top + 135);
     }
 
     private void drawStatus(GuiGraphics g) {

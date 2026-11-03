@@ -43,10 +43,12 @@ final class Api {
     void beginRun(Budget budget) {
         this.budget = budget;
         endpoints.clear();
+        ScriptableObject.putProperty(scope, "busId", bus.identifier());
     }
 
     void install(Context cx) {
         ScriptableObject.putProperty(scope, "net", buildNet(cx));
+        // side(dir) — інвентар біля цієї шини; side(dir, id) — біля ВСІХ шин мережі з таким ідентифікатором
         ScriptableObject.putProperty(scope, "side", new Fn(scope, "side", (c, s, a) -> {
             budget.spendCall();
             String name = str(a, 0);
@@ -54,13 +56,31 @@ final class Api {
             if (dir == null) {
                 throw org.mozilla.javascript.ScriptRuntime.typeError("side(): expected down/up/north/south/west/east");
             }
-            BlockEntity be = bus.level().getBlockEntity(bus.pos().relative(dir));
-            if (be == null || be instanceof com.simpleae.bytestorage.api.network.IGridNode) {
+            String id = str(a, 1);
+            if (id == null) {
+                Port port = portAt(bus, dir);
+                return port == null ? null : buildEndpoint(c, port);
+            }
+            java.util.List<Port> ports = new java.util.ArrayList<>();
+            for (BusContext other : bus.busesWithId(id)) {
+                Port port = portAt(other, dir);
+                if (port != null) {
+                    ports.add(port);
+                }
+            }
+            if (ports.isEmpty()) {
                 return null;
             }
-            IItemHandler handler = be.getCapability(ForgeCapabilities.ITEM_HANDLER, dir.getOpposite()).orElse(null);
-            return handler == null ? null : buildEndpoint(c, new Port.Handler(handler));
+            return buildEndpoint(c, ports.size() == 1 ? ports.get(0) : new Port.Multi(ports));
         }));
+        // buses(id) — скільки шин мережі мають цей ідентифікатор
+        ScriptableObject.putProperty(scope, "buses", new Fn(scope, "buses", (c, s, a) -> {
+            budget.spendCall();
+            String id = str(a, 0);
+            return id == null ? 0 : bus.busesWithId(id).size();
+        }));
+        // busId — ідентифікатор цієї шини ("" якщо не заданий)
+        ScriptableObject.putProperty(scope, "busId", bus.identifier());
         ScriptableObject.putProperty(scope, "log", new Fn(scope, "log", (c, s, a) -> {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < a.length; i++) {
@@ -76,6 +96,15 @@ final class Api {
             return Undefined.instance;
         }));
         ScriptableObject.putProperty(scope, "time", new Fn(scope, "time", (c, s, a) -> bus.level().getGameTime()));
+    }
+
+    private static Port portAt(BusContext ctx, Direction dir) {
+        BlockEntity be = ctx.level().getBlockEntity(ctx.pos().relative(dir));
+        if (be == null || be instanceof com.simpleae.bytestorage.api.network.IGridNode) {
+            return null;
+        }
+        IItemHandler handler = be.getCapability(ForgeCapabilities.ITEM_HANDLER, dir.getOpposite()).orElse(null);
+        return handler == null ? null : new Port.Handler(handler);
     }
 
     // --- net ---

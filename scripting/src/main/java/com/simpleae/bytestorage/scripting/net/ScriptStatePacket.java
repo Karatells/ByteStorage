@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 public class ScriptStatePacket {
 
     /** Короткий опис шини в списку. */
-    public record BusInfo(BlockPos pos, boolean enabled, int interval, String status) {
+    public record BusInfo(BlockPos pos, boolean enabled, int interval, String status, String id) {
     }
 
     public final boolean modEnabled;
@@ -55,7 +55,7 @@ public class ScriptStatePacket {
         int count = buf.readVarInt();
         this.buses = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            buses.add(new BusInfo(buf.readBlockPos(), buf.readBoolean(), buf.readVarInt(), buf.readUtf(300)));
+            buses.add(new BusInfo(buf.readBlockPos(), buf.readBoolean(), buf.readVarInt(), buf.readUtf(300), buf.readUtf(64)));
         }
         this.selected = buf.readBoolean() ? buf.readBlockPos() : null;
         this.withScript = buf.readBoolean();
@@ -79,6 +79,7 @@ public class ScriptStatePacket {
             buf.writeBoolean(info.enabled());
             buf.writeVarInt(info.interval());
             buf.writeUtf(info.status(), 300);
+            buf.writeUtf(info.id(), 64);
         }
         buf.writeBoolean(selected != null);
         if (selected != null) {

@@ -49,6 +49,63 @@ abstract class Port {
         }
     }
 
+    /** Кілька інвентарів як один: слоти йдуть підряд, вставка пробує по черзі. */
+    static final class Multi extends Port {
+        private final java.util.List<Port> parts;
+
+        Multi(java.util.List<Port> parts) {
+            this.parts = parts;
+        }
+
+        @Override
+        int slots() {
+            int total = 0;
+            for (Port part : parts) {
+                total += part.slots();
+            }
+            return total;
+        }
+
+        private Port partAt(int slot, int[] local) {
+            int rest = slot;
+            for (Port part : parts) {
+                int n = part.slots();
+                if (rest < n) {
+                    local[0] = rest;
+                    return part;
+                }
+                rest -= n;
+            }
+            return null;
+        }
+
+        @Override
+        ItemStack get(int slot) {
+            int[] local = new int[1];
+            Port part = partAt(slot, local);
+            return part == null ? ItemStack.EMPTY : part.get(local[0]);
+        }
+
+        @Override
+        ItemStack extract(int slot, int amount, boolean simulate) {
+            int[] local = new int[1];
+            Port part = partAt(slot, local);
+            return part == null ? ItemStack.EMPTY : part.extract(local[0], amount, simulate);
+        }
+
+        @Override
+        ItemStack insert(ItemStack stack, boolean simulate) {
+            ItemStack rest = stack;
+            for (Port part : parts) {
+                rest = part.insert(rest, simulate);
+                if (rest.isEmpty()) {
+                    return ItemStack.EMPTY;
+                }
+            }
+            return rest;
+        }
+    }
+
     static final class Network extends Port {
         private final INetworkStorage storage;
         private final List<ItemStack> snapshot;

@@ -44,6 +44,7 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
     private String script = DEFAULT_SCRIPT;
     private boolean enabled = false;
     private int interval = 20;
+    private String identifier = "";
     private String status = "";
     private int counter = 0;
     private boolean dirty = true;
@@ -105,6 +106,26 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
     }
 
     @Override
+    public String identifier() {
+        return identifier;
+    }
+
+    @Override
+    public List<BusContext> busesWithId(String id) {
+        List<LogicBusBlockEntity> found = new ArrayList<>();
+        if (grid != null && id != null && !id.isEmpty()) {
+            for (IGridNode node : grid.getNodes()) {
+                if (node instanceof LogicBusBlockEntity bus && !bus.isRemoved()
+                        && bus.getLevel() == level && id.equals(bus.identifier)) {
+                    found.add(bus);
+                }
+            }
+        }
+        found.sort(java.util.Comparator.comparingLong((LogicBusBlockEntity b) -> b.getBlockPos().asLong()));
+        return new ArrayList<>(found);
+    }
+
+    @Override
     public void log(String message) {
         String line = message.length() > 160 ? message.substring(0, 160) : message;
         log.addLast(line);
@@ -125,6 +146,30 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
 
     public int getInterval() {
         return interval;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    /** Допустимі символи: літери, цифри, _ - . (до 32). Решта прибирається. */
+    public static String sanitizeIdentifier(String raw) {
+        StringBuilder sb = new StringBuilder();
+        for (char c : raw.trim().toCharArray()) {
+            if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')
+                    || c == '_' || c == '-' || c == '.') {
+                sb.append(c);
+                if (sb.length() >= 32) {
+                    break;
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    public void setIdentifier(String raw) {
+        this.identifier = sanitizeIdentifier(raw);
+        setChanged();
     }
 
     public String getStatus() {
@@ -211,6 +256,7 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
         tag.putString("Script", script);
         tag.putBoolean("Enabled", enabled);
         tag.putInt("Interval", interval);
+        tag.putString("Id", identifier);
     }
 
     @Override
@@ -220,6 +266,7 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
             script = tag.getString("Script");
         }
         enabled = tag.getBoolean("Enabled");
+        identifier = sanitizeIdentifier(tag.getString("Id"));
         interval = tag.contains("Interval") ? tag.getInt("Interval") : 20;
         dirty = true;
         runtime = null;

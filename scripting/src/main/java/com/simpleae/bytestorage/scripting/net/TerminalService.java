@@ -57,6 +57,7 @@ final class TerminalService {
                 case ScriptActionPacket.SAVE -> selected.setScript(text);
                 case ScriptActionPacket.ENABLE -> selected.setEnabled(intArg != 0);
                 case ScriptActionPacket.INTERVAL -> selected.setInterval(intArg);
+                case ScriptActionPacket.SET_ID -> selected.setIdentifier(text);
                 default -> {
                 }
             }
@@ -65,7 +66,7 @@ final class TerminalService {
         ScriptStatePacket.BusInfo[] infos = new ScriptStatePacket.BusInfo[buses.size()];
         for (int i = 0; i < infos.length; i++) {
             LogicBusBlockEntity bus = buses.get(i);
-            infos[i] = new ScriptStatePacket.BusInfo(bus.getBlockPos(), bus.isEnabled(), bus.getInterval(), bus.getStatus());
+            infos[i] = new ScriptStatePacket.BusInfo(bus.getBlockPos(), bus.isEnabled(), bus.getInterval(), bus.getStatus(), bus.getIdentifier());
         }
         boolean withScript = action == ScriptActionPacket.LIST && selected != null;
         ScriptStatePacket reply = new ScriptStatePacket(
