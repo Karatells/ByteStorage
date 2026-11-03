@@ -5,7 +5,7 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Інтерфейс для будь-якого компонента (ноди) мережі SimpleAE:
+ * Інтерфейс для будь-якого компонента (ноди) мережі Simple Byte Storage:
  * кабелі, контролер, накопичувачі дисків (Drive), термінали тощо.
  */
 public interface IGridNode {

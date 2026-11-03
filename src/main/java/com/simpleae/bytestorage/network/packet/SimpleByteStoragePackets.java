@@ -10,7 +10,7 @@ import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 
 /**
- * Реєстрація та відправка мережевих пакетів SimpleAE.
+ * Реєстрація та відправка мережевих пакетів Simple Byte Storage.
  */
 public class SimpleByteStoragePackets {
 

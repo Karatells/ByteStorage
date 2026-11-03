@@ -1,6 +1,6 @@
 # Guide Book
 
-The **SimpleAE Guide** is an in-game manual. Craft it with a **Book + Cable** (shapeless), then right-click.
+The **Simple Byte Storage Guide** is an in-game manual. Craft it with a **Book + Cable** (shapeless), then right-click.
 
 - Chapters on the left, text on the right. Scroll with the mouse wheel, PageUp/PageDown or the arrow keys.
 - Available in English, Russian and Ukrainian (follows your game language).

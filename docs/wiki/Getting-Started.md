@@ -20,7 +20,7 @@ See [Recipes](Recipes) for how to craft everything.
 
 ## How blocks join the network
 
-Every SimpleAE device is a *grid node*. Nodes connect to each other by **touching** (face to face), or through **Cables**. Every 20 ticks (1 second) the network is re-scanned starting from the controller (a breadth-first search over adjacent nodes). Anything not reachable from the controller is offline.
+Every Simple Byte Storage device is a *grid node*. Nodes connect to each other by **touching** (face to face), or through **Cables**. Every 20 ticks (1 second) the network is re-scanned starting from the controller (a breadth-first search over adjacent nodes). Anything not reachable from the controller is offline.
 
 There must be **exactly one controller** per connected network. Two controllers in one network put it into the `CONFLICT` state.
 

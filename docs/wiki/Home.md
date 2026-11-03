@@ -1,10 +1,10 @@
-# SimpleAE: ByteStorage
+# Simple Byte Storage
 
-**SimpleAE: ByteStorage** is a simplified Applied-Energistics-style storage and autocrafting mod for **Minecraft 1.20.1 (Forge 47.2+)**.
+**Simple Byte Storage** is a storage and autocrafting mod for **Minecraft 1.20.1 (Forge 47.2+)**.
 
 Its core idea is simple: **1 item = 1 byte**. There is no limit on the number of *different* item types in your network, only on the total number of items (bytes) your storage cells can hold.
 
-An optional addon, **SimpleAE: Scripting**, adds a Logic Bus and a Logic Terminal that run JavaScript to move items around your network.
+An optional addon, **Simple Byte Storage: Scripting**, adds a Logic Bus and a Logic Terminal that run JavaScript to move items around your network.
 
 ## Contents
 

@@ -30,7 +30,7 @@ import java.util.Set;
 /**
  * BlockEntity Контролера мережі (Network Controller).
  * 
- * Серце мережі SimpleAE:
+ * Серце мережі Simple Byte Storage:
  * - Приймає та накопичує Forge Energy (FE).
  * - Живить підключені компоненти (диски, кабелі, термінали).
  * - Сканує мережу, координує зв'язки та виявляє конфлікти.
@@ -145,7 +145,7 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
     }
 
     /**
-     * Пошук у ширину (BFS) для виявлення всіх з'єднаних компонентів мережі SimpleAE.
+     * Пошук у ширину (BFS) для виявлення всіх з'єднаних компонентів мережі Simple Byte Storage.
      */
     public void scanNetworkTopology() {
         if (level == null || level.isClientSide) return;

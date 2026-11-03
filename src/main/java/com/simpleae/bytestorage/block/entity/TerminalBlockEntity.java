@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * BlockEntity Термінала доступу до віртуального сховища SimpleAE.
+ * BlockEntity Термінала доступу до віртуального сховища Simple Byte Storage.
  */
 public class TerminalBlockEntity extends BlockEntity implements IGridNode, MenuProvider {
 

@@ -52,4 +52,4 @@
 | Logic Bus | Shapeless: I/O Bus + comparator + redstone |
 | Logic Terminal | Shapeless: Terminal + comparator + book |
 
-All items are also in the creative tabs (*SimpleAE: ByteStorage* and *SimpleAE: Scripting*).
+All items are also in the creative tabs (*Simple Byte Storage* and *Simple Byte Storage: Scripting*).

@@ -30,7 +30,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 /**
- * SimpleAE: Scripting — необов'язковий аддон до SimpleAE: ByteStorage.
+ * Simple Byte Storage: Scripting — необов'язковий аддон до Simple Byte Storage.
  * Без цього мода Логічної шини та Логічного терміналу у грі немає.
  */
 @Mod(SimpleAeScripting.MOD_ID)

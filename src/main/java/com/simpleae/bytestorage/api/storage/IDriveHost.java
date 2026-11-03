@@ -6,7 +6,7 @@ import net.minecraftforge.items.IItemHandler;
 import java.util.List;
 
 /**
- * Інтерфейс для пристроїв, що вміщують диски зберігання (наприклад, ME Drive / Drive Block).
+ * Інтерфейс для пристроїв, що вміщують диски зберігання (наприклад, Drive / Drive Block).
  */
 public interface IDriveHost extends IGridNode {
 

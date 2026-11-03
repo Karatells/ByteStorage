@@ -18,7 +18,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
-/** ME I/O-шина: автоматичний імпорт/експорт предметів між сусіднім інвентарем і мережею. */
+/** I/O-шина: автоматичний імпорт/експорт предметів між сусіднім інвентарем і мережею. */
 public class IoBusBlock extends BaseEntityBlock {
 
     public IoBusBlock(Properties properties) {

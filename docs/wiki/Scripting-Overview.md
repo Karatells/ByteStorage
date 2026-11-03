@@ -1,6 +1,6 @@
 # Scripting Overview
 
-**SimpleAE: Scripting** is an **optional addon**, shipped as a separate jar built from the same repository. It requires SimpleAE: ByteStorage.
+**Simple Byte Storage: Scripting** is an **optional addon**, shipped as a separate jar built from the same repository. It requires Simple Byte Storage.
 
 - **Not installed** → the Logic Bus and Logic Terminal do not exist in the game at all.
 - **Installed** → two new blocks, a creative tab, a server config, and new chapters in the [Guide Book](Guide-Book).

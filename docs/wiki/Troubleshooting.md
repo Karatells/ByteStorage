@@ -4,7 +4,7 @@
 
 - Is there **exactly one controller**, and is it **powered**? (`OFFLINE` = no energy, `CONFLICT` = two controllers.)
 - Are all devices **touching** each other or linked by cables? Remember the 1-second re-scan.
-- Did you connect through a block that is *not* a SimpleAE node? Only SimpleAE devices and cables carry the network.
+- Did you connect through a block that is *not* a Simple Byte Storage node? Only Simple Byte Storage devices and cables carry the network.
 
 ## Items don't go into the drive
 

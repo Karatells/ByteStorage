@@ -5,10 +5,10 @@ license="MIT"
 [[mods]]
 modId="simple_bytestorage_scripting"
 version="1.0.0+build.9"
-displayName="SimpleAE: Scripting"
-authors="SimpleAE Team"
+displayName="Simple Byte Storage: Scripting"
+authors="Simple Byte Storage Team"
 description='''
-Необов'язковий аддон для SimpleAE: ByteStorage.
+Необов'язковий аддон для Simple Byte Storage.
 Додає Логічну шину та Логічний термінал — JavaScript-скрипти (Rhino)
 для переміщення предметів між інтерфейсами мережі.
 '''

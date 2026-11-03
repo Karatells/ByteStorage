@@ -1,6 +1,6 @@
 # Autocrafting
 
-SimpleAE has two kinds of crafts:
+Simple Byte Storage has two kinds of crafts:
 
 | Kind | Where it runs | Pattern lives in |
 |---|---|---|

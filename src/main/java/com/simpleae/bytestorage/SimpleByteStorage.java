@@ -63,7 +63,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 /**
- * Головний клас моду SimpleAE: ByteStorage.
+ * Головний клас моду Simple Byte Storage.
  * Реєстрація блоків, предметів, сутностей, контейнерів та пакетів.
  */
 @Mod(SimpleByteStorage.MOD_ID)

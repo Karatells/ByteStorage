@@ -30,7 +30,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 /**
- * Блок Контролера мережі SimpleAE.
+ * Блок Контролера мережі Simple Byte Storage.
  * Центр живлення та керування мережею.
  */
 public class NetworkControllerBlock extends BaseEntityBlock {
@@ -101,7 +101,7 @@ public class NetworkControllerBlock extends BaseEntityBlock {
                     case OFFLINE -> ChatFormatting.GRAY;
                 };
 
-                player.sendSystemMessage(Component.literal("=== [ SimpleAE Network Controller ] ===").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
+                player.sendSystemMessage(Component.literal("=== [ Simple Byte Storage Network Controller ] ===").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
                 player.sendSystemMessage(Component.literal("Статус мережі: ").withStyle(ChatFormatting.GRAY)
                         .append(Component.literal(gridState.name()).withStyle(statusColor, ChatFormatting.BOLD)));
 

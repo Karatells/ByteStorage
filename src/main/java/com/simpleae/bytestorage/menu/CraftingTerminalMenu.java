@@ -29,11 +29,11 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Контейнер-меню Термінала Крафту SimpleAE (Crafting Terminal Menu).
+ * Контейнер-меню Термінала Крафту Simple Byte Storage (Crafting Terminal Menu).
  *
- * Поєднує функціональність звичайного термінала (перегляд ME-сховища)
+ * Поєднує функціональність звичайного термінала (перегляд сховища)
  * з крафтовою сіткою 3x3 та слотом результату.
- * Предмети для крафту беруться з інвентаря гравця або ME-сховища.
+ * Предмети для крафту беруться з інвентаря гравця або сховища.
  */
 public class CraftingTerminalMenu extends AbstractContainerMenu {
 
@@ -122,7 +122,7 @@ public class CraftingTerminalMenu extends AbstractContainerMenu {
     }
 
     /**
-     * Виконує крафт: споживає інгредієнти з ME-сховища та видає результат гравцю.
+     * Виконує крафт: споживає інгредієнти з сховища та видає результат гравцю.
      */
     private void craftResult(Player player, ItemStack result) {
         if (player.level().isClientSide) {
@@ -203,7 +203,7 @@ public class CraftingTerminalMenu extends AbstractContainerMenu {
     /**
      * Швидке переміщення (Shift-клік).
      * Якщо клік по слоту крафту або результату - переміщення в інвентар гравця.
-     * Якщо клік по інвентарю гравця - спроба вставити в ME-сховище.
+     * Якщо клік по інвентарю гравця - спроба вставити в сховище.
      */
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
@@ -227,7 +227,7 @@ public class CraftingTerminalMenu extends AbstractContainerMenu {
                 return ItemStack.EMPTY;
             }
         } else if (index >= 10 && index <= 45) {
-            // Інвентар гравця -> спроба в ME-сховище
+            // Інвентар гравця -> спроба в сховище
             if (!player.level().isClientSide() && terminalEntity != null
                     && terminalEntity.getGrid() != null
                     && terminalEntity.getGrid().getState().isActive()) {

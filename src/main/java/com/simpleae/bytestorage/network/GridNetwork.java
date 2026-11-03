@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 /**
- * Базова реалізація ME-подібної мережі SimpleAE.
+ * Базова реалізація мережі Simple Byte Storage.
  * Відповідає за збір нод, підрахунок енергії, виявлення конфліктів
  * та управління спільним пулом зберігання (ByteStorageHandler).
  */

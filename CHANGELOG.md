@@ -1,6 +1,6 @@
-# Changelog — SimpleAE: ByteStorage
+# Changelog — Simple Byte Storage
 
-All notable changes to the **SimpleAE: ByteStorage** mod will be documented in this file.
+All notable changes to the **Simple Byte Storage** mod will be documented in this file.
 
 ## [Unreleased]
 
@@ -11,9 +11,9 @@ All notable changes to the **SimpleAE: ByteStorage** mod will be documented in t
 - `docs/wiki/`: англомовна вікі для обох модів (інструкції, рецепти, API скриптів, 10 прикладів, адміністрування) та workflow `wiki.yml` для автопублікації в GitHub Wiki.
 
 ### Added — Книга-довідник (build 8)
-- Предмет «Довідник SimpleAE» (рецепт: книга + кабель): екран з розділами про всі можливості мода (en/ru/uk). Одна книга на обидва мода: аддон Scripting додає в неї розділи про скрипти через `GuideRegistry.register` — без аддона цих розділів немає.
+- Предмет «Довідник Simple Byte Storage» (рецепт: книга + кабель): екран з розділами про всі можливості мода (en/ru/uk). Одна книга на обидва мода: аддон Scripting додає в неї розділи про скрипти через `GuideRegistry.register` — без аддона цих розділів немає.
 
-### Added — аддон SimpleAE: Scripting (build 7)
+### Added — аддон Simple Byte Storage: Scripting (build 7)
 - Окремий необов'язковий мод у каталозі `scripting/` (той самий репозиторій, другий jar): Логічна шина + Логічний термінал, JavaScript через Rhino (вкладений лише в аддон), пісочниця з лімітами, серверний конфіг (enabled/opsOnly/ліміти). Див. `scripting/README.md`.
 - Основний мод: `CraftingService.requestCraft(grid, stack, amount)` — стабільна точка входу для аддонів. CI збирає два jar.
 
@@ -26,7 +26,7 @@ All notable changes to the **SimpleAE: ByteStorage** mod will be documented in t
 ### Added — бездротовий термінал
 - Предмет `wireless_terminal`: Shift+ПКМ по Терміналу прив'язує, ПКМ у повітрі відкриває його на будь-якій відстані (той самий світ чи інший, поки чанк завантажено). Відкриття коштує 100 FE; ємність 20 000 FE, заряджається будь-яким зовнішнім зарядником або повторним Shift+кліком по прив'язаному Терміналу (енергія береться з контролера мережі).
 
-### Added — ME I/O-шина (автодокладка)
+### Added — I/O-шина (автодокладка)
 - Новий блок `io_bus`: режим «Імпорт» забирає предмети із сусіднього інвентаря в мережу (білий список, порожній = усе), режим «Експорт» підтримує в сусідньому інвентарі задану кількість кожного предмета зі списку (напр. паливо для печі). До 64 предметів за цикл. Рецепт: кабель + лійка + редстоун.
 
 ### Added — пріоритети та білі списки накопичувачів
@@ -49,12 +49,12 @@ All notable changes to the **SimpleAE: ByteStorage** mod will be documented in t
 
 ### Added (build 5) — процесні шаблони, Шина Шаблонів і кабелі
 - **Два типи шаблонів.** Звичайний крафт верстака кодується як раніше і потрапляє в глобальний список мережі (Асемблер). Для машин (піч, дробарка з інших модів тощо) у Терміналі Кодування є перемикач режиму «Верстак / Процес»: у процесному режимі сітка — це входи з кількостями (ЛКМ — стак з курсору, ПКМ — +1), слот результату задається вручну. Такий шаблон **не** додається в глобальний список — його кладуть у Шину Шаблонів.
-- **ME-шина шаблонів** (`pattern_provider`): 9 слотів для процесних шаблонів. Ставиться впритул до машини; за замовленням з Терміналу Шаблонів бере інгредієнти з мережі, подає їх у машину і забирає готовий результат назад у мережу (черга зберігається в світі, до 16 крафтів «в роботі»).
-- **ME-кабель** (`cable`): провід для мережі з візуальними рукавами до з'єднаних нод.
+- **шина шаблонів** (`pattern_provider`): 9 слотів для процесних шаблонів. Ставиться впритул до машини; за замовленням з Терміналу Шаблонів бере інгредієнти з мережі, подає їх у машину і забирає готовий результат назад у мережу (черга зберігається в світі, до 16 крафтів «в роботі»).
+- **кабель** (`cable`): провід для мережі з візуальними рукавами до з'єднаних нод.
 - Термінал Шаблонів показує і процесні шаблони з усіх Шин мережі (мітка [Машина]); замовлення ділиться між шинами. Видалити такий шаблон — дістати його з Шини.
 
 ### Reworked (build 4) — єдиний стиль GUI
-- Усі шість екранів (Drive, Terminal, Crafting Terminal, Assembler, Pattern Terminal, Pattern Encoding Terminal) перероблено у єдиний темний «ME-hardware» стиль: шліфований метал із фасками, смуга заголовка з бірюзовою лінією та світлодіодом статусу, заглиблені панелі, бірюзовий акцент для активних елементів; зелений/помаранчевий/червоний — лише для статусів.
+- Усі шість екранів (Drive, Terminal, Crafting Terminal, Assembler, Pattern Terminal, Pattern Encoding Terminal) перероблено у єдиний темний «hardware» стиль: шліфований метал із фасками, смуга заголовка з бірюзовою лінією та світлодіодом статусу, заглиблені панелі, бірюзовий акцент для активних елементів; зелений/помаранчевий/червоний — лише для статусів.
 - `GuiStyle` — єдине джерело палітри та примітивів (вікно, панель, слот, прогрес, індикатор пам'яті, смуга прокрутки); `UiButton` — єдина кнопка (клік обробляється до `super.mouseClicked`).
 - Термінали: індикатор заповнення пам'яті замість тексту, поле пошуку у стилі «дисплея», підказка стану; тексти — через lang-файли.
 - Крафт-термінал: сітка і результат зсунуті під смугу заголовка.
@@ -134,7 +134,7 @@ All notable changes to the **SimpleAE: ByteStorage** mod will be documented in t
   - Після кожної нової збірки змінюйте номер збірки (build.N) у цих двох файлах — так ви зможете відстежити, яка саме збірка за версією.
 
 ### Added
-- **Система автокрафту (Autocrafting System)** — три новые компоненти для автоматизованого крафту в МЕ-мережі:
+- **Система автокрафту (Autocrafting System)** — три новые компоненти для автоматизованого крафту в мережі:
   - **Асемблер (`AssemblerBlock` / `AssemblerBlockEntity`)** — блок крафту, який забирає інгредієнти з віртуального пулу мережі за шаблоном, тимчасно розміщує їх у буферній картці сховища (Storage Cell), виконує крафт за ванильною рецептю та відправляє результат назад у мережу. Має слот буферної картки, крафтову сітку 3×3 та слот результату.
   - **Термінал Шаблонів (`PatternTerminalBlock` / `PatternTerminalBlockEntity`)** — єдиний глобальний блок на всю мережу, який зберігає усі доступні шаблони крафту. Дозволяє переглядати список шаблонів та обирати їх для автокрафту.
   - **Термінал Кодування Шаблонів (`PatternEncodingTerminalBlock` / `PatternEncodingTerminalBlockEntity`)** — інтерфейс для запису рецептів крафту на чисті предмети-шаблони (Pattern Item). Гравець вставляє чистий шаблон, вказує інгредієнти та результат, і термінал записує рецепт у шаблон.
@@ -162,13 +162,13 @@ All notable changes to the **SimpleAE: ByteStorage** mod will be documented in t
 - **Client & GUI**:
   - `TerminalScreen` with search bar (`EditBox`), item grid rendering, scroll support, and used/total byte metrics.
   - `DriveScreen` for managing inserted storage cells.
-  - `CraftingTerminalScreen`: crafting GUI with 3x3 matrix, result slot, virtual ME pool and player inventory; crafting logic consumes ingredients from the ME pool and gives the result to the player.
+  - `CraftingTerminalScreen`: crafting GUI with 3x3 matrix, result slot, virtual pool and player inventory; crafting logic consumes ingredients from the pool and gives the result to the player.
 - **Networking**:
   - Client-Server packet communication (`SyncTerminalDataPacket`, `TerminalActionPacket`, `SimpleByteStoragePackets`).
 - **Crafting Terminal**:
   - `CraftingTerminalBlock` / `CraftingTerminalBlockEntity` (`crafting_terminal`): terminal with crafting interface (3x3 matrix + result slot).
-  - `CraftingTerminalMenu`: server container with crafting matrix, result slot, player inventory and ME pool integration.
-  - `CraftingTerminalScreen`: client GUI for crafting; ingredients are taken from the ME virtual pool.
+  - `CraftingTerminalMenu`: server container with crafting matrix, result slot, player inventory and pool integration.
+  - `CraftingTerminalScreen`: client GUI for crafting; ingredients are taken from the virtual pool.
   - Crafting execution: recipe lookup via `RecipeType.CRAFTING`, ingredient consumption from the network storage and item delivery to the player.
 - **Visual Assets & Textures**:
   - High-detail 16x16 / 32-bit pixel-art textures for all blocks: `machine_casing.png`, `machine_top.png`, `machine_bottom.png`.

@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Блок Термінала Крафту — терминал с интерфейсом крафта,
- * позволяющий создавать предметы из ресурсов ME-сети.
+ * позволяющий создавать предметы из ресурсов сети.
  */
 public class CraftingTerminalBlock extends BaseEntityBlock {
 

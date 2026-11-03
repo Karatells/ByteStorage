@@ -22,7 +22,7 @@ import net.minecraftforge.network.NetworkHooks;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Блок Термінала доступу до віртуального пулу сховища SimpleAE.
+ * Блок Термінала доступу до віртуального пулу сховища Simple Byte Storage.
  */
 public class TerminalBlock extends BaseEntityBlock {
 

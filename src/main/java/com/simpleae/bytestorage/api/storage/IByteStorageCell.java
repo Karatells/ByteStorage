@@ -4,7 +4,7 @@ import net.minecraft.world.item.ItemStack;
 
 /**
  * Інтерфейс для предметів-дисків (Storage Cell Items).
- * Будь-який предмет, що реалізує цей інтерфейс, вважається диском у SimpleAE.
+ * Будь-який предмет, що реалізує цей інтерфейс, вважається диском у Simple Byte Storage.
  */
 public interface IByteStorageCell {
 

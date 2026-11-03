@@ -18,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * BlockEntity Термінала Крафту — зберігає стан крафтової сітки
- * та забезпечує підключення до мережі ME.
+ * та забезпечує підключення до мережі.
  */
 public class CraftingTerminalBlockEntity extends BlockEntity implements IGridNode, MenuProvider {
 

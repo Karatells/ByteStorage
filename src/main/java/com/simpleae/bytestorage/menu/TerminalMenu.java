@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Контейнер-меню Термінала SimpleAE (Terminal Menu).
+ * Контейнер-меню Термінала Simple Byte Storage (Terminal Menu).
  * 
  * Забезпечує зв'язок між клієнтським GUI та віртуальним сховищем INetworkStorage.
  * Підтримує відображення списку предметів без прив'язки до фіксованих слотів,

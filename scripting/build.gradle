@@ -45,11 +45,11 @@ jar {
     manifest {
         attributes([
             "Specification-Title"     : "simple_bytestorage_scripting",
-            "Specification-Vendor"    : "SimpleAE",
+            "Specification-Vendor"    : "Simple Byte Storage",
             "Specification-Version"   : "1",
             "Implementation-Title"    : project.name,
             "Implementation-Version"  : project.jar.archiveVersion,
-            "Implementation-Vendor"   : "SimpleAE"
+            "Implementation-Vendor"   : "Simple Byte Storage"
         ])
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE

@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.UUID;
 
 /**
- * Інтерфейс загальної мережі SimpleAE (аналог ME Grid).
+ * Інтерфейс загальної мережі Simple Byte Storage.
  * Об'єднує всі ноди, керує живленням та доступом до віртуального сховища.
  */
 public interface IGrid {
