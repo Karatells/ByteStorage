@@ -41,7 +41,7 @@ See the table on [Scripting API → Errors](Scripting-API#errors). Fix the scrip
 - The network may be offline (the bus idles when offline).
 - `side("…")` returned `null`: wrong direction, or the neighbour has no inventory.
 - The interval might be long: check the interval shown in the terminal (the server enforces `minInterval`).
-- `side(dir, id)` returned `null`: no bus has that ID (case-sensitive), or the buses with that ID have no inventory on that side. Compare with the ID list in the terminal and `buses(id)`.
+- `side(dir, id)` returned `null`: no bus has that ID (case-sensitive), or the buses with that ID have no inventory on that side. Compare with the ID list in the Logic Bus GUI or the terminal, and `buses(id)`.
 - Use `log(…)` to see what the script sees.
 
 ## Build problems

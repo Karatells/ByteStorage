@@ -14,6 +14,16 @@ public final class ClientHooks {
         Minecraft.getInstance().setScreen(new LogicTerminalScreen(pos));
     }
 
+    public static void openBus(BlockPos pos) {
+        Minecraft.getInstance().setScreen(new LogicBusScreen(pos));
+    }
+
+    public static void onBusState(com.simpleae.bytestorage.scripting.net.BusStatePacket packet) {
+        if (Minecraft.getInstance().screen instanceof LogicBusScreen screen) {
+            screen.apply(packet);
+        }
+    }
+
     public static void onState(ScriptStatePacket packet) {
         if (Minecraft.getInstance().screen instanceof LogicTerminalScreen screen) {
             screen.apply(packet);

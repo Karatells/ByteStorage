@@ -11,7 +11,7 @@ The addon bundles **Rhino** (a JavaScript engine for Java). Rhino is *only* insi
 
 | Block | Role |
 |---|---|
-| **Logic Bus** | Runs one JavaScript script. Sees its six neighbouring inventories and the network. |
+| **Logic Bus** | Runs one JavaScript script. Sees its six neighbouring inventories and the network. Has its own GUI (right-click) where its identifier is set. |
 | **Logic Terminal** | Opens the script editor for every Logic Bus connected to the same network. |
 
 Both are normal network nodes: they must connect to an online controller (touching or via cables).
@@ -20,9 +20,10 @@ Both are normal network nodes: they must connect to an online controller (touchi
 
 1. Place the Logic Terminal and one or more Logic Buses on the network.
 2. Put each Bus next to the inventory (chest, furnace, machine) it should control.
-3. Right-click the Terminal. Pick a Bus from the list on the left.
-4. Write the script in the editor, then press **Save**.
-5. Press **Run**. The status line and the log below the editor show what happens.
+3. (Optional) Right-click each Bus and give it an identifier (see [Identifiers](#identifiers)).
+4. Right-click the Terminal. Pick a Bus from the list on the left.
+5. Write the script in the editor, then press **Save**.
+6. Press **Run**. The status line and the log below the editor show what happens.
 
 Buttons:
 
@@ -32,7 +33,6 @@ Buttons:
 | Run / Stop | Starts or stops the script. |
 | Reload | Discards edits and reloads the script stored on the bus. |
 | − / + | Changes the run interval by 10 ticks. |
-| Set ID | Assigns the identifier typed in the ID field to the selected bus (see below). |
 
 The terminal must be within ~12 blocks of the player for actions to be accepted. If `opsOnly` is on and you aren't allowed, the terminal is read-only.
 
@@ -44,13 +44,21 @@ Every Logic Bus can have an **identifier** (ID). A script always runs on one bus
 - **IDs need not be unique.** Several buses with the same ID form a **group**: `side("up", "smelters")` returns **one endpoint** that covers the inventories above *all* buses with the ID `smelters`.
 - A script can only reach buses of **its own network**.
 
-### In the terminal
+### Where you set it: the Logic Bus GUI
 
-The right-hand side of the Logic Terminal is the ID panel:
+**Right-click a Logic Bus** to open *its own* GUI (the script editor is a different screen, the Logic Terminal). The ID belongs to **that one bus**:
 
-- **Identifiers**: a list of every ID that already exists in this network, with the number of buses using it (`x3` = three buses). The ID of the selected bus is highlighted. **Click an ID** to copy it into the field below.
-- **Bus ID field** and **Set ID** button: type an ID and press the button to assign it to the selected bus. An empty field **removes** the ID.
-- In the bus list on the left, a bus with an ID is shown by its ID (in colour), otherwise by its coordinates. Hover a row to see ID and coordinates.
+- **ID of this bus** field with **Set** (assign the typed ID) and **Clear** (remove the ID).
+- **IDs in network** list: every ID that already exists in this network, with the number of buses using it (`x3` = three buses). The ID of this bus is highlighted.
+  - **Click** an ID to copy it into the field.
+  - **Shift + click** assigns it to this bus immediately. This is the fast way to give the same ID to many buses: open a bus, Shift-click the ID, close, next bus.
+- The status line shows the network state and the script status of this bus.
+
+Assigning IDs requires edit permission (see `opsOnly` in [Administration](Scripting-Administration)).
+
+### In the Logic Terminal
+
+The Logic Terminal shows the **same list of IDs** on its right-hand side (for convenience while writing scripts). Clicking an ID selects the first bus with that ID. In the bus list on the left, a bus with an ID is shown by its ID (in colour), otherwise by its coordinates; hover a row to see both. IDs are **not** edited in the terminal.
 
 Changing an ID does not stop the bus and doesn't need a re-save. The script sees the new value on its next run (`busId` is refreshed every run; `side(…, id)` looks buses up each call).
 

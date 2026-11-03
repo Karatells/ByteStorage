@@ -33,11 +33,17 @@ To build only the addon: `./gradlew :scripting:build`.
 
 ## Versions
 
-The version is set in each project's `build.gradle` (`version = '1.0.0+build.N'`) and mirrored in each `mods.toml`. Bump the build number for every new build.
+Versions have four parts: `<major>.<minor>.<patch>.<build>`, for example `1.0.1.1`. The version is set in each project's `build.gradle` and mirrored in each `mods.toml`. The **fourth number is the build number and is increased before every push**.
+
+## Branches and releases
+
+- Day-to-day development happens on the **`Development`** branch; `main` holds stable code.
+- Every push to `main` or `Development` builds both jars and uploads them as workflow artifacts. **No GitHub Release is created automatically.**
+- A release is made only on request: *Actions → Release → Run workflow* (pick the branch) or by pushing a tag `v<version>`.
 
 ## Continuous integration
 
-`.github/workflows/build.yml` builds on every push to `main`, uploads separate artifacts (`simple_bytestorage-mod-jar`, `simple_bytestorage_scripting-addon-jar`, dev jars) and publishes raw jars to a GitHub Release (`build-<run number>`).
+`.github/workflows/build.yml` builds on every push to `main` and `Development` and uploads separate artifacts (`simple_bytestorage-mod-jar`, `simple_bytestorage_scripting-addon-jar`, dev jars). `.github/workflows/release.yml` publishes a GitHub Release, manually only.
 
 ## Using the core API from another mod
 

@@ -1,6 +1,6 @@
 # Scripting Examples
 
-Paste an example into the Logic Terminal, press **Save**, then **Run**. Examples marked *(IDs)* need buses with identifiers: select the bus, type the ID in the right-hand panel and press **Set ID**. Directions (`"up"`, `"north"`, …) are relative to the Logic Bus; change them to match your build. Item ids are 1.20.1 ids.
+Paste an example into the Logic Terminal, press **Save**, then **Run**. Examples marked *(IDs)* need buses with identifiers: right-click each bus, type the ID in its GUI and press **Set**. Directions (`"up"`, `"north"`, …) are relative to the Logic Bus; change them to match your build. Item ids are 1.20.1 ids.
 
 ## 1. Import everything from a chest
 

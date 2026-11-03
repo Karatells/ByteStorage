@@ -57,7 +57,6 @@ final class TerminalService {
                 case ScriptActionPacket.SAVE -> selected.setScript(text);
                 case ScriptActionPacket.ENABLE -> selected.setEnabled(intArg != 0);
                 case ScriptActionPacket.INTERVAL -> selected.setInterval(intArg);
-                case ScriptActionPacket.SET_ID -> selected.setIdentifier(text);
                 default -> {
                 }
             }

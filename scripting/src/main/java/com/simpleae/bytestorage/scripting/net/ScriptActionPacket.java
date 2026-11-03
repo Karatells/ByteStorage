@@ -18,8 +18,6 @@ public class ScriptActionPacket {
     /** intArg: 1 = запустити, 0 = зупинити. */
     public static final int ENABLE = 3;
     public static final int INTERVAL = 4;
-    /** text = новий ідентифікатор шини (порожній — прибрати). */
-    public static final int SET_ID = 5;
 
     private final BlockPos terminal;
     private final int action;

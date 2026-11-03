@@ -1,7 +1,7 @@
 name: Release
 
-# Релиз за тегом: git tag v1.0.0 && git push origin v1.0.0
-# Збирає обидва jar і публікує GitHub Release з нотатками з docs/RELEASE_NOTES_<версія>.md
+# Реліз створюється ТІЛЬКИ вручну: Actions -> Release -> Run workflow (обери гілку), або пуш тегу vX.Y.Z.y
+# Збирає обидва jar і публікує GitHub Release з нотатками з docs/RELEASE_NOTES_<версія>.md (або автогенерованими)
 on:
   push:
     tags: ['v*']
@@ -45,13 +45,19 @@ jobs:
           cp scripting/build/reobfJar/output.jar "dist/simple_bytestorage_scripting-${VERSION}.jar"
           ls -la dist
 
+      - name: Release notes
+        run: |
+          f="docs/RELEASE_NOTES_${VERSION}.md"
+          if [ -f "$f" ]; then cp "$f" release_notes.md; else echo "Simple Byte Storage ${VERSION}" > release_notes.md; fi
+
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ env.VERSION }}
           target_commitish: ${{ github.sha }}
           name: Simple Byte Storage ${{ env.VERSION }}
-          body_path: docs/RELEASE_NOTES_${{ env.VERSION }}.md
+          body_path: release_notes.md
+          generate_release_notes: true
           files: dist/*.jar
           fail_on_unmatched_files: true
           make_latest: true

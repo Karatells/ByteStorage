@@ -1,13 +1,14 @@
+# Збірка на кожен пуш: лише артефакти Actions. GitHub Release створюється ТІЛЬКИ вручну — див. release.yml
 name: Build mod jar
 
 on:
   push:
-    branches: [main]
+    branches: [main, Development]
   pull_request:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
@@ -68,14 +69,3 @@ jobs:
           name: simple_bytestorage-dev-jars
           path: dist/*-dev.jar
           if-no-files-found: warn
-
-      # Сырые .jar (без zip) — во вкладке Releases
-      - name: Publish release with raw jars
-        if: github.event_name != 'pull_request'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: build-${{ github.run_number }}
-          name: Dev build ${{ github.run_number }}
-          prerelease: true
-          make_latest: false
-          files: dist/*.jar

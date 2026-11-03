@@ -6,7 +6,6 @@ import com.simpleae.bytestorage.scripting.net.ScriptActionPacket;
 import com.simpleae.bytestorage.scripting.net.ScriptStatePacket;
 import com.simpleae.bytestorage.scripting.net.ScriptingPackets;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
@@ -32,9 +31,6 @@ public class LogicTerminalScreen extends Screen {
     private int top;
 
     private MultiLineEditBox editor;
-    private EditBox idBox;
-    private BlockPos idLoadedFor;
-    private String lastServerId = "";
     private int idScroll = 0;
     private final List<UiButton> buttons = new ArrayList<>();
 
@@ -61,20 +57,7 @@ public class LogicTerminalScreen extends Screen {
         this.addRenderableWidget(this.editor);
         this.setInitialFocus(this.editor);
 
-        String previousId = this.idBox != null ? this.idBox.getValue() : "";
-        this.idBox = new EditBox(this.font, left + ID_X, top + 146, 96, 16, Component.empty());
-        this.idBox.setMaxLength(32);
-        this.idBox.setFilter(text -> text.matches("[A-Za-z0-9_.\\-]*"));
-        this.idBox.setHint(Component.translatable("gui.simple_bytestorage_scripting.id.hint"));
-        this.idBox.setValue(previousId);
-        this.addRenderableWidget(this.idBox);
-
         buttons.clear();
-        buttons.add(new UiButton(left + ID_X, top + 166, 96, 16,
-                () -> Component.translatable("gui.simple_bytestorage_scripting.id.set"), UiButton.Icon.NONE,
-                () -> send(ScriptActionPacket.SET_ID, 0, idBox.getValue()))
-                .enabledWhen(this::canAct).primary()
-                .tooltip(Component.translatable("gui.simple_bytestorage_scripting.id.set.tip")));
         int by = top + 142;
         buttons.add(new UiButton(left + 112, by, 52, 16,
                 () -> Component.translatable("gui.simple_bytestorage_scripting.save"), UiButton.Icon.NONE,
@@ -112,27 +95,10 @@ public class LogicTerminalScreen extends Screen {
         if (packet.withScript) {
             this.editor.setValue(packet.script);
         }
-        syncIdBox();
         if (selected == null && !autoSelected && !packet.buses.isEmpty()) {
             autoSelected = true;
             selected = packet.buses.get(0).pos();
             send(ScriptActionPacket.LIST, 0, "");
-        }
-    }
-
-    private void syncIdBox() {
-        ScriptStatePacket.BusInfo info = selectedInfo();
-        if (info == null) {
-            idLoadedFor = null;
-            lastServerId = "";
-            idBox.setValue("");
-            return;
-        }
-        // Поле перезаписуємо лише при зміні вибору або коли id на сервері змінився (щоб не псувати введення)
-        if (!info.pos().equals(idLoadedFor) || !info.id().equals(lastServerId)) {
-            idBox.setValue(info.id());
-            idLoadedFor = info.pos();
-            lastServerId = info.id();
         }
     }
 
@@ -209,7 +175,14 @@ public class LogicTerminalScreen extends Screen {
                 List<String> ids = new ArrayList<>(idCounts().keySet());
                 int index = idScroll + (int) ((mouseY - iy) / 10);
                 if (index >= 0 && index < ids.size()) {
-                    idBox.setValue(ids.get(index));
+                    // Клік по ID — вибрати першу шину з цим ідентифікатором
+                    for (ScriptStatePacket.BusInfo info : state.buses) {
+                        if (info.id().equals(ids.get(index))) {
+                            selected = info.pos();
+                            send(ScriptActionPacket.LIST, 0, "");
+                            break;
+                        }
+                    }
                     return true;
                 }
             }
@@ -342,7 +315,12 @@ public class LogicTerminalScreen extends Screen {
                     mine ? GuiStyle.ACCENT : GuiStyle.TEXT_TITLE, false);
             g.drawString(this.font, count, left + ID_X + 93 - this.font.width(count), ry + 1, GuiStyle.TEXT_MUTED, false);
         }
-        GuiStyle.label(g, Component.translatable("gui.simple_bytestorage_scripting.id.field"), left + ID_X, top + 135);
+        int hy = top + 30 + ID_ROWS * 10 + 8;
+        for (net.minecraft.util.FormattedCharSequence line : this.font.split(
+                Component.translatable("gui.simple_bytestorage_scripting.id.terminal_hint"), 96)) {
+            g.drawString(this.font, line, left + ID_X, hy, GuiStyle.TEXT_MUTED, false);
+            hy += 10;
+        }
     }
 
     private void drawStatus(GuiGraphics g) {

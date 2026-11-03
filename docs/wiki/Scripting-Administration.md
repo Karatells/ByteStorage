@@ -46,7 +46,7 @@ What it does **not** do:
 | Action | `opsOnly = false` | `opsOnly = true` |
 |---|---|---|
 | Read scripts and logs | anyone using the terminal | anyone using the terminal |
-| Save / run / stop / interval / assign IDs | anyone using the terminal | operators (level 2+) and the single-player owner |
+| Save / run / stop / interval (terminal) and assign IDs (Logic Bus GUI) | anyone | operators (level 2+) and the single-player owner |
 
 The server also verifies that the player is within ~12 blocks of the terminal and that the bus belongs to the terminal's network.
 
@@ -54,4 +54,4 @@ The server also verifies that the player is within ~12 blocks of the terminal an
 
 - Without the addon jar, the blocks and items simply don't exist, and nothing else changes.
 - If you **remove** the addon from a world that already has Logic Buses, Forge will warn about missing registry entries and those blocks disappear. Remove them first if you care about the contents.
-- Clients need the addon too (it adds blocks and a GUI); the network channel versions must match (channel protocol `2` since identifiers were added, so an old client can't join a new server).
+- Clients need the addon too (it adds blocks and a GUI); the network channel versions must match (the addon's network protocol changes between versions, so a client with a different addon version can't join).

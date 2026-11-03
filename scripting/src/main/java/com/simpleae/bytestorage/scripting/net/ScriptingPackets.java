@@ -9,7 +9,7 @@ import net.minecraftforge.network.simple.SimpleChannel;
 /** Мережевий канал аддона. */
 public final class ScriptingPackets {
 
-    private static final String PROTOCOL_VERSION = "2";
+    private static final String PROTOCOL_VERSION = "3";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(SimpleAeScripting.MOD_ID, "main"),
             () -> PROTOCOL_VERSION,
@@ -30,6 +30,16 @@ public final class ScriptingPackets {
                 .decoder(ScriptStatePacket::new)
                 .encoder(ScriptStatePacket::encode)
                 .consumerMainThread(ScriptStatePacket::handle)
+                .add();
+        CHANNEL.messageBuilder(BusActionPacket.class, id++, NetworkDirection.PLAY_TO_SERVER)
+                .decoder(BusActionPacket::new)
+                .encoder(BusActionPacket::encode)
+                .consumerMainThread(BusActionPacket::handle)
+                .add();
+        CHANNEL.messageBuilder(BusStatePacket.class, id++, NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(BusStatePacket::new)
+                .encoder(BusStatePacket::encode)
+                .consumerMainThread(BusStatePacket::handle)
                 .add();
     }
 }

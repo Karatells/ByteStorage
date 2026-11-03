@@ -10,7 +10,7 @@ All releases: https://github.com/Karatells/ByteStorage/releases
 | `simple_bytestorage-<version>.jar` | **Yes** | The main mod. |
 | `simple_bytestorage_scripting-<version>.jar` | No | The scripting addon (Logic Bus + Logic Terminal). Needs the main mod. |
 
-Dev builds from every commit to `main` are published as **pre-releases** called *Dev build N*. They may be unstable; prefer a normal release.
+Releases are published only for versions that are announced as releases. Builds of every commit are available only as GitHub Actions artifacts (for testers) and may be unstable.
 
 ## Requirements
 
@@ -37,3 +37,7 @@ Removing the scripting addon from a world deletes any placed Logic Buses and Log
 | Version | Notes |
 |---|---|
 | 1.0.0 | First stable release. |
+
+Version numbers have four parts (`1.0.1.1`); the last one is the build number.
+
+Version numbers have four parts (`1.0.1.1`); the last one is the build number.
