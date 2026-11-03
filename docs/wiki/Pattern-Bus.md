@@ -24,6 +24,7 @@ If several providers hold the same pattern, orders are balanced to the one with 
 
 ## Tips
 
-- The machine must expose an item handler (inventory capability) on the face that touches the provider.
+- The machine must expose an item handler (inventory capability) on the face that touches the bus.
+- **Mind the face.** Many machines expose different slots on different faces. A vanilla furnace takes input from the **top**, outputs from the bottom, and accepts only fuel from the sides, so put the Pattern Bus on top of a furnace.
 - Make sure the machine is able to receive all inputs; a full machine slows the queue.
-- The queue and its state are visible in the provider's GUI and in the Pattern Terminal's Queue tab.
+- The queue and its state are visible in the bus's GUI and in the Pattern Terminal's Queue tab.
