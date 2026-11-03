@@ -12,7 +12,7 @@
 - [Wireless Terminal](Wireless-Terminal)
 - [Autocrafting](Autocrafting)
 - [Assembler](Assembler)
-- [Pattern Provider](Pattern-Provider)
+- [Pattern Bus](Pattern-Bus)
 - [I/O Bus](IO-Bus)
 - [JEI Integration](JEI-Integration)
 - [Guide Book](Guide-Book)

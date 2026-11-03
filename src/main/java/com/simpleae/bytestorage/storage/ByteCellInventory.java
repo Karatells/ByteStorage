@@ -55,7 +55,13 @@ public class ByteCellInventory implements ICellInventory {
         ListTag listTag = rootTag.getList(TAG_INVENTORY, Tag.TAG_COMPOUND);
         for (int i = 0; i < listTag.size(); i++) {
             CompoundTag entryTag = listTag.getCompound(i);
-            ItemStack stack = ItemStack.of(entryTag);
+            // Count у ванільному NBT — байт (переповнюється вже на 128). Реальну кількість беремо з ByteCount,
+            // тому для читання підставляємо Count=1, щоб запис не вважався порожнім.
+            CompoundTag readTag = entryTag.copy();
+            if (entryTag.contains(TAG_BYTE_COUNT, Tag.TAG_INT)) {
+                readTag.putByte("Count", (byte) 1);
+            }
+            ItemStack stack = ItemStack.of(readTag);
 
             if (!stack.isEmpty()) {
                 if (entryTag.contains(TAG_BYTE_COUNT, Tag.TAG_INT)) {
@@ -78,6 +84,7 @@ public class ByteCellInventory implements ICellInventory {
         for (ItemStack stack : storedItems) {
             if (!stack.isEmpty()) {
                 CompoundTag entryTag = stack.save(new CompoundTag());
+                entryTag.putByte("Count", (byte) 1); // справжня кількість — у ByteCount (див. loadFromTag)
                 entryTag.putInt(TAG_BYTE_COUNT, stack.getCount());
                 listTag.add(entryTag);
                 totalBytes += stack.getCount();

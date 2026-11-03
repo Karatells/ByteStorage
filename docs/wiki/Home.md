@@ -20,7 +20,7 @@ An optional addon, **Simple Byte Storage: Scripting**, adds a Logic Bus and a Lo
 - [Wireless Terminal](Wireless-Terminal)
 - [Autocrafting](Autocrafting) — patterns, encoding, ordering, sub-crafts, queue
 - [Assembler](Assembler) — crafting-table patterns, speed cards
-- [Pattern Provider](Pattern-Provider) — machine (processing) crafts
+- [Pattern Bus](Pattern-Bus) — machine (processing) crafts
 - [I/O Bus](IO-Bus)
 - [JEI Integration](JEI-Integration)
 - [Guide Book](Guide-Book) — the in-game manual

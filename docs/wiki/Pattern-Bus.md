@@ -1,10 +1,10 @@
-# Pattern Provider
+# Pattern Bus
 
 Runs **processing** patterns: crafts that happen in a machine such as a furnace, smoker, or any mod machine that exposes an item handler.
 
 ## Setup
 
-1. Place the Pattern Provider **touching the machine** and connect it to the network.
+1. Place the Pattern Bus **touching the machine** and connect it to the network.
 2. Put encoded **processing** patterns (made in the [Encoding Terminal](Autocrafting#pattern-encoding-terminal)) into its **9 slots**.
 3. Order the craft from the [Pattern Terminal](Autocrafting#pattern-terminal).
 
@@ -16,8 +16,8 @@ For each craft the provider takes the inputs from the network, pushes them into 
 |---|---|
 | Pattern slots | 9 |
 | Cycle | every 10 ticks |
-| Pushes per cycle | 4 |
-| Jobs in flight | up to 16 |
+| Pushes per cycle | 16 |
+| Jobs in flight | up to 256 (in practice limited by what the machine accepts) |
 | Queue size | 1,024 crafts |
 
 If several providers hold the same pattern, orders are balanced to the one with the least pending crafts.

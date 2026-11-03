@@ -30,7 +30,7 @@ Every device draws a small amount of FE per tick from the network.
 | Pattern Terminal | 1 |
 | Pattern Encoding Terminal | 2 |
 | Assembler | 3 |
-| Pattern Provider | 2 |
+| Pattern Bus | 2 |
 | I/O Bus | 2 |
 | Drive | 2 + per-cell cost (1k: 1, 4k: 2, 16k: 3, 64k: 4) |
 | Cable | 0 |

@@ -42,10 +42,13 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
 
     public static final int SLOTS = 9;
     public static final int MAX_QUEUE = 1024;
-    /** Скільки крафтів може бути «в роботі» (подано в машину, результат ще не забрано). */
-    public static final int MAX_IN_FLIGHT = 16;
+    /**
+     * Верхня межа крафтів «в роботі» (подано в машину, результат ще не забрано). Реально подачу обмежує
+     * приймальна здатність машини (acceptsAll), тому ліміт великий: раніше 16 зупиняло замовлення на стак.
+     */
+    public static final int MAX_IN_FLIGHT = 256;
     private static final int CYCLE_TICKS = 10;
-    private static final int PUSHES_PER_CYCLE = 4;
+    private static final int PUSHES_PER_CYCLE = 16;
 
     private static final class Job {
         final String patternId;

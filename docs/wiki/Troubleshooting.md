@@ -16,13 +16,13 @@
 
 - Missing base materials — the confirmation window lists them.
 - *No Assembler* / *no memory card in the Assembler*: crafting patterns need an Assembler with a buffer cell.
-- Processing patterns need a [Pattern Provider](Pattern-Provider) that **holds the pattern** and touches a machine.
+- Processing patterns need a [Pattern Bus](Pattern-Bus) that **holds the pattern** and touches a machine.
 
 ## Assembler is stuck
 
 Open it. The GUI shows the reason: no card, not enough resources, card busy or too small, network offline or full.
 
-## Pattern Provider does nothing
+## Pattern Bus does nothing
 
 - Is the machine adjacent on a face with an item handler?
 - Is the machine's input full or its output blocked?

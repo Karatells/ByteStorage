@@ -16,7 +16,7 @@ Put the jar(s) into your `mods` folder. The addon must be installed on **both cl
 - **1 item = 1 byte** storage with no limit on item types; cells from 1k to 64k.
 - Network from a single controller: touch or use cables. Energy (FE) powered.
 - Drives with priority and whitelist; Terminal, Crafting Terminal, and a Wireless Terminal.
-- **Autocrafting**: pattern encoding (crafting and processing modes), ordering with a confirmation window, sub-crafts, queue with cancel, Assembler with speed cards, Pattern Provider for machine recipes.
+- **Autocrafting**: pattern encoding (crafting and processing modes), ordering with a confirmation window, sub-crafts, queue with cancel, Assembler with speed cards, Pattern Bus for machine recipes.
 - I/O Bus for automatic import/export.
 - JEI "+" button fills the encoder.
 - In-game **Guide Book** (en / ru / uk).

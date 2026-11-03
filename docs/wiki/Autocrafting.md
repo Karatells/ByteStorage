@@ -5,7 +5,7 @@ Simple Byte Storage has two kinds of crafts:
 | Kind | Where it runs | Pattern lives in |
 |---|---|---|
 | **Crafting** (crafting table recipes) | [Assembler](Assembler) | Global network pattern list |
-| **Processing** (furnaces, other machines) | [Pattern Provider](Pattern-Provider) + a machine | The Pattern Provider |
+| **Processing** (furnaces, other machines) | [Pattern Bus](Pattern-Bus) + a machine | The Pattern Bus |
 
 ## Patterns
 
@@ -16,14 +16,14 @@ A **Pattern** item is blank or encoded. An encoded pattern stores its recipe in 
 1. Insert a blank Pattern.
 2. Choose the mode with the mode button:
    - **Crafting** — click items onto the 3×3 grid (they are *not* consumed). The vanilla recipe decides the result. Press *Encode*: the recipe is written to the pattern **and** added to the network's global list.
-   - **Processing** — set the inputs and the result by hand (ghost slots, with counts). The pattern is a physical item: put it into a [Pattern Provider](Pattern-Provider). It is *not* added to the global list.
+   - **Processing** — set the inputs and the result by hand (ghost slots, with counts). The pattern is a physical item: put it into a [Pattern Bus](Pattern-Bus). It is *not* added to the global list.
 3. *Clear* empties the grid.
 
 With **JEI**, the "+" button on a recipe fills the encoder for you (see [JEI Integration](JEI-Integration)).
 
 ## Pattern Terminal
 
-Shows the list of every pattern available to the network (global patterns plus patterns inside Pattern Providers).
+Shows the list of every pattern available to the network (global patterns plus patterns inside Pattern Buss).
 
 - **Search** and an **All / Ready** filter ("Ready" = all ingredients available).
 - Hover a pattern to see each ingredient marked ✓ (in the network) or ✗ (missing). The list row also shows *Missing: <item>*.
@@ -47,4 +47,4 @@ Steps are ordered with dependencies first. If a plan has missing base materials 
 
 - Network online.
 - For crafting patterns: at least one [Assembler](Assembler) with a buffer cell.
-- For processing patterns: a [Pattern Provider](Pattern-Provider) holding the pattern, touching a machine.
+- For processing patterns: a [Pattern Bus](Pattern-Bus) holding the pattern, touching a machine.

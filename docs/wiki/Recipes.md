@@ -36,7 +36,7 @@
 | Pattern | Shapeless: paper + redstone + iron nugget |
 | Assembler | Shaped: `IPI / RTR / III` |
 | Speed Card (×2) | Shapeless: 2 redstone + nether quartz + iron ingot |
-| Pattern Provider | Shaped: `IRI / RHR / IRI` (`H` = hopper) |
+| Pattern Bus | Shaped: `IRI / RHR / IRI` (`H` = hopper) |
 
 ## Utility
 
