@@ -5,6 +5,8 @@ name: Release
 on:
   push:
     tags: ['v*']
+  # Або вручну: Actions -> Release -> Run workflow (тег vX.Y.Z буде створено автоматично)
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -28,7 +30,7 @@ jobs:
         run: |
           core=$(grep -oP "^version\s*=\s*'\K[^']+" build.gradle)
           addon=$(grep -oP "^version\s*=\s*'\K[^']+" scripting/build.gradle)
-          tag="${GITHUB_REF_NAME#v}"
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then tag="${GITHUB_REF_NAME#v}"; else tag="$core"; fi
           echo "tag=$tag core=$core addon=$addon"
           [ "$tag" = "$core" ] && [ "$tag" = "$addon" ] || { echo "Tag and build.gradle versions differ"; exit 1; }
           echo "VERSION=$tag" >> "$GITHUB_ENV"
@@ -46,6 +48,8 @@ jobs:
       - name: Publish GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ env.VERSION }}
+          target_commitish: ${{ github.sha }}
           name: Simple Byte Storage ${{ env.VERSION }}
           body_path: docs/RELEASE_NOTES_${{ env.VERSION }}.md
           files: dist/*.jar
