@@ -9,6 +9,7 @@ An optional addon, **Simple Byte Storage: Scripting**, adds a Logic Bus and a Lo
 ## Contents
 
 **Getting started**
+- [Downloads](Downloads) — releases, requirements, installation
 - [Getting Started](Getting-Started) — your first network in five minutes
 - [Recipes](Recipes) — every crafting recipe
 

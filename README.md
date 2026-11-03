@@ -16,6 +16,9 @@ $$\text{Занято байт} = \sum \text{Количество всех хра
 
 ---
 
+## ⬇️ Скачать
+Готовые сборки — на странице [Releases](https://github.com/Karatells/ByteStorage/releases/latest): `simple_bytestorage-<версия>.jar` (мод) и необязательный `simple_bytestorage_scripting-<версия>.jar` (скрипты). Подробнее: [docs/wiki/Downloads.md](docs/wiki/Downloads.md).
+
 ## 📖 Документация
 Полная документация (на английском) — в [`docs/wiki`](docs/wiki/Home.md); при включённой GitHub Wiki публикуется туда автоматически. Внутриигровой справочник: предмет «Guide» (книга + кабель).
 

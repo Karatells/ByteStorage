@@ -1,6 +1,7 @@
 **[Home](Home)**
 
 **Start**
+- [Downloads](Downloads)
 - [Getting Started](Getting-Started)
 - [Recipes](Recipes)
 
