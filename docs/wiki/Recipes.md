@@ -28,6 +28,10 @@
 | Pattern Terminal | Shapeless: Terminal + book |
 | Pattern Encoding Terminal | Shapeless: Terminal + book + redstone |
 | Wireless Terminal | Shapeless: Terminal + ender pearl + diamond + redstone |
+| Recipe Library | Shaped: `NDN / DSD / NDN` (N netherite ingot, D diamond block, S nether star) |
+| Insurance Card | Shapeless: Speed Card + totem of undying + ender pearl + diamond |
+| Tool Card | Shapeless: Speed Card + iron pickaxe + redstone + diamond |
+| Macro Card | Shapeless: Speed Card + repeater + ender pearl + redstone |
 | Auto-Transfer Card | Shaped: `RER / DCD / RGR` (R redstone, E ender pearl, D diamond, C Speed Card, G gold ingot) |
 
 ## Autocrafting

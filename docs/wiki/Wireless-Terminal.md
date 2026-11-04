@@ -23,17 +23,19 @@ The item shows its energy as a durability bar and in the tooltip. It also expose
 - You need at least 100 FE (`Not enough energy: charge it in the Network Controller`).
 - Not bound yet: `Not bound: place it in the Network Controller's slot`.
 
-## Upgrades: Auto-Transfer Card
+## Settings and upgrades
 
-Craft the **Auto-Transfer Card** (see [Recipes](Recipes)) and put it into one of the two upgrade slots of the terminal settings (Shift + right-click). The terminal must be bound and anywhere in your inventory.
+Shift + right-click the terminal in the air to open its settings. There are three tabs:
 
-| Mode | Effect |
-|---|---|
-| **Restock** | The stack in your main or off hand is topped up from the network (e.g. keep building with cobblestone). |
-| **Pickup** | Items you pick up are inserted into the network instead of your inventory (e.g. ore). Whatever does not fit stays a normal pickup. |
+- **Upgrades** — 8 slots for cards; each kind of card can be installed once.
+- **Transfer** — Restock / Pickup switches, Whitelist / Blacklist, and an 18-slot ghost filter (click with an item to set, click empty-handed or Shift-click to clear; empty filter = everything). Works with the Auto-Transfer Card.
+- **Macro** — the macro name used by the Macro Card.
 
-Each item moved costs **2 FE** of the terminal's own energy.
+| Card | Effect | Cost |
+|---|---|---|
+| **Auto-Transfer Card** | *Restock*: the stack in your main/off hand is topped up from the network. *Pickup*: picked-up items go into the network (whatever does not fit stays a normal pickup). Filtered. | 2 FE per item |
+| **Insurance Card** | When you die, the items you would drop are moved into the network (as far as the terminal's energy allows; the terminal itself too). When you respawn, they are taken back out; armor is re-equipped. If the network is unreachable they wait in it. | 2 FE per item |
+| **Tool Card** | When a tool breaks, the same kind of item is taken from the network into the same hand. | 20 FE |
+| **Macro Card** | A hotkey (default **V**, see Controls) runs once every Logic Bus whose identifier equals the macro name. Needs the [Scripting addon](Scripting-Overview). | 50 FE |
 
-### Filter
-
-Nine ghost slots (click with an item to set, click empty-handed or Shift-click to clear). The button switches **Whitelist** (only listed items) / **Blacklist** (everything except listed). An empty filter means all items. The filter applies to both Restock and Pickup.
+The terminal must be bound and anywhere in your inventory for cards to work. Recipes are in [Recipes](Recipes).
