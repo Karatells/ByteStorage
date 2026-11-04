@@ -21,6 +21,10 @@ A **Pattern** item is blank or encoded. An encoded pattern stores its recipe in 
 
 With **JEI**, the "+" button on a recipe fills the encoder for you (see [JEI Integration](JEI-Integration)).
 
+## Ordering from any terminal
+
+You do not have to open the Pattern Terminal to order a craft: in the Terminal and the Crafting Terminal, click a dimmed (craftable, out of stock) item or Ctrl + click / middle-click an item in stock to open an order dialog. See [Terminals](Terminals).
+
 ## Pattern Terminal
 
 Shows the list of every pattern available to the network (global patterns plus patterns inside Pattern Buss).

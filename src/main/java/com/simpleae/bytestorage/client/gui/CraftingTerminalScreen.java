@@ -30,6 +30,7 @@ public class CraftingTerminalScreen extends AbstractContainerScreen<CraftingTerm
     private EditBox searchBox;
     private UiButton depositButton;
     private int scrollOffset = 0;
+    private final TerminalExtras extras = new TerminalExtras();
 
     public CraftingTerminalScreen(CraftingTerminalMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -66,6 +67,8 @@ public class CraftingTerminalScreen extends AbstractContainerScreen<CraftingTerm
         this.renderTooltip(graphics, mouseX, mouseY);
         this.depositButton.renderTooltip(graphics, this.font, mouseX, mouseY);
         this.renderPoolTooltip(graphics, mouseX, mouseY);
+        this.extras.renderSort(graphics, this.font, this.leftPos, this.topPos, this.imageWidth, mouseX, mouseY);
+        this.extras.renderDialog(graphics, this.font, this.width, this.height, mouseX, mouseY);
     }
 
     @Override
@@ -136,19 +139,29 @@ public class CraftingTerminalScreen extends AbstractContainerScreen<CraftingTerm
             if (start + i < filtered.size()) {
                 ItemStack stack = filtered.get(start + i);
                 graphics.renderItem(stack, itemX, itemY);
-                GuiStyle.itemCount(graphics, this.font, stack, itemX, itemY, formatCount(stack.getCount()));
+                GuiStyle.itemCount(graphics, this.font, stack, itemX, itemY, extras.isGhost(stack) ? "" : formatCount(stack.getCount()));
+                if (extras.isGhost(stack)) {
+                    graphics.fill(itemX, itemY, itemX + 16, itemY + 16, 0x90141B26);
+                }
             }
         }
     }
 
     private void renderPoolTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
         ItemStack stack = stackAt(mouseX, mouseY);
-        if (stack.isEmpty()) {
+        if (stack.isEmpty() || extras.isDialogOpen()) {
             return;
         }
         List<Component> tooltip = getTooltipFromContainerItem(stack);
-        tooltip.add(Component.translatable("gui.simple_bytestorage.terminal.stored", FORMAT.format(stack.getCount()))
-                .withStyle(ChatFormatting.GOLD));
+        if (extras.isGhost(stack)) {
+            tooltip.add(Component.translatable("gui.simple_bytestorage.terminal.craft_only").withStyle(ChatFormatting.AQUA));
+        } else {
+            tooltip.add(Component.translatable("gui.simple_bytestorage.terminal.stored", FORMAT.format(stack.getCount()))
+                    .withStyle(ChatFormatting.GOLD));
+            if (extras.isCraftable(stack)) {
+                tooltip.add(Component.translatable("gui.simple_bytestorage.terminal.craft_hint").withStyle(ChatFormatting.AQUA));
+            }
+        }
         tooltip.add(Component.translatable("gui.simple_bytestorage.terminal.hint")
                 .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
         graphics.renderComponentTooltip(this.font, tooltip, mouseX, mouseY);
@@ -172,6 +185,13 @@ public class CraftingTerminalScreen extends AbstractContainerScreen<CraftingTerm
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (extras.clickDialog(mouseX, mouseY, button, this.width, this.height)) {
+            return true;
+        }
+        if (extras.clickSort(mouseX, mouseY, button, this.leftPos, this.topPos, this.imageWidth)) {
+            scrollOffset = 0;
+            return true;
+        }
         this.searchBox.setFocused(this.searchBox.isMouseOver(mouseX, mouseY));
         if (this.searchBox.isFocused()) {
             this.searchBox.mouseClicked(mouseX, mouseY, button);
@@ -196,7 +216,12 @@ public class CraftingTerminalScreen extends AbstractContainerScreen<CraftingTerm
                 return true;
             }
             ItemStack clicked = stackAt(mouseX, mouseY);
-            if (!clicked.isEmpty()) {
+            if (!clicked.isEmpty() && (extras.isGhost(clicked)
+                    || (extras.isCraftable(clicked) && (hasControlDown() || button == 2)))) {
+                extras.openDialog(clicked);
+                return true;
+            }
+            if (!clicked.isEmpty() && button != 2) {
                 int action = TerminalActionPacket.ACTION_EXTRACT_STACK;
                 if (hasShiftDown()) {
                     action = TerminalActionPacket.ACTION_EXTRACT_SHIFT;
@@ -213,6 +238,12 @@ public class CraftingTerminalScreen extends AbstractContainerScreen<CraftingTerm
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (extras.isDialogOpen()) {
+            if (keyCode == 256) {
+                extras.closeDialog();
+            }
+            return true;
+        }
         if (this.searchBox.isFocused() && keyCode != 256) {
             this.searchBox.keyPressed(keyCode, scanCode, modifiers);
             return true;
@@ -222,6 +253,9 @@ public class CraftingTerminalScreen extends AbstractContainerScreen<CraftingTerm
 
     @Override
     public boolean charTyped(char codePoint, int modifiers) {
+        if (extras.isDialogOpen()) {
+            return true;
+        }
         if (this.searchBox.isFocused()) {
             boolean handled = this.searchBox.charTyped(codePoint, modifiers);
             scrollOffset = 0;
@@ -243,14 +277,8 @@ public class CraftingTerminalScreen extends AbstractContainerScreen<CraftingTerm
     }
 
     private List<ItemStack> getFilteredItems() {
-        String query = searchBox != null ? searchBox.getValue().trim().toLowerCase() : "";
-        List<ItemStack> pool = menu.getClientVirtualPool();
-        if (query.isEmpty()) {
-            return pool;
-        }
-        return pool.stream()
-                .filter(s -> s.getHoverName().getString().toLowerCase().contains(query))
-                .toList();
+        String query = searchBox != null ? searchBox.getValue() : "";
+        return extras.view(menu.getClientVirtualPool(), query);
     }
 
     private static String formatCount(int count) {

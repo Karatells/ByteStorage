@@ -9,6 +9,8 @@ Browse and withdraw items from the whole network.
 - **Byte usage bar**: used / maximum bytes.
 - **Shift-click** moves whole stacks; stack splitting is supported.
 - Insert items by Shift-clicking them from your inventory or clicking with a stack on the cursor.
+- **Sorting** (two buttons to the right of the window, shared by all terminals): by *name* or *count*, ascending (A-Z / 1-9) or descending (Z-A / 9-1).
+- **Autocrafting from any terminal** (Terminal and Crafting Terminal): items the network can craft but does not have appear dimmed with no count — click one to open the order dialog. For items in stock, **Ctrl + click** (or middle click) does the same. Pick an amount (±1/±10/±64) and press *Order*; sub-crafts are planned automatically and missing ingredients are reported in the action bar.
 
 ## Crafting Terminal
 

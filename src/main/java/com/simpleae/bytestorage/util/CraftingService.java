@@ -348,4 +348,67 @@ public final class CraftingService {
             }
         }
     }
+
+    // --- Замовлення з терміналів ---
+
+    /** Усі предмети, які мережа вміє крафтити (унікальні виходи шаблонів). */
+    public static List<ItemStack> craftableOutputs(IGrid grid) {
+        java.util.Map<String, ItemStack> map = new java.util.LinkedHashMap<>();
+        for (PatternData pattern : allPatterns(grid)) {
+            ItemStack out = pattern.getOutput().copy();
+            out.setCount(1);
+            map.putIfAbsent(key(out), out);
+            if (map.size() >= 2048) {
+                break;
+            }
+        }
+        return new java.util.ArrayList<>(map.values());
+    }
+
+    /**
+     * Замовити автокрафт предмета (кількість у штуках) із повідомленням для гравця:
+     * підкрафти включаються, відсутні ресурси та відсутність машин повідомляються.
+     */
+    public static net.minecraft.network.chat.Component orderOutput(IGrid grid, ItemStack output, int amount) {
+        if (grid == null || !grid.getState().isActive()) {
+            return net.minecraft.network.chat.Component.translatable("msg.simple_bytestorage.order.no_network");
+        }
+        PatternData found = null;
+        String wanted = key(output);
+        for (PatternData pattern : allPatterns(grid)) {
+            if (key(pattern.getOutput()).equals(wanted)) {
+                found = pattern;
+                break;
+            }
+        }
+        if (found == null) {
+            return net.minecraft.network.chat.Component.translatable("msg.simple_bytestorage.order.no_pattern");
+        }
+        int perCraft = Math.max(1, found.getOutput().getCount());
+        int crafts = Math.max(1, Math.min(MAX_CRAFTS, (amount + perCraft - 1) / perCraft));
+        Plan plan = plan(grid, found, crafts);
+        if (!plan.missing.isEmpty()) {
+            ItemStack first = plan.missing.get(0);
+            return net.minecraft.network.chat.Component.translatable("msg.simple_bytestorage.order.missing",
+                    first.getCount(), first.getHoverName());
+        }
+        for (Step step : plan.steps) {
+            String error = routeError(grid, step.pattern);
+            if (error != null) {
+                return net.minecraft.network.chat.Component.translatable(error);
+            }
+        }
+        int accepted = 0;
+        for (Step step : plan.steps) {
+            int got = enqueue(grid, step.pattern, step.crafts);
+            if (step.pattern.getId().equals(found.getId())) {
+                accepted = got;
+            }
+        }
+        if (accepted <= 0) {
+            return net.minecraft.network.chat.Component.translatable("msg.simple_bytestorage.order.queue_full");
+        }
+        return net.minecraft.network.chat.Component.translatable("msg.simple_bytestorage.order.ok",
+                accepted, found.getOutput().getHoverName());
+    }
 }

@@ -35,7 +35,15 @@ import java.util.Optional;
  * з крафтовою сіткою 3x3 та слотом результату.
  * Предмети для крафту беруться з інвентаря гравця або сховища.
  */
-public class CraftingTerminalMenu extends AbstractContainerMenu {
+public class CraftingTerminalMenu extends AbstractContainerMenu implements IGridMenu {
+
+    private int craftSyncTimer = 0;
+
+    @Override
+    public com.simpleae.bytestorage.api.network.IGrid getMenuGrid() {
+        return terminalEntity == null ? null : terminalEntity.getGrid();
+    }
+
 
     private final CraftingTerminalBlockEntity terminalEntity;
     private final Player player;
@@ -179,6 +187,9 @@ public class CraftingTerminalMenu extends AbstractContainerMenu {
     @Override
     public void broadcastChanges() {
         super.broadcastChanges();
+        if (player instanceof ServerPlayer craftSyncPlayer && (craftSyncTimer++ % 40 == 0)) {
+            sendCraftables(craftSyncPlayer);
+        }
 
         // Серверна синхронізація пулу предметів з клієнтом
         if (player instanceof ServerPlayer serverPlayer && terminalEntity != null) {

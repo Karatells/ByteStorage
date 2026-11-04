@@ -26,7 +26,15 @@ import java.util.List;
  * Підтримує відображення списку предметів без прив'язки до фіксованих слотів,
  * вилучення предметів за кліком і вставку предметів з інвентаря гравця.
  */
-public class TerminalMenu extends AbstractContainerMenu {
+public class TerminalMenu extends AbstractContainerMenu implements IGridMenu {
+
+    private int craftSyncTimer = 0;
+
+    @Override
+    public com.simpleae.bytestorage.api.network.IGrid getMenuGrid() {
+        return terminalEntity == null ? null : terminalEntity.getGrid();
+    }
+
 
     private final IGridNode terminalEntity;
     private final Player player;
@@ -87,6 +95,9 @@ public class TerminalMenu extends AbstractContainerMenu {
     @Override
     public void broadcastChanges() {
         super.broadcastChanges();
+        if (player instanceof ServerPlayer craftSyncPlayer && (craftSyncTimer++ % 40 == 0)) {
+            sendCraftables(craftSyncPlayer);
+        }
 
         // Серверна синхронізація пулу предметів з клієнтом
         if (player instanceof ServerPlayer serverPlayer && terminalEntity != null) {

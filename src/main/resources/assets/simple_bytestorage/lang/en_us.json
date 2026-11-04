@@ -137,7 +137,7 @@
   "guide.simple_bytestorage.storage.title": "Drives & cells",
   "guide.simple_bytestorage.storage.body": "§eDrive§r holds up to 10 storage cells; all of them merge into one virtual pool.\n\n§eCells§r: 1k (1 024 B), 4k (4 096 B), 16k (16 384 B), 64k (65 536 B).\n\n§eDrive settings§r\n- §bPriority§r: higher priority fills first (Shift: ±10).\n- §bWhitelist§r: only listed items are accepted (empty = any).\n\nUse priority + whitelist to sort items into dedicated drives.",
   "guide.simple_bytestorage.terminals.title": "Terminals",
-  "guide.simple_bytestorage.terminals.body": "§eTerminal§r — browse and take items from the whole network. Search box, scrolling, byte usage bar. Shift-click moves stacks, right-click splits.\n\n§eCrafting Terminal§r — a Terminal with a 3x3 crafting grid; ingredients are taken from the network.\n\n§eWireless Terminal§r — see the Wireless Terminal chapter.",
+  "guide.simple_bytestorage.terminals.body": "§eTerminal§r — browse and take items from the whole network. Search box, scrolling, byte usage bar. Shift-click moves stacks, right-click splits.\n\n§eCrafting Terminal§r — a Terminal with a 3x3 crafting grid; ingredients are taken from the network.\n\n§eWireless Terminal§r — see the Wireless Terminal chapter.\n\n§eAny terminal§r: sort by name or count with the buttons on the right; dimmed items are craftable but out of stock — click to order. Ctrl + click (or middle click) orders a craft of an item in stock.",
   "guide.simple_bytestorage.autocraft.title": "Autocrafting",
   "guide.simple_bytestorage.autocraft.body": "§eEncoding Terminal§r: choose the mode.\n- §bCrafting§r: click items onto the 3x3 grid (not consumed); the vanilla recipe decides the result. Press Encode: the recipe goes straight into the network, no Pattern needed.\n- §bProcessing§r: put a blank §bPattern§r in and set inputs and the result for furnaces and other machines; such patterns go into a Pattern Bus.\n\n§ePattern Terminal§r: list of all patterns. Search, 'Ready' filter, a missing ingredient is shown. Order: LMB = 1, Shift = 10, Ctrl = 64. A window shows the full plan (sub-crafts included) before you confirm. The Queue tab shows running orders and lets you cancel them. Shift+LMB on × removes a pattern.\n\nIngredients that have their own pattern are crafted automatically (sub-crafts, depth up to 8).",
   "guide.simple_bytestorage.assembler.title": "Assembler",
@@ -183,5 +183,18 @@
   "guide.simple_bytestorage.controller.title": "Network Controller GUI",
   "guide.simple_bytestorage.controller.body": "Right-click the §eController§r to open its screen.\n§bOverview§r: status, energy, buffer and drain, and which blocks are connected.\n§bStorage§r: disk load bar, item types and the most plentiful items.\n§bCrafting§r: patterns, busy Assemblers, Pattern Bus jobs and the current craft queue.\nThe slot at the bottom takes a §eWireless Terminal§r: it is bound to this network and charged from the controller automatically.",
   "guide.simple_bytestorage.wireless.title": "Wireless Terminal",
-  "guide.simple_bytestorage.wireless.body": "Opens the network from afar (right-click). Put it into the Controller's slot to §bbind§r and §bcharge§r it. 20 000 FE, an opening costs 100 FE; the controller chunk must be loaded.\n\n§eUpgrades§r: Shift + right-click opens the settings. Install an §bAuto-Transfer Card§r (2 slots):\n- §bRestock§r: the stack in your hand is refilled from the network.\n- §bPickup§r: picked-up items go straight into the network.\n- Filter (9 ghost slots) with Whitelist/Blacklist; an empty filter means everything.\nEach moved item costs 2 FE of the terminal's energy."
+  "guide.simple_bytestorage.wireless.body": "Opens the network from afar (right-click). Put it into the Controller's slot to §bbind§r and §bcharge§r it. 20 000 FE, an opening costs 100 FE; the controller chunk must be loaded.\n\n§eUpgrades§r: Shift + right-click opens the settings. Install an §bAuto-Transfer Card§r (2 slots):\n- §bRestock§r: the stack in your hand is refilled from the network.\n- §bPickup§r: picked-up items go straight into the network.\n- Filter (9 ghost slots) with Whitelist/Blacklist; an empty filter means everything.\nEach moved item costs 2 FE of the terminal's energy.",
+  "gui.simple_bytestorage.sort.name": "Name",
+  "gui.simple_bytestorage.sort.count": "Count",
+  "gui.simple_bytestorage.sort.az": "A-Z",
+  "gui.simple_bytestorage.sort.za": "Z-A",
+  "gui.simple_bytestorage.sort.19": "1-9",
+  "gui.simple_bytestorage.sort.91": "9-1",
+  "gui.simple_bytestorage.sort.key.tip": "Sort by: name / count",
+  "gui.simple_bytestorage.sort.dir.tip": "Sort direction: ascending / descending",
+  "gui.simple_bytestorage.terminal.craft_only": "Not in stock — click to order a craft",
+  "gui.simple_bytestorage.terminal.craft_hint": "Ctrl + click (or middle click): order a craft",
+  "gui.simple_bytestorage.order.title": "Craft: %s",
+  "gui.simple_bytestorage.order.confirm": "Order",
+  "gui.simple_bytestorage.order.cancel": "Cancel"
 }
