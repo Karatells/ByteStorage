@@ -9,6 +9,7 @@
 - [Network and Power](Network-and-Power)
 - [Storage](Storage)
 - [Terminals](Terminals)
+- [Network Controller GUI](Network-Controller)
 - [Wireless Terminal](Wireless-Terminal)
 - [Autocrafting](Autocrafting)
 - [Assembler](Assembler)

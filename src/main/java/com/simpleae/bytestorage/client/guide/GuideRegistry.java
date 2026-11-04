@@ -34,7 +34,7 @@ public final class GuideRegistry {
 
     /** Розділи основного мода. */
     public static void registerBuiltin() {
-        String[] ids = {"intro", "network", "storage", "terminals", "autocraft", "assembler", "provider", "iobus", "jei"};
+        String[] ids = {"intro", "network", "controller", "storage", "terminals", "wireless", "autocraft", "assembler", "provider", "iobus", "jei"};
         int order = 0;
         for (String id : ids) {
             register(new Chapter(id, order += 10,

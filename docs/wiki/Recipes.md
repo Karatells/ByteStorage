@@ -28,6 +28,7 @@
 | Pattern Terminal | Shapeless: Terminal + book |
 | Pattern Encoding Terminal | Shapeless: Terminal + book + redstone |
 | Wireless Terminal | Shapeless: Terminal + ender pearl + diamond + redstone |
+| Auto-Transfer Card | Shaped: `RER / DCD / RGR` (R redstone, E ender pearl, D diamond, C Speed Card, G gold ingot) |
 
 ## Autocrafting
 

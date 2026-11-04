@@ -17,7 +17,8 @@ An optional addon, **Simple Byte Storage: Scripting**, adds a Logic Bus and a Lo
 - [Network and Power](Network-and-Power) — controller, cables, energy, grid states
 - [Storage](Storage) — drives, cells, priority, whitelist
 - [Terminals](Terminals) — Terminal, Crafting Terminal
-- [Wireless Terminal](Wireless-Terminal)
+- [Network Controller GUI](Network-Controller) — stats screen and wireless slot
+- [Wireless Terminal](Wireless-Terminal) — binding, charging, Auto-Transfer upgrade
 - [Autocrafting](Autocrafting) — patterns, encoding, ordering, sub-crafts, queue
 - [Assembler](Assembler) — crafting-table patterns, speed cards
 - [Pattern Bus](Pattern-Bus) — machine (processing) crafts
