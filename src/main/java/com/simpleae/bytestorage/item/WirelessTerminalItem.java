@@ -174,6 +174,14 @@ public class WirelessTerminalItem extends Item {
         if (level.isClientSide || !(player instanceof ServerPlayer serverPlayer)) {
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
+        if (player.isShiftKeyDown()) {
+            int slot = hand == InteractionHand.MAIN_HAND ? player.getInventory().selected : 40;
+            NetworkHooks.openScreen(serverPlayer,
+                    new SimpleMenuProvider((id, inventory, p) -> new com.simpleae.bytestorage.menu.WirelessSettingsMenu(id, inventory, slot),
+                            Component.translatable("gui.simple_bytestorage.wireless.settings")),
+                    buf -> buf.writeVarInt(slot));
+            return InteractionResultHolder.consume(stack);
+        }
         if (!isBound(stack)) {
             player.displayClientMessage(Component.translatable("msg.simple_bytestorage.wireless.unbound"), true);
             return InteractionResultHolder.fail(stack);

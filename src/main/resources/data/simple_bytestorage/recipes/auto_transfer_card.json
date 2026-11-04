@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["RER", "DCD", "RGR"],
+  "key": {
+    "R": {"item": "minecraft:redstone"},
+    "E": {"item": "minecraft:ender_pearl"},
+    "D": {"item": "minecraft:diamond"},
+    "C": {"item": "simple_bytestorage:speed_card"},
+    "G": {"item": "minecraft:gold_ingot"}
+  },
+  "result": {"item": "simple_bytestorage:auto_transfer_card", "count": 1}
+}

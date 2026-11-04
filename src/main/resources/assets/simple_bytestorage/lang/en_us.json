@@ -165,5 +165,19 @@
   "gui.simple_bytestorage.controller.queue.empty": "Craft queue is empty",
   "gui.simple_bytestorage.controller.wireless.bound": "Wireless Terminal bound",
   "gui.simple_bytestorage.controller.wireless.empty": "Wireless Terminal slot",
-  "gui.simple_bytestorage.controller.wireless.hint": "Place it here to bind and charge"
+  "gui.simple_bytestorage.controller.wireless.hint": "Place it here to bind and charge",
+  "item.simple_bytestorage.auto_transfer_card": "Auto-Transfer Card",
+  "tooltip.simple_bytestorage.auto_transfer_card": "Wireless Terminal upgrade: refills held items from the network and stores picked-up items. Install via Shift + right click on the terminal.",
+  "gui.simple_bytestorage.wireless.settings": "Wireless Terminal Settings",
+  "gui.simple_bytestorage.wireless.upgrades": "Upgrades",
+  "gui.simple_bytestorage.wireless.filter": "Filter",
+  "gui.simple_bytestorage.wireless.restock.on": "Restock: On",
+  "gui.simple_bytestorage.wireless.restock.off": "Restock: Off",
+  "gui.simple_bytestorage.wireless.restock.tip": "Refill the stack in your hands from the network.",
+  "gui.simple_bytestorage.wireless.pickup.on": "Pickup: On",
+  "gui.simple_bytestorage.wireless.pickup.off": "Pickup: Off",
+  "gui.simple_bytestorage.wireless.pickup.tip": "Send picked-up items to the network.",
+  "gui.simple_bytestorage.wireless.whitelist": "Whitelist",
+  "gui.simple_bytestorage.wireless.blacklist": "Blacklist",
+  "gui.simple_bytestorage.wireless.list.tip": "Whitelist: only listed items. Blacklist: everything except listed. Empty filter = everything."
 }

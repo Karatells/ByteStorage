@@ -165,5 +165,19 @@
   "gui.simple_bytestorage.controller.queue.empty": "Очередь крафта пуста",
   "gui.simple_bytestorage.controller.wireless.bound": "Беспроводной терминал привязан",
   "gui.simple_bytestorage.controller.wireless.empty": "Слот беспроводного терминала",
-  "gui.simple_bytestorage.controller.wireless.hint": "Положите сюда для привязки и зарядки"
+  "gui.simple_bytestorage.controller.wireless.hint": "Положите сюда для привязки и зарядки",
+  "item.simple_bytestorage.auto_transfer_card": "Карта автообмена",
+  "tooltip.simple_bytestorage.auto_transfer_card": "Улучшение Беспроводного терминала: пополняет предметы в руках из сети и отправляет подобранные в сеть. Устанавливается через Shift + ПКМ по терминалу.",
+  "gui.simple_bytestorage.wireless.settings": "Настройки терминала",
+  "gui.simple_bytestorage.wireless.upgrades": "Улучшения",
+  "gui.simple_bytestorage.wireless.filter": "Фильтр",
+  "gui.simple_bytestorage.wireless.restock.on": "Пополн.: Вкл",
+  "gui.simple_bytestorage.wireless.restock.off": "Пополн.: Выкл",
+  "gui.simple_bytestorage.wireless.restock.tip": "Пополнять стак в руках из сети.",
+  "gui.simple_bytestorage.wireless.pickup.on": "Сбор: Вкл",
+  "gui.simple_bytestorage.wireless.pickup.off": "Сбор: Выкл",
+  "gui.simple_bytestorage.wireless.pickup.tip": "Отправлять подобранные предметы в сеть.",
+  "gui.simple_bytestorage.wireless.whitelist": "Белый",
+  "gui.simple_bytestorage.wireless.blacklist": "Чёрный",
+  "gui.simple_bytestorage.wireless.list.tip": "Белый список: только перечисленное. Чёрный: всё, кроме перечисленного. Пустой фильтр = всё."
 }

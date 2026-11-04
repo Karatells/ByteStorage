@@ -275,6 +275,12 @@ public class SimpleByteStorage {
     public static final RegistryObject<Item> WIRELESS_TERMINAL = ITEMS.register("wireless_terminal",
             () -> new com.simpleae.bytestorage.item.WirelessTerminalItem(new Item.Properties().stacksTo(1)));
 
+    public static final RegistryObject<Item> AUTO_TRANSFER_CARD = ITEMS.register("auto_transfer_card",
+            () -> new com.simpleae.bytestorage.item.WirelessUpgradeItem(new Item.Properties().stacksTo(1)));
+
+    public static final RegistryObject<MenuType<com.simpleae.bytestorage.menu.WirelessSettingsMenu>> WIRELESS_SETTINGS_MENU =
+            MENU_TYPES.register("wireless_settings", () -> IForgeMenuType.create(com.simpleae.bytestorage.menu.WirelessSettingsMenu::new));
+
     // --- 9. Диски зберігання (Storage Cells: 1k, 4k, 16k, 64k) ---
     public static final RegistryObject<Item> CELL_1K = ITEMS.register("cell_1k",
             () -> new ByteStorageCellItem(CellTier.TIER_1K, new Item.Properties()));
@@ -307,6 +313,7 @@ public class SimpleByteStorage {
                         output.accept(PATTERN_ITEM.get());
                         output.accept(SPEED_CARD.get());
                         output.accept(WIRELESS_TERMINAL.get());
+                        output.accept(AUTO_TRANSFER_CARD.get());
                         output.accept(GUIDE_BOOK.get());
                         output.accept(CELL_1K.get());
                         output.accept(CELL_4K.get());
@@ -348,6 +355,7 @@ public class SimpleByteStorage {
             MenuScreens.register(PATTERN_ENCODING_TERMINAL_MENU.get(), PatternEncodingTerminalScreen::new);
             MenuScreens.register(PATTERN_PROVIDER_MENU.get(), PatternProviderScreen::new);
             MenuScreens.register(IO_BUS_MENU.get(), com.simpleae.bytestorage.client.gui.IoBusScreen::new);
+            MenuScreens.register(WIRELESS_SETTINGS_MENU.get(), com.simpleae.bytestorage.client.gui.WirelessSettingsScreen::new);
             MenuScreens.register(CONTROLLER_MENU.get(), com.simpleae.bytestorage.client.gui.ControllerScreen::new);
         });
     }
