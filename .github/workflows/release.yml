@@ -11,6 +11,12 @@ on:
 permissions:
   contents: write
 
+env:
+  # CurseForge: секрет CURSEFORGE_TOKEN и переменная репозитория CURSEFORGE_PROJECT_ID (Settings -> Secrets and variables -> Actions).
+  # Если они не заданы, публикация на CurseForge просто пропускается.
+  CF_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+  CF_PROJECT: ${{ vars.CURSEFORGE_PROJECT_ID }}
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -61,3 +67,34 @@ jobs:
           files: dist/*.jar
           fail_on_unmatched_files: true
           make_latest: true
+
+      # Один проект CurseForge: основной мод и аддон загружаются как два файла этого проекта
+      - name: Publish main mod to CurseForge
+        if: ${{ env.CF_TOKEN != '' && env.CF_PROJECT != '' }}
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          curseforge-id: ${{ env.CF_PROJECT }}
+          curseforge-token: ${{ env.CF_TOKEN }}
+          files: dist/simple_bytestorage-${{ env.VERSION }}.jar
+          name: Simple Byte Storage ${{ env.VERSION }}
+          version: ${{ env.VERSION }}
+          version-type: release
+          changelog-file: release_notes.md
+          loaders: forge
+          game-versions: 1.20.1
+          java: 17
+
+      - name: Publish Scripting addon to CurseForge
+        if: ${{ env.CF_TOKEN != '' && env.CF_PROJECT != '' }}
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          curseforge-id: ${{ env.CF_PROJECT }}
+          curseforge-token: ${{ env.CF_TOKEN }}
+          files: dist/simple_bytestorage_scripting-${{ env.VERSION }}.jar
+          name: Simple Byte Storage: Scripting ${{ env.VERSION }}
+          version: ${{ env.VERSION }}
+          version-type: release
+          changelog-file: release_notes.md
+          loaders: forge
+          game-versions: 1.20.1
+          java: 17
