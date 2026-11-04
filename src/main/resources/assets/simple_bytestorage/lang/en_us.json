@@ -196,5 +196,13 @@
   "gui.simple_bytestorage.terminal.craft_hint": "Ctrl + click (or middle click): order a craft",
   "gui.simple_bytestorage.order.title": "Craft: %s",
   "gui.simple_bytestorage.order.confirm": "Order",
-  "gui.simple_bytestorage.order.cancel": "Cancel"
+  "gui.simple_bytestorage.order.cancel": "Cancel",
+  "item.simple_bytestorage.recipe_library": "Recipe Library",
+  "tooltip.simple_bytestorage.recipe_library": "Controller upgrade: the network learns ALL crafting-table recipes of the game, no Patterns needed. Place into the Network Controller's upgrade slot.",
+  "gui.simple_bytestorage.controller.library.active": "Recipe Library active",
+  "gui.simple_bytestorage.controller.library.count": "%s recipes known",
+  "gui.simple_bytestorage.controller.library.empty": "Recipe Library slot",
+  "gui.simple_bytestorage.controller.library.hint": "Unlocks every crafting-table recipe",
+  "gui.simple_bytestorage.controller.library.line.on": "Recipe Library: %s recipes",
+  "gui.simple_bytestorage.controller.library.line.off": "Recipe Library: not installed"
 }

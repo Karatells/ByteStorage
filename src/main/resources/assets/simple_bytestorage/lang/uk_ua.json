@@ -196,5 +196,13 @@
   "gui.simple_bytestorage.terminal.craft_hint": "Ctrl + клік (або СКМ): замовити крафт",
   "gui.simple_bytestorage.order.title": "Крафт: %s",
   "gui.simple_bytestorage.order.confirm": "Замовити",
-  "gui.simple_bytestorage.order.cancel": "Скасувати"
+  "gui.simple_bytestorage.order.cancel": "Скасувати",
+  "item.simple_bytestorage.recipe_library": "Бібліотека рецептів",
+  "tooltip.simple_bytestorage.recipe_library": "Покращення контролера: мережа дізнається ВСІ рецепти верстака гри, шаблони не потрібні. Покладіть у слот покращення контролера мережі.",
+  "gui.simple_bytestorage.controller.library.active": "Бібліотека рецептів активна",
+  "gui.simple_bytestorage.controller.library.count": "Відомо рецептів: %s",
+  "gui.simple_bytestorage.controller.library.empty": "Слот Бібліотеки рецептів",
+  "gui.simple_bytestorage.controller.library.hint": "Відкриває всі рецепти верстака",
+  "gui.simple_bytestorage.controller.library.line.on": "Бібліотека рецептів: %s",
+  "gui.simple_bytestorage.controller.library.line.off": "Бібліотека рецептів: не встановлена"
 }

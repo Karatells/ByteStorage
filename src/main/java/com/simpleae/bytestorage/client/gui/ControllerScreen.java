@@ -26,7 +26,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
     public ControllerScreen(ControllerMenu menu, Inventory inv, Component title) {
         super(menu, inv, title);
         this.imageWidth = 256;
-        this.imageHeight = 236;
+        this.imageHeight = 270;
     }
 
     @Override
@@ -82,7 +82,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
         int led = s.state == 1 ? GuiStyle.LED_GOOD : (s.state == 2 ? GuiStyle.LED_BAD : GuiStyle.LED_WARN);
         GuiStyle.window(g, x, y, imageWidth, imageHeight, this.title, led);
 
-        GuiStyle.display(g, x + 6, y + 38, 244, 84);
+        GuiStyle.display(g, x + 6, y + 38, 244, 80);
         switch (tab) {
             case 0 -> drawOverview(g, s, x + 10, y + 42);
             case 1 -> drawStorage(g, s, x + 10, y + 42);
@@ -90,17 +90,28 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
         }
 
         // Слот привязки беспроводного терминала
-        GuiStyle.panel(g, x + 6, y + 124, 244, 26);
+        GuiStyle.panel(g, x + 6, y + 120, 244, 26);
         GuiStyle.menuSlot(g, x, y, menu.slots.get(0), GuiStyle.SLOT_CARD, GuiStyle.ACCENT);
         ItemStack w = menu.getWirelessStack();
         if (w.getItem() instanceof WirelessTerminalItem) {
             int energy = WirelessTerminalItem.getEnergy(w);
-            text(g, Component.translatable("gui.simple_bytestorage.controller.wireless.bound").getString(), x + 30, y + 128, GuiStyle.TEXT_GOOD);
-            GuiStyle.meter(g, x + 30, y + 140, 150, 6, energy / (float) WirelessTerminalItem.CAPACITY);
-            text(g, n(energy) + " / " + n(WirelessTerminalItem.CAPACITY) + " FE", x + 184, y + 139, GuiStyle.TEXT_LABEL);
+            text(g, Component.translatable("gui.simple_bytestorage.controller.wireless.bound").getString(), x + 30, y + 124, GuiStyle.TEXT_GOOD);
+            GuiStyle.meter(g, x + 30, y + 136, 100, 6, energy / (float) WirelessTerminalItem.CAPACITY);
+            text(g, n(energy) + " / " + n(WirelessTerminalItem.CAPACITY) + " FE", x + 136, y + 135, GuiStyle.TEXT_LABEL);
         } else {
-            text(g, Component.translatable("gui.simple_bytestorage.controller.wireless.empty").getString(), x + 30, y + 128, GuiStyle.TEXT_MUTED);
-            text(g, Component.translatable("gui.simple_bytestorage.controller.wireless.hint").getString(), x + 30, y + 139, GuiStyle.TEXT_MUTED);
+            text(g, Component.translatable("gui.simple_bytestorage.controller.wireless.empty").getString(), x + 30, y + 124, GuiStyle.TEXT_MUTED);
+            text(g, Component.translatable("gui.simple_bytestorage.controller.wireless.hint").getString(), x + 30, y + 135, GuiStyle.TEXT_MUTED);
+        }
+
+        // Слот улучшения «Библиотека рецептов»
+        GuiStyle.panel(g, x + 6, y + 148, 244, 26);
+        GuiStyle.menuSlot(g, x, y, menu.slots.get(1), GuiStyle.SLOT_CARD, GuiStyle.TEXT_WARN);
+        if (menu.getStats().libraryRecipes > 0) {
+            text(g, Component.translatable("gui.simple_bytestorage.controller.library.active").getString(), x + 30, y + 152, GuiStyle.TEXT_GOOD);
+            text(g, Component.translatable("gui.simple_bytestorage.controller.library.count", menu.getStats().libraryRecipes).getString(), x + 30, y + 163, GuiStyle.TEXT_LABEL);
+        } else {
+            text(g, Component.translatable("gui.simple_bytestorage.controller.library.empty").getString(), x + 30, y + 152, GuiStyle.TEXT_MUTED);
+            text(g, Component.translatable("gui.simple_bytestorage.controller.library.hint").getString(), x + 30, y + 163, GuiStyle.TEXT_MUTED);
         }
 
         GuiStyle.inventoryLabel(g, this.playerInventoryTitle, x + ControllerMenu.PLAYER_INV_X, y + ControllerMenu.PLAYER_INV_Y - 10);
@@ -149,17 +160,20 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
         text(g, Component.translatable("gui.simple_bytestorage.controller.patterns", s.patterns).getString() + "   "
                 + Component.translatable("gui.simple_bytestorage.controller.assemblers", s.assemblersBusy, s.assemblers).getString() + "   "
                 + Component.translatable("gui.simple_bytestorage.controller.buses", s.buses, s.busJobs).getString(), x, y, GuiStyle.TEXT_TITLE);
+        text(g, Component.translatable(s.libraryRecipes > 0 ? "gui.simple_bytestorage.controller.library.line.on" : "gui.simple_bytestorage.controller.library.line.off", s.libraryRecipes).getString(),
+                x, y + 11, s.libraryRecipes > 0 ? GuiStyle.TEXT_GOOD : GuiStyle.TEXT_MUTED);
         int total = Math.max(1, s.assemblers);
-        GuiStyle.progress(g, x, y + 11, 232, 6, s.assemblersBusy / (float) total);
+        GuiStyle.progress(g, x, y + 23, 232, 6, s.assemblersBusy / (float) total);
         if (s.queue.isEmpty()) {
-            text(g, Component.translatable("gui.simple_bytestorage.controller.queue.empty").getString(), x, y + 24, GuiStyle.TEXT_MUTED);
+            text(g, Component.translatable("gui.simple_bytestorage.controller.queue.empty").getString(), x, y + 36, GuiStyle.TEXT_MUTED);
             return;
         }
         int i = 0;
         for (NetworkStats.QueueRow q : s.queue) {
+            if (i >= 6) break;
             int cx = x + (i % 2) * 118;
-            int cy = y + 21 + (i / 2) * 14;
-            g.renderItem(q.output(), cx, cy - 3);
+            int cy = y + 36 + (i / 2) * 13;
+            g.renderItem(q.output(), cx, cy - 4);
             text(g, "x" + q.crafts() + (q.active() ? " *" : ""), cx + 18, cy + 1, q.active() ? GuiStyle.TEXT_GOOD : GuiStyle.TEXT_LABEL);
             i++;
         }

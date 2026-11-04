@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": ["NDN", "DSD", "NDN"],
+  "key": {
+    "N": {"item": "minecraft:netherite_ingot"},
+    "D": {"item": "minecraft:diamond_block"},
+    "S": {"item": "minecraft:nether_star"}
+  },
+  "result": {"item": "simple_bytestorage:recipe_library", "count": 1}
+}

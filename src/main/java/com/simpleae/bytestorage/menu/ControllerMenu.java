@@ -2,6 +2,7 @@ package com.simpleae.bytestorage.menu;
 
 import com.simpleae.bytestorage.SimpleByteStorage;
 import com.simpleae.bytestorage.block.entity.NetworkControllerBlockEntity;
+import com.simpleae.bytestorage.item.RecipeLibraryItem;
 import com.simpleae.bytestorage.item.WirelessTerminalItem;
 import com.simpleae.bytestorage.network.packet.ControllerStatsPacket;
 import com.simpleae.bytestorage.network.packet.SimpleByteStoragePackets;
@@ -24,10 +25,12 @@ import org.jetbrains.annotations.NotNull;
 public class ControllerMenu extends AbstractContainerMenu {
 
     public static final int WIRELESS_X = 8;
-    public static final int WIRELESS_Y = 128;
-    public static final int PLAYER_START = 1;
+    public static final int WIRELESS_Y = 124;
+    public static final int LIBRARY_X = 8;
+    public static final int LIBRARY_Y = 152;
+    public static final int PLAYER_START = 2;
     public static final int PLAYER_INV_X = 47;
-    public static final int PLAYER_INV_Y = 156;
+    public static final int PLAYER_INV_Y = 188;
 
     private final NetworkControllerBlockEntity controller;
     private NetworkStats stats = new NetworkStats();
@@ -48,6 +51,17 @@ public class ControllerMenu extends AbstractContainerMenu {
             @Override
             public boolean mayPlace(@NotNull ItemStack stack) {
                 return stack.getItem() instanceof WirelessTerminalItem;
+            }
+
+            @Override
+            public int getMaxStackSize() {
+                return 1;
+            }
+        });
+        this.addSlot(new SlotItemHandler(controller.getLibrarySlot(), 0, LIBRARY_X, LIBRARY_Y) {
+            @Override
+            public boolean mayPlace(@NotNull ItemStack stack) {
+                return stack.getItem() instanceof RecipeLibraryItem;
             }
 
             @Override
@@ -93,12 +107,16 @@ public class ControllerMenu extends AbstractContainerMenu {
         }
         ItemStack stack = slot.getItem();
         ItemStack copy = stack.copy();
-        if (index == 0) {
+        if (index < PLAYER_START) {
             if (!this.moveItemStackTo(stack, PLAYER_START, this.slots.size(), true)) {
                 return ItemStack.EMPTY;
             }
         } else if (stack.getItem() instanceof WirelessTerminalItem) {
             if (!this.moveItemStackTo(stack, 0, 1, false)) {
+                return ItemStack.EMPTY;
+            }
+        } else if (stack.getItem() instanceof RecipeLibraryItem) {
+            if (!this.moveItemStackTo(stack, 1, 2, false)) {
                 return ItemStack.EMPTY;
             }
         } else {

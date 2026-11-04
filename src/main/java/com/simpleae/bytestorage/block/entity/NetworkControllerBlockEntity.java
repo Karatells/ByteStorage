@@ -68,6 +68,19 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         }
     };
 
+    /** Слот улучшения «Библиотека рецептов». */
+    private final ItemStackHandler librarySlot = new ItemStackHandler(1) {
+        @Override
+        public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+            return stack.getItem() instanceof com.simpleae.bytestorage.item.RecipeLibraryItem;
+        }
+
+        @Override
+        protected void onContentsChanged(int slot) {
+            setChanged();
+        }
+    };
+
     private IGrid grid;
     private int tickCounter = 0;
 
@@ -124,6 +137,15 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
 
     // --- Беспроводной терминал ---
 
+    public ItemStackHandler getLibrarySlot() {
+        return librarySlot;
+    }
+
+    /** Установлена ли Библиотека рецептов (сеть знает все рецепты верстака). */
+    public boolean hasRecipeLibrary() {
+        return librarySlot.getStackInSlot(0).getItem() instanceof com.simpleae.bytestorage.item.RecipeLibraryItem;
+    }
+
     public ItemStackHandler getWirelessSlot() {
         return wirelessSlot;
     }
@@ -153,6 +175,8 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         List<ItemStack> drops = new java.util.ArrayList<>();
         ItemStack stack = wirelessSlot.getStackInSlot(0);
         if (!stack.isEmpty()) drops.add(stack.copy());
+        ItemStack library = librarySlot.getStackInSlot(0);
+        if (!library.isEmpty()) drops.add(library.copy());
         return drops;
     }
 
@@ -286,6 +310,7 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         super.saveAdditional(tag);
         tag.putInt("Energy", energyStorage.getEnergyStored());
         tag.put("Wireless", wirelessSlot.serializeNBT());
+        tag.put("Library", librarySlot.serializeNBT());
         // Глобальний список шаблонів крафту живе в мережі — зберігаємо його разом із контролером.
         if (grid != null && grid.getPatternStorage() != null) {
             tag.put("Patterns", grid.getPatternStorage().save());
@@ -295,6 +320,9 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
+        if (tag.contains("Library")) {
+            librarySlot.deserializeNBT(tag.getCompound("Library"));
+        }
         if (tag.contains("Wireless")) {
             wirelessSlot.deserializeNBT(tag.getCompound("Wireless"));
         }

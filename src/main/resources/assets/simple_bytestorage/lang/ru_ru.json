@@ -196,5 +196,13 @@
   "gui.simple_bytestorage.terminal.craft_hint": "Ctrl + клик (или СКМ): заказать крафт",
   "gui.simple_bytestorage.order.title": "Крафт: %s",
   "gui.simple_bytestorage.order.confirm": "Заказать",
-  "gui.simple_bytestorage.order.cancel": "Отмена"
+  "gui.simple_bytestorage.order.cancel": "Отмена",
+  "item.simple_bytestorage.recipe_library": "Библиотека рецептов",
+  "tooltip.simple_bytestorage.recipe_library": "Улучшение контроллера: сеть узнаёт ВСЕ рецепты верстака игры, шаблоны не нужны. Положите в слот улучшения контроллера сети.",
+  "gui.simple_bytestorage.controller.library.active": "Библиотека рецептов активна",
+  "gui.simple_bytestorage.controller.library.count": "Известно рецептов: %s",
+  "gui.simple_bytestorage.controller.library.empty": "Слот Библиотеки рецептов",
+  "gui.simple_bytestorage.controller.library.hint": "Открывает все рецепты верстака",
+  "gui.simple_bytestorage.controller.library.line.on": "Библиотека рецептов: %s",
+  "gui.simple_bytestorage.controller.library.line.off": "Библиотека рецептов: не установлена"
 }

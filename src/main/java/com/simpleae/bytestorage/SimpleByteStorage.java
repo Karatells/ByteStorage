@@ -278,6 +278,9 @@ public class SimpleByteStorage {
     public static final RegistryObject<Item> AUTO_TRANSFER_CARD = ITEMS.register("auto_transfer_card",
             () -> new com.simpleae.bytestorage.item.WirelessUpgradeItem(new Item.Properties().stacksTo(1)));
 
+    public static final RegistryObject<Item> RECIPE_LIBRARY = ITEMS.register("recipe_library",
+            () -> new com.simpleae.bytestorage.item.RecipeLibraryItem(new Item.Properties().stacksTo(1)));
+
     public static final RegistryObject<MenuType<com.simpleae.bytestorage.menu.WirelessSettingsMenu>> WIRELESS_SETTINGS_MENU =
             MENU_TYPES.register("wireless_settings", () -> IForgeMenuType.create(com.simpleae.bytestorage.menu.WirelessSettingsMenu::new));
 
@@ -314,6 +317,7 @@ public class SimpleByteStorage {
                         output.accept(SPEED_CARD.get());
                         output.accept(WIRELESS_TERMINAL.get());
                         output.accept(AUTO_TRANSFER_CARD.get());
+                        output.accept(RECIPE_LIBRARY.get());
                         output.accept(GUIDE_BOOK.get());
                         output.accept(CELL_1K.get());
                         output.accept(CELL_4K.get());

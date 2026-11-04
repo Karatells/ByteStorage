@@ -58,6 +58,7 @@ public final class NetworkStats {
     public int assemblerQueue;
     public int buses;
     public int busJobs;
+    public int libraryRecipes; // 0 — Библиотека рецептов не установлена
 
     public final List<BlockCount> blocks = new ArrayList<>();
     public final List<DriveInfo> drives = new ArrayList<>();
@@ -131,6 +132,7 @@ public final class NetworkStats {
         }
 
         s.patterns = CraftingService.allPatterns(grid).size();
+        s.libraryRecipes = RecipeLibrary.count(grid);
         for (CraftingService.QueueEntry entry : CraftingService.queue(grid)) {
             if (s.queue.size() >= MAX_QUEUE_ROWS) {
                 break;
@@ -169,6 +171,7 @@ public final class NetworkStats {
         buf.writeVarInt(assemblerQueue);
         buf.writeVarInt(buses);
         buf.writeVarInt(busJobs);
+        buf.writeVarInt(libraryRecipes);
         buf.writeVarInt(blocks.size());
         for (BlockCount b : blocks) {
             buf.writeUtf(b.nameKey(), 128);
@@ -211,6 +214,7 @@ public final class NetworkStats {
         s.assemblerQueue = buf.readVarInt();
         s.buses = buf.readVarInt();
         s.busJobs = buf.readVarInt();
+        s.libraryRecipes = buf.readVarInt();
         int n = buf.readVarInt();
         for (int i = 0; i < n; i++) {
             s.blocks.add(new BlockCount(buf.readUtf(128), buf.readVarInt()));

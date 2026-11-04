@@ -407,7 +407,7 @@ public class AssemblerBlockEntity extends BlockEntity implements IGridNode, Menu
         }
 
         Job job = jobs.get(0);
-        PatternData pattern = grid.getPatternStorage() == null ? null : grid.getPatternStorage().getPattern(job.patternId);
+        PatternData pattern = com.simpleae.bytestorage.util.CraftingService.findPattern(grid, job.patternId);
         if (pattern == null) {
             // Шаблон видалили з мережі — замовлення втратило сенс.
             dropFirstJob();
@@ -481,8 +481,8 @@ public class AssemblerBlockEntity extends BlockEntity implements IGridNode, Menu
     private void finishCraft() {
         ICellInventory card = cardInventory();
         Job job = jobs.isEmpty() ? null : jobs.get(0);
-        PatternData pattern = (job == null || grid.getPatternStorage() == null)
-                ? null : grid.getPatternStorage().getPattern(job.patternId);
+        PatternData pattern = job == null
+                ? null : com.simpleae.bytestorage.util.CraftingService.findPattern(grid, job.patternId);
 
         boolean success = false;
         if (card != null && pattern != null) {

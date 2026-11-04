@@ -71,6 +71,13 @@ public final class CraftingService {
         return new ArrayList<>(result.values());
     }
 
+    /** Явні шаблони + (якщо в Контролері встановлена Бібліотека рецептів) усі рецепти верстака гри. */
+    public static List<PatternData> allPatternsWithLibrary(IGrid grid) {
+        List<PatternData> result = allPatterns(grid);
+        result.addAll(RecipeLibrary.patterns(grid));
+        return result;
+    }
+
     @Nullable
     public static PatternData findPattern(IGrid grid, String id) {
         if (grid.getPatternStorage() != null) {
@@ -87,7 +94,7 @@ public final class CraftingService {
                 }
             }
         }
-        return null;
+        return RecipeLibrary.find(grid, id);
     }
 
     public static String key(ItemStack stack) {
@@ -109,7 +116,7 @@ public final class CraftingService {
             available.merge(key(stack), stack.getCount(), Integer::sum);
         }
         Map<String, PatternData> producers = new HashMap<>();
-        for (PatternData pattern : allPatterns(grid)) {
+        for (PatternData pattern : allPatternsWithLibrary(grid)) {
             producers.putIfAbsent(key(pattern.getOutput()), pattern);
         }
 
@@ -263,7 +270,7 @@ public final class CraftingService {
         }
         PatternData found = null;
         String wanted = key(output);
-        for (PatternData pattern : allPatterns(grid)) {
+        for (PatternData pattern : allPatternsWithLibrary(grid)) {
             if (key(pattern.getOutput()).equals(wanted)) {
                 found = pattern;
                 break;
@@ -354,7 +361,7 @@ public final class CraftingService {
     /** Усі предмети, які мережа вміє крафтити (унікальні виходи шаблонів). */
     public static List<ItemStack> craftableOutputs(IGrid grid) {
         java.util.Map<String, ItemStack> map = new java.util.LinkedHashMap<>();
-        for (PatternData pattern : allPatterns(grid)) {
+        for (PatternData pattern : allPatternsWithLibrary(grid)) {
             ItemStack out = pattern.getOutput().copy();
             out.setCount(1);
             map.putIfAbsent(key(out), out);
@@ -375,7 +382,7 @@ public final class CraftingService {
         }
         PatternData found = null;
         String wanted = key(output);
-        for (PatternData pattern : allPatterns(grid)) {
+        for (PatternData pattern : allPatternsWithLibrary(grid)) {
             if (key(pattern.getOutput()).equals(wanted)) {
                 found = pattern;
                 break;
