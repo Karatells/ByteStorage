@@ -178,7 +178,8 @@ public final class WirelessAutoTransfer {
         int stored = 0;
         // Сам терминал обрабатываем последним, чтобы потраченная энергия учитывалась на нём
         List<net.minecraft.world.entity.item.ItemEntity> order = new ArrayList<>(event.getDrops());
-        order.sort((a, b) -> Boolean.compare(a.getItem() == terminal, b.getItem() == terminal));
+        final ItemStack terminalRef = terminal;
+        order.sort((a, b) -> Boolean.compare(a.getItem() == terminalRef, b.getItem() == terminalRef));
         for (var drop : order) {
             ItemStack stack = drop.getItem();
             if (stack.isEmpty()) continue;
