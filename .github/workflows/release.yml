@@ -7,11 +7,17 @@ on:
     tags: ['v*']
   # Або вручну: Actions -> Release -> Run workflow (тег vX.Y.Z буде створено автоматично)
   workflow_dispatch:
+    inputs:
+      prerelease:
+        description: 'Бета (pre-release): не помечается как latest, на CurseForge — beta'
+        type: boolean
+        default: false
 
 permissions:
   contents: write
 
 env:
+  BETA: ${{ github.event.inputs.prerelease == 'true' }}
   # CurseForge: секрет CURSEFORGE_TOKEN и переменная репозитория CURSEFORGE_PROJECT_ID (Settings -> Secrets and variables -> Actions).
   # Если они не заданы, публикация на CurseForge просто пропускается.
   CF_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
@@ -61,12 +67,13 @@ jobs:
         with:
           tag_name: v${{ env.VERSION }}
           target_commitish: ${{ github.sha }}
-          name: Simple Byte Storage ${{ env.VERSION }}
+          name: Simple Byte Storage ${{ env.VERSION }}${{ env.BETA == 'true' && ' (beta)' || '' }}
           body_path: release_notes.md
           generate_release_notes: true
           files: dist/*.jar
           fail_on_unmatched_files: true
-          make_latest: true
+          prerelease: ${{ env.BETA == 'true' }}
+          make_latest: ${{ env.BETA != 'true' }}
 
       # Один проект CurseForge: основной мод и аддон загружаются как два файла этого проекта
       - name: Publish main mod to CurseForge
@@ -78,7 +85,7 @@ jobs:
           files: dist/simple_bytestorage-${{ env.VERSION }}.jar
           name: Simple Byte Storage ${{ env.VERSION }}
           version: ${{ env.VERSION }}
-          version-type: release
+          version-type: ${{ env.BETA == 'true' && 'beta' || 'release' }}
           changelog-file: release_notes.md
           loaders: forge
           game-versions: 1.20.1
@@ -93,7 +100,7 @@ jobs:
           files: dist/simple_bytestorage_scripting-${{ env.VERSION }}.jar
           name: "Simple Byte Storage: Scripting ${{ env.VERSION }}"
           version: ${{ env.VERSION }}
-          version-type: release
+          version-type: ${{ env.BETA == 'true' && 'beta' || 'release' }}
           changelog-file: release_notes.md
           loaders: forge
           game-versions: 1.20.1

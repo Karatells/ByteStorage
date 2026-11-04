@@ -2,6 +2,9 @@
 
 All notable changes to the **Simple Byte Storage** mod will be documented in this file.
 
+## [1.1.2] — 2026-11-05 (beta)
+Об'єднує зміни 1.1.1.1–1.1.1.8. Нотатки релізу: docs/RELEASE_NOTES_1.1.2.md.
+
 ## [1.1.0] — 2026-11-04
 Об'єднує зміни 1.0.1.1–1.0.1.7 (нижче). Нотатки релізу: docs/RELEASE_NOTES_1.1.0.md.
 
