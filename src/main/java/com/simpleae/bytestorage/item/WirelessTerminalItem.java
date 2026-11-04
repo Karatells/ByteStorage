@@ -1,9 +1,6 @@
 package com.simpleae.bytestorage.item;
 
-import com.simpleae.bytestorage.api.network.IGrid;
-import com.simpleae.bytestorage.block.TerminalBlock;
 import com.simpleae.bytestorage.block.entity.NetworkControllerBlockEntity;
-import com.simpleae.bytestorage.block.entity.TerminalBlockEntity;
 import com.simpleae.bytestorage.menu.TerminalMenu;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -15,16 +12,13 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -37,14 +31,14 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * Бездротовий термінал. Shift + ПКМ по Терміналу — прив'язати (повторно по тому ж — зарядити від контролера мережі).
+ * Бездротовий термінал. Прив'язується і заряджається, коли лежить у слоті Контролера мережі.
  * ПКМ у повітрі — відкрити прив'язаний Термінал на відстані (потрібен заряд FE; працює, поки чанк завантажено).
  */
 public class WirelessTerminalItem extends Item {
 
     public static final int CAPACITY = 20_000;
     public static final int COST_PER_OPEN = 100;
-    public static final int CHARGE_PER_USE = 5_000;
+    public static final int CHARGE_PER_TICK = 50;
 
     private static final String TAG_ENERGY = "Energy";
     private static final String TAG_DIM = "BoundDim";
@@ -135,60 +129,41 @@ public class WirelessTerminalItem extends Item {
 
     // --- Прив'язка ---
 
-    private static boolean isBound(ItemStack stack) {
+    public static boolean isBound(ItemStack stack) {
         CompoundTag tag = stack.getTag();
         return tag != null && tag.contains(TAG_DIM) && tag.contains(TAG_POS);
     }
 
-    private static BlockPos boundPos(ItemStack stack) {
+    public static BlockPos boundPos(ItemStack stack) {
         return BlockPos.of(stack.getOrCreateTag().getLong(TAG_POS));
     }
 
-    @Override
-    public InteractionResult useOn(UseOnContext context) {
-        Player player = context.getPlayer();
-        Level level = context.getLevel();
-        if (player == null || !player.isShiftKeyDown() || !(level.getBlockState(context.getClickedPos()).getBlock() instanceof TerminalBlock)) {
-            return InteractionResult.PASS;
-        }
-        if (level.isClientSide) {
-            return InteractionResult.SUCCESS;
-        }
-        ItemStack stack = context.getItemInHand();
-        BlockPos pos = context.getClickedPos();
-        String dim = level.dimension().location().toString();
-
-        boolean sameTarget = isBound(stack) && boundPos(stack).equals(pos)
-                && dim.equals(stack.getOrCreateTag().getString(TAG_DIM));
-        if (sameTarget) {
-            charge(player, level, pos, stack);
-        } else {
-            CompoundTag tag = stack.getOrCreateTag();
-            tag.putString(TAG_DIM, dim);
-            tag.putLong(TAG_POS, pos.asLong());
-            player.displayClientMessage(Component.translatable("msg.simple_bytestorage.wireless.bound",
-                    pos.getX(), pos.getY(), pos.getZ()), true);
-        }
-        return InteractionResult.CONSUME;
+    /** Привязать терминал к контроллеру (вызывается слотом контроллера). */
+    public static void bind(ItemStack stack, Level level, BlockPos pos) {
+        CompoundTag tag = stack.getOrCreateTag();
+        tag.putString(TAG_DIM, level.dimension().location().toString());
+        tag.putLong(TAG_POS, pos.asLong());
     }
 
-    private void charge(Player player, Level level, BlockPos pos, ItemStack stack) {
-        BlockEntity be = level.getBlockEntity(pos);
-        if (!(be instanceof TerminalBlockEntity terminal) || terminal.getGrid() == null) {
-            player.displayClientMessage(Component.translatable("msg.simple_bytestorage.wireless.no_network"), true);
-            return;
+    /** Зарядить терминал; возвращает принятое количество FE. */
+    public static int charge(ItemStack stack, int amount) {
+        int accepted = Math.max(0, Math.min(CAPACITY - getEnergy(stack), amount));
+        if (accepted > 0) {
+            setEnergy(stack, getEnergy(stack) + accepted);
         }
-        IGrid grid = terminal.getGrid();
-        NetworkControllerBlockEntity controller = grid.getController();
-        if (controller == null) {
-            player.displayClientMessage(Component.translatable("msg.simple_bytestorage.wireless.no_network"), true);
-            return;
-        }
-        int want = Math.min(CHARGE_PER_USE, CAPACITY - getEnergy(stack));
-        int drawn = controller.drawEnergy(want);
-        setEnergy(stack, getEnergy(stack) + drawn);
-        player.displayClientMessage(Component.translatable("msg.simple_bytestorage.wireless.charged",
-                getEnergy(stack), CAPACITY), true);
+        return accepted;
+    }
+
+    /** Контроллер, к которому привязан терминал, если он доступен на сервере. */
+    @Nullable
+    public static NetworkControllerBlockEntity resolveController(ItemStack stack, net.minecraft.server.MinecraftServer server) {
+        if (!isBound(stack) || server == null) return null;
+        ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION,
+                new ResourceLocation(stack.getOrCreateTag().getString(TAG_DIM)));
+        ServerLevel target = server.getLevel(dimension);
+        BlockPos pos = boundPos(stack);
+        if (target == null || !target.isLoaded(pos)) return null;
+        return target.getBlockEntity(pos) instanceof NetworkControllerBlockEntity c ? c : null;
     }
 
     // --- Відкриття ---
@@ -203,16 +178,13 @@ public class WirelessTerminalItem extends Item {
             player.displayClientMessage(Component.translatable("msg.simple_bytestorage.wireless.unbound"), true);
             return InteractionResultHolder.fail(stack);
         }
-        ResourceKey<Level> dimension = ResourceKey.create(Registries.DIMENSION,
-                new ResourceLocation(stack.getOrCreateTag().getString(TAG_DIM)));
-        ServerLevel target = serverPlayer.server.getLevel(dimension);
-        BlockPos pos = boundPos(stack);
-        if (target == null || !target.isLoaded(pos)
-                || !(target.getBlockEntity(pos) instanceof TerminalBlockEntity terminal)) {
+        NetworkControllerBlockEntity controller = resolveController(stack, serverPlayer.server);
+        if (controller == null) {
             player.displayClientMessage(Component.translatable("msg.simple_bytestorage.wireless.unreachable"), true);
             return InteractionResultHolder.fail(stack);
         }
-        if (terminal.getGrid() == null || !terminal.getGrid().getState().isActive()) {
+        BlockPos pos = controller.getBlockPos();
+        if (controller.getGrid() == null || !controller.getGrid().getState().isActive()) {
             player.displayClientMessage(Component.translatable("msg.simple_bytestorage.wireless.no_network"), true);
             return InteractionResultHolder.fail(stack);
         }
@@ -222,7 +194,7 @@ public class WirelessTerminalItem extends Item {
         }
         setEnergy(stack, getEnergy(stack) - COST_PER_OPEN);
         NetworkHooks.openScreen(serverPlayer,
-                new SimpleMenuProvider((id, inventory, p) -> new TerminalMenu(id, inventory, terminal, true),
+                new SimpleMenuProvider((id, inventory, p) -> new TerminalMenu(id, inventory, controller, true),
                         Component.translatable("block.simple_bytestorage.terminal")),
                 buf -> buf.writeBlockPos(pos));
         return InteractionResultHolder.consume(stack);

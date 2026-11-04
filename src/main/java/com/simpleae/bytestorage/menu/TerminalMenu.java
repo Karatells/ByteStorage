@@ -3,7 +3,7 @@ package com.simpleae.bytestorage.menu;
 import com.simpleae.bytestorage.SimpleByteStorage;
 import com.simpleae.bytestorage.api.network.IGrid;
 import com.simpleae.bytestorage.api.storage.INetworkStorage;
-import com.simpleae.bytestorage.block.entity.TerminalBlockEntity;
+import com.simpleae.bytestorage.api.network.IGridNode;
 import com.simpleae.bytestorage.network.packet.SimpleByteStoragePackets;
 import com.simpleae.bytestorage.network.packet.SyncTerminalDataPacket;
 import com.simpleae.bytestorage.network.packet.TerminalActionPacket;
@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class TerminalMenu extends AbstractContainerMenu {
 
-    private final TerminalBlockEntity terminalEntity;
+    private final IGridNode terminalEntity;
     private final Player player;
     private final boolean wireless;
 
@@ -42,16 +42,16 @@ public class TerminalMenu extends AbstractContainerMenu {
 
     // Клієнтський конструктор
     public TerminalMenu(int containerId, Inventory playerInventory, FriendlyByteBuf extraData) {
-        this(containerId, playerInventory, (TerminalBlockEntity) playerInventory.player.level().getBlockEntity(extraData.readBlockPos()));
+        this(containerId, playerInventory, (IGridNode) playerInventory.player.level().getBlockEntity(extraData.readBlockPos()));
     }
 
     // Серверний конструктор
-    public TerminalMenu(int containerId, Inventory playerInventory, TerminalBlockEntity terminalEntity) {
+    public TerminalMenu(int containerId, Inventory playerInventory, IGridNode terminalEntity) {
         this(containerId, playerInventory, terminalEntity, false);
     }
 
     /** @param wireless true — відкрито бездротовим терміналом: відстань до блока не обмежена. */
-    public TerminalMenu(int containerId, Inventory playerInventory, TerminalBlockEntity terminalEntity, boolean wireless) {
+    public TerminalMenu(int containerId, Inventory playerInventory, IGridNode terminalEntity, boolean wireless) {
         super(SimpleByteStorage.TERMINAL_MENU.get(), containerId);
         this.wireless = wireless;
         this.terminalEntity = terminalEntity;
@@ -75,7 +75,7 @@ public class TerminalMenu extends AbstractContainerMenu {
         if (terminalEntity == null) return false;
         if (wireless) {
             net.minecraft.world.level.Level lvl = this.terminalEntity.getNodeLevel();
-            return lvl != null && lvl.getBlockState(this.terminalEntity.getNodePos()).is(SimpleByteStorage.TERMINAL_BLOCK.get());
+            return lvl != null && lvl.getBlockEntity(this.terminalEntity.getNodePos()) == this.terminalEntity;
         }
         return stillValid(this.terminalEntity.getNodeLevel(), this.terminalEntity.getNodePos(), player, SimpleByteStorage.TERMINAL_BLOCK.get());
     }
@@ -260,7 +260,7 @@ public class TerminalMenu extends AbstractContainerMenu {
         return Collections.unmodifiableList(clientVirtualPool);
     }
 
-    public TerminalBlockEntity getTerminalEntity() {
+    public IGridNode getTerminalEntity() {
         return terminalEntity;
     }
 }

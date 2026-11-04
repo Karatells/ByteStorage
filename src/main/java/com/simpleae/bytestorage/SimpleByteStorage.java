@@ -257,6 +257,9 @@ public class SimpleByteStorage {
     public static final RegistryObject<MenuType<com.simpleae.bytestorage.menu.IoBusMenu>> IO_BUS_MENU =
             MENU_TYPES.register("io_bus", () -> IForgeMenuType.create(com.simpleae.bytestorage.menu.IoBusMenu::new));
 
+    public static final RegistryObject<MenuType<com.simpleae.bytestorage.menu.ControllerMenu>> CONTROLLER_MENU =
+            MENU_TYPES.register("controller", () -> IForgeMenuType.create(com.simpleae.bytestorage.menu.ControllerMenu::new));
+
     // --- 8. Предмет Шаблону Крафту (Pattern Item) ---
     public static final RegistryObject<Item> PATTERN_ITEM = ITEMS.register("pattern",
             () -> new PatternItem(new Item.Properties().stacksTo(1)));
@@ -345,6 +348,7 @@ public class SimpleByteStorage {
             MenuScreens.register(PATTERN_ENCODING_TERMINAL_MENU.get(), PatternEncodingTerminalScreen::new);
             MenuScreens.register(PATTERN_PROVIDER_MENU.get(), PatternProviderScreen::new);
             MenuScreens.register(IO_BUS_MENU.get(), com.simpleae.bytestorage.client.gui.IoBusScreen::new);
+            MenuScreens.register(CONTROLLER_MENU.get(), com.simpleae.bytestorage.client.gui.ControllerScreen::new);
         });
     }
 }

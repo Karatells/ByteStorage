@@ -11,6 +11,13 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -19,6 +26,10 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.EnergyStorage;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.items.ItemStackHandler;
+import com.simpleae.bytestorage.item.WirelessTerminalItem;
+import com.simpleae.bytestorage.menu.ControllerMenu;
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,13 +46,27 @@ import java.util.Set;
  * - Живить підключені компоненти (диски, кабелі, термінали).
  * - Сканує мережу, координує зв'язки та виявляє конфлікти.
  */
-public class NetworkControllerBlockEntity extends BlockEntity implements IGridNode {
+public class NetworkControllerBlockEntity extends BlockEntity implements IGridNode, MenuProvider {
 
     public static final int MAX_ENERGY_CAPACITY = 100_000; // 100k FE
     public static final int MAX_ENERGY_RECEIVE = 2_000;    // 2k FE/t
 
     private final CustomEnergyStorage energyStorage;
     private final LazyOptional<IEnergyStorage> energyHandler;
+
+    /** Слот привязки беспроводного терминала. */
+    private final ItemStackHandler wirelessSlot = new ItemStackHandler(1) {
+        @Override
+        public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+            return stack.getItem() instanceof WirelessTerminalItem;
+        }
+
+        @Override
+        protected void onContentsChanged(int slot) {
+            bindWireless();
+            setChanged();
+        }
+    };
 
     private IGrid grid;
     private int tickCounter = 0;
@@ -97,6 +122,51 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         }
     }
 
+    // --- Беспроводной терминал ---
+
+    public ItemStackHandler getWirelessSlot() {
+        return wirelessSlot;
+    }
+
+    /** Привязать терминал, лежащий в слоте, к этому контроллеру. */
+    private void bindWireless() {
+        if (level == null || level.isClientSide) return;
+        ItemStack stack = wirelessSlot.getStackInSlot(0);
+        if (stack.getItem() instanceof WirelessTerminalItem) {
+            WirelessTerminalItem.bind(stack, level, worldPosition);
+        }
+    }
+
+    /** Подзарядка терминала в слоте из буфера контроллера. */
+    private void chargeWireless() {
+        ItemStack stack = wirelessSlot.getStackInSlot(0);
+        if (!(stack.getItem() instanceof WirelessTerminalItem)) return;
+        if (energyStorage.getEnergyStored() <= 0) return;
+        int accepted = WirelessTerminalItem.charge(stack, Math.min(WirelessTerminalItem.CHARGE_PER_TICK, energyStorage.getEnergyStored()));
+        if (accepted > 0) {
+            energyStorage.consumeInternalEnergy(accepted);
+            setChanged();
+        }
+    }
+
+    public List<ItemStack> getDroppedItems() {
+        List<ItemStack> drops = new java.util.ArrayList<>();
+        ItemStack stack = wirelessSlot.getStackInSlot(0);
+        if (!stack.isEmpty()) drops.add(stack.copy());
+        return drops;
+    }
+
+    @Override
+    public Component getDisplayName() {
+        return Component.translatable("block.simple_bytestorage.controller");
+    }
+
+    @Nullable
+    @Override
+    public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
+        return new ControllerMenu(containerId, playerInventory, this);
+    }
+
     // --- Енергетичний стан ---
 
     public boolean hasEnoughEnergy() {
@@ -129,6 +199,8 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
 
         IGrid grid = controller.getGrid();
         if (grid == null) return;
+
+        controller.chargeWireless();
 
         // Якщо стан конфлікту (більше одного контролера) — мережа зупиняється
         if (grid.getState() == GridState.CONFLICT) {
@@ -213,6 +285,7 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.putInt("Energy", energyStorage.getEnergyStored());
+        tag.put("Wireless", wirelessSlot.serializeNBT());
         // Глобальний список шаблонів крафту живе в мережі — зберігаємо його разом із контролером.
         if (grid != null && grid.getPatternStorage() != null) {
             tag.put("Patterns", grid.getPatternStorage().save());
@@ -222,6 +295,9 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
+        if (tag.contains("Wireless")) {
+            wirelessSlot.deserializeNBT(tag.getCompound("Wireless"));
+        }
         if (tag.contains("Energy")) {
             energyStorage.setEnergy(tag.getInt("Energy"));
         }
