@@ -276,7 +276,16 @@ public class SimpleByteStorage {
             () -> new com.simpleae.bytestorage.item.WirelessTerminalItem(new Item.Properties().stacksTo(1)));
 
     public static final RegistryObject<Item> AUTO_TRANSFER_CARD = ITEMS.register("auto_transfer_card",
-            () -> new com.simpleae.bytestorage.item.WirelessUpgradeItem(new Item.Properties().stacksTo(1)));
+            () -> new com.simpleae.bytestorage.item.WirelessUpgradeItem(com.simpleae.bytestorage.item.WirelessUpgradeItem.Type.AUTO_TRANSFER, new Item.Properties().stacksTo(1)));
+
+    public static final RegistryObject<Item> INSURANCE_CARD = ITEMS.register("insurance_card",
+            () -> new com.simpleae.bytestorage.item.WirelessUpgradeItem(com.simpleae.bytestorage.item.WirelessUpgradeItem.Type.INSURANCE, new Item.Properties().stacksTo(1)));
+
+    public static final RegistryObject<Item> TOOL_CARD = ITEMS.register("tool_card",
+            () -> new com.simpleae.bytestorage.item.WirelessUpgradeItem(com.simpleae.bytestorage.item.WirelessUpgradeItem.Type.TOOL, new Item.Properties().stacksTo(1)));
+
+    public static final RegistryObject<Item> MACRO_CARD = ITEMS.register("macro_card",
+            () -> new com.simpleae.bytestorage.item.WirelessUpgradeItem(com.simpleae.bytestorage.item.WirelessUpgradeItem.Type.MACRO, new Item.Properties().stacksTo(1)));
 
     public static final RegistryObject<Item> RECIPE_LIBRARY = ITEMS.register("recipe_library",
             () -> new com.simpleae.bytestorage.item.RecipeLibraryItem(new Item.Properties().stacksTo(1)));
@@ -317,6 +326,9 @@ public class SimpleByteStorage {
                         output.accept(SPEED_CARD.get());
                         output.accept(WIRELESS_TERMINAL.get());
                         output.accept(AUTO_TRANSFER_CARD.get());
+                        output.accept(INSURANCE_CARD.get());
+                        output.accept(TOOL_CARD.get());
+                        output.accept(MACRO_CARD.get());
                         output.accept(RECIPE_LIBRARY.get());
                         output.accept(GUIDE_BOOK.get());
                         output.accept(CELL_1K.get());

@@ -18,23 +18,29 @@ import net.minecraftforge.items.SlotItemHandler;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Настройки Беспроводного терминала: 2 слота улучшений, 9 слотов-призраков фильтра, режимы.
- * Кнопки: 0 — автопополнение, 1 — автосбор, 2 — белый/чёрный список.
+ * Настройки Беспроводного терминала. Три вкладки: улучшения (8 слотов), перенос (режимы + фильтр на 18 слотов)
+ * и макрос. Кнопки: 0 — автопополнение, 1 — автосбор, 2 — белый/чёрный список.
  * Терминал берётся из слота инвентаря игрока (индекс передаётся при открытии); этот слот заблокирован.
  */
 public class WirelessSettingsMenu extends AbstractContainerMenu {
 
+    public static final int TAB_UPGRADES = 0;
+    public static final int TAB_TRANSFER = 1;
+    public static final int TAB_MACRO = 2;
+
     public static final int UPGRADE_X = 8;
-    public static final int UPGRADE_Y = 22;
+    public static final int UPGRADE_Y = 42;
     public static final int FILTER_X = 8;
-    public static final int FILTER_Y = 76;
-    public static final int PLAYER_INV_Y = 108;
+    public static final int FILTER_Y = 72;
+    public static final int PLAYER_INV_Y = 124;
     public static final int PLAYER_START = WirelessConfig.TOTAL_SLOTS;
 
     private final Player player;
     private final int terminalSlot;
     private final ItemStackHandler handler;
     private final ContainerData data;
+    /** Активная вкладка (используется только клиентом: неактивные слоты скрываются и не кликаются). */
+    private int tab = TAB_UPGRADES;
 
     public WirelessSettingsMenu(int containerId, Inventory inv, FriendlyByteBuf buf) {
         this(containerId, inv, buf.readVarInt());
@@ -81,20 +87,28 @@ public class WirelessSettingsMenu extends AbstractContainerMenu {
         this.addDataSlots(this.data);
 
         for (int i = 0; i < WirelessConfig.UPGRADE_SLOTS; i++) {
+            final int index = i;
             this.addSlot(new SlotItemHandler(handler, i, UPGRADE_X + i * 18, UPGRADE_Y) {
                 @Override
                 public boolean mayPlace(@NotNull ItemStack stack) {
-                    return stack.getItem() instanceof WirelessUpgradeItem;
+                    return stack.getItem() instanceof WirelessUpgradeItem u
+                            && !WirelessConfig.hasUpgrade(handler, u.getType(), index);
                 }
 
                 @Override
                 public int getMaxStackSize() {
                     return 1;
                 }
+
+                @Override
+                public boolean isActive() {
+                    return tab == TAB_UPGRADES;
+                }
             });
         }
         for (int i = 0; i < WirelessConfig.FILTER_SLOTS; i++) {
-            this.addSlot(new SlotItemHandler(handler, WirelessConfig.UPGRADE_SLOTS + i, FILTER_X + i * 18, FILTER_Y) {
+            this.addSlot(new SlotItemHandler(handler, WirelessConfig.UPGRADE_SLOTS + i,
+                    FILTER_X + (i % 9) * 18, FILTER_Y + (i / 9) * 18) {
                 @Override
                 public boolean mayPlace(@NotNull ItemStack stack) {
                     return false;
@@ -103,39 +117,51 @@ public class WirelessSettingsMenu extends AbstractContainerMenu {
                 @Override
                 public boolean mayPickup(Player p) {
                     return false;
+                }
+
+                @Override
+                public boolean isActive() {
+                    return tab == TAB_TRANSFER;
                 }
             });
         }
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
                 int idx = col + row * 9 + 9;
-                this.addSlot(new Slot(inv, idx, 8 + col * 18, PLAYER_INV_Y + row * 18) {
-                    @Override
-                    public boolean mayPickup(Player p) {
-                        return idx != terminalSlot;
-                    }
-
-                    @Override
-                    public boolean mayPlace(@NotNull ItemStack stack) {
-                        return idx != terminalSlot;
-                    }
-                });
+                this.addSlot(new LockedSlot(inv, idx, 8 + col * 18, PLAYER_INV_Y + row * 18));
             }
         }
         for (int col = 0; col < 9; col++) {
-            int idx = col;
-            this.addSlot(new Slot(inv, idx, 8 + col * 18, PLAYER_INV_Y + 58) {
-                @Override
-                public boolean mayPickup(Player p) {
-                    return idx != terminalSlot;
-                }
-
-                @Override
-                public boolean mayPlace(@NotNull ItemStack stack) {
-                    return idx != terminalSlot;
-                }
-            });
+            this.addSlot(new LockedSlot(inv, col, 8 + col * 18, PLAYER_INV_Y + 58));
         }
+    }
+
+    /** Слот инвентаря игрока; слот с самим терминалом заблокирован. */
+    private class LockedSlot extends Slot {
+        private final int idx;
+
+        LockedSlot(Inventory inv, int idx, int x, int y) {
+            super(inv, idx, x, y);
+            this.idx = idx;
+        }
+
+        @Override
+        public boolean mayPickup(Player p) {
+            return idx != terminalSlot;
+        }
+
+        @Override
+        public boolean mayPlace(@NotNull ItemStack stack) {
+            return idx != terminalSlot;
+        }
+    }
+
+    public int getTab() {
+        return tab;
+    }
+
+    public void setTab(int tab) {
+        this.tab = tab;
     }
 
     private ItemStack terminal() {
@@ -145,11 +171,32 @@ public class WirelessSettingsMenu extends AbstractContainerMenu {
         return player.getInventory().getItem(terminalSlot);
     }
 
+    /** Клиент: терминал, открытый в настройках (для отображения названия макроса). */
+    public ItemStack getTerminal() {
+        return terminal();
+    }
+
+    public ItemStack getUpgradeStack(int index) {
+        return handler.getStackInSlot(index);
+    }
+
+    public boolean hasUpgrade(WirelessUpgradeItem.Type type) {
+        return WirelessConfig.hasUpgrade(handler, type, -1);
+    }
+
     private void persist() {
         if (player.level().isClientSide) return;
         ItemStack t = terminal();
         if (t.getItem() instanceof WirelessTerminalItem) {
             WirelessConfig.save(t, handler);
+        }
+    }
+
+    /** Сервер: сменить название макроса (приходит пакетом). */
+    public void setMacro(String name) {
+        ItemStack t = terminal();
+        if (!player.level().isClientSide && t.getItem() instanceof WirelessTerminalItem) {
+            WirelessConfig.setMacroName(t, name);
         }
     }
 

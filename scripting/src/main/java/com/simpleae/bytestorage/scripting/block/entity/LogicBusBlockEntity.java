@@ -241,6 +241,31 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
         }
     }
 
+    /** Выполнить скрипт один раз прямо сейчас (макрос Беспроводного терминала), независимо от включения и интервала. */
+    public boolean runNow() {
+        if (level == null || level.isClientSide || !ScriptingConfig.ENABLED.get()) {
+            return false;
+        }
+        if (grid == null || !grid.getState().isActive()) {
+            return false;
+        }
+        if (runtime == null || dirty) {
+            runtime = new LogicRuntime(this);
+            dirty = false;
+            String error = runtime.compile(script);
+            if (error != null) {
+                fail(error);
+                return false;
+            }
+        }
+        String error = runtime.tick();
+        if (error != null) {
+            fail(error);
+            return false;
+        }
+        return true;
+    }
+
     private void fail(String error) {
         enabled = false;
         status = "ERROR: " + error;
