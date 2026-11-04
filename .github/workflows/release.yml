@@ -91,7 +91,7 @@ jobs:
           curseforge-id: ${{ env.CF_PROJECT }}
           curseforge-token: ${{ env.CF_TOKEN }}
           files: dist/simple_bytestorage_scripting-${{ env.VERSION }}.jar
-          name: Simple Byte Storage: Scripting ${{ env.VERSION }}
+          name: "Simple Byte Storage: Scripting ${{ env.VERSION }}"
           version: ${{ env.VERSION }}
           version-type: release
           changelog-file: release_notes.md
