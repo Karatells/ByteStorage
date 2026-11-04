@@ -158,7 +158,7 @@ public class AssemblerScreen extends AbstractContainerScreen<AssemblerMenu> {
                 int ix = x + 8 + i * 18;
                 int iy = y + 83;
                 graphics.renderItem(stack, ix, iy);
-                graphics.renderItemDecorations(this.font, stack, ix, iy, shortCount(stack.getCount()));
+                GuiStyle.itemCount(graphics, this.font, stack, ix, iy, shortCount(stack.getCount()));
                 if (isOver(mouseX, mouseY, ix, iy, 16, 16)) {
                     graphics.renderTooltip(this.font, stack, mouseX, mouseY);
                 }

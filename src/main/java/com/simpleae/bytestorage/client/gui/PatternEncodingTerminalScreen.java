@@ -67,11 +67,14 @@ public class PatternEncodingTerminalScreen extends AbstractContainerScreen<Patte
                 : "gui.simple_bytestorage.encoder.mode.crafting.tip");
     }
 
-    /** Кнопка «Записати» доступна, коли є шаблон, відомий результат і вільний вихідний слот. */
+    /** Кнопка «Записати» доступна (процес: коли є шаблон, відомий результат і вільний вихідний слот; верстак: коли відомий результат). */
     private boolean canEncode() {
         boolean hasPattern = this.menu.slots.get(PatternEncodingTerminalMenu.SLOT_BLANK).hasItem();
         boolean hasResult = this.menu.slots.get(PatternEncodingTerminalMenu.SLOT_RESULT).hasItem();
         boolean outputFree = !this.menu.slots.get(PatternEncodingTerminalMenu.SLOT_ENCODED).hasItem();
+        if (!this.menu.isProcessing()) {
+            return hasResult; // рецепт верстака записується прямо в мережу, шаблон не потрібен
+        }
         return hasPattern && hasResult && outputFree;
     }
 

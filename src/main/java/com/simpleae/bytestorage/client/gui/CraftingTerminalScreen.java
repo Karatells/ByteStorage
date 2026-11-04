@@ -136,7 +136,7 @@ public class CraftingTerminalScreen extends AbstractContainerScreen<CraftingTerm
             if (start + i < filtered.size()) {
                 ItemStack stack = filtered.get(start + i);
                 graphics.renderItem(stack, itemX, itemY);
-                graphics.renderItemDecorations(this.font, stack, itemX, itemY, formatCount(stack.getCount()));
+                GuiStyle.itemCount(graphics, this.font, stack, itemX, itemY, formatCount(stack.getCount()));
             }
         }
     }

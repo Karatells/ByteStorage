@@ -13,10 +13,10 @@ A **Pattern** item is blank or encoded. An encoded pattern stores its recipe in 
 
 ## Pattern Encoding Terminal
 
-1. Insert a blank Pattern.
-2. Choose the mode with the mode button:
-   - **Crafting** — click items onto the 3×3 grid (they are *not* consumed). The vanilla recipe decides the result. Press *Encode*: the recipe is written to the pattern **and** added to the network's global list.
-   - **Processing** — set the inputs and the result by hand (ghost slots, with counts). The pattern is a physical item: put it into a [Pattern Bus](Pattern-Bus). It is *not* added to the global list.
+1. Choose the mode with the mode button:
+   - **Crafting** — click items onto the 3×3 grid (they are *not* consumed). The vanilla recipe decides the result. Press *Encode*: the recipe is added straight to the network's global list. **No Pattern item is needed.**
+   - **Processing** — insert a blank Pattern, then set the inputs and the result by hand (ghost slots, with counts). The pattern is a physical item: put it into a [Pattern Bus](Pattern-Bus). It is *not* added to the global list.
+2. Patterns are only needed for processing crafts (furnaces, crushers and other machines).
 3. *Clear* empties the grid.
 
 With **JEI**, the "+" button on a recipe fills the encoder for you (see [JEI Integration](JEI-Integration)).

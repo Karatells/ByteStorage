@@ -5,6 +5,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 
@@ -204,5 +205,22 @@ public final class GuiStyle {
         int thumbY = y + 1 + (h - 2 - thumbH) * offset / maxScroll;
         g.fill(x + 1, thumbY, x + w - 1, thumbY + thumbH, ACCENT_DIM);
         g.fill(x + 1, thumbY, x + w - 1, thumbY + 1, ACCENT);
+    }
+
+    /** Компактное количество предметов в правом нижнем углу иконки 16x16 (уменьшенный шрифт, не выходит за слот). */
+    public static void itemCount(GuiGraphics g, Font font, ItemStack stack, int itemX, int itemY, String text) {
+        g.renderItemDecorations(font, stack, itemX, itemY, "");
+        if (text == null || text.isEmpty()) {
+            return;
+        }
+        float scale = text.length() > 3 ? 0.5F : 0.65F;
+        int w = font.width(text);
+        g.pose().pushPose();
+        g.pose().translate(0.0F, 0.0F, 200.0F);
+        g.pose().scale(scale, scale, 1.0F);
+        float x = (itemX + 17) / scale - w;
+        float y = (itemY + 16) / scale - font.lineHeight;
+        g.drawString(font, text, (int) x, (int) y, 0xFFFFFF, true);
+        g.pose().popPose();
     }
 }

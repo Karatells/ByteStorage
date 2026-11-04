@@ -190,6 +190,21 @@ public class PatternEncodingTerminalBlockEntity extends BlockEntity implements I
             return Component.empty();
         }
 
+        List<ItemStack> recipeGrid = getRecipeGrid();
+
+        // Звичайний рецепт верстака шаблону не потребує: він одразу вноситься в мережу.
+        if (!processing) {
+            ItemStack result = PatternCrafting.computeResult(level, recipeGrid);
+            if (result.isEmpty()) {
+                return Component.translatable("msg.simple_bytestorage.encode.no_recipe");
+            }
+            if (grid == null || !grid.getState().isActive() || grid.getPatternStorage() == null) {
+                return Component.translatable("msg.simple_bytestorage.encode.no_network");
+            }
+            grid.getPatternStorage().addPattern(result, recipeGrid);
+            return Component.translatable("msg.simple_bytestorage.encode.success", result.getHoverName());
+        }
+
         ItemStack template = inventory.getStackInSlot(BLANK_PATTERN_SLOT);
         if (template.isEmpty() || !(template.getItem() instanceof PatternItem patternItem)) {
             return Component.translatable("msg.simple_bytestorage.encode.no_pattern");
@@ -198,7 +213,6 @@ public class PatternEncodingTerminalBlockEntity extends BlockEntity implements I
             return Component.translatable("msg.simple_bytestorage.encode.output_busy");
         }
 
-        List<ItemStack> recipeGrid = getRecipeGrid();
         PatternData data;
         ItemStack output;
         if (processing) {
