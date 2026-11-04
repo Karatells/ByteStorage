@@ -133,46 +133,9 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
 
         graphics.fill(this.leftPos + 6, this.topPos + 18, this.leftPos + this.imageWidth - 6,
                 this.topPos + this.imageHeight - 6, 0xB0000000);
-        GuiStyle.panel(graphics, x, y, PLAN_W, PLAN_H);
-        graphics.drawString(this.font, Component.translatable("gui.simple_bytestorage.plan.title",
-                this.menu.getPlanAmount()), x + 6, y + 5, GuiStyle.TEXT_TITLE, false);
-
-        GuiStyle.label(graphics, Component.translatable("gui.simple_bytestorage.plan.steps"), x + 6, y + 17);
-        int line = y + 28;
-        List<CraftPlanPacket.Entry> steps = this.menu.getPlanSteps();
-        for (int i = 0; i < steps.size() && i < 6; i++) {
-            CraftPlanPacket.Entry entry = steps.get(i);
-            String text = entry.count + "× " + entry.stack.getHoverName().getString();
-            if (entry.processing) {
-                text += " " + Component.translatable("gui.simple_bytestorage.pattern.tag.process").getString();
-            }
-            graphics.drawString(this.font, this.font.plainSubstrByWidth(text, PLAN_W - 16), x + 10, line,
-                    GuiStyle.TEXT_GOOD, false);
-            line += 10;
-        }
-        if (steps.size() > 6) {
-            graphics.drawString(this.font, "+" + (steps.size() - 6), x + 10, line, GuiStyle.TEXT_MUTED, false);
-        }
-
-        List<CraftPlanPacket.Entry> missing = this.menu.getPlanMissing();
-        if (!missing.isEmpty()) {
-            GuiStyle.label(graphics, Component.translatable("gui.simple_bytestorage.plan.missing"), x + 6, y + 92);
-            int mline = y + 102;
-            for (int i = 0; i < missing.size() && i < 3; i++) {
-                CraftPlanPacket.Entry entry = missing.get(i);
-                String text = entry.count + "× " + entry.stack.getHoverName().getString();
-                graphics.drawString(this.font, this.font.plainSubstrByWidth(text, PLAN_W - 16), x + 10, mline,
-                        GuiStyle.TEXT_BAD, false);
-                mline += 10;
-            }
-        }
-
-        UiButton.paint(graphics, this.font, x + 6, y + PLAN_H - 20, 92, 14,
-                Component.translatable("gui.simple_bytestorage.plan.start").getString(),
-                inside(mouseX, mouseY, x + 6, y + PLAN_H - 20, 92, 14), planOk());
-        UiButton.paint(graphics, this.font, x + PLAN_W - 98, y + PLAN_H - 20, 92, 14,
-                Component.translatable("gui.simple_bytestorage.plan.cancel").getString(),
-                inside(mouseX, mouseY, x + PLAN_W - 98, y + PLAN_H - 20, 92, 14), true);
+        CraftPlanView.draw(graphics, this.font, x, y, 0,
+                Component.translatable("gui.simple_bytestorage.plan.title", this.menu.getPlanAmount()),
+                this.menu.getPlanSteps(), this.menu.getPlanMissing(), planOk(), mouseX, mouseY);
         graphics.pose().popPose();
     }
 
@@ -271,7 +234,8 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
 
             UiButton.paint(graphics, this.font, orderX, btnY, ORDER_W, 18,
                     Component.translatable("gui.simple_bytestorage.pattern.order").getString(), orderHover, true);
-            UiButton.paint(graphics, this.font, removeX, btnY, REMOVE_W, 18, "×", removeHover, true);
+            boolean libraryRow = pattern.getId().startsWith(com.simpleae.bytestorage.util.RecipeLibrary.PREFIX);
+            UiButton.paint(graphics, this.font, removeX, btnY, REMOVE_W, 18, "×", removeHover && !libraryRow, !libraryRow);
 
             if (orderHover) {
                 hoverTooltip = List.of(

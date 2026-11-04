@@ -95,9 +95,14 @@ public class CraftPlanPacket {
     public void handle(Supplier<NetworkEvent.Context> ctxSupplier) {
         NetworkEvent.Context ctx = ctxSupplier.get();
         ctx.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            if (Minecraft.getInstance().player != null
-                    && Minecraft.getInstance().player.containerMenu instanceof PatternTerminalMenu menu) {
+            if (Minecraft.getInstance().player == null) {
+                return;
+            }
+            var open = Minecraft.getInstance().player.containerMenu;
+            if (open instanceof PatternTerminalMenu menu) {
                 menu.setClientPlan(patternId, amount, steps, missing);
+            } else if (open instanceof com.simpleae.bytestorage.menu.IGridMenu) {
+                com.simpleae.bytestorage.client.gui.TerminalExtras.setPlan(patternId, amount, steps, missing);
             }
         }));
         ctx.setPacketHandled(true);

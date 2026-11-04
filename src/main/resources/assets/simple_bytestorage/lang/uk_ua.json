@@ -193,8 +193,6 @@
   "gui.simple_bytestorage.terminal.craft_only": "Немає в наявності — клік, щоб замовити крафт",
   "gui.simple_bytestorage.terminal.craft_hint": "Ctrl + клік (або СКМ): замовити крафт",
   "gui.simple_bytestorage.order.title": "Крафт: %s",
-  "gui.simple_bytestorage.order.confirm": "Замовити",
-  "gui.simple_bytestorage.order.cancel": "Скасувати",
   "item.simple_bytestorage.recipe_library": "Бібліотека рецептів",
   "tooltip.simple_bytestorage.recipe_library": "Покращення контролера: мережа дізнається ВСІ рецепти верстака гри, шаблони не потрібні. Покладіть у слот покращення контролера мережі.",
   "gui.simple_bytestorage.controller.library.active": "Бібліотека рецептів активна",
@@ -233,5 +231,6 @@
   "msg.simple_bytestorage.wireless.insurance_unreachable": "Страхування: мережа недоступна, ваші речі чекають у ній",
   "msg.simple_bytestorage.wireless.macro_unset": "Задайте назву макросу в налаштуваннях Бездротового терміналу",
   "msg.simple_bytestorage.wireless.macro_ok": "Макрос %s: запущено %s",
-  "msg.simple_bytestorage.wireless.macro_none": "Макрос %s: нічого запускати"
+  "msg.simple_bytestorage.wireless.macro_none": "Макрос %s: нічого запускати",
+  "gui.simple_bytestorage.order.calculating": "Розрахунок плану…"
 }

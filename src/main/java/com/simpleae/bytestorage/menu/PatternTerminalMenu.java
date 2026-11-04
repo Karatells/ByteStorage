@@ -48,6 +48,9 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
     private int keepAliveTimer = 0;
     private int lastSignature = 0;
     private boolean forceSync = true;
+    private int libTimer = 0;
+    private int libSignature = 0;
+    private boolean libForce = true;
 
     // Клієнтські дані
     private final List<PatternData> patterns = new ArrayList<>();
@@ -98,6 +101,34 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
         }
         syncTimer = 10;
         sync(serverPlayer);
+        syncLibrary(serverPlayer);
+    }
+
+    /** Рецепты Библиотеки рецептов (если установлена): компактный пакет, не чаще раза в 2 секунды. */
+    private void syncLibrary(ServerPlayer serverPlayer) {
+        if (!libForce && ++libTimer < 4) {
+            return;
+        }
+        libTimer = 0;
+        IGrid grid = terminal.getGrid();
+        List<PatternData> lib = new ArrayList<>();
+        List<Integer> masks = new ArrayList<>();
+        if (grid != null && grid.getState().isActive() && grid.getStorage() != null) {
+            for (PatternData pattern : com.simpleae.bytestorage.util.RecipeLibrary.patterns(grid)) {
+                lib.add(pattern);
+                masks.add(PatternStorage.missingMask(grid, pattern));
+            }
+        }
+        int signature = lib.size();
+        for (int i = 0; i < lib.size(); i++) {
+            signature = signature * 31 + lib.get(i).getId().hashCode();
+            signature = signature * 31 + masks.get(i);
+        }
+        if (libForce || signature != libSignature) {
+            libForce = false;
+            libSignature = signature;
+            SimpleByteStoragePackets.sendToPlayer(new com.simpleae.bytestorage.network.packet.SyncLibraryPacket(lib, masks), serverPlayer);
+        }
     }
 
     private void sync(ServerPlayer serverPlayer) {
@@ -270,6 +301,33 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
             this.missingMasks.put(newPatterns.get(i).getId(), flags.get(i));
             if (flags.get(i) == 0) {
                 this.craftable.add(newPatterns.get(i).getId());
+            }
+        }
+        mergeLibrary();
+    }
+
+    // --- Библиотека рецептов (клиент) ---
+
+    private List<PatternData> libPatterns = new ArrayList<>();
+    private List<Integer> libMasks = new ArrayList<>();
+
+    public void updateClientLibrary(List<PatternData> lib, List<Integer> masks) {
+        this.libPatterns = lib;
+        this.libMasks = masks;
+        this.patterns.removeIf(p -> p.getId().startsWith(com.simpleae.bytestorage.util.RecipeLibrary.PREFIX));
+        mergeLibrary();
+    }
+
+    private void mergeLibrary() {
+        for (int i = 0; i < libPatterns.size(); i++) {
+            PatternData p = libPatterns.get(i);
+            this.patterns.add(p);
+            int mask = i < libMasks.size() ? libMasks.get(i) : 0;
+            this.missingMasks.put(p.getId(), mask);
+            if (mask == 0) {
+                this.craftable.add(p.getId());
+            } else {
+                this.craftable.remove(p.getId());
             }
         }
     }

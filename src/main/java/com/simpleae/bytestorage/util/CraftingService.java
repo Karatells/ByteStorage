@@ -358,6 +358,19 @@ public final class CraftingService {
 
     // --- Замовлення з терміналів ---
 
+    /** Шаблон (явний або з Бібліотеки рецептів), що виробляє даний предмет; явні мають пріоритет. */
+    @Nullable
+    public static PatternData findPatternForOutput(IGrid grid, ItemStack output) {
+        String wanted = key(output);
+        for (PatternData pattern : allPatternsWithLibrary(grid)) {
+            if (key(pattern.getOutput()).equals(wanted)) {
+                return pattern;
+            }
+        }
+        return null;
+    }
+
+
     /** Усі предмети, які мережа вміє крафтити (унікальні виходи шаблонів). */
     public static List<ItemStack> craftableOutputs(IGrid grid) {
         java.util.Map<String, ItemStack> map = new java.util.LinkedHashMap<>();

@@ -56,6 +56,35 @@ public final class RecipeLibrary {
         return controller != null && controller.getLevel() != null && controller.hasRecipeLibrary();
     }
 
+    /** Раскладка рецепта по сетке 3x3 (9 ингредиентов); null — рецепт не подходит (особый или больше 3x3). */
+    public static List<Ingredient> layout(CraftingRecipe recipe) {
+        List<Ingredient> cells = new ArrayList<>(Collections.nCopies(9, Ingredient.EMPTY));
+        if (recipe instanceof ShapedRecipe shaped) {
+            int w = shaped.getWidth();
+            int h = shaped.getHeight();
+            List<Ingredient> ingredients = shaped.getIngredients();
+            if (w > 3 || h > 3 || ingredients.size() < w * h) {
+                return null;
+            }
+            for (int y = 0; y < h; y++) {
+                for (int x = 0; x < w; x++) {
+                    cells.set(y * 3 + x, ingredients.get(y * w + x));
+                }
+            }
+        } else if (recipe instanceof ShapelessRecipe shapeless) {
+            List<Ingredient> ingredients = shapeless.getIngredients();
+            if (ingredients.size() > 9) {
+                return null;
+            }
+            for (int i = 0; i < ingredients.size(); i++) {
+                cells.set(i, ingredients.get(i));
+            }
+        } else {
+            return null;
+        }
+        return cells;
+    }
+
     private static synchronized Map<String, Entry> entries(Level level) {
         RecipeManager manager = level.getRecipeManager();
         if (manager == cachedManager) {
@@ -63,28 +92,8 @@ public final class RecipeLibrary {
         }
         Map<String, Entry> built = new LinkedHashMap<>();
         for (CraftingRecipe recipe : manager.getAllRecipesFor(RecipeType.CRAFTING)) {
-            List<Ingredient> cells = new ArrayList<>(Collections.nCopies(9, Ingredient.EMPTY));
-            if (recipe instanceof ShapedRecipe shaped) {
-                int w = shaped.getWidth();
-                int h = shaped.getHeight();
-                List<Ingredient> ingredients = shaped.getIngredients();
-                if (w > 3 || h > 3 || ingredients.size() < w * h) {
-                    continue;
-                }
-                for (int y = 0; y < h; y++) {
-                    for (int x = 0; x < w; x++) {
-                        cells.set(y * 3 + x, ingredients.get(y * w + x));
-                    }
-                }
-            } else if (recipe instanceof ShapelessRecipe shapeless) {
-                List<Ingredient> ingredients = shapeless.getIngredients();
-                if (ingredients.size() > 9) {
-                    continue;
-                }
-                for (int i = 0; i < ingredients.size(); i++) {
-                    cells.set(i, ingredients.get(i));
-                }
-            } else {
+            List<Ingredient> cells = layout(recipe);
+            if (cells == null) {
                 continue;
             }
             ItemStack output = recipe.getResultItem(level.registryAccess());

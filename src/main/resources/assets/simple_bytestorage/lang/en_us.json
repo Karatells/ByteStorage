@@ -193,8 +193,6 @@
   "gui.simple_bytestorage.terminal.craft_only": "Not in stock — click to order a craft",
   "gui.simple_bytestorage.terminal.craft_hint": "Ctrl + click (or middle click): order a craft",
   "gui.simple_bytestorage.order.title": "Craft: %s",
-  "gui.simple_bytestorage.order.confirm": "Order",
-  "gui.simple_bytestorage.order.cancel": "Cancel",
   "item.simple_bytestorage.recipe_library": "Recipe Library",
   "tooltip.simple_bytestorage.recipe_library": "Controller upgrade: the network learns ALL crafting-table recipes of the game, no Patterns needed. Place into the Network Controller's upgrade slot.",
   "gui.simple_bytestorage.controller.library.active": "Recipe Library active",
@@ -233,5 +231,6 @@
   "msg.simple_bytestorage.wireless.insurance_unreachable": "Insurance: the network is not reachable, your items are waiting in it",
   "msg.simple_bytestorage.wireless.macro_unset": "Set a macro name in the Wireless Terminal settings",
   "msg.simple_bytestorage.wireless.macro_ok": "Macro %s: %s run",
-  "msg.simple_bytestorage.wireless.macro_none": "Macro %s: nothing to run"
+  "msg.simple_bytestorage.wireless.macro_none": "Macro %s: nothing to run",
+  "gui.simple_bytestorage.order.calculating": "Calculating plan…"
 }

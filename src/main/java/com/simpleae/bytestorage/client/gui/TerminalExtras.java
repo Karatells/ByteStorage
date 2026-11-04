@@ -1,5 +1,6 @@
 package com.simpleae.bytestorage.client.gui;
 
+import com.simpleae.bytestorage.network.packet.CraftPlanPacket;
 import com.simpleae.bytestorage.network.packet.CraftRequestPacket;
 import com.simpleae.bytestorage.network.packet.SimpleByteStoragePackets;
 import com.simpleae.bytestorage.util.CraftingService;
@@ -40,8 +41,6 @@ public class TerminalExtras {
     private static final NumberFormat FMT = NumberFormat.getInstance(Locale.US);
     private static final int SORT_W = 40;
     private static final int SORT_H = 14;
-    private static final int DIALOG_W = 176;
-    private static final int DIALOG_H = 78;
 
     private Set<String> poolKeys = new HashSet<>();
 
@@ -141,7 +140,22 @@ public class TerminalExtras {
         return false;
     }
 
-    // --- Диалог заказа ---
+    // --- Диалог заказа (тот же вид, что окно подтверждения в Терминале шаблонов) ---
+
+    private static final int EXTRA = 22;
+    private static final int[] STEPS = {-64, -10, -1, 1, 10, 64};
+
+    private static List<CraftPlanPacket.Entry> planSteps = new ArrayList<>();
+    private static List<CraftPlanPacket.Entry> planMissing = new ArrayList<>();
+    private static boolean planReady = false;
+
+    /** Ответ сервера с планом (вызывается пакетом). */
+    public static void setPlan(String patternId, int crafts, List<CraftPlanPacket.Entry> steps,
+                               List<CraftPlanPacket.Entry> missing) {
+        planSteps = steps;
+        planMissing = missing;
+        planReady = true;
+    }
 
     public boolean isDialogOpen() {
         return !dialogStack.isEmpty();
@@ -152,47 +166,63 @@ public class TerminalExtras {
         one.setCount(1);
         this.dialogStack = one;
         this.dialogAmount = 1;
+        requestPlan();
     }
 
     public void closeDialog() {
         this.dialogStack = ItemStack.EMPTY;
+        planReady = false;
     }
 
-    private static final int[] STEPS = {-64, -10, -1, 1, 10, 64};
+    private void requestPlan() {
+        planReady = false;
+        planSteps = new ArrayList<>();
+        planMissing = new ArrayList<>();
+        SimpleByteStoragePackets.sendToServer(new CraftRequestPacket(CraftRequestPacket.ACTION_PLAN, dialogStack, dialogAmount));
+    }
+
+    private boolean planOk() {
+        return planReady && planMissing.isEmpty() && !planSteps.isEmpty();
+    }
+
+    private int dialogX(int screenW) {
+        return (screenW - CraftPlanView.W) / 2;
+    }
+
+    private int dialogY(int screenH) {
+        return (screenH - (CraftPlanView.BASE_H + EXTRA)) / 2;
+    }
 
     public void renderDialog(GuiGraphics g, Font font, int screenW, int screenH, int mx, int my) {
         if (!isDialogOpen()) {
             return;
         }
-        int x = (screenW - DIALOG_W) / 2;
-        int y = (screenH - DIALOG_H) / 2;
+        int x = dialogX(screenW);
+        int y = dialogY(screenH);
         g.pose().pushPose();
         g.pose().translate(0.0F, 0.0F, 400.0F);
-        GuiStyle.panel(g, x, y, DIALOG_W, DIALOG_H);
-        g.renderItem(dialogStack, x + 6, y + 6);
-        String title = Component.translatable("gui.simple_bytestorage.order.title", dialogStack.getHoverName()).getString();
-        g.drawString(font, font.plainSubstrByWidth(title, DIALOG_W - 32), x + 26, y + 10, GuiStyle.TEXT_TITLE, false);
-
-        int bx = x + 6;
+        g.fill(0, 0, screenW, screenH, 0x90000000);
+        CraftPlanView.draw(g, font, x, y, EXTRA,
+                Component.translatable("gui.simple_bytestorage.order.title", dialogStack.getHoverName()),
+                planSteps, planMissing, planOk(), mx, my);
+        g.renderItem(dialogStack, x + CraftPlanView.W - 22, y + 2);
         for (int i = 0; i < 3; i++) {
-            drawStep(g, font, bx + i * 23, y + 30, STEPS[i], mx, my);
+            drawStep(g, font, x + 6 + i * 26, y + 17, STEPS[i], mx, my);
         }
         String amount = FMT.format(dialogAmount);
-        g.drawString(font, amount, x + DIALOG_W / 2 - font.width(amount) / 2, y + 34, GuiStyle.ACCENT, false);
+        g.drawString(font, amount, x + CraftPlanView.W / 2 - font.width(amount) / 2, y + 21, GuiStyle.ACCENT, false);
         for (int i = 3; i < 6; i++) {
-            drawStep(g, font, x + DIALOG_W - 6 - 23 * (6 - i) + 1, y + 30, STEPS[i], mx, my);
+            drawStep(g, font, x + CraftPlanView.W - 6 - 26 * (6 - i) + 2, y + 17, STEPS[i], mx, my);
         }
-        UiButton.paint(g, font, x + 6, y + DIALOG_H - 22, 76, 16,
-                Component.translatable("gui.simple_bytestorage.order.confirm").getString(),
-                inside(mx, my, x + 6, y + DIALOG_H - 22, 76, 16), true);
-        UiButton.paint(g, font, x + DIALOG_W - 82, y + DIALOG_H - 22, 76, 16,
-                Component.translatable("gui.simple_bytestorage.order.cancel").getString(),
-                inside(mx, my, x + DIALOG_W - 82, y + DIALOG_H - 22, 76, 16), true);
+        if (!planReady) {
+            String wait = Component.translatable("gui.simple_bytestorage.order.calculating").getString();
+            g.drawString(font, wait, x + 10, y + 50, GuiStyle.TEXT_MUTED, false);
+        }
         g.pose().popPose();
     }
 
     private void drawStep(GuiGraphics g, Font font, int x, int y, int step, int mx, int my) {
-        UiButton.paint(g, font, x, y, 22, 16, (step > 0 ? "+" : "") + step, inside(mx, my, x, y, 22, 16), true);
+        UiButton.paint(g, font, x, y, 24, 14, (step > 0 ? "+" : "") + step, inside(mx, my, x, y, 24, 14), true);
     }
 
     /** Модальный диалог: поглощает все клики, пока открыт. */
@@ -203,30 +233,25 @@ public class TerminalExtras {
         if (button != 0) {
             return true;
         }
-        int x = (screenW - DIALOG_W) / 2;
-        int y = (screenH - DIALOG_H) / 2;
-        for (int i = 0; i < 3; i++) {
-            if (inside(mx, my, x + 6 + i * 23, y + 30, 22, 16)) {
-                step(STEPS[i]);
+        int x = dialogX(screenW);
+        int y = dialogY(screenH);
+        for (int i = 0; i < 6; i++) {
+            int bx = i < 3 ? x + 6 + i * 26 : x + CraftPlanView.W - 6 - 26 * (6 - i) + 2;
+            if (inside(mx, my, bx, y + 17, 24, 14)) {
+                int next = Math.max(1, Math.min(CraftRequestPacket.MAX_AMOUNT, dialogAmount + STEPS[i]));
+                if (next != dialogAmount) {
+                    dialogAmount = next;
+                    requestPlan();
+                }
                 return true;
             }
         }
-        for (int i = 3; i < 6; i++) {
-            if (inside(mx, my, x + DIALOG_W - 6 - 23 * (6 - i) + 1, y + 30, 22, 16)) {
-                step(STEPS[i]);
-                return true;
-            }
-        }
-        if (inside(mx, my, x + 6, y + DIALOG_H - 22, 76, 16)) {
-            SimpleByteStoragePackets.sendToServer(new CraftRequestPacket(dialogStack, dialogAmount));
+        if (CraftPlanView.startHit(mx, my, x, y, EXTRA) && planOk()) {
+            SimpleByteStoragePackets.sendToServer(new CraftRequestPacket(CraftRequestPacket.ACTION_ORDER, dialogStack, dialogAmount));
             closeDialog();
-        } else if (inside(mx, my, x + DIALOG_W - 82, y + DIALOG_H - 22, 76, 16)) {
+        } else if (CraftPlanView.cancelHit(mx, my, x, y, EXTRA)) {
             closeDialog();
         }
         return true;
-    }
-
-    private void step(int delta) {
-        dialogAmount = Math.max(1, Math.min(CraftRequestPacket.MAX_AMOUNT, dialogAmount + delta));
     }
 }

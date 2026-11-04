@@ -14,7 +14,7 @@ import net.minecraftforge.network.simple.SimpleChannel;
  */
 public class SimpleByteStoragePackets {
 
-    private static final String PROTOCOL_VERSION = "7";
+    private static final String PROTOCOL_VERSION = "8";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(SimpleByteStorage.MOD_ID, "main"),
             () -> PROTOCOL_VERSION,
@@ -28,6 +28,12 @@ public class SimpleByteStoragePackets {
     }
 
     public static void register() {
+        CHANNEL.messageBuilder(SyncLibraryPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(SyncLibraryPacket::new)
+                .encoder(SyncLibraryPacket::encode)
+                .consumerMainThread(SyncLibraryPacket::handle)
+                .add();
+
         CHANNEL.messageBuilder(WirelessSettingsPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
                 .decoder(WirelessSettingsPacket::new)
                 .encoder(WirelessSettingsPacket::encode)
