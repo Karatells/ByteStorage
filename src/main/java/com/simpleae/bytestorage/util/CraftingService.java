@@ -221,19 +221,10 @@ public final class CraftingService {
      */
     public static int pickJob(IGrid grid, List<String> ids) {
         com.simpleae.bytestorage.block.entity.NetworkControllerBlockEntity c = grid == null ? null : grid.getController();
-        int best = -1;
-        int bestPrio = Integer.MIN_VALUE;
-        for (int i = 0; i < ids.size(); i++) {
-            if (c != null && c.isQueuePaused(ids.get(i))) {
-                continue;
-            }
-            int p = c == null ? 0 : c.getQueuePriority(ids.get(i));
-            if (p > bestPrio) {
-                bestPrio = p;
-                best = i;
-            }
+        if (c == null) {
+            return ids.isEmpty() ? -1 : 0;
         }
-        return best;
+        return QueueOrder.pick(ids, c::isQueuePaused, c::getQueuePriority);
     }
 
     /** Ставить {@code crafts} виконань шаблону в черги; повертає, скільки прийнято. */

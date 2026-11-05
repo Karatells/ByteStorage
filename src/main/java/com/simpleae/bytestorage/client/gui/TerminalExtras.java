@@ -4,6 +4,7 @@ import com.simpleae.bytestorage.network.packet.CraftPlanPacket;
 import com.simpleae.bytestorage.network.packet.CraftRequestPacket;
 import com.simpleae.bytestorage.network.packet.SimpleByteStoragePackets;
 import com.simpleae.bytestorage.util.CraftingService;
+import com.simpleae.bytestorage.util.SearchSyntax;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -69,14 +70,7 @@ public class TerminalExtras {
         }
         this.poolKeys = keys;
 
-        List<String> tokens = new ArrayList<>();
-        if (query != null) {
-            for (String t : query.trim().toLowerCase().split("\\s+")) {
-                if (!t.isEmpty()) {
-                    tokens.add(t);
-                }
-            }
-        }
+        List<SearchSyntax.Token> tokens = SearchSyntax.parse(query);
         if (!tokens.isEmpty()) {
             rows.removeIf(r -> !matches(r, tokens, keys));
         }
@@ -110,39 +104,24 @@ public class TerminalExtras {
      * {@code @мод} — id мода, {@code #тег} — тег предмета, {@code >N} {@code <N} {@code =N} — количество,
      * {@code $craftable} — можно скрафтить, {@code $stock} — есть в сети, {@code $fav} — избранное; иначе — часть названия.
      */
-    private boolean matches(Row r, List<String> tokens, Set<String> inStock) {
+    private boolean matches(Row r, List<SearchSyntax.Token> tokens, Set<String> inStock) {
         ItemStack stack = r.stack();
-        for (String t : tokens) {
-            boolean ok;
-            if (t.startsWith("@") && t.length() > 1) {
-                net.minecraft.resources.ResourceLocation id = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(stack.getItem());
-                ok = id != null && id.getNamespace().contains(t.substring(1));
-            } else if (t.startsWith("#") && t.length() > 1) {
-                String tag = t.substring(1);
-                ok = stack.getTags().anyMatch(k -> k.location().toString().contains(tag));
-            } else if ((t.startsWith(">") || t.startsWith("<") || t.startsWith("=")) && t.length() > 1) {
-                int n;
-                try {
-                    n = Integer.parseInt(t.substring(1));
-                    int c = r.count();
-                    ok = t.charAt(0) == '>' ? c > n : (t.charAt(0) == '<' ? c < n : c == n);
-                } catch (NumberFormatException e) {
-                    ok = false;
+        for (SearchSyntax.Token t : tokens) {
+            boolean ok = switch (t.kind()) {
+                case MOD -> {
+                    net.minecraft.resources.ResourceLocation id = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(stack.getItem());
+                    yield id != null && id.getNamespace().contains(t.text());
                 }
-            } else if (t.startsWith("$")) {
-                String k = t.substring(1);
-                if ("craftable".startsWith(k) && !k.isEmpty()) {
-                    ok = isCraftable(stack);
-                } else if ("stock".startsWith(k) && !k.isEmpty()) {
-                    ok = inStock.contains(CraftingService.key(stack));
-                } else if ("fav".startsWith(k) && !k.isEmpty()) {
-                    ok = isFavorite(stack);
-                } else {
-                    ok = false;
-                }
-            } else {
-                ok = r.name().toLowerCase().contains(t);
-            }
+                case TAG -> stack.getTags().anyMatch(k -> k.location().toString().contains(t.text()));
+                case COUNT -> SearchSyntax.countMatches(t, r.count());
+                case FLAG -> switch (t.text()) {
+                    case SearchSyntax.FLAG_CRAFTABLE -> isCraftable(stack);
+                    case SearchSyntax.FLAG_STOCK -> inStock.contains(CraftingService.key(stack));
+                    default -> isFavorite(stack);
+                };
+                case TEXT -> r.name().toLowerCase().contains(t.text());
+                default -> false;
+            };
             if (!ok) {
                 return false;
             }

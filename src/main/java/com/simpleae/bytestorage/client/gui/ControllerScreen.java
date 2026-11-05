@@ -321,8 +321,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
     }
 
     private static String formatEta(int seconds) {
-        return seconds >= 3600 ? (seconds / 3600) + "h" + String.format("%02d", seconds / 60 % 60)
-                : (seconds / 60) + ":" + String.format("%02d", seconds % 60);
+        return com.simpleae.bytestorage.util.QueueOrder.formatEta(seconds);
     }
 
     private void queueAction(int row, int action) {
