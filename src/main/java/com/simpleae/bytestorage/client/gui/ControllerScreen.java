@@ -300,7 +300,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
     private void drawRecipes(GuiGraphics g, int x, int y) {
         text(g, Component.translatable("gui.simple_bytestorage.controller.recipes.blacklist").getString(), x + 10, y + 42, GuiStyle.TEXT_BAD);
         text(g, Component.translatable("gui.simple_bytestorage.controller.recipes.prefs").getString(), x + 10, y + 72, GuiStyle.TEXT_GOOD);
-        for (int i = ControllerMenu.BLACKLIST_START; i < ControllerMenu.PLAYER_START; i++) {
+        for (int i = ControllerMenu.BLACKLIST_START; i < ControllerMenu.STOCK_START; i++) {
             GuiStyle.menuSlot(g, x, y, menu.slots.get(i), GuiStyle.SLOT_CARD);
         }
         if (!menu.slots.get(1).hasItem()) {
