@@ -74,3 +74,8 @@ Legend: **Expect** is the result that counts as a pass.
 ## 9. Before the release
 - [ ] CI is green on `Development`; `main` is fast-forwarded to it; version set to the release number in all four places.
 - [ ] CHANGELOG and release notes updated, wiki pages match the behaviour.
+
+## Version numbering
+`major.minor.patch.build` — the **build** number is global and never resets: it grows by 1 before every push.
+After a release `X.Y.Z` development continues as `X.Y.(Z+1).<next build>`; e.g. after `1.1.3.9` and a release `1.1.4`
+the first build of the next cycle is `1.1.4.10`.
