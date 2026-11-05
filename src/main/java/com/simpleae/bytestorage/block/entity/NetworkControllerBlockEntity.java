@@ -81,6 +81,29 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         }
     };
 
+    public static final int RECIPE_SETTING_SLOTS = 9;
+
+    /** Чёрный список рецептов Библиотеки: рецепты, результат которых указан здесь, сети недоступны (призрачные слоты). */
+    private final ItemStackHandler recipeBlacklist = new ItemStackHandler(RECIPE_SETTING_SLOTS) {
+        @Override
+        protected void onContentsChanged(int slot) {
+            setChanged();
+            com.simpleae.bytestorage.util.RecipeLibrary.invalidate();
+        }
+    };
+
+    /** Предпочитаемые варианты для инградиентов-тегов (призрачные слоты): выбираются раньше, чем «чего больше в сети». */
+    private final ItemStackHandler recipePrefs = new ItemStackHandler(RECIPE_SETTING_SLOTS) {
+        @Override
+        protected void onContentsChanged(int slot) {
+            setChanged();
+            com.simpleae.bytestorage.util.RecipeLibrary.invalidate();
+        }
+    };
+
+    /** Пропускать «распаковку» (блок -> много предметов), если есть обратный рецепт. */
+    private boolean skipDecompress = true;
+
     private IGrid grid;
     private int tickCounter = 0;
 
@@ -136,6 +159,24 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
     }
 
     // --- Беспроводной терминал ---
+
+    public ItemStackHandler getRecipeBlacklist() {
+        return recipeBlacklist;
+    }
+
+    public ItemStackHandler getRecipePrefs() {
+        return recipePrefs;
+    }
+
+    public boolean isSkipDecompress() {
+        return skipDecompress;
+    }
+
+    public void setSkipDecompress(boolean value) {
+        this.skipDecompress = value;
+        setChanged();
+        com.simpleae.bytestorage.util.RecipeLibrary.invalidate();
+    }
 
     public ItemStackHandler getLibrarySlot() {
         return librarySlot;
@@ -311,6 +352,9 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         tag.putInt("Energy", energyStorage.getEnergyStored());
         tag.put("Wireless", wirelessSlot.serializeNBT());
         tag.put("Library", librarySlot.serializeNBT());
+        tag.put("RecipeBlacklist", recipeBlacklist.serializeNBT());
+        tag.put("RecipePrefs", recipePrefs.serializeNBT());
+        tag.putBoolean("SkipDecompress", skipDecompress);
         // Глобальний список шаблонів крафту живе в мережі — зберігаємо його разом із контролером.
         if (grid != null && grid.getPatternStorage() != null) {
             tag.put("Patterns", grid.getPatternStorage().save());
@@ -322,6 +366,15 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         super.load(tag);
         if (tag.contains("Library")) {
             librarySlot.deserializeNBT(tag.getCompound("Library"));
+        }
+        if (tag.contains("RecipeBlacklist")) {
+            recipeBlacklist.deserializeNBT(tag.getCompound("RecipeBlacklist"));
+        }
+        if (tag.contains("RecipePrefs")) {
+            recipePrefs.deserializeNBT(tag.getCompound("RecipePrefs"));
+        }
+        if (tag.contains("SkipDecompress")) {
+            skipDecompress = tag.getBoolean("SkipDecompress");
         }
         if (tag.contains("Wireless")) {
             wirelessSlot.deserializeNBT(tag.getCompound("Wireless"));

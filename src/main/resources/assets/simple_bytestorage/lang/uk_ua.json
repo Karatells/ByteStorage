@@ -233,5 +233,12 @@
   "msg.simple_bytestorage.wireless.macro_ok": "Макрос %s: запущено %s",
   "msg.simple_bytestorage.wireless.macro_none": "Макрос %s: нічого запускати",
   "gui.simple_bytestorage.order.calculating": "Розрахунок плану…",
-  "gui.simple_bytestorage.terminal.craft_label": "Крафт"
+  "gui.simple_bytestorage.terminal.craft_label": "Крафт",
+  "gui.simple_bytestorage.controller.tab.recipes": "Рецепти",
+  "gui.simple_bytestorage.controller.recipes.blacklist": "Чорний список рецептів (предмет-результат):",
+  "gui.simple_bytestorage.controller.recipes.prefs": "Бажані варіанти інгредієнтів:",
+  "gui.simple_bytestorage.controller.recipes.need_library": "Потрібна встановлена Бібліотека рецептів",
+  "gui.simple_bytestorage.controller.recipes.skip.on": "Пропускати «розпакування»: УВІМК",
+  "gui.simple_bytestorage.controller.recipes.skip.off": "Пропускати «розпакування»: ВИМК",
+  "gui.simple_bytestorage.controller.recipes.skip.tip": "Ховає рецепти на кшталт блок -> 9 злитків, якщо є зворотний рецепт, щоб мережа не розпаковувала ваші блоки випадково."
 }

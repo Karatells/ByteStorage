@@ -4,6 +4,7 @@ import com.simpleae.bytestorage.api.network.IGrid;
 import com.simpleae.bytestorage.api.storage.INetworkStorage;
 import com.simpleae.bytestorage.api.storage.IPatternStorage.PatternData;
 import com.simpleae.bytestorage.block.entity.NetworkControllerBlockEntity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -31,7 +32,7 @@ public final class RecipeLibrary {
     public static final String PREFIX = "lib:";
     private static final long CACHE_TICKS = 20;
 
-    private record Entry(String id, ItemStack output, List<Ingredient> cells) {
+    private record Entry(String id, ItemStack output, List<Ingredient> cells, boolean decompress) {
     }
 
     private record Cached(long time, List<PatternData> patterns) {
@@ -91,6 +92,7 @@ public final class RecipeLibrary {
             return entries;
         }
         Map<String, Entry> built = new LinkedHashMap<>();
+        List<Entry> raw = new ArrayList<>();
         for (CraftingRecipe recipe : manager.getAllRecipesFor(RecipeType.CRAFTING)) {
             List<Ingredient> cells = layout(recipe);
             if (cells == null) {
@@ -108,14 +110,89 @@ public final class RecipeLibrary {
                 }
             }
             if (valid) {
-                String id = PREFIX + recipe.getId();
-                built.put(id, new Entry(id, output.copy(), cells));
+                raw.add(new Entry(PREFIX + recipe.getId(), output.copy(), cells, false));
             }
+        }
+        Map<Item, List<Entry>> byOutput = new HashMap<>();
+        for (Entry e : raw) {
+            byOutput.computeIfAbsent(e.output().getItem(), k -> new ArrayList<>()).add(e);
+        }
+        for (Entry e : raw) {
+            built.put(e.id(), new Entry(e.id(), e.output(), e.cells(), isDecompress(e, byOutput)));
         }
         cachedManager = manager;
         entries = built;
         PATTERN_CACHE.clear();
         return entries;
+    }
+
+    /**
+     * «Распаковка»: рецепт с одним ингредиентом и выходом больше 1, для которого есть обратный рецепт
+     * (результат -> исходный предмет), например блок -> 9 слитков.
+     */
+    private static boolean isDecompress(Entry e, Map<Item, List<Entry>> byOutput) {
+        if (e.output().getCount() < 2) {
+            return false;
+        }
+        Ingredient single = null;
+        for (Ingredient i : e.cells()) {
+            if (!i.isEmpty()) {
+                if (single != null) {
+                    return false;
+                }
+                single = i;
+            }
+        }
+        if (single == null) {
+            return false;
+        }
+        Item out = e.output().getItem();
+        for (ItemStack option : single.getItems()) {
+            for (Entry reverse : byOutput.getOrDefault(option.getItem(), List.of())) {
+                boolean allOut = true;
+                boolean any = false;
+                for (Ingredient i : reverse.cells()) {
+                    if (i.isEmpty()) {
+                        continue;
+                    }
+                    any = true;
+                    boolean has = false;
+                    for (ItemStack o : i.getItems()) {
+                        if (o.getItem() == out) {
+                            has = true;
+                            break;
+                        }
+                    }
+                    if (!has) {
+                        allOut = false;
+                        break;
+                    }
+                }
+                if (any && allOut) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /** Сбросить кэши (после изменения настроек рецептов в Контроллере). */
+    public static synchronized void invalidate() {
+        PATTERN_CACHE.clear();
+        PINS.clear();
+    }
+
+    private static boolean allowed(Entry entry, NetworkControllerBlockEntity c) {
+        if (c.isSkipDecompress() && entry.decompress()) {
+            return false;
+        }
+        for (int i = 0; i < c.getRecipeBlacklist().getSlots(); i++) {
+            ItemStack banned = c.getRecipeBlacklist().getStackInSlot(i);
+            if (!banned.isEmpty() && banned.getItem() == entry.output().getItem()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static Map<String, Integer> availability(IGrid grid) {
@@ -129,7 +206,7 @@ public final class RecipeLibrary {
         return available;
     }
 
-    private static PatternData build(Entry entry, Map<String, Integer> available) {
+    private static PatternData build(Entry entry, Map<String, Integer> available, NetworkControllerBlockEntity c) {
         List<ItemStack> grid = new ArrayList<>(9);
         for (Ingredient ingredient : entry.cells()) {
             if (ingredient.isEmpty()) {
@@ -138,19 +215,38 @@ public final class RecipeLibrary {
             }
             ItemStack[] options = ingredient.getItems();
             ItemStack best = options[0];
+            ItemStack preferred = preferred(options, c);
             int bestCount = available.getOrDefault(CraftingService.key(best), 0);
-            for (int i = 1; i < options.length; i++) {
+            for (int i = 1; preferred == null && i < options.length; i++) {
                 int count = available.getOrDefault(CraftingService.key(options[i]), 0);
                 if (count > bestCount) {
                     best = options[i];
                     bestCount = count;
                 }
             }
-            ItemStack one = best.copy();
+            ItemStack one = (preferred != null ? preferred : best).copy();
             one.setCount(1);
             grid.add(one);
         }
         return new PatternData(entry.id(), entry.output(), grid);
+    }
+
+    private static ItemStack preferred(ItemStack[] options, NetworkControllerBlockEntity c) {
+        if (options.length < 2) {
+            return null;
+        }
+        for (int p = 0; p < c.getRecipePrefs().getSlots(); p++) {
+            ItemStack pref = c.getRecipePrefs().getStackInSlot(p);
+            if (pref.isEmpty()) {
+                continue;
+            }
+            for (ItemStack option : options) {
+                if (option.getItem() == pref.getItem()) {
+                    return option;
+                }
+            }
+        }
+        return null;
     }
 
     /** Усі віртуальні шаблони бібліотеки (порожньо, якщо покращення немає). */
@@ -169,8 +265,11 @@ public final class RecipeLibrary {
         Map<String, Entry> all = entries(level);
         Map<String, Integer> available = availability(grid);
         List<PatternData> result = new ArrayList<>(all.size());
+        NetworkControllerBlockEntity c = grid.getController();
         for (Entry entry : all.values()) {
-            result.add(build(entry, available));
+            if (allowed(entry, c)) {
+                result.add(build(entry, available, c));
+            }
         }
         synchronized (RecipeLibrary.class) {
             PATTERN_CACHE.put(grid, new Cached(now, result));
@@ -196,16 +295,26 @@ public final class RecipeLibrary {
                 return pinned.pattern();
             }
             Entry entry = entries(level).get(id);
-            if (entry == null) {
+            if (entry == null || !allowed(entry, grid.getController())) {
                 return null;
             }
-            PatternData built = build(entry, availability(grid));
+            PatternData built = build(entry, availability(grid), grid.getController());
             pins.put(id, new Pinned(now, built));
             return built;
         }
     }
 
     public static int count(IGrid grid) {
-        return isEnabled(grid) ? entries(grid.getController().getLevel()).size() : 0;
+        if (!isEnabled(grid)) {
+            return 0;
+        }
+        NetworkControllerBlockEntity c = grid.getController();
+        int n = 0;
+        for (Entry e : entries(c.getLevel()).values()) {
+            if (allowed(e, c)) {
+                n++;
+            }
+        }
+        return n;
     }
 }

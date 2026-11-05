@@ -233,5 +233,12 @@
   "msg.simple_bytestorage.wireless.macro_ok": "Macro %s: %s run",
   "msg.simple_bytestorage.wireless.macro_none": "Macro %s: nothing to run",
   "gui.simple_bytestorage.order.calculating": "Calculating plan…",
-  "gui.simple_bytestorage.terminal.craft_label": "Craft"
+  "gui.simple_bytestorage.terminal.craft_label": "Craft",
+  "gui.simple_bytestorage.controller.tab.recipes": "Recipes",
+  "gui.simple_bytestorage.controller.recipes.blacklist": "Recipe blacklist (output item):",
+  "gui.simple_bytestorage.controller.recipes.prefs": "Preferred ingredient variants:",
+  "gui.simple_bytestorage.controller.recipes.need_library": "Needs a Recipe Library installed",
+  "gui.simple_bytestorage.controller.recipes.skip.on": "Skip \"unpacking\" recipes: ON",
+  "gui.simple_bytestorage.controller.recipes.skip.off": "Skip \"unpacking\" recipes: OFF",
+  "gui.simple_bytestorage.controller.recipes.skip.tip": "Hides recipes like block -> 9 ingots when a reverse recipe exists, so the network does not unpack your blocks by accident."
 }
