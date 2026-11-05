@@ -2,7 +2,8 @@
 
 All notable changes to the **Simple Byte Storage** mod will be documented in this file.
 
-## [Unreleased]
+## [1.1.3] — 2026-11-05
+Об'єднує зміни 1.1.3.1–1.1.3.10 (нижче). Нотатки релізу: docs/RELEASE_NOTES_1.1.3.md.
 
 ### Changed — 1.1.3.10
 - Нумерація збірок: четверта цифра тепер наскрізна й не скидається при зміні версії (після 1.1.3.9 -> 1.1.4.10).

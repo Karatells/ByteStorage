@@ -79,7 +79,8 @@ class ResourcesTest {
         String scripting = gradleVersion(ROOT.resolve("scripting/build.gradle"));
         String coreToml = tomlVersion(ROOT.resolve("src/main/resources/META-INF/mods.toml"));
         String scriptingToml = tomlVersion(ROOT.resolve("scripting/src/main/resources/META-INF/mods.toml"));
-        assertTrue(core.matches("\\d+\\.\\d+\\.\\d+\\.\\d+"), "core version must be major.minor.patch.build: " + core);
+        // у розробці — чотири цифри (major.minor.patch.build), у релізі — три (major.minor.patch)
+        assertTrue(core.matches("\\d+\\.\\d+\\.\\d+(\\.\\d+)?"), "core version must be major.minor.patch[.build]: " + core);
         assertEquals(core, scripting, "scripting/build.gradle version");
         assertEquals(core, coreToml, "core mods.toml version");
         assertEquals(core, scriptingToml, "scripting mods.toml version");
