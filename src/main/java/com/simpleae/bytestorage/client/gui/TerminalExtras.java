@@ -69,9 +69,16 @@ public class TerminalExtras {
         }
         this.poolKeys = keys;
 
-        String q = query == null ? "" : query.trim().toLowerCase();
-        if (!q.isEmpty()) {
-            rows.removeIf(r -> !r.name().toLowerCase().contains(q));
+        List<String> tokens = new ArrayList<>();
+        if (query != null) {
+            for (String t : query.trim().toLowerCase().split("\\s+")) {
+                if (!t.isEmpty()) {
+                    tokens.add(t);
+                }
+            }
+        }
+        if (!tokens.isEmpty()) {
+            rows.removeIf(r -> !matches(r, tokens, keys));
         }
         // Сначала предметы, которые есть в сети, потом — те, что можно только скрафтить (внутри групп — выбранная сортировка)
         rows.sort((a, b) -> {
@@ -79,6 +86,11 @@ public class TerminalExtras {
             boolean gb = b.count() == 0 && !keys.contains(CraftingService.key(b.stack()));
             if (ga != gb) {
                 return ga ? 1 : -1;
+            }
+            boolean fa = isFavorite(a.stack());
+            boolean fb = isFavorite(b.stack());
+            if (fa != fb) {
+                return fa ? -1 : 1;
             }
             int c = byCount && !ga ? Integer.compare(a.count(), b.count()) : a.name().compareToIgnoreCase(b.name());
             if (c == 0) {
@@ -91,6 +103,97 @@ public class TerminalExtras {
             result.add(r.stack());
         }
         return result;
+    }
+
+    /**
+     * Расширенный поиск: слова через пробел (все должны подойти).
+     * {@code @мод} — id мода, {@code #тег} — тег предмета, {@code >N} {@code <N} {@code =N} — количество,
+     * {@code $craftable} — можно скрафтить, {@code $stock} — есть в сети, {@code $fav} — избранное; иначе — часть названия.
+     */
+    private boolean matches(Row r, List<String> tokens, Set<String> inStock) {
+        ItemStack stack = r.stack();
+        for (String t : tokens) {
+            boolean ok;
+            if (t.startsWith("@") && t.length() > 1) {
+                net.minecraft.resources.ResourceLocation id = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(stack.getItem());
+                ok = id != null && id.getNamespace().contains(t.substring(1));
+            } else if (t.startsWith("#") && t.length() > 1) {
+                String tag = t.substring(1);
+                ok = stack.getTags().anyMatch(k -> k.location().toString().contains(tag));
+            } else if ((t.startsWith(">") || t.startsWith("<") || t.startsWith("=")) && t.length() > 1) {
+                int n;
+                try {
+                    n = Integer.parseInt(t.substring(1));
+                    int c = r.count();
+                    ok = t.charAt(0) == '>' ? c > n : (t.charAt(0) == '<' ? c < n : c == n);
+                } catch (NumberFormatException e) {
+                    ok = false;
+                }
+            } else if (t.startsWith("$")) {
+                String k = t.substring(1);
+                if ("craftable".startsWith(k) && !k.isEmpty()) {
+                    ok = isCraftable(stack);
+                } else if ("stock".startsWith(k) && !k.isEmpty()) {
+                    ok = inStock.contains(CraftingService.key(stack));
+                } else if ("fav".startsWith(k) && !k.isEmpty()) {
+                    ok = isFavorite(stack);
+                } else {
+                    ok = false;
+                }
+            } else {
+                ok = r.name().toLowerCase().contains(t);
+            }
+            if (!ok) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // --- Избранное (хранится локально в config) ---
+
+    private static Set<String> favorites;
+
+    private static java.nio.file.Path favoritesFile() {
+        return net.minecraftforge.fml.loading.FMLPaths.CONFIGDIR.get().resolve("simple_bytestorage_favorites.txt");
+    }
+
+    private static synchronized Set<String> favorites() {
+        if (favorites == null) {
+            favorites = new HashSet<>();
+            try {
+                java.nio.file.Path p = favoritesFile();
+                if (java.nio.file.Files.exists(p)) {
+                    favorites.addAll(java.nio.file.Files.readAllLines(p));
+                }
+            } catch (Exception ignored) {
+                // файл не обязателен
+            }
+        }
+        return favorites;
+    }
+
+    public static boolean isFavorite(ItemStack stack) {
+        return favorites().contains(CraftingService.key(stack));
+    }
+
+    public static void toggleFavorite(ItemStack stack) {
+        Set<String> f = favorites();
+        String key = CraftingService.key(stack);
+        if (!f.remove(key)) {
+            f.add(key);
+        }
+        try {
+            java.nio.file.Files.write(favoritesFile(), new ArrayList<>(f));
+        } catch (Exception ignored) {
+            // не удалось сохранить — останется до конца игры
+        }
+    }
+
+    /** Золотая отметка избранного в углу ячейки. */
+    public static void drawFavorite(GuiGraphics g, int itemX, int itemY) {
+        g.fill(itemX, itemY, itemX + 4, itemY + 4, 0xFF1B1E24);
+        g.fill(itemX + 1, itemY + 1, itemX + 3, itemY + 3, 0xFFFFD34D);
     }
 
     /** Предмет есть только как рецепт (в сети его нет). */

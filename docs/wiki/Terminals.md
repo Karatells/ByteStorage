@@ -12,6 +12,21 @@ Browse and withdraw items from the whole network.
 - **Sorting** (two buttons to the right of the window, shared by all terminals): by *name* or *count*, ascending (A-Z / 1-9) or descending (Z-A / 9-1).
 - **Autocrafting from any terminal** (Terminal and Crafting Terminal): items the network can craft but does not have appear dimmed, listed after everything that is in stock, with the word **Craft** instead of a count — click one to open the order dialog. For items in stock, **Ctrl + click** (or middle click) does the same. The window is the same as in the Pattern Terminal: it lists everything that will be crafted (sub-crafts included) and what is missing; pick an amount (±1/±10/±64) and press *Start*.
 
+## Search and favorites
+The search box takes several words; **all** must match:
+
+| Word | Meaning |
+|------|---------|
+| `iron` | part of the item name |
+| `@mod` | the item's mod id contains `mod` |
+| `#tag` | the item has a tag containing `tag` (e.g. `#ingots`) |
+| `>100` `<100` `=100` | stored amount (craft-only items count as 0) |
+| `$craftable` | the network can craft it |
+| `$stock` | it is stored in the network |
+| `$fav` | favorites only |
+
+Example: `@minecraft #ingots >64`. **Alt + click** an item to mark it as a favorite (gold corner); favorites are listed first inside their group. Favorites are stored on your computer (`config/simple_bytestorage_favorites.txt`). The list order is always: items in stock first, then craft-only items.
+
 ## Crafting Terminal
 
 A Terminal with a **3×3 crafting grid** and a result slot.

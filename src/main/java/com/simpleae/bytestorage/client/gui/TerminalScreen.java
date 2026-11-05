@@ -43,7 +43,7 @@ public class TerminalScreen extends AbstractContainerScreen<TerminalMenu> {
     protected void init() {
         super.init();
         this.searchBox = new EditBox(this.font, this.leftPos + 85, this.topPos + 5, 74, 10, Component.empty());
-        this.searchBox.setMaxLength(30);
+        this.searchBox.setMaxLength(60);
         this.searchBox.setBordered(false);
         this.searchBox.setTextColor(GuiStyle.TEXT_TITLE);
         this.searchBox.setHint(Component.translatable("gui.simple_bytestorage.terminal.search")
@@ -136,6 +136,9 @@ public class TerminalScreen extends AbstractContainerScreen<TerminalMenu> {
                 if (extras.isGhost(stack)) {
                     graphics.fill(itemX, itemY, itemX + 16, itemY + 16, 0x90141B26);
                 }
+                if (TerminalExtras.isFavorite(stack)) {
+                    TerminalExtras.drawFavorite(graphics, itemX, itemY);
+                }
             }
         }
     }
@@ -156,6 +159,8 @@ public class TerminalScreen extends AbstractContainerScreen<TerminalMenu> {
             }
         }
         tooltip.add(Component.translatable("gui.simple_bytestorage.terminal.hint")
+                .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
+        tooltip.add(Component.translatable("gui.simple_bytestorage.terminal.fav_hint")
                 .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));
         graphics.renderComponentTooltip(this.font, tooltip, mouseX, mouseY);
     }
@@ -211,6 +216,10 @@ public class TerminalScreen extends AbstractContainerScreen<TerminalMenu> {
                 return true;
             }
             ItemStack clicked = stackAt(mouseX, mouseY);
+            if (!clicked.isEmpty() && hasAltDown()) {
+                TerminalExtras.toggleFavorite(clicked);
+                return true;
+            }
             if (!clicked.isEmpty() && (extras.isGhost(clicked)
                     || (extras.isCraftable(clicked) && (hasControlDown() || button == 2)))) {
                 extras.openDialog(clicked);
