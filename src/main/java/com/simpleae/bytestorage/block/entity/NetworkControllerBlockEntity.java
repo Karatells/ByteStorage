@@ -101,6 +101,36 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         }
     };
 
+    /** Приоритеты и пауза заказов (по id шаблона): сначала крафтится заказ с большим приоритетом, поставленные на паузу не стартуют. */
+    private final java.util.Map<String, Integer> queuePriority = new java.util.HashMap<>();
+    private final java.util.Set<String> queuePaused = new java.util.HashSet<>();
+    public static final int MAX_PRIORITY = 9;
+
+    public int getQueuePriority(String patternId) {
+        return queuePriority.getOrDefault(patternId, 0);
+    }
+
+    public boolean isQueuePaused(String patternId) {
+        return queuePaused.contains(patternId);
+    }
+
+    public void changeQueuePriority(String patternId, int delta) {
+        int value = Math.max(-MAX_PRIORITY, Math.min(MAX_PRIORITY, getQueuePriority(patternId) + delta));
+        if (value == 0) {
+            queuePriority.remove(patternId);
+        } else {
+            queuePriority.put(patternId, value);
+        }
+        setChanged();
+    }
+
+    public void toggleQueuePaused(String patternId) {
+        if (!queuePaused.remove(patternId)) {
+            queuePaused.add(patternId);
+        }
+        setChanged();
+    }
+
     /** Пропускать «распаковку» (блок -> много предметов), если есть обратный рецепт. */
     private boolean skipDecompress = true;
 
@@ -355,6 +385,14 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         tag.put("RecipeBlacklist", recipeBlacklist.serializeNBT());
         tag.put("RecipePrefs", recipePrefs.serializeNBT());
         tag.putBoolean("SkipDecompress", skipDecompress);
+        CompoundTag prio = new CompoundTag();
+        queuePriority.forEach(prio::putInt);
+        tag.put("QueuePriority", prio);
+        net.minecraft.nbt.ListTag paused = new net.minecraft.nbt.ListTag();
+        for (String id : queuePaused) {
+            paused.add(net.minecraft.nbt.StringTag.valueOf(id));
+        }
+        tag.put("QueuePaused", paused);
         // Глобальний список шаблонів крафту живе в мережі — зберігаємо його разом із контролером.
         if (grid != null && grid.getPatternStorage() != null) {
             tag.put("Patterns", grid.getPatternStorage().save());
@@ -372,6 +410,15 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         }
         if (tag.contains("RecipePrefs")) {
             recipePrefs.deserializeNBT(tag.getCompound("RecipePrefs"));
+        }
+        queuePriority.clear();
+        queuePaused.clear();
+        CompoundTag prio = tag.getCompound("QueuePriority");
+        for (String k : prio.getAllKeys()) {
+            queuePriority.put(k, prio.getInt(k));
+        }
+        for (Tag t : tag.getList("QueuePaused", Tag.TAG_STRING)) {
+            queuePaused.add(t.getAsString());
         }
         if (tag.contains("SkipDecompress")) {
             skipDecompress = tag.getBoolean("SkipDecompress");

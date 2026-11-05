@@ -406,6 +406,18 @@ public class AssemblerBlockEntity extends BlockEntity implements IGridNode, Menu
             return;
         }
 
+        List<String> ids = new ArrayList<>(jobs.size());
+        for (Job j : jobs) {
+            ids.add(j.patternId);
+        }
+        int pick = com.simpleae.bytestorage.util.CraftingService.pickJob(grid, ids);
+        if (pick < 0) {
+            setWait(WAIT_NONE); // усі завдання призупинені
+            return;
+        }
+        if (pick > 0) {
+            jobs.add(0, jobs.remove(pick));
+        }
         Job job = jobs.get(0);
         PatternData pattern = com.simpleae.bytestorage.util.CraftingService.findPattern(grid, job.patternId);
         if (pattern == null) {

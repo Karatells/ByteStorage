@@ -360,6 +360,17 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
 
     /** Подає в машину інгредієнти одного крафту. false — зараз неможливо (чекаємо). */
     private boolean pushOne(INetworkStorage storage, List<Machine> machines) {
+        List<String> ids = new ArrayList<>(jobs.size());
+        for (Job j : jobs) {
+            ids.add(j.patternId);
+        }
+        int pick = com.simpleae.bytestorage.util.CraftingService.pickJob(grid, ids);
+        if (pick < 0) {
+            return false; // усі призупинені
+        }
+        if (pick > 0) {
+            jobs.add(0, jobs.remove(pick));
+        }
         Job job = jobs.get(0);
         PatternData pattern = findPattern(job.patternId);
         if (pattern == null) {

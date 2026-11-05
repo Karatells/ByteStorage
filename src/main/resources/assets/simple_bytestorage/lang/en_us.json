@@ -240,5 +240,10 @@
   "gui.simple_bytestorage.controller.recipes.need_library": "Needs a Recipe Library installed",
   "gui.simple_bytestorage.controller.recipes.skip.on": "Skip \"unpacking\" recipes: ON",
   "gui.simple_bytestorage.controller.recipes.skip.off": "Skip \"unpacking\" recipes: OFF",
-  "gui.simple_bytestorage.controller.recipes.skip.tip": "Hides recipes like block -> 9 ingots when a reverse recipe exists, so the network does not unpack your blocks by accident."
+  "gui.simple_bytestorage.controller.recipes.skip.tip": "Hides recipes like block -> 9 ingots when a reverse recipe exists, so the network does not unpack your blocks by accident.",
+  "gui.simple_bytestorage.controller.queue.paused": "paused",
+  "gui.simple_bytestorage.controller.queue.prio_up": "Raise priority (higher priority is crafted first)",
+  "gui.simple_bytestorage.controller.queue.prio_down": "Lower priority",
+  "gui.simple_bytestorage.controller.queue.pause": "Pause / resume this order (a craft already running finishes first)",
+  "gui.simple_bytestorage.controller.queue.cancel": "Cancel this order"
 }

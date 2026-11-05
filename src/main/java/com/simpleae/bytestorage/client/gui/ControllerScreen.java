@@ -2,6 +2,8 @@ package com.simpleae.bytestorage.client.gui;
 
 import com.simpleae.bytestorage.item.WirelessTerminalItem;
 import com.simpleae.bytestorage.menu.ControllerMenu;
+import com.simpleae.bytestorage.network.packet.ControllerQueuePacket;
+import com.simpleae.bytestorage.network.packet.SimpleByteStoragePackets;
 import com.simpleae.bytestorage.util.NetworkStats;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -20,7 +22,10 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
     private static final NumberFormat FMT = NumberFormat.getInstance(Locale.US);
     private static final String[] TABS = {"overview", "storage", "crafting", "recipes"};
 
+    private static final int QUEUE_ROWS = 4;
+    private static final int ROW_H = 14;
     private int tab = 0;
+    private final List<UiButton> rowButtons = new ArrayList<>();
     private UiButton skipButton;
     private final List<UiButton> tabButtons = new ArrayList<>();
 
@@ -41,6 +46,20 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
                     UiButton.Icon.NONE, () -> { tab = index; menu.setTab(index); });
             tabButtons.add(b);
         }
+        rowButtons.clear();
+        for (int r = 0; r < QUEUE_ROWS; r++) {
+            final int row = r;
+            int by = topPos + 42 + 14 + r * ROW_H - 2;
+            int bx = leftPos + 10 + 170;
+            rowButtons.add(new UiButton(bx, by, 12, 12, () -> Component.literal("+"), UiButton.Icon.NONE,
+                    () -> queueAction(row, ControllerQueuePacket.PRIORITY_UP)).tooltip(Component.translatable("gui.simple_bytestorage.controller.queue.prio_up")));
+            rowButtons.add(new UiButton(bx + 14, by, 12, 12, () -> Component.literal("-"), UiButton.Icon.NONE,
+                    () -> queueAction(row, ControllerQueuePacket.PRIORITY_DOWN)).tooltip(Component.translatable("gui.simple_bytestorage.controller.queue.prio_down")));
+            rowButtons.add(new UiButton(bx + 28, by, 16, 12, () -> Component.literal(isPaused(row) ? ">" : "||"), UiButton.Icon.NONE,
+                    () -> queueAction(row, ControllerQueuePacket.TOGGLE_PAUSE)).tooltip(Component.translatable("gui.simple_bytestorage.controller.queue.pause")));
+            rowButtons.add(new UiButton(bx + 46, by, 12, 12, () -> Component.empty(), UiButton.Icon.CROSS,
+                    () -> queueAction(row, ControllerQueuePacket.CANCEL)).tooltip(Component.translatable("gui.simple_bytestorage.controller.queue.cancel")));
+        }
         skipButton = new UiButton(leftPos + 10, topPos + 103, 232, 13,
                 () -> Component.translatable(menu.isSkipDecompress() ? "gui.simple_bytestorage.controller.recipes.skip.on" : "gui.simple_bytestorage.controller.recipes.skip.off"),
                 UiButton.Icon.NONE, () -> {
@@ -54,6 +73,11 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
     public boolean mouseClicked(double mx, double my, int button) {
         for (UiButton b : tabButtons) {
             if (b.mouseClicked(mx, my, button)) {
+                return true;
+            }
+        }
+        for (int i = 0; i < visibleRows() * 4; i++) {
+            if (rowButtons.get(i).mouseClicked(mx, my, button)) {
                 return true;
             }
         }
@@ -74,10 +98,26 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
                 g.fill(leftPos + 8 + i * 60, topPos + 34, leftPos + 66 + i * 60, topPos + 36, GuiStyle.ACCENT);
             }
         }
+        for (int i = 0; i < visibleRows() * 4; i++) {
+            rowButtons.get(i).render(g, this.font, mouseX, mouseY);
+        }
         if (tab == ControllerMenu.RECIPES_TAB) {
             skipButton.render(g, this.font, mouseX, mouseY);
+            skipButton.renderTooltip(g, this.font, mouseX, mouseY);
+        }
+        for (int i = 0; i < visibleRows() * 4; i++) {
+            rowButtons.get(i).renderTooltip(g, this.font, mouseX, mouseY);
         }
         this.renderTooltip(g, mouseX, mouseY);
+    }
+
+    private boolean isPaused(int row) {
+        List<NetworkStats.QueueRow> rows = menu.getStats().queue;
+        return row < rows.size() && rows.get(row).paused();
+    }
+
+    private int visibleRows() {
+        return tab == 2 ? Math.min(QUEUE_ROWS, menu.getStats().queue.size()) : 0;
     }
 
     private static String n(int v) {
@@ -186,22 +226,37 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
         text(g, Component.translatable("gui.simple_bytestorage.controller.patterns", s.patterns).getString() + "   "
                 + Component.translatable("gui.simple_bytestorage.controller.assemblers", s.assemblersBusy, s.assemblers).getString() + "   "
                 + Component.translatable("gui.simple_bytestorage.controller.buses", s.buses, s.busJobs).getString(), x, y, GuiStyle.TEXT_TITLE);
-        text(g, Component.translatable(s.libraryRecipes > 0 ? "gui.simple_bytestorage.controller.library.line.on" : "gui.simple_bytestorage.controller.library.line.off", s.libraryRecipes).getString(),
-                x, y + 11, s.libraryRecipes > 0 ? GuiStyle.TEXT_GOOD : GuiStyle.TEXT_MUTED);
-        int total = Math.max(1, s.assemblers);
-        GuiStyle.progress(g, x, y + 23, 232, 6, s.assemblersBusy / (float) total);
         if (s.queue.isEmpty()) {
-            text(g, Component.translatable("gui.simple_bytestorage.controller.queue.empty").getString(), x, y + 36, GuiStyle.TEXT_MUTED);
+            text(g, Component.translatable("gui.simple_bytestorage.controller.queue.empty").getString(), x, y + 16, GuiStyle.TEXT_MUTED);
             return;
         }
         int i = 0;
         for (NetworkStats.QueueRow q : s.queue) {
-            if (i >= 6) break;
-            int cx = x + (i % 2) * 118;
-            int cy = y + 36 + (i / 2) * 13;
-            g.renderItem(q.output(), cx, cy - 4);
-            text(g, "x" + q.crafts() + (q.active() ? " *" : ""), cx + 18, cy + 1, q.active() ? GuiStyle.TEXT_GOOD : GuiStyle.TEXT_LABEL);
+            if (i >= QUEUE_ROWS) break;
+            int cy = y + 14 + i * ROW_H;
+            g.renderItem(q.output(), x, cy - 3);
+            int color = q.paused() ? GuiStyle.TEXT_WARN : (q.active() ? GuiStyle.TEXT_GOOD : GuiStyle.TEXT_LABEL);
+            text(g, "x" + q.crafts(), x + 18, cy + 2, color);
+            GuiStyle.progress(g, x + 52, cy + 3, 50, 5, q.percent() / 100f);
+            text(g, q.paused() ? Component.translatable("gui.simple_bytestorage.controller.queue.paused").getString()
+                    : (q.etaSeconds() > 0 ? formatEta(q.etaSeconds()) : "--"), x + 106, cy + 2, color);
+            text(g, (q.priority() > 0 ? "P+" : "P") + q.priority(), x + 138, cy + 2, q.priority() != 0 ? GuiStyle.TEXT_TITLE : GuiStyle.TEXT_MUTED);
             i++;
+        }
+        if (s.queue.size() > QUEUE_ROWS) {
+            text(g, "+" + (s.queue.size() - QUEUE_ROWS) + " ...", x, y + 14 + QUEUE_ROWS * ROW_H, GuiStyle.TEXT_MUTED);
+        }
+    }
+
+    private static String formatEta(int seconds) {
+        return seconds >= 3600 ? (seconds / 3600) + "h" + String.format("%02d", seconds / 60 % 60)
+                : (seconds / 60) + ":" + String.format("%02d", seconds % 60);
+    }
+
+    private void queueAction(int row, int action) {
+        List<NetworkStats.QueueRow> rows = menu.getStats().queue;
+        if (row < rows.size()) {
+            SimpleByteStoragePackets.sendToServer(new ControllerQueuePacket(action, rows.get(row).patternId()));
         }
     }
 

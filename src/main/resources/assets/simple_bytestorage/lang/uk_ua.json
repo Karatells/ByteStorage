@@ -240,5 +240,10 @@
   "gui.simple_bytestorage.controller.recipes.need_library": "Потрібна встановлена Бібліотека рецептів",
   "gui.simple_bytestorage.controller.recipes.skip.on": "Пропускати «розпакування»: УВІМК",
   "gui.simple_bytestorage.controller.recipes.skip.off": "Пропускати «розпакування»: ВИМК",
-  "gui.simple_bytestorage.controller.recipes.skip.tip": "Ховає рецепти на кшталт блок -> 9 злитків, якщо є зворотний рецепт, щоб мережа не розпаковувала ваші блоки випадково."
+  "gui.simple_bytestorage.controller.recipes.skip.tip": "Ховає рецепти на кшталт блок -> 9 злитків, якщо є зворотний рецепт, щоб мережа не розпаковувала ваші блоки випадково.",
+  "gui.simple_bytestorage.controller.queue.paused": "пауза",
+  "gui.simple_bytestorage.controller.queue.prio_up": "Підвищити пріоритет (вищий пріоритет — крафтиться раніше)",
+  "gui.simple_bytestorage.controller.queue.prio_down": "Знизити пріоритет",
+  "gui.simple_bytestorage.controller.queue.pause": "Пауза / продовжити замовлення (крафт, що вже йде, завершиться)",
+  "gui.simple_bytestorage.controller.queue.cancel": "Скасувати замовлення"
 }

@@ -240,5 +240,10 @@
   "gui.simple_bytestorage.controller.recipes.need_library": "Нужна установленная Библиотека рецептов",
   "gui.simple_bytestorage.controller.recipes.skip.on": "Пропускать «распаковку»: ВКЛ",
   "gui.simple_bytestorage.controller.recipes.skip.off": "Пропускать «распаковку»: ВЫКЛ",
-  "gui.simple_bytestorage.controller.recipes.skip.tip": "Скрывает рецепты вроде блок -> 9 слитков, если есть обратный рецепт, чтобы сеть не распаковывала ваши блоки случайно."
+  "gui.simple_bytestorage.controller.recipes.skip.tip": "Скрывает рецепты вроде блок -> 9 слитков, если есть обратный рецепт, чтобы сеть не распаковывала ваши блоки случайно.",
+  "gui.simple_bytestorage.controller.queue.paused": "пауза",
+  "gui.simple_bytestorage.controller.queue.prio_up": "Повысить приоритет (выше приоритет — крафтится раньше)",
+  "gui.simple_bytestorage.controller.queue.prio_down": "Понизить приоритет",
+  "gui.simple_bytestorage.controller.queue.pause": "Пауза / продолжить заказ (уже идущий крафт завершится)",
+  "gui.simple_bytestorage.controller.queue.cancel": "Отменить заказ"
 }

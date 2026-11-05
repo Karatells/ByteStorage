@@ -122,6 +122,10 @@ public class ControllerMenu extends AbstractContainerMenu {
         }
     }
 
+    public NetworkControllerBlockEntity getController() {
+        return controller;
+    }
+
     public int getTab() {
         return tab;
     }

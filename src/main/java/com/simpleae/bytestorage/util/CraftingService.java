@@ -206,6 +206,36 @@ public final class CraftingService {
         return anyAssembler ? "msg.simple_bytestorage.order.no_card" : "msg.simple_bytestorage.order.no_assembler";
     }
 
+    /** Скільки крафтів було замовлено в сумі (для прогресу); очищається, коли шаблон зникає з черги. */
+    private static final Map<IGrid, Map<String, Integer>> ORDERED = new java.util.WeakHashMap<>();
+
+    private static synchronized void noteOrdered(IGrid grid, String id, int accepted) {
+        if (accepted > 0) {
+            ORDERED.computeIfAbsent(grid, g -> new HashMap<>()).merge(id, accepted, Integer::sum);
+        }
+    }
+
+    /**
+     * Який із завдань черги запускати наступним: найвищий пріоритет серед не призупинених (за однакового — раніший).
+     * @return індекс або -1, якщо всі призупинені
+     */
+    public static int pickJob(IGrid grid, List<String> ids) {
+        com.simpleae.bytestorage.block.entity.NetworkControllerBlockEntity c = grid == null ? null : grid.getController();
+        int best = -1;
+        int bestPrio = Integer.MIN_VALUE;
+        for (int i = 0; i < ids.size(); i++) {
+            if (c != null && c.isQueuePaused(ids.get(i))) {
+                continue;
+            }
+            int p = c == null ? 0 : c.getQueuePriority(ids.get(i));
+            if (p > bestPrio) {
+                bestPrio = p;
+                best = i;
+            }
+        }
+        return best;
+    }
+
     /** Ставить {@code crafts} виконань шаблону в черги; повертає, скільки прийнято. */
     public static int enqueue(IGrid grid, PatternData pattern, int crafts) {
         int accepted = 0;
@@ -228,6 +258,7 @@ public final class CraftingService {
                 }
                 accepted++;
             }
+            noteOrdered(grid, pattern.getId(), accepted);
             return accepted;
         }
 
@@ -253,6 +284,7 @@ public final class CraftingService {
         for (Map.Entry<AssemblerBlockEntity, Integer> entry : share.entrySet()) {
             accepted += entry.getKey().enqueue(pattern.getId(), entry.getValue());
         }
+        noteOrdered(grid, pattern.getId(), accepted);
         return accepted;
     }
 
@@ -303,6 +335,10 @@ public final class CraftingService {
         public int crafts;
         public boolean active;
         public int machines;
+        public int etaTicks;
+        public int ordered;
+        public int priority;
+        public boolean paused;
 
         QueueEntry(PatternData pattern) {
             this.pattern = pattern;
@@ -337,12 +373,30 @@ public final class CraftingService {
                     continue;
                 }
                 QueueEntry entry = result.computeIfAbsent(job.getKey(), k -> new QueueEntry(pattern));
+                if (node instanceof AssemblerBlockEntity a) {
+                    entry.etaTicks = Math.max(entry.etaTicks, job.getValue() * a.getCraftTicks());
+                }
                 entry.crafts += job.getValue();
                 entry.machines++;
                 entry.active |= job.getKey().equals(activeId);
             }
         }
-        return new ArrayList<>(result.values());
+        com.simpleae.bytestorage.block.entity.NetworkControllerBlockEntity c = grid.getController();
+        synchronized (CraftingService.class) {
+            Map<String, Integer> ordered = ORDERED.computeIfAbsent(grid, g -> new HashMap<>());
+            ordered.keySet().removeIf(id -> !result.containsKey(id));
+            for (QueueEntry e : result.values()) {
+                e.ordered = Math.max(e.crafts, ordered.getOrDefault(e.pattern.getId(), e.crafts));
+                ordered.put(e.pattern.getId(), e.ordered);
+                if (c != null) {
+                    e.priority = c.getQueuePriority(e.pattern.getId());
+                    e.paused = c.isQueuePaused(e.pattern.getId());
+                }
+            }
+        }
+        List<QueueEntry> list = new ArrayList<>(result.values());
+        list.sort((a, b) -> Integer.compare(b.priority, a.priority));
+        return list;
     }
 
     /** Скасувати всі замовлення шаблону в усіх машинах мережі. */

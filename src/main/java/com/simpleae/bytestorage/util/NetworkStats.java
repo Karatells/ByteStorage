@@ -41,7 +41,7 @@ public final class NetworkStats {
     public record ItemCount(ItemStack stack, int count) {
     }
 
-    public record QueueRow(ItemStack output, int crafts, boolean active, int machines) {
+    public record QueueRow(ItemStack output, int crafts, boolean active, int machines, String patternId, int priority, boolean paused, int etaSeconds, int percent) {
     }
 
     public int state;
@@ -139,7 +139,9 @@ public final class NetworkStats {
             }
             ItemStack out = entry.pattern.getOutput().copy();
             out.setCount(1);
-            s.queue.add(new QueueRow(out, entry.crafts, entry.active, entry.machines));
+            int percent = entry.ordered <= 0 ? 0 : Math.max(0, Math.min(100, 100 - entry.crafts * 100 / entry.ordered));
+            s.queue.add(new QueueRow(out, entry.crafts, entry.active, entry.machines, entry.pattern.getId(), entry.priority,
+                    entry.paused, (entry.etaTicks + 19) / 20, percent));
         }
         return s;
     }
@@ -195,6 +197,11 @@ public final class NetworkStats {
             buf.writeVarInt(q.crafts());
             buf.writeBoolean(q.active());
             buf.writeVarInt(q.machines());
+            buf.writeUtf(q.patternId());
+            buf.writeVarInt(q.priority() + 16);
+            buf.writeBoolean(q.paused());
+            buf.writeVarInt(q.etaSeconds());
+            buf.writeVarInt(q.percent());
         }
     }
 
@@ -229,7 +236,8 @@ public final class NetworkStats {
         }
         n = buf.readVarInt();
         for (int i = 0; i < n; i++) {
-            s.queue.add(new QueueRow(readItem(buf), buf.readVarInt(), buf.readBoolean(), buf.readVarInt()));
+            s.queue.add(new QueueRow(readItem(buf), buf.readVarInt(), buf.readBoolean(), buf.readVarInt(),
+                    buf.readUtf(), buf.readVarInt() - 16, buf.readBoolean(), buf.readVarInt(), buf.readVarInt()));
         }
         return s;
     }
