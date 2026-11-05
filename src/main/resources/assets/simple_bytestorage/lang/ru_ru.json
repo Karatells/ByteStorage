@@ -232,5 +232,6 @@
   "msg.simple_bytestorage.wireless.macro_unset": "Задайте название макроса в настройках Беспроводного терминала",
   "msg.simple_bytestorage.wireless.macro_ok": "Макрос %s: запущено %s",
   "msg.simple_bytestorage.wireless.macro_none": "Макрос %s: нечего запускать",
-  "gui.simple_bytestorage.order.calculating": "Расчёт плана…"
+  "gui.simple_bytestorage.order.calculating": "Расчёт плана…",
+  "gui.simple_bytestorage.terminal.craft_label": "Крафт"
 }

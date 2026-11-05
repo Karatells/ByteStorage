@@ -10,7 +10,7 @@ Browse and withdraw items from the whole network.
 - **Shift-click** moves whole stacks; stack splitting is supported.
 - Insert items by Shift-clicking them from your inventory or clicking with a stack on the cursor.
 - **Sorting** (two buttons to the right of the window, shared by all terminals): by *name* or *count*, ascending (A-Z / 1-9) or descending (Z-A / 9-1).
-- **Autocrafting from any terminal** (Terminal and Crafting Terminal): items the network can craft but does not have appear dimmed with no count — click one to open the order dialog. For items in stock, **Ctrl + click** (or middle click) does the same. The window is the same as in the Pattern Terminal: it lists everything that will be crafted (sub-crafts included) and what is missing; pick an amount (±1/±10/±64) and press *Start*.
+- **Autocrafting from any terminal** (Terminal and Crafting Terminal): items the network can craft but does not have appear dimmed, listed after everything that is in stock, with the word **Craft** instead of a count — click one to open the order dialog. For items in stock, **Ctrl + click** (or middle click) does the same. The window is the same as in the Pattern Terminal: it lists everything that will be crafted (sub-crafts included) and what is missing; pick an amount (±1/±10/±64) and press *Start*.
 
 ## Crafting Terminal
 

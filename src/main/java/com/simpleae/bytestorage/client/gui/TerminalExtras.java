@@ -73,10 +73,16 @@ public class TerminalExtras {
         if (!q.isEmpty()) {
             rows.removeIf(r -> !r.name().toLowerCase().contains(q));
         }
+        // Сначала предметы, которые есть в сети, потом — те, что можно только скрафтить (внутри групп — выбранная сортировка)
         rows.sort((a, b) -> {
-            int c = byCount ? Integer.compare(a.count(), b.count()) : a.name().compareToIgnoreCase(b.name());
+            boolean ga = a.count() == 0 && !keys.contains(CraftingService.key(a.stack()));
+            boolean gb = b.count() == 0 && !keys.contains(CraftingService.key(b.stack()));
+            if (ga != gb) {
+                return ga ? 1 : -1;
+            }
+            int c = byCount && !ga ? Integer.compare(a.count(), b.count()) : a.name().compareToIgnoreCase(b.name());
             if (c == 0) {
-                c = byCount ? a.name().compareToIgnoreCase(b.name()) : Integer.compare(a.count(), b.count());
+                c = byCount && !ga ? a.name().compareToIgnoreCase(b.name()) : Integer.compare(a.count(), b.count());
             }
             return descending ? -c : c;
         });
@@ -90,6 +96,11 @@ public class TerminalExtras {
     /** Предмет есть только как рецепт (в сети его нет). */
     public boolean isGhost(ItemStack stack) {
         return !poolKeys.contains(CraftingService.key(stack));
+    }
+
+    /** Подпись вместо количества для предметов, которых нет в сети, но которые можно скрафтить. */
+    public static String craftLabel() {
+        return Component.translatable("gui.simple_bytestorage.terminal.craft_label").getString();
     }
 
     public boolean isCraftable(ItemStack stack) {

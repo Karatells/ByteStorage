@@ -139,7 +139,7 @@ public class CraftingTerminalScreen extends AbstractContainerScreen<CraftingTerm
             if (start + i < filtered.size()) {
                 ItemStack stack = filtered.get(start + i);
                 graphics.renderItem(stack, itemX, itemY);
-                GuiStyle.itemCount(graphics, this.font, stack, itemX, itemY, extras.isGhost(stack) ? "" : formatCount(stack.getCount()));
+                GuiStyle.itemCount(graphics, this.font, stack, itemX, itemY, extras.isGhost(stack) ? TerminalExtras.craftLabel() : formatCount(stack.getCount()));
                 if (extras.isGhost(stack)) {
                     graphics.fill(itemX, itemY, itemX + 16, itemY + 16, 0x90141B26);
                 }

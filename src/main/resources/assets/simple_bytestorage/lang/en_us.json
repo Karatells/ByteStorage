@@ -232,5 +232,6 @@
   "msg.simple_bytestorage.wireless.macro_unset": "Set a macro name in the Wireless Terminal settings",
   "msg.simple_bytestorage.wireless.macro_ok": "Macro %s: %s run",
   "msg.simple_bytestorage.wireless.macro_none": "Macro %s: nothing to run",
-  "gui.simple_bytestorage.order.calculating": "Calculating plan…"
+  "gui.simple_bytestorage.order.calculating": "Calculating plan…",
+  "gui.simple_bytestorage.terminal.craft_label": "Craft"
 }
