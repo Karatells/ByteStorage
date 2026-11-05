@@ -131,6 +131,12 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         setChanged();
     }
 
+    private final com.simpleae.bytestorage.util.JournalLog journal = new com.simpleae.bytestorage.util.JournalLog();
+
+    public com.simpleae.bytestorage.util.JournalLog getJournal() {
+        return journal;
+    }
+
     public static final int STOCK_RULES = 8;
     public static final int STOCK_OFF = 0;
     public static final int STOCK_OK = 1;
@@ -209,7 +215,15 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
                 continue;
             }
             int got = com.simpleae.bytestorage.util.CraftingService.requestCraft(grid, wanted, stockMin[i] - current);
+            int previous = stockState[i];
             stockState[i] = got > 0 ? STOCK_CRAFTING : STOCK_FAILED;
+            if (got > 0) {
+                com.simpleae.bytestorage.util.NetworkJournal.log(grid, com.simpleae.bytestorage.util.JournalLog.STOCK_ORDER,
+                        wanted, stockMin[i] - current);
+            } else if (previous != STOCK_FAILED) {
+                com.simpleae.bytestorage.util.NetworkJournal.log(grid, com.simpleae.bytestorage.util.JournalLog.STOCK_FAILED,
+                        wanted, stockMin[i] - current);
+            }
         }
     }
 

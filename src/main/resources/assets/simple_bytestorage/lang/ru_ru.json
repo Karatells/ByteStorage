@@ -149,7 +149,7 @@
   "guide.simple_bytestorage.jei.title": "Интеграция с JEI",
   "guide.simple_bytestorage.jei.body": "Если установлен JEI, кнопка «+» в рецепте переносит его в Терминал кодирования:\n- рецепт верстака -> режим «Верстак»;\n- печь / плавильня / коптильня / камнерез -> режим «Процесс» (входы + результат).\n\nJEI необязателен; без него всё работает как раньше.",
   "gui.simple_bytestorage.controller.tab.overview": "Обзор",
-  "gui.simple_bytestorage.controller.tab.storage": "Хранилище",
+  "gui.simple_bytestorage.controller.tab.storage": "Склад",
   "gui.simple_bytestorage.controller.tab.crafting": "Крафт",
   "gui.simple_bytestorage.controller.status": "Статус",
   "gui.simple_bytestorage.controller.state.offline": "Отключена",
@@ -259,5 +259,15 @@
   "gui.simple_bytestorage.provider.record.state.4": "Шаблон записан в свободный слот!",
   "gui.simple_bytestorage.provider.record.state.5": "Нет свободного слота для шаблона",
   "gui.simple_bytestorage.provider.record.state.6": "Рядом с шиной нет машины",
-  "gui.simple_bytestorage.provider.record.state.7": "Не удалось определить рецепт — повторите"
+  "gui.simple_bytestorage.provider.record.state.7": "Не удалось определить рецепт — повторите",
+  "gui.simple_bytestorage.controller.tab.journal": "Журнал",
+  "gui.simple_bytestorage.controller.journal.empty": "Пока ничего не происходило",
+  "gui.simple_bytestorage.controller.journal.newer": "Более новые события",
+  "gui.simple_bytestorage.controller.journal.older": "Более старые события",
+  "gui.simple_bytestorage.journal.type.0": "Заказано",
+  "gui.simple_bytestorage.journal.type.1": "Скрафчено",
+  "gui.simple_bytestorage.journal.type.2": "Запуск в машине",
+  "gui.simple_bytestorage.journal.type.3": "Заказ по запасу",
+  "gui.simple_bytestorage.journal.type.4": "Запас: не скрафтить",
+  "gui.simple_bytestorage.journal.type.5": "Отменено"
 }

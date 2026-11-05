@@ -525,6 +525,8 @@ public class AssemblerBlockEntity extends BlockEntity implements IGridNode, Menu
                     }
                 }
                 success = true;
+                com.simpleae.bytestorage.util.NetworkJournal.log(grid, com.simpleae.bytestorage.util.JournalLog.CRAFTED,
+                        result, result.getCount());
             }
         }
 

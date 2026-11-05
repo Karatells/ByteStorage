@@ -68,6 +68,10 @@ public final class NetworkStats {
     public final List<DriveInfo> drives = new ArrayList<>();
     public final List<ItemCount> topItems = new ArrayList<>();
     public final List<QueueRow> queue = new ArrayList<>();
+    public static final int JOURNAL_ROWS = 30;
+    public record JournalRow(int type, ItemStack item, int amount, int ageSeconds) {
+    }
+    public final List<JournalRow> journal = new ArrayList<>();
 
     // --- Збір на сервері ---
 
@@ -139,6 +143,15 @@ public final class NetworkStats {
             s.stockMin[i] = controller.getStockMin(i);
             s.stockHave[i] = controller.getStockHave(i);
             s.stockState[i] = controller.getStockState(i);
+        }
+        if (controller.getLevel() != null) {
+            long now = controller.getLevel().getGameTime();
+            for (JournalLog.Entry e : controller.getJournal().latest(JOURNAL_ROWS)) {
+                Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(e.item()));
+                if (item != null) {
+                    s.journal.add(new JournalRow(e.type(), new ItemStack(item), e.amount(), (int) Math.max(0, (now - e.tick()) / 20)));
+                }
+            }
         }
         s.patterns = CraftingService.allPatterns(grid).size();
         s.libraryRecipes = RecipeLibrary.count(grid);
@@ -217,6 +230,13 @@ public final class NetworkStats {
             buf.writeVarInt(q.etaSeconds());
             buf.writeVarInt(q.percent());
         }
+        buf.writeVarInt(journal.size());
+        for (JournalRow j : journal) {
+            buf.writeVarInt(j.type());
+            writeItem(buf, j.item());
+            buf.writeVarInt(j.amount());
+            buf.writeVarInt(j.ageSeconds());
+        }
     }
 
     public static NetworkStats read(FriendlyByteBuf buf) {
@@ -257,6 +277,10 @@ public final class NetworkStats {
         for (int i = 0; i < n; i++) {
             s.queue.add(new QueueRow(readItem(buf), buf.readVarInt(), buf.readBoolean(), buf.readVarInt(),
                     buf.readUtf(), buf.readVarInt() - 16, buf.readBoolean(), buf.readVarInt(), buf.readVarInt()));
+        }
+        n = buf.readVarInt();
+        for (int i = 0; i < n; i++) {
+            s.journal.add(new JournalRow(buf.readVarInt(), readItem(buf), buf.readVarInt(), buf.readVarInt()));
         }
         return s;
     }

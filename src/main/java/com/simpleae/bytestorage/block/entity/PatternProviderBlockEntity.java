@@ -581,6 +581,8 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
                 }
             }
             addTo(expected, pattern.getOutput());
+            com.simpleae.bytestorage.util.NetworkJournal.log(grid, com.simpleae.bytestorage.util.JournalLog.STARTED,
+                    pattern.getOutput(), pattern.getOutput().getCount());
             job.left--;
             if (job.left <= 0) {
                 jobs.remove(0);

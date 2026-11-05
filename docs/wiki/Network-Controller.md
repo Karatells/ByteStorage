@@ -24,5 +24,15 @@ Settings for the Recipe Library (they only matter while it is installed):
 ## Stock tab (stock rules)
 Keep items in stock without any scripting: up to **8 rules** (4 per page, button on the right switches pages). Drop an item on a ghost slot (it is not consumed) and set the minimum with the `-100 … +100` buttons. About every 3 seconds the Controller compares the amount stored in the network with the minimum; if it is lower, it orders the missing amount through autocrafting (same plan rules as a terminal order). While that item is already in the craft queue no second order is placed. The number shows `have/minimum`: green = stocked, blue = being crafted, red with `!` = it cannot be crafted right now (no pattern, missing ingredients or no free machine) — it is retried automatically. Rules are stored in the Controller.
 
+## Journal tab
+The last events of the network's autocrafting, newest first, with how long ago they happened (`s`/`m`/`h`); use `^` / `v` to page through the 30 most recent. Entries of the same kind for the same item that follow one another closely are merged into one row (`x12`). Event types:
+- **Ordered** — an order was accepted into the queue (sub-crafts get their own rows);
+- **Crafted** — an Assembler finished a craft;
+- **Machine started** — a Pattern Bus fed a craft into its machine;
+- **Stock order** / **Stock: cannot craft** — a stock rule placed an order, or newly failed to (the reason is shown by the rule's red `!`);
+- **Cancelled** — an order was cancelled from the Crafting tab.
+
+The journal keeps the last 60 events in memory and is cleared when the world is reloaded.
+
 ## Wireless Terminal slot
 Place a Wireless Terminal into the slot at the bottom to bind it to this network and charge it from the controller's energy buffer. The slot's contents drop when the controller is broken.

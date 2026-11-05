@@ -52,6 +52,13 @@ public class ControllerQueuePacket {
                 case TOGGLE_PAUSE -> controller.toggleQueuePaused(patternId);
                 case CANCEL -> {
                     if (controller.getGrid() != null) {
+                        com.simpleae.bytestorage.api.storage.IPatternStorage.PatternData cancelled =
+                                CraftingService.findPattern(controller.getGrid(), patternId);
+                        if (cancelled != null) {
+                            com.simpleae.bytestorage.util.NetworkJournal.log(controller.getGrid(),
+                                    com.simpleae.bytestorage.util.JournalLog.CANCELLED, cancelled.getOutput(),
+                                    Math.max(1, cancelled.getOutput().getCount()));
+                        }
                         CraftingService.cancel(controller.getGrid(), patternId);
                     }
                 }

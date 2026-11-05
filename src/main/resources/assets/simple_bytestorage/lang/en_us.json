@@ -259,5 +259,15 @@
   "gui.simple_bytestorage.provider.record.state.4": "Pattern saved to a free slot!",
   "gui.simple_bytestorage.provider.record.state.5": "No free pattern slot",
   "gui.simple_bytestorage.provider.record.state.6": "No machine next to the bus",
-  "gui.simple_bytestorage.provider.record.state.7": "Could not work out the recipe - try again"
+  "gui.simple_bytestorage.provider.record.state.7": "Could not work out the recipe - try again",
+  "gui.simple_bytestorage.controller.tab.journal": "Journal",
+  "gui.simple_bytestorage.controller.journal.empty": "Nothing has happened yet",
+  "gui.simple_bytestorage.controller.journal.newer": "Newer events",
+  "gui.simple_bytestorage.controller.journal.older": "Older events",
+  "gui.simple_bytestorage.journal.type.0": "Ordered",
+  "gui.simple_bytestorage.journal.type.1": "Crafted",
+  "gui.simple_bytestorage.journal.type.2": "Machine started",
+  "gui.simple_bytestorage.journal.type.3": "Stock order",
+  "gui.simple_bytestorage.journal.type.4": "Stock: cannot craft",
+  "gui.simple_bytestorage.journal.type.5": "Cancelled"
 }

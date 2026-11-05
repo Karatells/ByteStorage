@@ -41,7 +41,7 @@ public class ControllerMenu extends AbstractContainerMenu {
     public static final int GHOST_X = 10;
     public static final int BLACKLIST_Y = 54;
     public static final int PREFS_Y = 84;
-    public static final int PLAYER_INV_X = 47;
+    public static final int PLAYER_INV_X = 63;
     public static final int PLAYER_INV_Y = 188;
 
     private final NetworkControllerBlockEntity controller;

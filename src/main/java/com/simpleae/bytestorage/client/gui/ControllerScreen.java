@@ -21,8 +21,9 @@ import java.util.Locale;
 public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
 
     private static final NumberFormat FMT = NumberFormat.getInstance(Locale.US);
-    private static final String[] TABS = {"overview", "storage", "crafting", "recipes", "stock"};
+    private static final String[] TABS = {"overview", "storage", "crafting", "recipes", "stock", "journal"};
 
+    private static final int JOURNAL_TAB = 5;
     private static final int QUEUE_ROWS = 4;
     private static final int ROW_H = 14;
     private int tab = 0;
@@ -34,7 +35,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
 
     public ControllerScreen(ControllerMenu menu, Inventory inv, Component title) {
         super(menu, inv, title);
-        this.imageWidth = 256;
+        this.imageWidth = 288;
         this.imageHeight = 270;
     }
 
@@ -44,7 +45,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
         tabButtons.clear();
         for (int i = 0; i < TABS.length; i++) {
             final int index = i;
-            UiButton b = new UiButton(leftPos + 8 + i * 48, topPos + 20, 47, 14,
+            UiButton b = new UiButton(leftPos + 8 + i * 46, topPos + 20, 45, 14,
                     () -> Component.translatable("gui.simple_bytestorage.controller.tab." + TABS[index]),
                     UiButton.Icon.NONE, () -> { tab = index; menu.setTab(index); });
             tabButtons.add(b);
@@ -53,7 +54,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
         for (int r = 0; r < QUEUE_ROWS; r++) {
             final int row = r;
             int by = topPos + 42 + 14 + r * ROW_H - 2;
-            int bx = leftPos + 10 + 170;
+            int bx = leftPos + 10 + 202;
             rowButtons.add(new UiButton(bx, by, 12, 12, () -> Component.literal("+"), UiButton.Icon.NONE,
                     () -> queueAction(row, ControllerQueuePacket.PRIORITY_UP)).tooltip(Component.translatable("gui.simple_bytestorage.controller.queue.prio_up")));
             rowButtons.add(new UiButton(bx + 14, by, 12, 12, () -> Component.literal("-"), UiButton.Icon.NONE,
@@ -81,11 +82,17 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
                         + menu.getStockPage() * ControllerMenu.STOCK_ROWS + row).hasItem()));
             }
         }
-        pageButton = new UiButton(leftPos + 230, topPos + ControllerMenu.STOCK_Y + 1, 18, 14,
+        pageButton = new UiButton(leftPos + 262, topPos + ControllerMenu.STOCK_Y + 1, 18, 14,
                 () -> Component.literal(String.valueOf(menu.getStockPage() + 1)), UiButton.Icon.NONE,
                 () -> menu.setStockPage(1 - menu.getStockPage()))
                 .tooltip(Component.translatable("gui.simple_bytestorage.controller.stock.page"));
-        skipButton = new UiButton(leftPos + 10, topPos + 103, 232, 13,
+        journalUp = new UiButton(leftPos + 262, topPos + 44, 18, 14, () -> Component.literal("^"), UiButton.Icon.NONE,
+                () -> journalOffset = Math.max(0, journalOffset - JOURNAL_PAGE))
+                .tooltip(Component.translatable("gui.simple_bytestorage.controller.journal.newer"));
+        journalDown = new UiButton(leftPos + 262, topPos + 98, 18, 14, () -> Component.literal("v"), UiButton.Icon.NONE,
+                () -> journalOffset += JOURNAL_PAGE)
+                .tooltip(Component.translatable("gui.simple_bytestorage.controller.journal.older"));
+        skipButton = new UiButton(leftPos + 10, topPos + 103, 264, 13,
                 () -> Component.translatable(menu.isSkipDecompress() ? "gui.simple_bytestorage.controller.recipes.skip.on" : "gui.simple_bytestorage.controller.recipes.skip.off"),
                 UiButton.Icon.NONE, () -> {
                     if (this.minecraft != null && this.minecraft.gameMode != null) {
@@ -105,6 +112,9 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
             if (rowButtons.get(i).mouseClicked(mx, my, button)) {
                 return true;
             }
+        }
+        if (tab == JOURNAL_TAB && (journalUp.mouseClicked(mx, my, button) || journalDown.mouseClicked(mx, my, button))) {
+            return true;
         }
         if (tab == ControllerMenu.STOCK_TAB) {
             if (pageButton.mouseClicked(mx, my, button)) {
@@ -130,11 +140,17 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
             UiButton b = tabButtons.get(i);
             b.render(g, this.font, mouseX, mouseY);
             if (i == tab) {
-                g.fill(leftPos + 8 + i * 48, topPos + 34, leftPos + 55 + i * 48, topPos + 36, GuiStyle.ACCENT);
+                g.fill(leftPos + 8 + i * 46, topPos + 34, leftPos + 53 + i * 46, topPos + 36, GuiStyle.ACCENT);
             }
         }
         for (int i = 0; i < visibleRows() * 4; i++) {
             rowButtons.get(i).render(g, this.font, mouseX, mouseY);
+        }
+        if (tab == JOURNAL_TAB) {
+            journalUp.render(g, this.font, mouseX, mouseY);
+            journalDown.render(g, this.font, mouseX, mouseY);
+            journalUp.renderTooltip(g, this.font, mouseX, mouseY);
+            journalDown.renderTooltip(g, this.font, mouseX, mouseY);
         }
         if (tab == ControllerMenu.STOCK_TAB) {
             pageButton.render(g, this.font, mouseX, mouseY);
@@ -167,7 +183,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
     }
 
     private void text(GuiGraphics g, String s, int x, int y, int color) {
-        g.drawString(this.font, this.font.plainSubstrByWidth(s, 236), x, y, color, false);
+        g.drawString(this.font, this.font.plainSubstrByWidth(s, 268), x, y, color, false);
     }
 
     @Override
@@ -178,17 +194,18 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
         int led = s.state == 1 ? GuiStyle.LED_GOOD : (s.state == 2 ? GuiStyle.LED_BAD : GuiStyle.LED_WARN);
         GuiStyle.window(g, x, y, imageWidth, imageHeight, this.title, led);
 
-        GuiStyle.display(g, x + 6, y + 38, 244, 80);
+        GuiStyle.display(g, x + 6, y + 38, 276, 80);
         switch (tab) {
             case 0 -> drawOverview(g, s, x + 10, y + 42);
             case 1 -> drawStorage(g, s, x + 10, y + 42);
             case 2 -> drawCrafting(g, s, x + 10, y + 42);
             case 3 -> drawRecipes(g, x, y);
-            default -> drawStock(g, s, x, y);
+            case 4 -> drawStock(g, s, x, y);
+            default -> drawJournal(g, s, x + 10, y + 42);
         }
 
         // Слот привязки беспроводного терминала
-        GuiStyle.panel(g, x + 6, y + 120, 244, 26);
+        GuiStyle.panel(g, x + 6, y + 120, 276, 26);
         GuiStyle.menuSlot(g, x, y, menu.slots.get(0), GuiStyle.SLOT_CARD, GuiStyle.ACCENT);
         ItemStack w = menu.getWirelessStack();
         if (w.getItem() instanceof WirelessTerminalItem) {
@@ -202,7 +219,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
         }
 
         // Слот улучшения «Библиотека рецептов»
-        GuiStyle.panel(g, x + 6, y + 148, 244, 26);
+        GuiStyle.panel(g, x + 6, y + 148, 276, 26);
         GuiStyle.menuSlot(g, x, y, menu.slots.get(1), GuiStyle.SLOT_CARD, GuiStyle.TEXT_WARN);
         if (menu.getStats().libraryRecipes > 0) {
             text(g, Component.translatable("gui.simple_bytestorage.controller.library.active").getString(), x + 30, y + 152, GuiStyle.TEXT_GOOD);
@@ -214,6 +231,41 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
 
         GuiStyle.inventoryLabel(g, this.playerInventoryTitle, x + ControllerMenu.PLAYER_INV_X, y + ControllerMenu.PLAYER_INV_Y - 10);
         GuiStyle.playerSlots(g, x, y, menu.slots, ControllerMenu.PLAYER_START);
+    }
+
+    private static final int JOURNAL_PAGE = 5;
+    private int journalOffset = 0;
+    private UiButton journalUp;
+    private UiButton journalDown;
+
+    private static String formatAge(int seconds) {
+        if (seconds < 60) {
+            return seconds + "s";
+        }
+        return seconds < 3600 ? (seconds / 60) + "m" : (seconds / 3600) + "h";
+    }
+
+    private void drawJournal(GuiGraphics g, NetworkStats s, int x, int y) {
+        if (s.journal.isEmpty()) {
+            text(g, Component.translatable("gui.simple_bytestorage.controller.journal.empty").getString(), x, y + 4, GuiStyle.TEXT_MUTED);
+            return;
+        }
+        journalOffset = Math.max(0, Math.min(journalOffset, Math.max(0, s.journal.size() - JOURNAL_PAGE)));
+        for (int i = 0; i < JOURNAL_PAGE && journalOffset + i < s.journal.size(); i++) {
+            NetworkStats.JournalRow row = s.journal.get(journalOffset + i);
+            int cy = y + 2 + i * 14;
+            g.renderItem(row.item(), x, cy - 3);
+            int color = switch (row.type()) {
+                case 1 -> GuiStyle.TEXT_GOOD;
+                case 4 -> GuiStyle.TEXT_BAD;
+                case 5 -> GuiStyle.TEXT_WARN;
+                default -> GuiStyle.TEXT_LABEL;
+            };
+            text(g, Component.translatable("gui.simple_bytestorage.journal.type." + row.type()).getString()
+                    + " x" + n(row.amount()), x + 20, cy + 1, color);
+            String age = formatAge(row.ageSeconds());
+            g.drawString(this.font, age, x + 236 - this.font.width(age), cy + 1, GuiStyle.TEXT_MUTED, false);
+        }
     }
 
     private void drawStock(GuiGraphics g, NetworkStats s, int x, int y) {
@@ -264,7 +316,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
                 + "   " + Component.translatable("gui.simple_bytestorage.controller.nodes", s.nodeTotal).getString(), x, y, stateColor);
         text(g, Component.translatable("gui.simple_bytestorage.controller.energy").getString() + ": " + n(s.energy) + " / " + n(s.maxEnergy)
                 + " FE   (-" + n(s.drain) + " FE/t)", x, y + 11, GuiStyle.TEXT_TITLE);
-        GuiStyle.meter(g, x, y + 22, 232, 6, s.maxEnergy == 0 ? 0 : s.energy / (float) s.maxEnergy);
+        GuiStyle.meter(g, x, y + 22, 264, 6, s.maxEnergy == 0 ? 0 : s.energy / (float) s.maxEnergy);
         int row = y + 32;
         int shown = 0;
         for (NetworkStats.BlockCount b : s.blocks) {
@@ -281,7 +333,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
         float frac = s.capacityBytes == 0 ? 0 : s.usedBytes / (float) s.capacityBytes;
         text(g, Component.translatable("gui.simple_bytestorage.controller.disks").getString() + ": " + n(s.usedBytes) + " / " + n(s.capacityBytes)
                 + " B  (" + Math.round(frac * 100) + "%)  " + Component.translatable("gui.simple_bytestorage.controller.types", s.itemTypes).getString(), x, y, GuiStyle.TEXT_TITLE);
-        GuiStyle.meter(g, x, y + 11, 232, 6, frac);
+        GuiStyle.meter(g, x, y + 11, 264, 6, frac);
         int row = y + 21;
         int i = 0;
         for (NetworkStats.ItemCount ic : s.topItems) {

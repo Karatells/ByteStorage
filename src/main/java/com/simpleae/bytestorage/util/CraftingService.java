@@ -250,6 +250,7 @@ public final class CraftingService {
                 accepted++;
             }
             noteOrdered(grid, pattern.getId(), accepted);
+            NetworkJournal.log(grid, JournalLog.ORDER, pattern.getOutput(), accepted * Math.max(1, pattern.getOutput().getCount()));
             return accepted;
         }
 
@@ -276,6 +277,7 @@ public final class CraftingService {
             accepted += entry.getKey().enqueue(pattern.getId(), entry.getValue());
         }
         noteOrdered(grid, pattern.getId(), accepted);
+        NetworkJournal.log(grid, JournalLog.ORDER, pattern.getOutput(), accepted * Math.max(1, pattern.getOutput().getCount()));
         return accepted;
     }
 

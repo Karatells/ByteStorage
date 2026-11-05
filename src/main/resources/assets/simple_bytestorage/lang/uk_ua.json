@@ -259,5 +259,15 @@
   "gui.simple_bytestorage.provider.record.state.4": "Шаблон записано у вільний слот!",
   "gui.simple_bytestorage.provider.record.state.5": "Немає вільного слота для шаблону",
   "gui.simple_bytestorage.provider.record.state.6": "Поруч із шиною немає машини",
-  "gui.simple_bytestorage.provider.record.state.7": "Не вдалося визначити рецепт — повторіть"
+  "gui.simple_bytestorage.provider.record.state.7": "Не вдалося визначити рецепт — повторіть",
+  "gui.simple_bytestorage.controller.tab.journal": "Журнал",
+  "gui.simple_bytestorage.controller.journal.empty": "Поки що нічого не відбувалося",
+  "gui.simple_bytestorage.controller.journal.newer": "Новіші події",
+  "gui.simple_bytestorage.controller.journal.older": "Старіші події",
+  "gui.simple_bytestorage.journal.type.0": "Замовлено",
+  "gui.simple_bytestorage.journal.type.1": "Скрафчено",
+  "gui.simple_bytestorage.journal.type.2": "Запуск у машині",
+  "gui.simple_bytestorage.journal.type.3": "Замовлення за запасом",
+  "gui.simple_bytestorage.journal.type.4": "Запас: не скрафтити",
+  "gui.simple_bytestorage.journal.type.5": "Скасовано"
 }
