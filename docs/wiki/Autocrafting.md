@@ -52,3 +52,12 @@ Steps are ordered with dependencies first. If a plan has missing base materials 
 - Network online.
 - For crafting patterns: at least one [Assembler](Assembler) with a buffer cell.
 - For processing patterns: a [Pattern Bus](Pattern-Bus) holding the pattern, touching a machine.
+
+## Learning mode (Pattern Bus)
+Instead of encoding a processing pattern by hand you can let the bus **record** it:
+1. Place the machine next to the Pattern Bus and make sure the bus has a free pattern slot.
+2. Open the bus and press **Record a recipe**. (Put fuel/energy into the machine first, otherwise it is recorded as an ingredient.)
+3. Put the ingredients into the machine yourself, once, and let it finish one cycle.
+4. When the result appears, the bus writes a processing pattern (what the machine consumed → what it produced) into a free slot. No blank pattern is needed.
+
+While recording the bus does not move items by itself. A pattern holds a single output item; if the machine makes several products, the largest gain is used. Machines that take all ingredients at once and machines that consume one item per cycle both work, because the pattern is based on what disappeared when the result appeared.

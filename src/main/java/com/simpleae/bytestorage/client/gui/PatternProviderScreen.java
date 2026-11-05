@@ -14,14 +14,39 @@ public class PatternProviderScreen extends AbstractContainerScreen<PatternProvid
     public PatternProviderScreen(PatternProviderMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 176;
-        this.imageHeight = 170;
-        this.inventoryLabelY = 77;
+        this.imageHeight = 204;
+        this.inventoryLabelY = 111;
+    }
+
+    private UiButton recordButton;
+
+    @Override
+    protected void init() {
+        super.init();
+        recordButton = new UiButton(leftPos + 6, topPos + 78, 164, 14,
+                () -> Component.translatable(menu.getRecordState() >= 1 && menu.getRecordState() <= 3
+                        ? "gui.simple_bytestorage.provider.record.stop" : "gui.simple_bytestorage.provider.record.start"),
+                UiButton.Icon.NONE, () -> {
+                    if (this.minecraft != null && this.minecraft.gameMode != null) {
+                        this.minecraft.gameMode.handleInventoryButtonClick(menu.containerId, 0);
+                    }
+                }).tooltip(Component.translatable("gui.simple_bytestorage.provider.record.tip"));
+    }
+
+    @Override
+    public boolean mouseClicked(double mx, double my, int button) {
+        if (recordButton.mouseClicked(mx, my, button)) {
+            return true;
+        }
+        return super.mouseClicked(mx, my, button);
     }
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
+        recordButton.render(graphics, this.font, mouseX, mouseY);
+        recordButton.renderTooltip(graphics, this.font, mouseX, mouseY);
         this.renderTooltip(graphics, mouseX, mouseY);
     }
 
@@ -51,6 +76,14 @@ public class PatternProviderScreen extends AbstractContainerScreen<PatternProvid
         graphics.drawString(this.font,
                 Component.translatable("gui.simple_bytestorage.provider.queue", menu.getQueue()),
                 x + 10, y + 63, GuiStyle.TEXT_LABEL, false);
+
+        int rec = menu.getRecordState();
+        if (rec != 0) {
+            int color = rec == 4 ? GuiStyle.TEXT_GOOD : (rec >= 5 ? GuiStyle.TEXT_BAD : GuiStyle.TEXT_TITLE);
+            graphics.drawString(this.font, this.font.plainSubstrByWidth(
+                    Component.translatable("gui.simple_bytestorage.provider.record.state." + rec).getString(), 156),
+                    x + 10, y + 96, color, false);
+        }
 
         GuiStyle.inventoryLabel(graphics, this.playerInventoryTitle, x + 8, y + this.inventoryLabelY);
         GuiStyle.playerSlots(graphics, x, y, menu.slots, PatternProviderMenu.PLAYER_START);

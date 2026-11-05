@@ -235,8 +235,185 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
         provider.tick();
     }
 
+    // --- Режим записи («обучение») ---
+
+    public static final int REC_OFF = 0;
+    public static final int REC_WAITING = 1;   // ждём, пока игрок положит ингредиенты в машину
+    public static final int REC_LOADED = 2;    // ингредиенты положены, ждём начала работы
+    public static final int REC_PROCESSING = 3; // машина работает, ждём результат
+    public static final int REC_SAVED = 4;     // шаблон записан
+    public static final int REC_NO_SLOT = 5;   // нет свободного слота для шаблона
+    public static final int REC_NO_MACHINE = 6;
+    public static final int REC_FAILED = 7;    // не удалось определить рецепт
+
+    private int recState = REC_OFF;
+    private java.util.Map<String, Integer> recBase = new java.util.HashMap<>();
+    private java.util.Map<String, Integer> recPrev = new java.util.HashMap<>();
+    private java.util.Map<String, Integer> recStart = new java.util.HashMap<>();
+    private final java.util.Map<String, ItemStack> recSample = new java.util.HashMap<>();
+    private int recFinalizeIn = -1;
+
+    public int getRecordState() {
+        return recState;
+    }
+
+    public boolean isRecording() {
+        return recState >= REC_WAITING && recState <= REC_PROCESSING;
+    }
+
+    /** Включить/выключить запись. Пока идёт запись, шина не подаёт и не забирает предметы сама. */
+    public void toggleRecording() {
+        if (isRecording()) {
+            recState = REC_OFF;
+            return;
+        }
+        List<Machine> machines = findMachines();
+        if (machines.isEmpty()) {
+            recState = REC_NO_MACHINE;
+            return;
+        }
+        recSample.clear();
+        recBase = snapshot(machines);
+        recPrev = new java.util.HashMap<>(recBase);
+        recStart = new java.util.HashMap<>();
+        recFinalizeIn = -1;
+        recState = REC_WAITING;
+    }
+
+    private java.util.Map<String, Integer> snapshot(List<Machine> machines) {
+        java.util.Map<String, Integer> result = new java.util.HashMap<>();
+        for (Machine machine : machines) {
+            IItemHandler handler = machine.insertHandler();
+            if (handler == null) {
+                continue;
+            }
+            for (int i = 0; i < handler.getSlots(); i++) {
+                ItemStack stack = handler.getStackInSlot(i);
+                if (!stack.isEmpty()) {
+                    String key = com.simpleae.bytestorage.util.CraftingService.key(stack);
+                    result.merge(key, stack.getCount(), Integer::sum);
+                    recSample.putIfAbsent(key, stack.copyWithCount(1));
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Наблюдение за машиной: после того как игрок положил ингредиенты, момент первого уменьшения запоминается;
+     * когда появляется результат, расходом считается убыль предметов, а выходом — прирост.
+     */
+    private void recordTick() {
+        List<Machine> machines = findMachines();
+        machineCount = machines.size();
+        if (machines.isEmpty()) {
+            recState = REC_NO_MACHINE;
+            return;
+        }
+        java.util.Map<String, Integer> cur = snapshot(machines);
+        boolean decreased = false;
+        boolean increasedVsBase = false;
+        for (java.util.Map.Entry<String, Integer> e : recPrev.entrySet()) {
+            if (cur.getOrDefault(e.getKey(), 0) < e.getValue()) {
+                decreased = true;
+            }
+        }
+        for (java.util.Map.Entry<String, Integer> e : cur.entrySet()) {
+            if (e.getValue() > recBase.getOrDefault(e.getKey(), 0)) {
+                increasedVsBase = true;
+            }
+        }
+        switch (recState) {
+            case REC_WAITING -> {
+                if (decreased) {
+                    // игрок забрал предметы — начинаем с нового исходного состояния
+                    recBase = cur;
+                } else if (increasedVsBase) {
+                    recState = REC_LOADED;
+                }
+            }
+            case REC_LOADED -> {
+                if (decreased) {
+                    recStart = new java.util.HashMap<>(recPrev);
+                    recState = REC_PROCESSING;
+                }
+            }
+            case REC_PROCESSING -> {
+                if (recFinalizeIn < 0) {
+                    for (java.util.Map.Entry<String, Integer> e : cur.entrySet()) {
+                        if (e.getValue() > recStart.getOrDefault(e.getKey(), 0)) {
+                            recFinalizeIn = 4; // небольшая задержка: дождаться остальных результатов
+                            break;
+                        }
+                    }
+                } else if (--recFinalizeIn <= 0) {
+                    finishRecording(cur);
+                }
+            }
+            default -> {
+            }
+        }
+        recPrev = cur;
+    }
+
+    private void finishRecording(java.util.Map<String, Integer> cur) {
+        java.util.Map<String, Integer> consumed = new java.util.LinkedHashMap<>();
+        String outKey = null;
+        int outCount = 0;
+        for (java.util.Map.Entry<String, Integer> e : recStart.entrySet()) {
+            int now = cur.getOrDefault(e.getKey(), 0);
+            if (now < e.getValue()) {
+                consumed.put(e.getKey(), e.getValue() - now);
+            }
+        }
+        for (java.util.Map.Entry<String, Integer> e : cur.entrySet()) {
+            int gain = e.getValue() - recStart.getOrDefault(e.getKey(), 0);
+            if (gain > outCount && !consumed.containsKey(e.getKey())) {
+                outCount = gain;
+                outKey = e.getKey();
+            }
+        }
+        if (outKey == null || consumed.isEmpty() || consumed.size() > PatternData.GRID_SIZE) {
+            recState = REC_FAILED;
+            return;
+        }
+        ItemStack output = recSample.get(outKey).copyWithCount(outCount);
+        List<ItemStack> inputs = new ArrayList<>();
+        for (java.util.Map.Entry<String, Integer> e : consumed.entrySet()) {
+            ItemStack sample = recSample.get(e.getKey());
+            if (sample == null) {
+                recState = REC_FAILED;
+                return;
+            }
+            inputs.add(sample.copyWithCount(e.getValue()));
+        }
+        int free = -1;
+        for (int i = 0; i < SLOTS; i++) {
+            if (inventory.getStackInSlot(i).isEmpty()) {
+                free = i;
+                break;
+            }
+        }
+        if (free < 0) {
+            recState = REC_NO_SLOT;
+            return;
+        }
+        ItemStack pattern = new ItemStack(SimpleByteStorage.PATTERN_ITEM.get());
+        ((PatternItem) pattern.getItem()).program(pattern, PatternData.processing(output, inputs));
+        inventory.setStackInSlot(free, pattern);
+        setChanged();
+        recState = REC_SAVED;
+    }
+
     private void tick() {
-        if (level == null || level.isClientSide || ++tickCounter % CYCLE_TICKS != 0) {
+        if (level == null || level.isClientSide) {
+            return;
+        }
+        if (isRecording()) {
+            recordTick();
+            return;
+        }
+        if (++tickCounter % CYCLE_TICKS != 0) {
             return;
         }
         List<Machine> machines = findMachines();

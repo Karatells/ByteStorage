@@ -143,7 +143,7 @@
   "guide.simple_bytestorage.assembler.title": "Assembler",
   "guide.simple_bytestorage.assembler.body": "Crafts crafting-table patterns. Put any §bstorage cell§r in as its buffer: the Assembler copies the ingredients into it, crafts, and returns results to the network.\n\n§eSpeed cards§r: 4 upgrade slots. Time per craft = 40 / (1 + cards) ticks, minimum 4.\n\nIf it waits, the GUI shows why: no card, no resources, network offline/full.",
   "guide.simple_bytestorage.provider.title": "Pattern Bus",
-  "guide.simple_bytestorage.provider.body": "For machine crafts (furnace, smelter, and so on). Holds 9 processing patterns.\n\nPlace it §badjacent to the machine§r and connect it to the network. On an order it pushes the inputs into the machine and pulls finished products back from any side. Up to 16 jobs can be in flight; the queue is shown in the GUI.",
+  "guide.simple_bytestorage.provider.body": "For machine crafts (furnace, smelter, and so on). Holds 9 processing patterns.\n\nPlace it §badjacent to the machine§r and connect it to the network. On an order it pushes the inputs into the machine and pulls finished products back from any side. Up to 16 jobs can be in flight; the queue is shown in the GUI.\n\n§eLearning mode§r: press §fRecord a recipe§r, then run the recipe in the machine by hand once. The bus watches what the machine consumes and produces and writes a processing pattern into a free slot (no blank pattern needed). Put fuel or energy in beforehand. While recording the bus does not move items itself. One output item per pattern.",
   "guide.simple_bytestorage.iobus.title": "I/O Bus",
   "guide.simple_bytestorage.iobus.body": "Moves items between a neighbouring inventory and the network automatically.\n\n- §bImport§r: pulls from the inventory into the network (filter: empty = everything).\n- §bExport§r: keeps the listed items in the inventory; the count in a filter slot is the amount to keep.\n\nSwitch the mode with the button in the GUI.",
   "guide.simple_bytestorage.jei.title": "JEI integration",
@@ -249,5 +249,15 @@
   "gui.simple_bytestorage.controller.tab.stock": "Stock",
   "gui.simple_bytestorage.controller.stock.hint": "<- drop an item: keep at least N in stock",
   "gui.simple_bytestorage.controller.stock.page": "Rules 1-4 / 5-8",
-  "gui.simple_bytestorage.terminal.fav_hint": "Alt + click: favorite · @mod #tag >100 $craftable in search"
+  "gui.simple_bytestorage.terminal.fav_hint": "Alt + click: favorite · @mod #tag >100 $craftable in search",
+  "gui.simple_bytestorage.provider.record.start": "Record a recipe",
+  "gui.simple_bytestorage.provider.record.stop": "Stop recording",
+  "gui.simple_bytestorage.provider.record.tip": "Learning mode: put the machine next to the bus, press this, then run the recipe by hand once (put fuel/energy in first). The bus writes a processing pattern for you.",
+  "gui.simple_bytestorage.provider.record.state.1": "Recording: put the ingredients into the machine",
+  "gui.simple_bytestorage.provider.record.state.2": "Recording: waiting for the machine to start",
+  "gui.simple_bytestorage.provider.record.state.3": "Recording: waiting for the result",
+  "gui.simple_bytestorage.provider.record.state.4": "Pattern saved to a free slot!",
+  "gui.simple_bytestorage.provider.record.state.5": "No free pattern slot",
+  "gui.simple_bytestorage.provider.record.state.6": "No machine next to the bus",
+  "gui.simple_bytestorage.provider.record.state.7": "Could not work out the recipe - try again"
 }

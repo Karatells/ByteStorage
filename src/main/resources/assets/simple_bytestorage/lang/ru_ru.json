@@ -143,7 +143,7 @@
   "guide.simple_bytestorage.assembler.title": "Ассемблер",
   "guide.simple_bytestorage.assembler.body": "Крафтит шаблоны верстака. Вставь любую §bячейку хранения§r как буфер: Ассемблер копирует туда ингредиенты, крафтит и возвращает результат в сеть.\n\n§eКарты ускорения§r: 4 слота улучшений. Время крафта = 40 / (1 + карты) тиков, минимум 4.\n\nЕсли он ждёт, GUI показывает причину: нет карты, нет ресурсов, сеть выключена/заполнена.",
   "guide.simple_bytestorage.provider.title": "Шина шаблонов",
-  "guide.simple_bytestorage.provider.body": "Для крафтов в машинах (печь, плавильня и т.д.). Хранит 9 процессных шаблонов.\n\nСтавь §bвплотную к машине§r и подключай к сети. По заказу она вкладывает входы в машину и забирает готовое с любой стороны. Одновременно может идти до 16 заданий; очередь видна в GUI.",
+  "guide.simple_bytestorage.provider.body": "Для крафтов в машинах (печь, плавильня и т.д.). Хранит 9 процессных шаблонов.\n\nСтавь §bвплотную к машине§r и подключай к сети. По заказу она вкладывает входы в машину и забирает готовое с любой стороны. Одновременно может идти до 16 заданий; очередь видна в GUI.\n\n§eРежим обучения§r: нажмите §fЗаписать рецепт§r и один раз вручную прогоните рецепт в машине. Шина следит, что машина потратила и что выдала, и записывает процессный шаблон в свободный слот (пустой шаблон не нужен). Топливо или энергию подготовьте заранее. Во время записи шина сама предметы не двигает. В шаблоне один выходной предмет.",
   "guide.simple_bytestorage.iobus.title": "Шина ввода/вывода",
   "guide.simple_bytestorage.iobus.body": "Автоматически переносит предметы между соседним инвентарём и сетью.\n\n- §bИмпорт§r: забирает из инвентаря в сеть (фильтр: пусто = всё).\n- §bЭкспорт§r: поддерживает в инвентаре перечисленные предметы; число в слоте фильтра — сколько держать.\n\nРежим переключается кнопкой в GUI.",
   "guide.simple_bytestorage.jei.title": "Интеграция с JEI",
@@ -249,5 +249,15 @@
   "gui.simple_bytestorage.controller.tab.stock": "Запас",
   "gui.simple_bytestorage.controller.stock.hint": "<- положите предмет: держать запас не меньше N",
   "gui.simple_bytestorage.controller.stock.page": "Правила 1-4 / 5-8",
-  "gui.simple_bytestorage.terminal.fav_hint": "Alt + клик: избранное · @мод #тег >100 $craftable в поиске"
+  "gui.simple_bytestorage.terminal.fav_hint": "Alt + клик: избранное · @мод #тег >100 $craftable в поиске",
+  "gui.simple_bytestorage.provider.record.start": "Записать рецепт",
+  "gui.simple_bytestorage.provider.record.stop": "Остановить запись",
+  "gui.simple_bytestorage.provider.record.tip": "Режим обучения: поставьте машину рядом с шиной, нажмите это и один раз вручную прогоните рецепт (топливо/энергию подготовьте заранее). Шина сама запишет процессный шаблон.",
+  "gui.simple_bytestorage.provider.record.state.1": "Запись: положите ингредиенты в машину",
+  "gui.simple_bytestorage.provider.record.state.2": "Запись: ждём начала работы машины",
+  "gui.simple_bytestorage.provider.record.state.3": "Запись: ждём результат",
+  "gui.simple_bytestorage.provider.record.state.4": "Шаблон записан в свободный слот!",
+  "gui.simple_bytestorage.provider.record.state.5": "Нет свободного слота для шаблона",
+  "gui.simple_bytestorage.provider.record.state.6": "Рядом с шиной нет машины",
+  "gui.simple_bytestorage.provider.record.state.7": "Не удалось определить рецепт — повторите"
 }

@@ -24,7 +24,7 @@ public class PatternProviderMenu extends AbstractContainerMenu {
     public static final int PLAYER_END = PLAYER_START + 36;
     public static final int SLOTS_X = 8;
     public static final int SLOTS_Y = 24;
-    public static final int PLAYER_INV_Y = 88;
+    public static final int PLAYER_INV_Y = 122;
 
     private final PatternProviderBlockEntity provider;
     private final ContainerData data;
@@ -39,14 +39,15 @@ public class PatternProviderMenu extends AbstractContainerMenu {
         this.provider = provider;
 
         this.data = playerInventory.player.level().isClientSide
-                ? new SimpleContainerData(3)
+                ? new SimpleContainerData(4)
                 : new ContainerData() {
                     @Override
                     public int get(int index) {
                         return switch (index) {
                             case 0 -> provider.getPendingCrafts();
                             case 1 -> provider.getMachineCount();
-                            default -> provider.isOnline() ? 1 : 0;
+                            case 2 -> provider.isOnline() ? 1 : 0;
+                            default -> provider.getRecordState();
                         };
                     }
 
@@ -56,7 +57,7 @@ public class PatternProviderMenu extends AbstractContainerMenu {
 
                     @Override
                     public int getCount() {
-                        return 3;
+                        return 4;
                     }
                 };
         this.addDataSlots(this.data);
@@ -80,6 +81,19 @@ public class PatternProviderMenu extends AbstractContainerMenu {
 
     public int getMachines() {
         return data.get(1);
+    }
+
+    public int getRecordState() {
+        return data.get(3);
+    }
+
+    @Override
+    public boolean clickMenuButton(Player player, int id) {
+        if (id == 0 && !player.level().isClientSide && provider != null) {
+            provider.toggleRecording();
+            return true;
+        }
+        return false;
     }
 
     public boolean isOnline() {
