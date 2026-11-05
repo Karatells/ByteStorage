@@ -245,5 +245,8 @@
   "gui.simple_bytestorage.controller.queue.prio_up": "Raise priority (higher priority is crafted first)",
   "gui.simple_bytestorage.controller.queue.prio_down": "Lower priority",
   "gui.simple_bytestorage.controller.queue.pause": "Pause / resume this order (a craft already running finishes first)",
-  "gui.simple_bytestorage.controller.queue.cancel": "Cancel this order"
+  "gui.simple_bytestorage.controller.queue.cancel": "Cancel this order",
+  "gui.simple_bytestorage.controller.tab.stock": "Stock",
+  "gui.simple_bytestorage.controller.stock.hint": "<- drop an item: keep at least N in stock",
+  "gui.simple_bytestorage.controller.stock.page": "Rules 1-4 / 5-8"
 }

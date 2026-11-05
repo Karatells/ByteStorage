@@ -1,5 +1,6 @@
 package com.simpleae.bytestorage.client.gui;
 
+import com.simpleae.bytestorage.block.entity.NetworkControllerBlockEntity;
 import com.simpleae.bytestorage.item.WirelessTerminalItem;
 import com.simpleae.bytestorage.menu.ControllerMenu;
 import com.simpleae.bytestorage.network.packet.ControllerQueuePacket;
@@ -20,12 +21,14 @@ import java.util.Locale;
 public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
 
     private static final NumberFormat FMT = NumberFormat.getInstance(Locale.US);
-    private static final String[] TABS = {"overview", "storage", "crafting", "recipes"};
+    private static final String[] TABS = {"overview", "storage", "crafting", "recipes", "stock"};
 
     private static final int QUEUE_ROWS = 4;
     private static final int ROW_H = 14;
     private int tab = 0;
     private final List<UiButton> rowButtons = new ArrayList<>();
+    private final List<UiButton> stockButtons = new ArrayList<>();
+    private UiButton pageButton;
     private UiButton skipButton;
     private final List<UiButton> tabButtons = new ArrayList<>();
 
@@ -41,7 +44,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
         tabButtons.clear();
         for (int i = 0; i < TABS.length; i++) {
             final int index = i;
-            UiButton b = new UiButton(leftPos + 8 + i * 60, topPos + 20, 58, 14,
+            UiButton b = new UiButton(leftPos + 8 + i * 48, topPos + 20, 47, 14,
                     () -> Component.translatable("gui.simple_bytestorage.controller.tab." + TABS[index]),
                     UiButton.Icon.NONE, () -> { tab = index; menu.setTab(index); });
             tabButtons.add(b);
@@ -60,6 +63,28 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
             rowButtons.add(new UiButton(bx + 46, by, 12, 12, () -> Component.empty(), UiButton.Icon.CROSS,
                     () -> queueAction(row, ControllerQueuePacket.CANCEL)).tooltip(Component.translatable("gui.simple_bytestorage.controller.queue.cancel")));
         }
+        stockButtons.clear();
+        String[] labels = {"-100", "-10", "-1", "+1", "+10", "+100"};
+        for (int r = 0; r < ControllerMenu.STOCK_ROWS; r++) {
+            for (int a = 0; a < labels.length; a++) {
+                final int row = r;
+                final int action = a;
+                final String label = labels[a];
+                stockButtons.add(new UiButton(leftPos + 10 + 68 + a * 25, topPos + ControllerMenu.STOCK_Y + r * 18 + 1, 24, 14,
+                        () -> Component.literal(label), UiButton.Icon.NONE, () -> {
+                            int rule = menu.getStockPage() * ControllerMenu.STOCK_ROWS + row;
+                            if (this.minecraft != null && this.minecraft.gameMode != null) {
+                                this.minecraft.gameMode.handleInventoryButtonClick(menu.containerId,
+                                        ControllerMenu.STOCK_BUTTON_BASE + rule * ControllerMenu.STOCK_DELTAS.length + action);
+                            }
+                        }).enabledWhen(() -> menu.slots.get(ControllerMenu.STOCK_START
+                        + menu.getStockPage() * ControllerMenu.STOCK_ROWS + row).hasItem()));
+            }
+        }
+        pageButton = new UiButton(leftPos + 230, topPos + ControllerMenu.STOCK_Y + 1, 18, 14,
+                () -> Component.literal(String.valueOf(menu.getStockPage() + 1)), UiButton.Icon.NONE,
+                () -> menu.setStockPage(1 - menu.getStockPage()))
+                .tooltip(Component.translatable("gui.simple_bytestorage.controller.stock.page"));
         skipButton = new UiButton(leftPos + 10, topPos + 103, 232, 13,
                 () -> Component.translatable(menu.isSkipDecompress() ? "gui.simple_bytestorage.controller.recipes.skip.on" : "gui.simple_bytestorage.controller.recipes.skip.off"),
                 UiButton.Icon.NONE, () -> {
@@ -81,6 +106,16 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
                 return true;
             }
         }
+        if (tab == ControllerMenu.STOCK_TAB) {
+            if (pageButton.mouseClicked(mx, my, button)) {
+                return true;
+            }
+            for (UiButton b : stockButtons) {
+                if (b.mouseClicked(mx, my, button)) {
+                    return true;
+                }
+            }
+        }
         if (tab == ControllerMenu.RECIPES_TAB && skipButton.mouseClicked(mx, my, button)) {
             return true;
         }
@@ -95,11 +130,18 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
             UiButton b = tabButtons.get(i);
             b.render(g, this.font, mouseX, mouseY);
             if (i == tab) {
-                g.fill(leftPos + 8 + i * 60, topPos + 34, leftPos + 66 + i * 60, topPos + 36, GuiStyle.ACCENT);
+                g.fill(leftPos + 8 + i * 48, topPos + 34, leftPos + 55 + i * 48, topPos + 36, GuiStyle.ACCENT);
             }
         }
         for (int i = 0; i < visibleRows() * 4; i++) {
             rowButtons.get(i).render(g, this.font, mouseX, mouseY);
+        }
+        if (tab == ControllerMenu.STOCK_TAB) {
+            pageButton.render(g, this.font, mouseX, mouseY);
+            pageButton.renderTooltip(g, this.font, mouseX, mouseY);
+            for (UiButton b : stockButtons) {
+                b.render(g, this.font, mouseX, mouseY);
+            }
         }
         if (tab == ControllerMenu.RECIPES_TAB) {
             skipButton.render(g, this.font, mouseX, mouseY);
@@ -141,7 +183,8 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
             case 0 -> drawOverview(g, s, x + 10, y + 42);
             case 1 -> drawStorage(g, s, x + 10, y + 42);
             case 2 -> drawCrafting(g, s, x + 10, y + 42);
-            default -> drawRecipes(g, x, y);
+            case 3 -> drawRecipes(g, x, y);
+            default -> drawStock(g, s, x, y);
         }
 
         // Слот привязки беспроводного терминала
@@ -171,6 +214,35 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
 
         GuiStyle.inventoryLabel(g, this.playerInventoryTitle, x + ControllerMenu.PLAYER_INV_X, y + ControllerMenu.PLAYER_INV_Y - 10);
         GuiStyle.playerSlots(g, x, y, menu.slots, ControllerMenu.PLAYER_START);
+    }
+
+    private void drawStock(GuiGraphics g, NetworkStats s, int x, int y) {
+        int page = menu.getStockPage();
+        for (int row = 0; row < ControllerMenu.STOCK_ROWS; row++) {
+            int rule = page * ControllerMenu.STOCK_ROWS + row;
+            net.minecraft.world.inventory.Slot slot = menu.slots.get(ControllerMenu.STOCK_START + rule);
+            GuiStyle.menuSlot(g, x, y, slot, GuiStyle.SLOT_CARD);
+            if (slot.hasItem()) {
+                int color = switch (s.stockState[rule]) {
+                    case 1 -> GuiStyle.TEXT_GOOD;
+                    case 2 -> GuiStyle.TEXT_TITLE;
+                    case 3 -> GuiStyle.TEXT_BAD;
+                    default -> GuiStyle.TEXT_MUTED;
+                };
+                int ty = y + slot.y + 4;
+                String t = n(s.stockHave[rule]) + "/" + n(s.stockMin[rule]) + (s.stockState[rule] == 3 ? " !" : "");
+                g.drawString(this.font, this.font.plainSubstrByWidth(t, 62), x + 32, ty, color, false);
+            }
+        }
+        boolean anyEmpty = true;
+        for (int i = 0; i < NetworkControllerBlockEntity.STOCK_RULES; i++) {
+            if (menu.slots.get(ControllerMenu.STOCK_START + i).hasItem()) {
+                anyEmpty = false;
+            }
+        }
+        if (anyEmpty) {
+            text(g, Component.translatable("gui.simple_bytestorage.controller.stock.hint").getString(), x + 32, y + 48, GuiStyle.TEXT_MUTED);
+        }
     }
 
     private void drawRecipes(GuiGraphics g, int x, int y) {

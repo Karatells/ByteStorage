@@ -30,8 +30,14 @@ public class ControllerMenu extends AbstractContainerMenu {
     public static final int LIBRARY_Y = 152;
     public static final int BLACKLIST_START = 2;
     public static final int PREFS_START = BLACKLIST_START + NetworkControllerBlockEntity.RECIPE_SETTING_SLOTS;
-    public static final int PLAYER_START = PREFS_START + NetworkControllerBlockEntity.RECIPE_SETTING_SLOTS;
+    public static final int STOCK_START = PREFS_START + NetworkControllerBlockEntity.RECIPE_SETTING_SLOTS;
+    public static final int PLAYER_START = STOCK_START + NetworkControllerBlockEntity.STOCK_RULES;
     public static final int RECIPES_TAB = 3;
+    public static final int STOCK_TAB = 4;
+    public static final int STOCK_ROWS = 4;
+    public static final int STOCK_Y = 44;
+    public static final int[] STOCK_DELTAS = {-100, -10, -1, 1, 10, 100};
+    public static final int STOCK_BUTTON_BASE = 100;
     public static final int GHOST_X = 10;
     public static final int BLACKLIST_Y = 54;
     public static final int PREFS_Y = 84;
@@ -43,6 +49,7 @@ public class ControllerMenu extends AbstractContainerMenu {
     private int syncTimer = 0;
     private final Player inventoryPlayer;
     private int tab = 0;
+    private int stockPage = 0;
 
     public ControllerMenu(int containerId, Inventory playerInventory, FriendlyByteBuf extraData) {
         this(containerId, playerInventory,
@@ -78,6 +85,25 @@ public class ControllerMenu extends AbstractContainerMenu {
         });
         addGhostRow(controller.getRecipeBlacklist(), BLACKLIST_Y);
         addGhostRow(controller.getRecipePrefs(), PREFS_Y);
+        for (int i = 0; i < NetworkControllerBlockEntity.STOCK_RULES; i++) {
+            final int rule = i;
+            this.addSlot(new SlotItemHandler(controller.getStockItems(), i, GHOST_X, STOCK_Y + (i % STOCK_ROWS) * 18) {
+                @Override
+                public boolean mayPlace(@NotNull ItemStack stack) {
+                    return false;
+                }
+
+                @Override
+                public boolean mayPickup(Player p) {
+                    return false;
+                }
+
+                @Override
+                public boolean isActive() {
+                    return tab == STOCK_TAB && rule / STOCK_ROWS == stockPage;
+                }
+            });
+        }
         this.addDataSlot(new net.minecraft.world.inventory.DataSlot() {
             @Override
             public int get() {
@@ -126,6 +152,14 @@ public class ControllerMenu extends AbstractContainerMenu {
         return controller;
     }
 
+    public int getStockPage() {
+        return stockPage;
+    }
+
+    public void setStockPage(int page) {
+        this.stockPage = page;
+    }
+
     public int getTab() {
         return tab;
     }
@@ -143,6 +177,14 @@ public class ControllerMenu extends AbstractContainerMenu {
         if (id == 0 && !p.level().isClientSide && controller != null) {
             controller.setSkipDecompress(!controller.isSkipDecompress());
             return true;
+        }
+        if (id >= STOCK_BUTTON_BASE && !p.level().isClientSide && controller != null) {
+            int rule = (id - STOCK_BUTTON_BASE) / STOCK_DELTAS.length;
+            int action = (id - STOCK_BUTTON_BASE) % STOCK_DELTAS.length;
+            if (rule < NetworkControllerBlockEntity.STOCK_RULES) {
+                controller.changeStockMin(rule, STOCK_DELTAS[action]);
+                return true;
+            }
         }
         return false;
     }

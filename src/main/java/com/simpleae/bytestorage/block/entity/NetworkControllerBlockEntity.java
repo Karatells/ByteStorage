@@ -131,6 +131,88 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         setChanged();
     }
 
+    public static final int STOCK_RULES = 8;
+    public static final int STOCK_OFF = 0;
+    public static final int STOCK_OK = 1;
+    public static final int STOCK_CRAFTING = 2;
+    public static final int STOCK_FAILED = 3;
+    public static final int STOCK_MAX = 1_000_000;
+
+    /** Правила запаса: предмет (призрачный слот) + минимальное количество; сеть сама заказывает недостающее. */
+    private final ItemStackHandler stockItems = new ItemStackHandler(STOCK_RULES) {
+        @Override
+        protected void onContentsChanged(int slot) {
+            setChanged();
+        }
+    };
+    private final int[] stockMin = new int[STOCK_RULES];
+    private final int[] stockHave = new int[STOCK_RULES];
+    private final int[] stockState = new int[STOCK_RULES];
+
+    public ItemStackHandler getStockItems() {
+        return stockItems;
+    }
+
+    public int getStockMin(int rule) {
+        return stockMin[rule];
+    }
+
+    public int getStockHave(int rule) {
+        return stockHave[rule];
+    }
+
+    public int getStockState(int rule) {
+        return stockState[rule];
+    }
+
+    public void changeStockMin(int rule, int delta) {
+        if (rule < 0 || rule >= STOCK_RULES) {
+            return;
+        }
+        stockMin[rule] = Math.max(0, Math.min(STOCK_MAX, stockMin[rule] + delta));
+        setChanged();
+    }
+
+    /** Проверка правил запаса: недостающее заказывается как автокрафт (если такой заказ уже в очереди — ждём). */
+    private void runStockRules(IGrid grid) {
+        com.simpleae.bytestorage.api.storage.INetworkStorage storage = grid.getStorage();
+        if (storage == null) {
+            return;
+        }
+        java.util.Map<String, Integer> have = new java.util.HashMap<>();
+        for (ItemStack stack : storage.getAllItems()) {
+            have.merge(com.simpleae.bytestorage.util.CraftingService.key(stack), stack.getCount(), Integer::sum);
+        }
+        java.util.Set<String> queued = null;
+        for (int i = 0; i < STOCK_RULES; i++) {
+            ItemStack wanted = stockItems.getStackInSlot(i);
+            if (wanted.isEmpty() || stockMin[i] <= 0) {
+                stockState[i] = STOCK_OFF;
+                stockHave[i] = 0;
+                continue;
+            }
+            String key = com.simpleae.bytestorage.util.CraftingService.key(wanted);
+            int current = have.getOrDefault(key, 0);
+            stockHave[i] = current;
+            if (current >= stockMin[i]) {
+                stockState[i] = STOCK_OK;
+                continue;
+            }
+            if (queued == null) {
+                queued = new java.util.HashSet<>();
+                for (com.simpleae.bytestorage.util.CraftingService.QueueEntry e : com.simpleae.bytestorage.util.CraftingService.queue(grid)) {
+                    queued.add(com.simpleae.bytestorage.util.CraftingService.key(e.pattern.getOutput()));
+                }
+            }
+            if (queued.contains(key)) {
+                stockState[i] = STOCK_CRAFTING;
+                continue;
+            }
+            int got = com.simpleae.bytestorage.util.CraftingService.requestCraft(grid, wanted, stockMin[i] - current);
+            stockState[i] = got > 0 ? STOCK_CRAFTING : STOCK_FAILED;
+        }
+    }
+
     /** Пропускать «распаковку» (блок -> много предметов), если есть обратный рецепт. */
     private boolean skipDecompress = true;
 
@@ -302,6 +384,10 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
             return;
         }
 
+        if (controller.tickCounter % 60 == 30 && grid.getState().isActive()) {
+            controller.runStockRules(grid);
+        }
+
         int drain = grid.getTotalEnergyDrain();
         if (controller.energyStorage.getEnergyStored() >= drain) {
             controller.energyStorage.consumeInternalEnergy(drain);
@@ -385,6 +471,8 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         tag.put("RecipeBlacklist", recipeBlacklist.serializeNBT());
         tag.put("RecipePrefs", recipePrefs.serializeNBT());
         tag.putBoolean("SkipDecompress", skipDecompress);
+        tag.put("StockItems", stockItems.serializeNBT());
+        tag.putIntArray("StockMin", stockMin);
         CompoundTag prio = new CompoundTag();
         queuePriority.forEach(prio::putInt);
         tag.put("QueuePriority", prio);
@@ -410,6 +498,13 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         }
         if (tag.contains("RecipePrefs")) {
             recipePrefs.deserializeNBT(tag.getCompound("RecipePrefs"));
+        }
+        if (tag.contains("StockItems")) {
+            stockItems.deserializeNBT(tag.getCompound("StockItems"));
+        }
+        int[] mins = tag.getIntArray("StockMin");
+        for (int i = 0; i < Math.min(mins.length, STOCK_RULES); i++) {
+            stockMin[i] = mins[i];
         }
         queuePriority.clear();
         queuePaused.clear();

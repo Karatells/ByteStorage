@@ -60,6 +60,10 @@ public final class NetworkStats {
     public int busJobs;
     public int libraryRecipes; // 0 — Библиотека рецептов не установлена
 
+    public final int[] stockMin = new int[NetworkControllerBlockEntity.STOCK_RULES];
+    public final int[] stockHave = new int[NetworkControllerBlockEntity.STOCK_RULES];
+    public final int[] stockState = new int[NetworkControllerBlockEntity.STOCK_RULES];
+
     public final List<BlockCount> blocks = new ArrayList<>();
     public final List<DriveInfo> drives = new ArrayList<>();
     public final List<ItemCount> topItems = new ArrayList<>();
@@ -131,6 +135,11 @@ public final class NetworkStats {
             }
         }
 
+        for (int i = 0; i < NetworkControllerBlockEntity.STOCK_RULES; i++) {
+            s.stockMin[i] = controller.getStockMin(i);
+            s.stockHave[i] = controller.getStockHave(i);
+            s.stockState[i] = controller.getStockState(i);
+        }
         s.patterns = CraftingService.allPatterns(grid).size();
         s.libraryRecipes = RecipeLibrary.count(grid);
         for (CraftingService.QueueEntry entry : CraftingService.queue(grid)) {
@@ -174,6 +183,11 @@ public final class NetworkStats {
         buf.writeVarInt(buses);
         buf.writeVarInt(busJobs);
         buf.writeVarInt(libraryRecipes);
+        for (int i = 0; i < stockMin.length; i++) {
+            buf.writeVarInt(stockMin[i]);
+            buf.writeVarInt(stockHave[i]);
+            buf.writeVarInt(stockState[i]);
+        }
         buf.writeVarInt(blocks.size());
         for (BlockCount b : blocks) {
             buf.writeUtf(b.nameKey(), 128);
@@ -222,6 +236,11 @@ public final class NetworkStats {
         s.buses = buf.readVarInt();
         s.busJobs = buf.readVarInt();
         s.libraryRecipes = buf.readVarInt();
+        for (int i = 0; i < s.stockMin.length; i++) {
+            s.stockMin[i] = buf.readVarInt();
+            s.stockHave[i] = buf.readVarInt();
+            s.stockState[i] = buf.readVarInt();
+        }
         int n = buf.readVarInt();
         for (int i = 0; i < n; i++) {
             s.blocks.add(new BlockCount(buf.readUtf(128), buf.readVarInt()));

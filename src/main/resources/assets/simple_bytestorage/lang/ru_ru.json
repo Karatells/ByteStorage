@@ -245,5 +245,8 @@
   "gui.simple_bytestorage.controller.queue.prio_up": "Повысить приоритет (выше приоритет — крафтится раньше)",
   "gui.simple_bytestorage.controller.queue.prio_down": "Понизить приоритет",
   "gui.simple_bytestorage.controller.queue.pause": "Пауза / продолжить заказ (уже идущий крафт завершится)",
-  "gui.simple_bytestorage.controller.queue.cancel": "Отменить заказ"
+  "gui.simple_bytestorage.controller.queue.cancel": "Отменить заказ",
+  "gui.simple_bytestorage.controller.tab.stock": "Запас",
+  "gui.simple_bytestorage.controller.stock.hint": "<- положите предмет: держать запас не меньше N",
+  "gui.simple_bytestorage.controller.stock.page": "Правила 1-4 / 5-8"
 }

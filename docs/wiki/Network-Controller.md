@@ -21,5 +21,8 @@ Settings for the Recipe Library (they only matter while it is installed):
 - **Preferred ingredient variants** — 9 ghost slots. For ingredients with several options (tags), a listed item is used first, before "the item the network has the most of" (e.g. put Oak Planks so the network always crafts with oak).
 - **Skip "unpacking" recipes** (default ON) — hides single-ingredient recipes with more than one result when a reverse recipe exists (block -> 9 ingots), so the network never unpacks your blocks by itself.
 
+## Stock tab (stock rules)
+Keep items in stock without any scripting: up to **8 rules** (4 per page, button on the right switches pages). Drop an item on a ghost slot (it is not consumed) and set the minimum with the `-100 … +100` buttons. About every 3 seconds the Controller compares the amount stored in the network with the minimum; if it is lower, it orders the missing amount through autocrafting (same plan rules as a terminal order). While that item is already in the craft queue no second order is placed. The number shows `have/minimum`: green = stocked, blue = being crafted, red with `!` = it cannot be crafted right now (no pattern, missing ingredients or no free machine) — it is retried automatically. Rules are stored in the Controller.
+
 ## Wireless Terminal slot
 Place a Wireless Terminal into the slot at the bottom to bind it to this network and charge it from the controller's energy buffer. The slot's contents drop when the controller is broken.
