@@ -422,6 +422,8 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
         if (grid == null || !grid.getState().isActive() || grid.getStorage() == null) {
             return;
         }
+        // Шина заряжает соседние машины энергией сети (электропечь и т.п.)
+        com.simpleae.bytestorage.util.NetworkPower.feed(grid, level, worldPosition, CYCLE_TICKS);
         INetworkStorage storage = grid.getStorage();
 
         flushOverflow(storage);

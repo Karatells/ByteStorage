@@ -374,6 +374,27 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         return energyStorage.consumeInternalEnergy(Math.max(0, amount));
     }
 
+    /**
+     * Отдать энергию сети в подключённые машины (Шина Шаблонов, Энергоинтерфейс). Всегда оставляет запас на
+     * собственное потребление сети, чтобы машины не «обесточили» сеть.
+     */
+    public int drawSurplusEnergy(int amount) {
+        int drain = grid == null ? 0 : grid.getTotalEnergyDrain();
+        int reserve = Math.max(500, drain * 40);
+        int available = energyStorage.getEnergyStored() - reserve;
+        if (available <= 0 || amount <= 0) {
+            return 0;
+        }
+        return energyStorage.consumeInternalEnergy(Math.min(amount, available));
+    }
+
+    /** Вернуть в буфер энергию, которую машина не приняла. */
+    public void refundEnergy(int amount) {
+        if (amount > 0) {
+            energyStorage.setEnergy(energyStorage.getEnergyStored() + amount);
+        }
+    }
+
     public int getMaxEnergyStored() {
         return energyStorage.getMaxEnergyStored();
     }

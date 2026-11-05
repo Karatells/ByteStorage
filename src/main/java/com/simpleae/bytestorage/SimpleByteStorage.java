@@ -254,6 +254,21 @@ public class SimpleByteStorage {
             BLOCK_ENTITIES.register("io_bus",
                     () -> BlockEntityType.Builder.of(com.simpleae.bytestorage.block.entity.IoBusBlockEntity::new, IO_BUS_BLOCK.get()).build(null));
 
+    // --- 7e. Энергоинтерфейс (Energy Interface): заряжает соседние машины энергией сети ---
+    public static final RegistryObject<Block> ENERGY_PORT_BLOCK = BLOCKS.register("energy_port",
+            () -> new com.simpleae.bytestorage.block.EnergyPortBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .requiresCorrectToolForDrops()
+                    .strength(3.0F)
+                    .sound(SoundType.METAL)));
+
+    public static final RegistryObject<Item> ENERGY_PORT_BLOCK_ITEM = ITEMS.register("energy_port",
+            () -> new BlockItem(ENERGY_PORT_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistryObject<BlockEntityType<com.simpleae.bytestorage.block.entity.EnergyPortBlockEntity>> ENERGY_PORT_BLOCK_ENTITY =
+            BLOCK_ENTITIES.register("energy_port",
+                    () -> BlockEntityType.Builder.of(com.simpleae.bytestorage.block.entity.EnergyPortBlockEntity::new, ENERGY_PORT_BLOCK.get()).build(null));
+
     public static final RegistryObject<MenuType<com.simpleae.bytestorage.menu.IoBusMenu>> IO_BUS_MENU =
             MENU_TYPES.register("io_bus", () -> IForgeMenuType.create(com.simpleae.bytestorage.menu.IoBusMenu::new));
 
@@ -322,6 +337,7 @@ public class SimpleByteStorage {
                         output.accept(CABLE_BLOCK.get());
                         output.accept(PATTERN_PROVIDER_BLOCK.get());
                         output.accept(IO_BUS_BLOCK.get());
+                        output.accept(ENERGY_PORT_BLOCK.get());
                         output.accept(PATTERN_ITEM.get());
                         output.accept(SPEED_CARD.get());
                         output.accept(WIRELESS_TERMINAL.get());

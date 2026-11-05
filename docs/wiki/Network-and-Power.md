@@ -44,3 +44,6 @@ Cables carry the network over distance and cost no energy. Crafting 1 recipe giv
 ## Re-scan timing
 
 The network re-scans every 20 ticks. After placing or breaking a block, give it up to a second to join or leave the network.
+
+## Energy Interface
+A network block (recipe: Cable + Redstone + Gold Ingot, shapeless) with no GUI. Connect it to the network with cables and place it **next to a machine with an energy buffer**; every few ticks it charges the neighbouring machines with energy from the Controller's buffer (up to 1,000 FE/t per interface, only what the machine accepts). Network blocks next to it are not charged. It costs 1 FE/t of idle energy. The Controller always keeps a reserve (about 40 ticks of the network's own consumption, at least 500 FE) so that powering machines cannot turn the network offline. The Pattern Bus charges its own adjacent machines the same way.

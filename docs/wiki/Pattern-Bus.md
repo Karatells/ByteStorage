@@ -12,6 +12,9 @@ Runs **processing** patterns: crafts that happen in a machine such as a furnace,
 
 For each craft the provider takes the inputs from the network, pushes them into the adjacent machine, and later extracts the expected outputs from **any side** of the machine and sends them to the network.
 
+### Powering the machine
+The bus also **charges** adjacent machines that have an energy buffer (electric furnace, crusher, ...) with the network's energy (up to 1,000 FE/t, only as much as the machine accepts). The network always keeps a reserve for its own consumption, so machines cannot black it out. To power a machine that has no Pattern Bus next to it, use the [Energy Interface](Network-and-Power#energy-interface).
+
 | Property | Value |
 |---|---|
 | Pattern slots | 9 |
