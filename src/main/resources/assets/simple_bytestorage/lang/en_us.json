@@ -277,5 +277,7 @@
   "msg.simple_bytestorage.alert.stuck": "Crafting of %s is stuck: %s",
   "msg.simple_bytestorage.alert.storage_full": "the network storage is full",
   "msg.simple_bytestorage.order.missing_short": "missing %s x %s",
-  "gui.simple_bytestorage.journal.type.6": "Stuck"
+  "gui.simple_bytestorage.journal.type.6": "Stuck",
+  "gui.simple_bytestorage.journal.type.7": "Script",
+  "gui.simple_bytestorage.journal.type.8": "Script warning"
 }

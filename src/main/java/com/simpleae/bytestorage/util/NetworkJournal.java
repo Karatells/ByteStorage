@@ -14,6 +14,10 @@ public final class NetworkJournal {
     }
 
     public static void log(IGrid grid, int type, ItemStack stack, int amount) {
+        log(grid, type, stack, amount, "");
+    }
+
+    public static void log(IGrid grid, int type, ItemStack stack, int amount, String text) {
         if (grid == null || stack.isEmpty() || amount <= 0) {
             return;
         }
@@ -24,7 +28,7 @@ public final class NetworkJournal {
         }
         ResourceLocation id = ForgeRegistries.ITEMS.getKey(stack.getItem());
         if (id != null) {
-            controller.getJournal().add(level.getGameTime(), type, id.toString(), amount);
+            controller.getJournal().add(level.getGameTime(), type, id.toString(), amount, text);
         }
     }
 }

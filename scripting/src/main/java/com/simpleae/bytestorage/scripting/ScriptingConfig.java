@@ -13,6 +13,8 @@ public final class ScriptingConfig {
     public static final ForgeConfigSpec.BooleanValue ENABLED;
     public static final ForgeConfigSpec.BooleanValue OPS_ONLY;
     public static final ForgeConfigSpec.BooleanValue ALLOW_CRAFTING;
+    public static final ForgeConfigSpec.BooleanValue ALLOW_CONTROL;
+    public static final ForgeConfigSpec.BooleanValue ALLOW_ALERTS;
     public static final ForgeConfigSpec.IntValue MAX_SCRIPT_LENGTH;
     public static final ForgeConfigSpec.IntValue MIN_INTERVAL;
     public static final ForgeConfigSpec.IntValue MAX_INSTRUCTIONS;
@@ -30,6 +32,11 @@ public final class ScriptingConfig {
                 .define("opsOnly", false);
         ALLOW_CRAFTING = b.comment("Дозволити скриптам замовляти автокрафт (net.craft).")
                 .define("allowCrafting", true);
+        ALLOW_CONTROL = b.comment("Дозволити скриптам змінювати налаштування контролера: пріоритет/пауза/скасування замовлень (net.setPriority,",
+                        "net.pause, net.resume, net.cancel), правила запасу (stock.*) і налаштування рецептів (recipes.*).")
+                .define("allowControl", true);
+        ALLOW_ALERTS = b.comment("Дозволити скриптам надсилати попередження в чат власникам бездротових терміналів мережі (alert).")
+                .define("allowAlerts", true);
         MAX_SCRIPT_LENGTH = b.comment("Максимальна довжина скрипта в символах.")
                 .defineInRange("maxScriptLength", 8000, 100, 30000);
         MIN_INTERVAL = b.comment("Мінімальний інтервал між запусками tick() у тіках.")

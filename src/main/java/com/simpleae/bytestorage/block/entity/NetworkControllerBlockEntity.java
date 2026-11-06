@@ -124,6 +124,16 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         setChanged();
     }
 
+    public void setQueuePaused(String patternId, boolean paused) {
+        if (paused ? queuePaused.add(patternId) : queuePaused.remove(patternId)) {
+            setChanged();
+        }
+    }
+
+    public void setQueuePriority(String patternId, int value) {
+        changeQueuePriority(patternId, value - getQueuePriority(patternId));
+    }
+
     public void toggleQueuePaused(String patternId) {
         if (!queuePaused.remove(patternId)) {
             queuePaused.add(patternId);
@@ -233,6 +243,38 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
 
     public int getStockState(int rule) {
         return stockState[rule];
+    }
+
+    /** Задать правило запаса программно (скрипты): пустой предмет или minimum <= 0 очищает правило. */
+    public void setStockRule(int rule, ItemStack item, int minimum) {
+        if (rule < 0 || rule >= STOCK_RULES) {
+            return;
+        }
+        if (item.isEmpty() || minimum <= 0) {
+            stockItems.setStackInSlot(rule, ItemStack.EMPTY);
+            stockMin[rule] = 0;
+        } else {
+            stockItems.setStackInSlot(rule, item.copyWithCount(1));
+            stockMin[rule] = Math.min(STOCK_MAX, minimum);
+        }
+        stockState[rule] = STOCK_OFF;
+        stockFails[rule] = 0;
+        stockReason[rule] = null;
+        setChanged();
+    }
+
+    /** Предупреждение от скрипта: не чаще раза в 30 секунд на источник. */
+    public boolean scriptAlert(String sourceKey, net.minecraft.network.chat.Component message) {
+        if (level == null) {
+            return false;
+        }
+        long now = level.getGameTime();
+        Long last = alertTimes.get(sourceKey);
+        if (last != null && now - last < 600) {
+            return false;
+        }
+        alertTimes.put(sourceKey, now);
+        return com.simpleae.bytestorage.util.NetworkAlerts.notifyOwners(this, message) >= 0;
     }
 
     public void changeStockMin(int rule, int delta) {

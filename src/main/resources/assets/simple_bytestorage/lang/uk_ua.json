@@ -277,5 +277,7 @@
   "msg.simple_bytestorage.alert.stuck": "Крафт %s застряг: %s",
   "msg.simple_bytestorage.alert.storage_full": "сховище мережі заповнене",
   "msg.simple_bytestorage.order.missing_short": "не вистачає %s x %s",
-  "gui.simple_bytestorage.journal.type.6": "Застрягло"
+  "gui.simple_bytestorage.journal.type.6": "Застрягло",
+  "gui.simple_bytestorage.journal.type.7": "Скрипт",
+  "gui.simple_bytestorage.journal.type.8": "Попередження скрипту"
 }

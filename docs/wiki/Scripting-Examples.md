@@ -282,3 +282,97 @@ function tick() {
   if (ep) ep.push("minecraft:coal", 8);
 }
 ```
+
+## 17. Journal note when a resource runs low (journal)
+
+```js
+var warned = false;
+
+function tick() {
+  var iron = net.available("minecraft:iron_ingot");   // stored minus reserved
+  if (iron < 64 && !warned) {
+    journal.warn("Iron is low: " + iron, "minecraft:iron_ingot");
+    warned = true;
+  } else if (iron >= 128) {
+    warned = false;
+  }
+}
+```
+
+## 18. Stock rules managed by a script (stock)
+
+```js
+var wanted = {
+  "minecraft:iron_ingot": 256,
+  "minecraft:redstone": 128,
+  "minecraft:glass": 64
+};
+
+function tick() {
+  for (var id in wanted) {
+    stock.set(id, wanted[id]);   // creates the rule, or updates the minimum
+  }
+}
+```
+
+## 19. Save energy: pause bulk orders when the network is low on power (queue, energy)
+
+```js
+function tick() {
+  var e = net.energy();
+  if (!e) return;
+  var q = net.queue();
+  for (var i = 0; i < q.length; i++) {
+    if (q[i].id === "minecraft:iron_block") {
+      if (e.percent < 20) net.pause(q[i].id);
+      else if (e.percent > 50) net.resume(q[i].id);
+    }
+  }
+}
+```
+
+## 20. Tell the player why a craft is impossible (why, alert)
+
+```js
+function tick() {
+  var why = net.why("minecraft:piston", 8);
+  if (why && why.code === "missing") {
+    alert("Piston: missing " + why.count + " x " + why.id);
+  }
+}
+```
+
+## 21. Plan before ordering (plan)
+
+```js
+function tick() {
+  var p = net.plan("minecraft:hopper", 4);
+  if (p && p.ok) {
+    for (var i = 0; i < p.steps.length; i++) log(p.steps[i].id, "x" + p.steps[i].crafts);
+    net.craft("minecraft:hopper", 4);
+  }
+}
+```
+
+## 22. Recipe settings at startup (recipes)
+
+The top level runs once when the script is compiled, so it is a good place for one-time setup.
+
+```js
+recipes.block("minecraft:iron_block");        // never craft iron blocks automatically
+recipes.prefer("minecraft:oak_planks");       // use oak when a recipe accepts any planks
+recipes.skipUnpacking(true);
+
+function tick() {}
+```
+
+## 23. Journal summary of the order queue (queue, journal)
+
+```js
+function tick() {
+  var q = net.queue();
+  var total = 0;
+  for (var i = 0; i < q.length; i++) total += q[i].crafts;
+  if (total > 200) journal.write("Queue is long: " + total + " crafts");
+}
+```

@@ -36,6 +36,69 @@ Scripts are JavaScript (Rhino, interpreter mode). Most of ES5 and a good part of
 
 If the bus has no network storage available, methods that need it throw `network is offline` (which stops the bus).
 
+### Reservation, energy and statistics
+
+| Method | Returns | Description |
+|---|---|---|
+| `net.reserved(id)` | number | How many of the item are [reserved](Autocrafting#resource-reservation) for accepted orders. |
+| `net.available(id)` | number | Stored minus reserved: what terminals and new orders can still use. |
+| `net.totalReserved()` | number | All reserved items together. |
+| `net.energy()` | object | `{stored, max, percent}` of the Controller's energy buffer, or `null`. |
+| `net.stats()` | object | `{patterns, assemblers, assemblersBusy, patternBuses, busJobs, libraryRecipes, reserved}`. `libraryRecipes` is 0 without a Recipe Library. |
+
+### Planning (does not order anything)
+
+| Method | Returns | Description |
+|---|---|---|
+| `net.canCraft(id, n)` | boolean | `true` if an order of `n` items would be accepted by the planner. |
+| `net.why(id, n)` | object / `null` | `null` if the order is possible, otherwise `{code}` or `{code, id, count}`. Codes: `no_network`, `no_pattern`, `missing` (with the missing `id` and `count`), `no_assembler`, `no_card`, `no_pattern`. |
+| `net.plan(id, n)` | object / `null` | `null` if no pattern makes the item, otherwise `{ok, steps: [{id, crafts}], missing: [{id, count}]}` (sub-crafts first). |
+
+### Order queue
+
+| Method | Returns | Description |
+|---|---|---|
+| `net.queue()` | array | `[{id, crafts, active, priority, paused, eta, progress}]`: `eta` in seconds (0 = unknown), `progress` 0–100, `priority` -9…+9. |
+| `net.setPriority(id, p)` | number | Sets the priority of the queued orders producing `id`. Returns how many queue entries were changed. |
+| `net.pause(id)` / `net.resume(id)` | number | Pauses / resumes them (a craft that is already running finishes first). |
+| `net.cancel(id)` | number | Cancels them (written to the journal). |
+
+The four control methods can be disabled by the server (`allowControl`).
+
+### `stock` — stock rules
+
+The same rules as the Controller's **Stock** tab (8 rules).
+
+| Method | Returns | Description |
+|---|---|---|
+| `stock.list()` | array | `[{slot, id, min, have, state}]`; `state` is `"ok"`, `"crafting"`, `"failed"` or `"off"`. |
+| `stock.set(id, min)` | number | Creates the rule for the item (or changes the existing one). Returns its slot, or `-1` if all 8 rules are in use. `min = 0` removes it. |
+| `stock.clear(id)` | number | Removes the rules for the item; returns how many. |
+
+### `recipes` — Recipe Library settings
+
+The same settings as the Controller's **Recipes** tab (9 slots per list).
+
+| Method | Returns | Description |
+|---|---|---|
+| `recipes.blacklist()` / `recipes.preferred()` | array | Item ids on the recipe blacklist / the preferred ingredient list. |
+| `recipes.block(id)` / `recipes.unblock(id)` | boolean | Adds / removes the item on the blacklist (`false` = list full). |
+| `recipes.prefer(id)` / `recipes.unprefer(id)` | boolean | Same for the preferred ingredient variants. |
+| `recipes.skipUnpacking()` | boolean | Reads the "skip unpacking" switch. `recipes.skipUnpacking(true/false)` changes it and returns the new value. |
+
+These can be disabled by the server (`allowControl`).
+
+### `journal` and `alert`
+
+| Method | Returns | Description |
+|---|---|---|
+| `journal.write(text, [icon])` | boolean | Adds a line to the Controller's **Journal** tab (60 characters, optional item id as the icon, default paper). |
+| `journal.warn(text, [icon])` | boolean | Same, shown as a warning. |
+| `journal.read([n])` | array | The last `n` (default 10, max 30) entries, newest first: `[{type, id, count, age, text}]`. `age` is in seconds. `type` is one of `order`, `crafted`, `started`, `stock_order`, `stock_failed`, `cancelled`, `stuck`, `script`, `script_warn`. |
+| `alert(text)` | boolean | Sends a chat warning to every player who carries a Wireless Terminal bound to this network. Returns `false` if it was sent too recently (once per 30 s per bus). Can be disabled by the server (`allowAlerts`). |
+
+Identical consecutive journal lines from the same bus are merged into `x2`, `x3`, …
+
 ## `side(dir)` and `side(dir, id)`
 
 `dir` is one of `"down"`, `"up"`, `"north"`, `"south"`, `"west"`, `"east"`, relative to the Logic Bus the inventory is read from.
@@ -80,8 +143,9 @@ Every run of `tick()` gets a fresh budget:
 
 - **Instructions** and **wall-clock time**
 - **Items moved**
-- **API calls**: `side`, `buses`, `net.count/has/list/craft`, `ep.list/count/pull/push/move` each use one call. `ep.slots`, `net.usedBytes`, `net.freeBytes`, `log`, `time` are free.
+- **API calls**: `side`, `buses`, every `net.*` method except `usedBytes`/`freeBytes`, `stock.*`, `recipes.*`, `journal.*`, `alert`, `ep.list/count/pull/push/move` each use one call. `ep.slots`, `net.usedBytes`, `net.freeBytes`, `log`, `time` are free.
 - **Craft calls**: at most 4 `net.craft` calls per run.
+- **Journal writes**: at most 4 `journal.write/warn` calls per run; **alerts**: at most 1 `alert` per run.
 
 Exceeding a budget stops the bus with an error such as `instruction limit exceeded`. Items moved are clamped silently; `pull`/`push` simply return a smaller number once the item budget is used.
 
@@ -101,6 +165,8 @@ To avoid one-call memory bombs, `String.prototype.repeat`, `padStart`, `padEnd` 
 | `move(): first argument must be an endpoint from side()` | Wrong argument. |
 | `network is offline` | Network lost power or the bus is detached. |
 | `net.craft is disabled by the server admin` | `allowCrafting = false`. |
+| `… is disabled by the server admin` (`stock.set`, `net.pause`, `recipes.block`, `alert`, …) | `allowControl = false` or `allowAlerts = false`. |
+| `journal write limit exceeded` / `alert call limit exceeded` | Too many journal writes / alerts in one run. |
 | `instruction limit exceeded` / `time limit exceeded` | Script used too much CPU. |
 | `API call limit exceeded` / `craft call limit exceeded` | Too many calls in one run. |
 

@@ -304,32 +304,54 @@ public final class CraftingService {
         return accepted;
     }
 
+    /** Причина, по которой заказ невозможен: ключ сообщения (msg.simple_bytestorage.order.*), предмет и количество (для «не хватает»). */
+    public record Diagnosis(String key, ItemStack item, int count) {
+        public net.minecraft.network.chat.Component message() {
+            return item.isEmpty()
+                    ? net.minecraft.network.chat.Component.translatable(key)
+                    : net.minecraft.network.chat.Component.translatable(key, count, item.getHoverName());
+        }
+
+        /** Короткий код для скриптов: no_network, no_pattern, missing, no_assembler, no_card, queue_full. */
+        public String code() {
+            return key.substring(key.lastIndexOf('.') + 1);
+        }
+    }
+
     /**
-     * Почему заказ предмета сейчас невозможен (без постановки в очередь): сообщение или null, если заказ возможен.
-     * Используется правилами запаса и предупреждениями.
+     * Почему заказ предмета сейчас невозможен (без постановки в очередь) или null, если возможен.
+     * Используется правилами запаса, предупреждениями и скриптами.
      */
     @Nullable
-    public static net.minecraft.network.chat.Component diagnose(IGrid grid, ItemStack output, int amount) {
+    public static Diagnosis diagnoseOrder(IGrid grid, ItemStack output, int amount) {
         if (grid == null || !grid.getState().isActive()) {
-            return net.minecraft.network.chat.Component.translatable("msg.simple_bytestorage.order.no_network");
+            return new Diagnosis("msg.simple_bytestorage.order.no_network", ItemStack.EMPTY, 0);
         }
         PatternData found = findPatternForOutput(grid, output);
         if (found == null) {
-            return net.minecraft.network.chat.Component.translatable("msg.simple_bytestorage.order.no_pattern");
+            return new Diagnosis("msg.simple_bytestorage.order.no_pattern", ItemStack.EMPTY, 0);
         }
         int perCraft = Math.max(1, found.getOutput().getCount());
-        int crafts = Math.max(1, Math.min(MAX_CRAFTS, (amount + perCraft - 1) / perCraft));
+        int crafts = Math.max(1, Math.min(MAX_CRAFTS, (Math.max(1, amount) + perCraft - 1) / perCraft));
         Plan plan = plan(grid, found, crafts);
         if (!plan.missing.isEmpty()) {
             ItemStack first = plan.missing.get(0);
-            return net.minecraft.network.chat.Component.translatable("msg.simple_bytestorage.order.missing",
-                    first.getCount(), first.getHoverName());
+            return new Diagnosis("msg.simple_bytestorage.order.missing", first.copyWithCount(1), first.getCount());
         }
         for (Step step : plan.steps) {
             String error = routeError(grid, step.pattern);
             if (error != null) {
-                return net.minecraft.network.chat.Component.translatable(error);
+                return new Diagnosis(error, ItemStack.EMPTY, 0);
             }
+        }
+        return null;
+    }
+
+    @Nullable
+    public static net.minecraft.network.chat.Component diagnose(IGrid grid, ItemStack output, int amount) {
+        Diagnosis d = diagnoseOrder(grid, output, amount);
+        if (d != null) {
+            return d.message();
         }
         return net.minecraft.network.chat.Component.translatable("msg.simple_bytestorage.order.queue_full");
     }

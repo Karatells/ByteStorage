@@ -70,7 +70,7 @@ public final class NetworkStats {
     public final List<ItemCount> topItems = new ArrayList<>();
     public final List<QueueRow> queue = new ArrayList<>();
     public static final int JOURNAL_ROWS = 30;
-    public record JournalRow(int type, ItemStack item, int amount, int ageSeconds) {
+    public record JournalRow(int type, ItemStack item, int amount, int ageSeconds, String text) {
     }
     public final List<JournalRow> journal = new ArrayList<>();
 
@@ -151,7 +151,7 @@ public final class NetworkStats {
             for (JournalLog.Entry e : controller.getJournal().latest(JOURNAL_ROWS)) {
                 Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(e.item()));
                 if (item != null) {
-                    s.journal.add(new JournalRow(e.type(), new ItemStack(item), e.amount(), (int) Math.max(0, (now - e.tick()) / 20)));
+                    s.journal.add(new JournalRow(e.type(), new ItemStack(item), e.amount(), (int) Math.max(0, (now - e.tick()) / 20), e.text()));
                 }
             }
         }
@@ -242,6 +242,7 @@ public final class NetworkStats {
             writeItem(buf, j.item());
             buf.writeVarInt(j.amount());
             buf.writeVarInt(j.ageSeconds());
+            buf.writeUtf(j.text(), JournalLog.MAX_TEXT);
         }
     }
 
@@ -287,7 +288,7 @@ public final class NetworkStats {
         }
         n = buf.readVarInt();
         for (int i = 0; i < n; i++) {
-            s.journal.add(new JournalRow(buf.readVarInt(), readItem(buf), buf.readVarInt(), buf.readVarInt()));
+            s.journal.add(new JournalRow(buf.readVarInt(), readItem(buf), buf.readVarInt(), buf.readVarInt(), buf.readUtf(JournalLog.MAX_TEXT)));
         }
         return s;
     }

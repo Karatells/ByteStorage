@@ -9,6 +9,8 @@
 | `enabled` | `true` | | Master switch. `false` stops every Logic Bus (the blocks stay in the world). |
 | `opsOnly` | `false` | | `true` = only operators (permission level 2+) and the owner of a single-player/LAN world can save, run, stop or change the interval. Everyone else gets a read-only terminal. |
 | `allowCrafting` | `true` | | Allows `net.craft`. |
+| `allowControl` | `true` | | Allows scripts to change Controller settings: order priority/pause/cancel (`net.setPriority`, `net.pause`, `net.resume`, `net.cancel`), stock rules (`stock.set/clear`) and recipe settings (`recipes.*` changes). Reading is always allowed. |
+| `allowAlerts` | `true` | | Allows `alert(text)` (chat warnings to owners of bound Wireless Terminals). |
 | `maxScriptLength` | `8000` | 100 – 30000 | Characters per script. |
 | `minInterval` | `10` | 1 – 1200 | Minimum ticks between runs. |
 | `maxInstructionsPerRun` | `50000` | 1000 – 5,000,000 | JS instruction budget per run. |

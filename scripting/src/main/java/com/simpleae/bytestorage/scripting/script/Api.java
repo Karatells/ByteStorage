@@ -1,5 +1,6 @@
 package com.simpleae.bytestorage.scripting.script;
 
+import com.simpleae.bytestorage.api.NetworkControl;
 import com.simpleae.bytestorage.api.network.IGrid;
 import com.simpleae.bytestorage.api.storage.INetworkStorage;
 import com.simpleae.bytestorage.scripting.ScriptingConfig;
@@ -96,6 +97,273 @@ final class Api {
             return Undefined.instance;
         }));
         ScriptableObject.putProperty(scope, "time", new Fn(scope, "time", (c, s, a) -> bus.level().getGameTime()));
+        installControl(cx);
+    }
+
+    // --- Керування мережею: журнал, черга, запас, рецепти, попередження ---
+
+    private static final String[] JOURNAL_TYPES = {"order", "crafted", "started", "stock_order", "stock_failed",
+            "cancelled", "stuck", "script", "script_warn"};
+    private static final String[] STOCK_STATES = {"off", "ok", "crafting", "failed"};
+
+    private void installControl(Context cx) {
+        Scriptable net = (Scriptable) ScriptableObject.getProperty(scope, "net");
+        // --- net: резерв, енергія, статистика ---
+        def(net, "reserved", (c, s, a) -> {
+            budget.spendCall();
+            return NetworkControl.reserved(bus.grid(), new ItemStack(requireItem(str(a, 0))));
+        });
+        def(net, "available", (c, s, a) -> {
+            budget.spendCall();
+            Item item = requireItem(str(a, 0));
+            long total = 0;
+            for (ItemStack stack : storage().getAllItems()) {
+                if (stack.getItem() == item) {
+                    total += stack.getCount();
+                }
+            }
+            return (double) Math.max(0, total - NetworkControl.reserved(bus.grid(), new ItemStack(item)));
+        });
+        def(net, "totalReserved", (c, s, a) -> {
+            budget.spendCall();
+            return NetworkControl.totalReserved(bus.grid());
+        });
+        def(net, "energy", (c, s, a) -> {
+            budget.spendCall();
+            NetworkControl.EnergyInfo e = NetworkControl.energy(bus.grid());
+            if (e == null) {
+                return null;
+            }
+            return obj(c, "stored", e.stored(), "max", e.max(), "percent", e.max() <= 0 ? 0 : e.stored() * 100 / e.max());
+        });
+        def(net, "stats", (c, s, a) -> {
+            budget.spendCall();
+            com.simpleae.bytestorage.util.NetworkStats st = NetworkControl.stats(bus.grid());
+            if (st == null) {
+                return null;
+            }
+            return obj(c, "patterns", st.patterns, "assemblers", st.assemblers, "assemblersBusy", st.assemblersBusy,
+                    "patternBuses", st.buses, "busJobs", st.busJobs, "libraryRecipes", st.libraryRecipes,
+                    "reserved", NetworkControl.totalReserved(bus.grid()));
+        });
+        // --- net: планування ---
+        def(net, "canCraft", (c, s, a) -> {
+            budget.spendCall();
+            return NetworkControl.canCraft(bus.grid(), new ItemStack(requireItem(str(a, 0))), Math.max(1, num(a, 1, 1)));
+        });
+        def(net, "why", (c, s, a) -> {
+            budget.spendCall();
+            com.simpleae.bytestorage.util.CraftingService.Diagnosis d =
+                    NetworkControl.why(bus.grid(), new ItemStack(requireItem(str(a, 0))), Math.max(1, num(a, 1, 1)));
+            if (d == null) {
+                return null;
+            }
+            return d.item().isEmpty() ? obj(c, "code", d.code()) : obj(c, "code", d.code(), "id", idOf(d.item()), "count", d.count());
+        });
+        def(net, "plan", (c, s, a) -> {
+            budget.spendCall();
+            NetworkControl.PlanInfo plan = NetworkControl.plan(bus.grid(), new ItemStack(requireItem(str(a, 0))), Math.max(1, num(a, 1, 1)));
+            if (plan == null) {
+                return null;
+            }
+            java.util.List<Object> steps = new java.util.ArrayList<>();
+            for (NetworkControl.StepInfo st : plan.steps()) {
+                steps.add(obj(c, "id", idOf(st.output()), "crafts", st.crafts()));
+            }
+            java.util.List<Object> missing = new java.util.ArrayList<>();
+            for (ItemStack m : plan.missing()) {
+                missing.add(obj(c, "id", idOf(m), "count", m.getCount()));
+            }
+            return obj(c, "ok", plan.ok(), "steps", c.newArray(scope, steps.toArray()), "missing", c.newArray(scope, missing.toArray()));
+        });
+        // --- net: черга замовлень ---
+        def(net, "queue", (c, s, a) -> {
+            budget.spendCall();
+            java.util.List<Object> out = new java.util.ArrayList<>();
+            for (NetworkControl.QueueInfo q : NetworkControl.queue(bus.grid())) {
+                out.add(obj(c, "id", idOf(q.output()), "crafts", q.crafts(), "active", q.active(), "priority", q.priority(),
+                        "paused", q.paused(), "eta", q.etaSeconds(), "progress", q.percent()));
+            }
+            return c.newArray(scope, out.toArray());
+        });
+        def(net, "setPriority", (c, s, a) -> queueAction(str(a, 0), (g, q) -> NetworkControl.setPriority(g, q.id(), (int) Context.toNumber(a.length > 1 ? a[1] : 0))));
+        def(net, "pause", (c, s, a) -> queueAction(str(a, 0), (g, q) -> NetworkControl.setPaused(g, q.id(), true)));
+        def(net, "resume", (c, s, a) -> queueAction(str(a, 0), (g, q) -> NetworkControl.setPaused(g, q.id(), false)));
+        def(net, "cancel", (c, s, a) -> queueAction(str(a, 0), (g, q) -> NetworkControl.cancel(g, q.id())));
+
+        // --- stock: правила запасу ---
+        Scriptable stock = cx.newObject(scope);
+        def(stock, "list", (c, s, a) -> {
+            budget.spendCall();
+            java.util.List<Object> out = new java.util.ArrayList<>();
+            for (NetworkControl.StockInfo r : NetworkControl.stockRules(bus.grid())) {
+                out.add(obj(c, "slot", r.slot(), "id", idOf(r.item()), "min", r.minimum(), "have", r.have(),
+                        "state", STOCK_STATES[Math.max(0, Math.min(STOCK_STATES.length - 1, r.state()))]));
+            }
+            return c.newArray(scope, out.toArray());
+        });
+        // set(id, min) — створює або змінює правило для предмета; повертає номер слота правила або -1, якщо вільних немає
+        def(stock, "set", (c, s, a) -> {
+            budget.spendCall();
+            requireControl("stock.set");
+            ItemStack item = new ItemStack(requireItem(str(a, 0)));
+            int min = num(a, 1, 0);
+            int free = -1;
+            int existing = -1;
+            java.util.Map<Integer, Boolean> used = new java.util.HashMap<>();
+            for (NetworkControl.StockInfo r : NetworkControl.stockRules(bus.grid())) {
+                used.put(r.slot(), true);
+                if (r.item().getItem() == item.getItem()) {
+                    existing = r.slot();
+                }
+            }
+            for (int i = 0; i < com.simpleae.bytestorage.block.entity.NetworkControllerBlockEntity.STOCK_RULES; i++) {
+                if (!used.containsKey(i)) {
+                    free = i;
+                    break;
+                }
+            }
+            int slot = existing >= 0 ? existing : free;
+            if (slot < 0 || !NetworkControl.setStockRule(bus.grid(), slot, item, min)) {
+                return -1;
+            }
+            return slot;
+        });
+        // clear(id) — видаляє правила для предмета; повертає, скільки видалено
+        def(stock, "clear", (c, s, a) -> {
+            budget.spendCall();
+            requireControl("stock.clear");
+            Item item = requireItem(str(a, 0));
+            int removed = 0;
+            for (NetworkControl.StockInfo r : NetworkControl.stockRules(bus.grid())) {
+                if (r.item().getItem() == item && NetworkControl.setStockRule(bus.grid(), r.slot(), ItemStack.EMPTY, 0)) {
+                    removed++;
+                }
+            }
+            return removed;
+        });
+        ScriptableObject.putProperty(scope, "stock", stock);
+
+        // --- recipes: налаштування Бібліотеки рецептів ---
+        Scriptable recipes = cx.newObject(scope);
+        def(recipes, "blacklist", (c, s, a) -> {
+            budget.spendCall();
+            return idArray(c, NetworkControl.recipeBlacklist(bus.grid()));
+        });
+        def(recipes, "preferred", (c, s, a) -> {
+            budget.spendCall();
+            return idArray(c, NetworkControl.recipePreferred(bus.grid()));
+        });
+        def(recipes, "block", (c, s, a) -> setGhost("recipes.block", a, true, true));
+        def(recipes, "unblock", (c, s, a) -> setGhost("recipes.unblock", a, true, false));
+        def(recipes, "prefer", (c, s, a) -> setGhost("recipes.prefer", a, false, true));
+        def(recipes, "unprefer", (c, s, a) -> setGhost("recipes.unprefer", a, false, false));
+        // skipUnpacking() — читає; skipUnpacking(true/false) — змінює
+        def(recipes, "skipUnpacking", (c, s, a) -> {
+            budget.spendCall();
+            if (a.length > 0 && a[0] != Undefined.instance) {
+                requireControl("recipes.skipUnpacking");
+                NetworkControl.setSkipUnpacking(bus.grid(), Context.toBoolean(a[0]));
+            }
+            return NetworkControl.isSkipUnpacking(bus.grid());
+        });
+        ScriptableObject.putProperty(scope, "recipes", recipes);
+
+        // --- journal: журнал контролера ---
+        Scriptable journal = cx.newObject(scope);
+        def(journal, "write", (c, s, a) -> journalWrite(a, false));
+        def(journal, "warn", (c, s, a) -> journalWrite(a, true));
+        def(journal, "read", (c, s, a) -> {
+            budget.spendCall();
+            int limit = Math.min(30, Math.max(1, num(a, 0, 10)));
+            java.util.List<Object> out = new java.util.ArrayList<>();
+            for (NetworkControl.JournalInfo e : NetworkControl.readJournal(bus.grid(), limit)) {
+                out.add(obj(c, "type", JOURNAL_TYPES[Math.max(0, Math.min(JOURNAL_TYPES.length - 1, e.type()))],
+                        "id", e.item(), "count", e.amount(), "age", e.ageSeconds(), "text", e.text()));
+            }
+            return c.newArray(scope, out.toArray());
+        });
+        ScriptableObject.putProperty(scope, "journal", journal);
+
+        // alert(text) — повідомлення в чат власникам бездротових терміналів (не частіше разу на 30 с з однієї шини)
+        ScriptableObject.putProperty(scope, "alert", new Fn(scope, "alert", (c, s, a) -> {
+            budget.spendCall();
+            if (!ScriptingConfig.ALLOW_ALERTS.get()) {
+                throw org.mozilla.javascript.ScriptRuntime.typeError("alert is disabled by the server admin");
+            }
+            if (--budget.alerts < 0) {
+                throw new ScriptBudgetExceeded("alert call limit exceeded");
+            }
+            String text = str(a, 0);
+            return text != null && NetworkControl.alert(bus.grid(), "bus:" + bus.pos().asLong(), trim(text, 120));
+        }));
+    }
+
+    private interface QueueOp {
+        boolean apply(IGrid grid, NetworkControl.QueueInfo entry);
+    }
+
+    private Object queueAction(String id, QueueOp op) {
+        budget.spendCall();
+        requireControl("queue control");
+        Item item = requireItem(id);
+        int affected = 0;
+        for (NetworkControl.QueueInfo q : NetworkControl.queue(bus.grid())) {
+            if (q.output().getItem() == item && op.apply(bus.grid(), q)) {
+                affected++;
+            }
+        }
+        return affected;
+    }
+
+    private Object setGhost(String what, Object[] a, boolean blacklist, boolean listed) {
+        budget.spendCall();
+        requireControl(what);
+        ItemStack item = new ItemStack(requireItem(str(a, 0)));
+        return blacklist ? NetworkControl.setBlacklisted(bus.grid(), item, listed) : NetworkControl.setPreferred(bus.grid(), item, listed);
+    }
+
+    private Object journalWrite(Object[] a, boolean warning) {
+        budget.spendCall();
+        if (--budget.journalWrites < 0) {
+            throw new ScriptBudgetExceeded("journal write limit exceeded");
+        }
+        String text = str(a, 0);
+        String icon = str(a, 1);
+        ItemStack stack = icon == null ? ItemStack.EMPTY : new ItemStack(requireItem(icon));
+        return text != null && NetworkControl.writeJournal(bus.grid(), trim(text, 60), stack, warning);
+    }
+
+    private static void requireControl(String what) {
+        if (!ScriptingConfig.ALLOW_CONTROL.get()) {
+            throw org.mozilla.javascript.ScriptRuntime.typeError(what + " is disabled by the server admin");
+        }
+    }
+
+    private static String trim(String s, int max) {
+        return s.length() > max ? s.substring(0, max) : s;
+    }
+
+    private static String idOf(ItemStack stack) {
+        ResourceLocation key = ForgeRegistries.ITEMS.getKey(stack.getItem());
+        return key == null ? "unknown" : key.toString();
+    }
+
+    private Scriptable idArray(Context cx, java.util.List<ItemStack> stacks) {
+        java.util.List<Object> out = new java.util.ArrayList<>();
+        for (ItemStack stack : stacks) {
+            out.add(idOf(stack));
+        }
+        return cx.newArray(scope, out.toArray());
+    }
+
+    /** Новий JS-об'єкт з пар «ім'я, значення». */
+    private Scriptable obj(Context cx, Object... pairs) {
+        Scriptable o = cx.newObject(scope);
+        for (int i = 0; i + 1 < pairs.length; i += 2) {
+            ScriptableObject.putProperty(o, (String) pairs[i], pairs[i + 1]);
+        }
+        return o;
     }
 
     private static Port portAt(BusContext ctx, Direction dir) {

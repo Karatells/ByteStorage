@@ -8,6 +8,8 @@ public final class Budget {
     public int items;
     public int calls;
     public int crafts = 4;
+    public int journalWrites = 4;
+    public int alerts = 1;
 
     public Budget(long maxOps, long maxMillis, int items, int calls) {
         this.maxOps = maxOps;

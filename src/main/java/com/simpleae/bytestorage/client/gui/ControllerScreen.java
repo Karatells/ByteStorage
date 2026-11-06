@@ -268,11 +268,15 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
             int color = switch (row.type()) {
                 case 1 -> GuiStyle.TEXT_GOOD;
                 case 4 -> GuiStyle.TEXT_BAD;
-                case 5, 6 -> GuiStyle.TEXT_WARN;
+                case 5, 6, 8 -> GuiStyle.TEXT_WARN;
+                case 7 -> GuiStyle.TEXT_TITLE;
                 default -> GuiStyle.TEXT_LABEL;
             };
-            text(g, Component.translatable("gui.simple_bytestorage.journal.type." + row.type()).getString()
-                    + " x" + n(row.amount()), x + 20, cy + 1, color);
+            String label = row.text().isEmpty()
+                    ? Component.translatable("gui.simple_bytestorage.journal.type." + row.type()).getString()
+                    : row.text();
+            text(g, this.font.plainSubstrByWidth(label, 190) + (row.amount() > 1 || row.text().isEmpty() ? " x" + n(row.amount()) : ""),
+                    x + 20, cy + 1, color);
             String age = formatAge(row.ageSeconds());
             g.drawString(this.font, age, x + 236 - this.font.width(age), cy + 1, GuiStyle.TEXT_MUTED, false);
         }
