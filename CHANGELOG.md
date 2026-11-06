@@ -4,6 +4,10 @@ All notable changes to the **Simple Byte Storage** mod will be documented in thi
 
 ## [Unreleased]
 
+## [1.2.0]
+
+Journal tab, resource reservation, machine power from the network, shortage warnings, and a much larger scripting API. Full notes: `docs/RELEASE_NOTES_1.2.0.md`.
+
 ### Added — 1.1.4.17 (Scripting + core API)
 - **Аддон скриптів оновлено під нові можливості**: `net.available/reserved/totalReserved`, `net.energy`, `net.stats`, планування `net.canCraft/why/plan`, керування чергою `net.queue/setPriority/pause/resume/cancel`, правила запасу `stock.list/set/clear`, налаштування рецептів `recipes.*`, журнал `journal.write/warn/read` (записи скриптів видно у вкладці «Журнал» контролера), чат-попередження `alert`. Нові опції конфігу `allowControl` і `allowAlerts`; нові ліміти на запуск (4 записи в журнал, 1 alert).
 - Ядро: стабільний API `com.simpleae.bytestorage.api.NetworkControl` для аддонів; журнал підтримує записи з текстом.
