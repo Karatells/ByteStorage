@@ -153,6 +153,16 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
             journalDown.renderTooltip(g, this.font, mouseX, mouseY);
         }
         if (tab == ControllerMenu.STOCK_TAB) {
+            NetworkStats st = menu.getStats();
+            for (int row = 0; row < ControllerMenu.STOCK_ROWS; row++) {
+                int rule = menu.getStockPage() * ControllerMenu.STOCK_ROWS + row;
+                int rx = leftPos + 10 + 22;
+                int ry = topPos + ControllerMenu.STOCK_Y + row * 18;
+                if (st.stockState[rule] == 3 && st.stockReason[rule] != null
+                        && mouseX >= rx && mouseX < rx + 46 && mouseY >= ry && mouseY < ry + 16) {
+                    g.renderTooltip(this.font, st.stockReason[rule], mouseX, mouseY);
+                }
+            }
             pageButton.render(g, this.font, mouseX, mouseY);
             pageButton.renderTooltip(g, this.font, mouseX, mouseY);
             for (UiButton b : stockButtons) {
@@ -258,7 +268,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
             int color = switch (row.type()) {
                 case 1 -> GuiStyle.TEXT_GOOD;
                 case 4 -> GuiStyle.TEXT_BAD;
-                case 5 -> GuiStyle.TEXT_WARN;
+                case 5, 6 -> GuiStyle.TEXT_WARN;
                 default -> GuiStyle.TEXT_LABEL;
             };
             text(g, Component.translatable("gui.simple_bytestorage.journal.type." + row.type()).getString()

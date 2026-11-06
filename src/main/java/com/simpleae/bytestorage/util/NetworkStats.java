@@ -63,6 +63,7 @@ public final class NetworkStats {
     public final int[] stockMin = new int[NetworkControllerBlockEntity.STOCK_RULES];
     public final int[] stockHave = new int[NetworkControllerBlockEntity.STOCK_RULES];
     public final int[] stockState = new int[NetworkControllerBlockEntity.STOCK_RULES];
+    public final net.minecraft.network.chat.Component[] stockReason = new net.minecraft.network.chat.Component[NetworkControllerBlockEntity.STOCK_RULES];
 
     public final List<BlockCount> blocks = new ArrayList<>();
     public final List<DriveInfo> drives = new ArrayList<>();
@@ -143,6 +144,7 @@ public final class NetworkStats {
             s.stockMin[i] = controller.getStockMin(i);
             s.stockHave[i] = controller.getStockHave(i);
             s.stockState[i] = controller.getStockState(i);
+            s.stockReason[i] = controller.getStockReason(i);
         }
         if (controller.getLevel() != null) {
             long now = controller.getLevel().getGameTime();
@@ -200,6 +202,10 @@ public final class NetworkStats {
             buf.writeVarInt(stockMin[i]);
             buf.writeVarInt(stockHave[i]);
             buf.writeVarInt(stockState[i]);
+            buf.writeBoolean(stockReason[i] != null);
+            if (stockReason[i] != null) {
+                buf.writeComponent(stockReason[i]);
+            }
         }
         buf.writeVarInt(blocks.size());
         for (BlockCount b : blocks) {
@@ -260,6 +266,7 @@ public final class NetworkStats {
             s.stockMin[i] = buf.readVarInt();
             s.stockHave[i] = buf.readVarInt();
             s.stockState[i] = buf.readVarInt();
+            s.stockReason[i] = buf.readBoolean() ? buf.readComponent() : null;
         }
         int n = buf.readVarInt();
         for (int i = 0; i < n; i++) {

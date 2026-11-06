@@ -154,6 +154,70 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
     private final int[] stockMin = new int[STOCK_RULES];
     private final int[] stockHave = new int[STOCK_RULES];
     private final int[] stockState = new int[STOCK_RULES];
+    private final int[] stockFails = new int[STOCK_RULES];
+    private final net.minecraft.network.chat.Component[] stockReason = new net.minecraft.network.chat.Component[STOCK_RULES];
+
+    /** Не чаще одного предупреждения на причину за 5 минут. */
+    private static final long ALERT_COOLDOWN = 6000;
+    private static final int ALERT_AFTER_FAILS = 3;
+    private static final int STUCK_AFTER_TICKS = 600;
+    private final java.util.Map<String, Long> alertTimes = new java.util.HashMap<>();
+    private final java.util.Map<Long, Integer> stuckTicks = new java.util.HashMap<>();
+
+    public net.minecraft.network.chat.Component getStockReason(int rule) {
+        return stockReason[rule];
+    }
+
+    private void alert(String key, net.minecraft.network.chat.Component message) {
+        if (level == null) {
+            return;
+        }
+        long now = level.getGameTime();
+        Long last = alertTimes.get(key);
+        if (last != null && now - last < ALERT_COOLDOWN) {
+            return;
+        }
+        alertTimes.put(key, now);
+        com.simpleae.bytestorage.util.NetworkAlerts.notifyOwners(this, message);
+    }
+
+    /** Раз в 3 секунды: машины, которые давно ждут ресурсы или место, попадают в журнал и в предупреждение. */
+    private void checkStuck(IGrid grid) {
+        java.util.Set<Long> waiting = new java.util.HashSet<>();
+        for (com.simpleae.bytestorage.api.network.IGridNode node : grid.getNodes()) {
+            if (!(node instanceof AssemblerBlockEntity assembler) || assembler.getPendingCrafts() <= 0) {
+                continue;
+            }
+            int reason = assembler.getWaitReason();
+            if (reason != AssemblerBlockEntity.WAIT_RESOURCES && reason != AssemblerBlockEntity.WAIT_NETWORK_FULL) {
+                continue;
+            }
+            long id = assembler.getBlockPos().asLong();
+            waiting.add(id);
+            int ticks = stuckTicks.merge(id, 60, Integer::sum);
+            if (ticks < STUCK_AFTER_TICKS) {
+                continue;
+            }
+            net.minecraft.network.chat.Component why = reason == AssemblerBlockEntity.WAIT_NETWORK_FULL
+                    ? net.minecraft.network.chat.Component.translatable("msg.simple_bytestorage.alert.storage_full")
+                    : assembler.describeMissing();
+            if (why == null) {
+                continue;
+            }
+            net.minecraft.world.item.ItemStack out = assembler.getCurrentOutput();
+            net.minecraft.network.chat.Component message = net.minecraft.network.chat.Component.translatable(
+                    "msg.simple_bytestorage.alert.stuck", out.isEmpty() ? "?" : out.getHoverName(), why);
+            String key = "stuck:" + id;
+            Long last = alertTimes.get(key);
+            if (last == null || level == null || level.getGameTime() - last >= ALERT_COOLDOWN) {
+                com.simpleae.bytestorage.util.NetworkJournal.log(grid, com.simpleae.bytestorage.util.JournalLog.STUCK,
+                        out, Math.max(1, assembler.getPendingCrafts()));
+            }
+            alert(key, message);
+        }
+        stuckTicks.keySet().retainAll(waiting);
+    }
+
 
     public ItemStackHandler getStockItems() {
         return stockItems;
@@ -195,6 +259,8 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
             if (wanted.isEmpty() || stockMin[i] <= 0) {
                 stockState[i] = STOCK_OFF;
                 stockHave[i] = 0;
+                stockFails[i] = 0;
+                stockReason[i] = null;
                 continue;
             }
             String key = com.simpleae.bytestorage.util.CraftingService.key(wanted);
@@ -202,6 +268,8 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
             stockHave[i] = current;
             if (current >= stockMin[i]) {
                 stockState[i] = STOCK_OK;
+                stockFails[i] = 0;
+                stockReason[i] = null;
                 continue;
             }
             if (queued == null) {
@@ -212,17 +280,28 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
             }
             if (queued.contains(key)) {
                 stockState[i] = STOCK_CRAFTING;
+                stockFails[i] = 0;
+                stockReason[i] = null;
                 continue;
             }
             int got = com.simpleae.bytestorage.util.CraftingService.requestCraft(grid, wanted, stockMin[i] - current);
             int previous = stockState[i];
             stockState[i] = got > 0 ? STOCK_CRAFTING : STOCK_FAILED;
             if (got > 0) {
+                stockFails[i] = 0;
+                stockReason[i] = null;
                 com.simpleae.bytestorage.util.NetworkJournal.log(grid, com.simpleae.bytestorage.util.JournalLog.STOCK_ORDER,
                         wanted, stockMin[i] - current);
-            } else if (previous != STOCK_FAILED) {
+                continue;
+            }
+            stockReason[i] = com.simpleae.bytestorage.util.CraftingService.diagnose(grid, wanted, stockMin[i] - current);
+            if (previous != STOCK_FAILED) {
                 com.simpleae.bytestorage.util.NetworkJournal.log(grid, com.simpleae.bytestorage.util.JournalLog.STOCK_FAILED,
                         wanted, stockMin[i] - current);
+            }
+            if (++stockFails[i] >= ALERT_AFTER_FAILS && stockReason[i] != null) {
+                alert("stock:" + i, net.minecraft.network.chat.Component.translatable("msg.simple_bytestorage.alert.stock",
+                        wanted.getHoverName(), stockReason[i]));
             }
         }
     }
@@ -424,6 +503,9 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
                 && com.simpleae.bytestorage.util.CraftingService.queue(grid).isEmpty()) {
             // очередь пуста — резервы больше ни за чем не стоят (заказы завершены, отменены или потеряны)
             grid.getStorage().clearReservations();
+        }
+        if (controller.tickCounter % 60 == 45 && grid.getState().isActive()) {
+            controller.checkStuck(grid);
         }
         if (controller.tickCounter % 60 == 30 && grid.getState().isActive()) {
             controller.runStockRules(grid);

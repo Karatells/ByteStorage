@@ -32,6 +32,12 @@ The last events of the network's autocrafting, newest first, with how long ago t
 - **Stock order** / **Stock: cannot craft** — a stock rule placed an order, or newly failed to (the reason is shown by the rule's red `!`);
 - **Cancelled** — an order was cancelled from the Crafting tab.
 
+## Warnings
+The network tells you when something does not work, instead of failing silently:
+- **Stock rules:** hover the red `have/minimum` text of a failing rule to see **why** it cannot be crafted (no pattern, missing ingredients with the amount, no machine, queues full). After 3 failed attempts in a row (~10 s) a chat warning is sent.
+- **Stuck machines:** an Assembler that has been waiting for ingredients or for free network storage for more than 30 seconds is reported (journal type **Stuck** and a chat warning naming the item and what is missing).
+- Warnings go to every player who has a Wireless Terminal bound to this Controller in their inventory, with the Controller's coordinates. The same warning repeats at most once per 5 minutes.
+
 The journal keeps the last 60 events in memory and is cleared when the world is reloaded.
 
 ## Wireless Terminal slot

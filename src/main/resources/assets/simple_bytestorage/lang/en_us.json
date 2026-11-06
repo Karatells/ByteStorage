@@ -271,5 +271,11 @@
   "gui.simple_bytestorage.journal.type.4": "Stock: cannot craft",
   "gui.simple_bytestorage.journal.type.5": "Cancelled",
   "block.simple_bytestorage.energy_port": "Energy Interface",
-  "item.simple_bytestorage.energy_port": "Energy Interface"
+  "item.simple_bytestorage.energy_port": "Energy Interface",
+  "msg.simple_bytestorage.alert": "[Network %s, %s, %s] %s",
+  "msg.simple_bytestorage.alert.stock": "Stock rule: cannot craft %s - %s",
+  "msg.simple_bytestorage.alert.stuck": "Crafting of %s is stuck: %s",
+  "msg.simple_bytestorage.alert.storage_full": "the network storage is full",
+  "msg.simple_bytestorage.order.missing_short": "missing %s x %s",
+  "gui.simple_bytestorage.journal.type.6": "Stuck"
 }

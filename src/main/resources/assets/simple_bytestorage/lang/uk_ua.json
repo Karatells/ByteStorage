@@ -271,5 +271,11 @@
   "gui.simple_bytestorage.journal.type.4": "Запас: не скрафтити",
   "gui.simple_bytestorage.journal.type.5": "Скасовано",
   "block.simple_bytestorage.energy_port": "Енергоінтерфейс",
-  "item.simple_bytestorage.energy_port": "Енергоінтерфейс"
+  "item.simple_bytestorage.energy_port": "Енергоінтерфейс",
+  "msg.simple_bytestorage.alert": "[Мережа %s, %s, %s] %s",
+  "msg.simple_bytestorage.alert.stock": "Правило запасу: не вдається скрафтити %s - %s",
+  "msg.simple_bytestorage.alert.stuck": "Крафт %s застряг: %s",
+  "msg.simple_bytestorage.alert.storage_full": "сховище мережі заповнене",
+  "msg.simple_bytestorage.order.missing_short": "не вистачає %s x %s",
+  "gui.simple_bytestorage.journal.type.6": "Застрягло"
 }

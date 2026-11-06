@@ -260,6 +260,31 @@ public class AssemblerBlockEntity extends BlockEntity implements IGridNode, Menu
         return currentOutput;
     }
 
+    public int getWaitReason() {
+        return waitReason;
+    }
+
+    /** Чего не хватает текущему (первому) заданию — для предупреждений; null, если всё есть или заданий нет. */
+    @Nullable
+    public net.minecraft.network.chat.Component describeMissing() {
+        if (jobs.isEmpty() || grid == null || grid.getStorage() == null) {
+            return null;
+        }
+        PatternData pattern = com.simpleae.bytestorage.util.CraftingService.findPattern(grid, jobs.get(0).patternId);
+        if (pattern == null) {
+            return net.minecraft.network.chat.Component.translatable("msg.simple_bytestorage.order.no_pattern");
+        }
+        for (ItemStack input : pattern.getInputs()) {
+            ItemStack have = grid.getStorage().extractForCrafting(input, input.getCount(), true);
+            int got = have.isEmpty() ? 0 : have.getCount();
+            if (got < input.getCount()) {
+                return net.minecraft.network.chat.Component.translatable("msg.simple_bytestorage.order.missing_short",
+                        input.getCount() - got, input.getHoverName());
+            }
+        }
+        return null;
+    }
+
     public int getPendingCrafts() {
         int total = 0;
         for (Job job : jobs) {

@@ -15,7 +15,8 @@ public final class JournalLog {
     public static final int STOCK_ORDER = 3;  // правило запаса сделало заказ
     public static final int STOCK_FAILED = 4; // правило запаса не смогло заказать
     public static final int CANCELLED = 5;    // заказ отменён
-    public static final int TYPES = 6;
+    public static final int STUCK = 6;        // машина ждёт ресурсы/место слишком долго
+    public static final int TYPES = 7;
 
     public static final int MAX_ENTRIES = 60;
     public static final long MERGE_TICKS = 600;

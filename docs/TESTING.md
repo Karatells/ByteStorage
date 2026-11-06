@@ -62,6 +62,8 @@ Legend: **Expect** is the result that counts as a pass.
 - [ ] Both pages (rules 1-4 and 5-8) work; amount buttons clamp at 0.
 - [ ] Rules persist after reload; a rule with minimum 0 is ignored.
 
+- [ ] **Warnings:** a stock rule for an item with no pattern -> after ~10 s a chat warning (player carries a bound Wireless Terminal) and the tooltip over the red `!` names the reason; an Assembler waiting for missing ingredients > 30 s -> "Stuck" in the Journal + chat warning; warnings do not repeat more often than every 5 minutes.
+
 ## 7. Wireless Terminal and cards
 - [ ] Bind in the controller slot, charge from the controller; Shift+RMB opens settings; all tabs usable.
 - [ ] Auto-Transfer card: restock and pickup obey the whitelist/blacklist filter.

@@ -304,6 +304,36 @@ public final class CraftingService {
         return accepted;
     }
 
+    /**
+     * Почему заказ предмета сейчас невозможен (без постановки в очередь): сообщение или null, если заказ возможен.
+     * Используется правилами запаса и предупреждениями.
+     */
+    @Nullable
+    public static net.minecraft.network.chat.Component diagnose(IGrid grid, ItemStack output, int amount) {
+        if (grid == null || !grid.getState().isActive()) {
+            return net.minecraft.network.chat.Component.translatable("msg.simple_bytestorage.order.no_network");
+        }
+        PatternData found = findPatternForOutput(grid, output);
+        if (found == null) {
+            return net.minecraft.network.chat.Component.translatable("msg.simple_bytestorage.order.no_pattern");
+        }
+        int perCraft = Math.max(1, found.getOutput().getCount());
+        int crafts = Math.max(1, Math.min(MAX_CRAFTS, (amount + perCraft - 1) / perCraft));
+        Plan plan = plan(grid, found, crafts);
+        if (!plan.missing.isEmpty()) {
+            ItemStack first = plan.missing.get(0);
+            return net.minecraft.network.chat.Component.translatable("msg.simple_bytestorage.order.missing",
+                    first.getCount(), first.getHoverName());
+        }
+        for (Step step : plan.steps) {
+            String error = routeError(grid, step.pattern);
+            if (error != null) {
+                return net.minecraft.network.chat.Component.translatable(error);
+            }
+        }
+        return net.minecraft.network.chat.Component.translatable("msg.simple_bytestorage.order.queue_full");
+    }
+
     /** Бронює сировину плана за замовленням {@code orderId} (id шаблона-цели); вызывать после успешной постановки в очередь. */
     public static void reservePlan(IGrid grid, Plan plan, String orderId) {
         if (grid != null && grid.getStorage() != null && !plan.reserve.isEmpty()) {
