@@ -47,6 +47,8 @@ Legend: **Expect** is the result that counts as a pass.
 - [ ] Cancel removes the order and returns buffer contents to the network.
 - [ ] Priorities / pauses survive a world reload.
 
+- [ ] **Reservation:** order a large craft, then try to take its ingredients out by hand -> only the free remainder can be taken; a second order needing the same ingredients reports "missing" instead of stealing; cancelling the first releases them; after all crafts finish everything is extractable again.
+
 ## 5. Controller: recipes (needs the Recipe Library)
 - [ ] Library installed -> all crafting-table recipes are orderable from terminals; removed -> they disappear.
 - [ ] Blacklist: item in a ghost slot -> recipes producing it vanish from terminals/plans. Clear -> they return.

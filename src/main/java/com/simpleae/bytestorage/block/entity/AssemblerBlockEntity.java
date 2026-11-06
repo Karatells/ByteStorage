@@ -444,7 +444,7 @@ public class AssemblerBlockEntity extends BlockEntity implements IGridNode, Menu
 
         INetworkStorage storage = grid.getStorage();
         for (ItemStack input : pattern.getInputs()) {
-            ItemStack simulated = storage.extractItem(input, input.getCount(), true);
+            ItemStack simulated = storage.extractForCrafting(input, input.getCount(), true);
             if (simulated.isEmpty() || simulated.getCount() < input.getCount()) {
                 setWait(WAIT_RESOURCES);
                 return;
@@ -454,7 +454,7 @@ public class AssemblerBlockEntity extends BlockEntity implements IGridNode, Menu
         List<ItemStack> taken = new ArrayList<>();
         boolean ok = true;
         for (ItemStack input : pattern.getInputs()) {
-            ItemStack got = storage.extractItem(input, input.getCount(), false);
+            ItemStack got = storage.extractForCrafting(input, input.getCount(), false);
             if (!got.isEmpty()) {
                 taken.add(got);
             }

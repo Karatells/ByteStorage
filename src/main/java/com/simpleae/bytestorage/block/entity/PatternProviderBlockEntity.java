@@ -561,7 +561,7 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
             return false;
         }
         for (ItemStack input : pattern.getInputs()) {
-            ItemStack available = storage.extractItem(input, input.getCount(), true);
+            ItemStack available = storage.extractForCrafting(input, input.getCount(), true);
             if (available.isEmpty() || available.getCount() < input.getCount()) {
                 return false;
             }
@@ -573,7 +573,7 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
                 continue;
             }
             for (ItemStack input : pattern.getInputs()) {
-                ItemStack extracted = storage.extractItem(input, input.getCount(), false);
+                ItemStack extracted = storage.extractForCrafting(input, input.getCount(), false);
                 if (extracted.isEmpty()) {
                     continue;
                 }

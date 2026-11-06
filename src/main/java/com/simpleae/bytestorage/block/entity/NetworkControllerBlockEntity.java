@@ -419,6 +419,12 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
             return;
         }
 
+        if (controller.tickCounter % 60 == 15 && grid.getState().isActive() && grid.getStorage() != null
+                && grid.getStorage().getTotalReserved() > 0
+                && com.simpleae.bytestorage.util.CraftingService.queue(grid).isEmpty()) {
+            // очередь пуста — резервы больше ни за чем не стоят (заказы завершены, отменены или потеряны)
+            grid.getStorage().clearReservations();
+        }
         if (controller.tickCounter % 60 == 30 && grid.getState().isActive()) {
             controller.runStockRules(grid);
         }

@@ -61,3 +61,11 @@ Instead of encoding a processing pattern by hand you can let the bus **record** 
 4. When the result appears, the bus writes a processing pattern (what the machine consumed → what it produced) into a free slot. No blank pattern is needed.
 
 While recording the bus does not move items by itself. A pattern holds a single output item; if the machine makes several products, the largest gain is used. Machines that take all ingredients at once and machines that consume one item per cycle both work, because the pattern is based on what disappeared when the result appeared.
+
+## Resource reservation
+When an order is accepted, the **raw materials taken from the network storage** for it (not intermediate items made by sub-crafts) are **reserved**. Reserved items:
+- cannot be taken out by terminals, I/O Buses or the Wireless Terminal (the terminal simply shows less available);
+- are not counted when a *new* order is planned, so two orders can no longer both rely on the same iron;
+- are still used by the Assemblers and Pattern Buses for crafting, and the reservation shrinks as they take the items.
+
+Cancelling an order releases what is left of its reservation; when the whole craft queue is empty all reservations are cleared automatically. Reservations are not saved: after a world reload they are gone, while the queue itself remains. Intermediate items (e.g. sticks made for a pickaxe) are not reserved while they sit in the storage.

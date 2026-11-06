@@ -174,8 +174,63 @@ public class ByteStorageHandler implements INetworkStorage {
         return finalRemainder;
     }
 
+    // --- Резерв сировини під замовлення автокрафту ---
+
+    private final com.simpleae.bytestorage.util.ReservationLedger ledger = new com.simpleae.bytestorage.util.ReservationLedger();
+
+    @Override
+    public void reserve(String orderId, java.util.Map<String, Integer> amounts) {
+        ledger.reserve(orderId, amounts);
+    }
+
+    @Override
+    public void releaseReservation(String orderId) {
+        ledger.release(orderId);
+    }
+
+    @Override
+    public void clearReservations() {
+        ledger.clear();
+    }
+
+    @Override
+    public int getTotalReserved() {
+        return ledger.totalReserved();
+    }
+
+    @Override
+    public int getReserved(ItemStack stack) {
+        return ledger.reserved(com.simpleae.bytestorage.util.CraftingService.key(stack));
+    }
+
+    /** Звичайне вилучення (термінали, шини, бездротовий) не може зачепити зарезервоване. */
     @Override
     public ItemStack extractItem(ItemStack template, int count, boolean simulate) {
+        if (template.isEmpty() || count <= 0) {
+            return ItemStack.EMPTY;
+        }
+        int reserved = ledger.isEmpty() ? 0 : getReserved(template);
+        if (reserved > 0) {
+            ItemStack all = extractRaw(template, Integer.MAX_VALUE, true);
+            int free = all.isEmpty() ? 0 : all.getCount() - reserved;
+            if (free <= 0) {
+                return ItemStack.EMPTY;
+            }
+            count = Math.min(count, free);
+        }
+        return extractRaw(template, count, simulate);
+    }
+
+    @Override
+    public ItemStack extractForCrafting(ItemStack template, int count, boolean simulate) {
+        ItemStack result = extractRaw(template, count, simulate);
+        if (!simulate && !result.isEmpty() && !ledger.isEmpty()) {
+            ledger.consume(com.simpleae.bytestorage.util.CraftingService.key(template), result.getCount());
+        }
+        return result;
+    }
+
+    private ItemStack extractRaw(ItemStack template, int count, boolean simulate) {
         if (template.isEmpty() || count <= 0) {
             return ItemStack.EMPTY;
         }

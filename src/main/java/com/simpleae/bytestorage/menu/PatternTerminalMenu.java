@@ -281,6 +281,7 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
         if (rootAccepted <= 0) {
             serverPlayer.displayClientMessage(Component.translatable("msg.simple_bytestorage.order.queue_full"), true);
         } else {
+            CraftingService.reservePlan(grid, plan, root.getId());
             serverPlayer.displayClientMessage(Component.translatable("msg.simple_bytestorage.order.ok",
                     rootAccepted, root.getOutput().getHoverName()), true);
         }

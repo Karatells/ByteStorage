@@ -67,6 +67,35 @@ public interface INetworkStorage {
     ItemStack extractItem(Item item, int count, boolean simulate);
 
     /**
+     * Вилучення для автокрафту (Асемблер, Шина шаблонів): бере і з резерву замовлень, а не лише зі «вільного» залишку,
+     * та знімає вилучене з резерву.
+     */
+    default ItemStack extractForCrafting(ItemStack template, int count, boolean simulate) {
+        return extractItem(template, count, simulate);
+    }
+
+    /** Скільки предметів (за ключем {@code CraftingService.key}) зараз зарезервовано під замовлення. */
+    default int getReserved(ItemStack stack) {
+        return 0;
+    }
+
+    /** Зарезервувати сировину під замовлення (ключ предмета -> кількість). Резерв суммується за {@code orderId}. */
+    default void reserve(String orderId, java.util.Map<String, Integer> amounts) {
+    }
+
+    /** Зняти залишок резерву замовлення (скасування). */
+    default void releaseReservation(String orderId) {
+    }
+
+    default void clearReservations() {
+    }
+
+    /** Загальна кількість зарезервованих предметів (для відображення). */
+    default int getTotalReserved() {
+        return 0;
+    }
+
+    /**
      * Реєстрація накопичувача дисків (Drive) у віртуальному сховищі.
      */
     void attachDrive(IDriveHost drive);

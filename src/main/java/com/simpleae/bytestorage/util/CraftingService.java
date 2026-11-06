@@ -45,6 +45,9 @@ public final class CraftingService {
     public static final class Plan {
         public final List<Step> steps = new ArrayList<>();
         public final List<ItemStack> missing = new ArrayList<>();
+        /** Сировина, яку цей план бере з сховища (ключ предмета -> кількість): під неї замовлення бронює ресурси. */
+        public final Map<String, Integer> reserve = new LinkedHashMap<>();
+        private final Map<String, Integer> leftover = new HashMap<>();
 
         public boolean isOk() {
             return missing.isEmpty() && !steps.isEmpty();
@@ -115,6 +118,17 @@ public final class CraftingService {
         for (ItemStack stack : storage.getAllItems()) {
             available.merge(key(stack), stack.getCount(), Integer::sum);
         }
+        // Зарезервоване іншими замовленнями недоступне для нового плану
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (ItemStack stack : storage.getAllItems()) {
+            String k = key(stack);
+            if (seen.add(k)) {
+                int reserved = storage.getReserved(stack);
+                if (reserved > 0) {
+                    available.computeIfPresent(k, (key, have) -> Math.max(0, have - reserved));
+                }
+            }
+        }
         Map<String, PatternData> producers = new HashMap<>();
         for (PatternData pattern : allPatternsWithLibrary(grid)) {
             producers.putIfAbsent(key(pattern.getOutput()), pattern);
@@ -123,17 +137,17 @@ public final class CraftingService {
         Map<String, Step> steps = new LinkedHashMap<>();
         Deque<String> path = new ArrayDeque<>();
         int crafts = Math.max(1, Math.min(MAX_CRAFTS, amount));
-        expand(root, crafts, available, producers, steps, plan.missing, path);
+        expand(root, crafts, available, producers, steps, plan.missing, path, plan);
         plan.steps.addAll(steps.values());
         return plan;
     }
 
     private static void expand(PatternData pattern, int crafts, Map<String, Integer> available,
                                Map<String, PatternData> producers, Map<String, Step> steps,
-                               List<ItemStack> missing, Deque<String> path) {
+                               List<ItemStack> missing, Deque<String> path, Plan plan) {
         path.push(pattern.getId());
         for (ItemStack input : pattern.getInputs()) {
-            require(input, (long) input.getCount() * crafts, available, producers, steps, missing, path);
+            require(input, (long) input.getCount() * crafts, available, producers, steps, missing, path, plan);
         }
         path.pop();
         Step existing = steps.get(pattern.getId());
@@ -146,11 +160,19 @@ public final class CraftingService {
 
     private static void require(ItemStack template, long count, Map<String, Integer> available,
                                 Map<String, PatternData> producers, Map<String, Step> steps,
-                                List<ItemStack> missing, Deque<String> path) {
+                                List<ItemStack> missing, Deque<String> path, Plan plan) {
         String k = key(template);
         int have = available.getOrDefault(k, 0);
         long use = Math.min(have, count);
         available.put(k, (int) (have - use));
+        if (use > 0) {
+            // сначала тратятся излишки подкрафтов, и только остальное берётся из хранилища (его и бронируем)
+            int fromLeftover = (int) Math.min(plan.leftover.getOrDefault(k, 0), use);
+            plan.leftover.merge(k, -fromLeftover, Integer::sum);
+            if (use - fromLeftover > 0) {
+                plan.reserve.merge(k, (int) (use - fromLeftover), Integer::sum);
+            }
+        }
         long remaining = count - use;
         if (remaining <= 0) {
             return;
@@ -162,10 +184,11 @@ public final class CraftingService {
         }
         int perCraft = Math.max(1, producer.getOutput().getCount());
         int crafts = (int) Math.min(MAX_CRAFTS, (remaining + perCraft - 1) / perCraft);
-        expand(producer, crafts, available, producers, steps, missing, path);
+        expand(producer, crafts, available, producers, steps, missing, path, plan);
         long leftover = (long) crafts * perCraft - remaining;
         if (leftover > 0) {
             available.merge(k, (int) Math.min(Integer.MAX_VALUE, leftover), Integer::sum);
+            plan.leftover.merge(k, (int) Math.min(Integer.MAX_VALUE, leftover), Integer::sum);
         }
     }
 
@@ -281,6 +304,13 @@ public final class CraftingService {
         return accepted;
     }
 
+    /** Бронює сировину плана за замовленням {@code orderId} (id шаблона-цели); вызывать после успешной постановки в очередь. */
+    public static void reservePlan(IGrid grid, Plan plan, String orderId) {
+        if (grid != null && grid.getStorage() != null && !plan.reserve.isEmpty()) {
+            grid.getStorage().reserve(orderId, plan.reserve);
+        }
+    }
+
     // --- Стабільний API для аддонів ---
 
     /**
@@ -316,6 +346,9 @@ public final class CraftingService {
             if (step.pattern == found || step.pattern.getId().equals(found.getId())) {
                 accepted += got;
             }
+        }
+        if (accepted > 0) {
+            reservePlan(grid, plan, found.getId());
         }
         return accepted;
     }
@@ -394,6 +427,9 @@ public final class CraftingService {
 
     /** Скасувати всі замовлення шаблону в усіх машинах мережі. */
     public static void cancel(IGrid grid, String patternId) {
+        if (grid.getStorage() != null) {
+            grid.getStorage().releaseReservation(patternId);
+        }
         for (IGridNode node : grid.getNodes()) {
             if (node instanceof AssemblerBlockEntity assembler) {
                 assembler.cancelPattern(patternId);
@@ -475,6 +511,7 @@ public final class CraftingService {
         if (accepted <= 0) {
             return net.minecraft.network.chat.Component.translatable("msg.simple_bytestorage.order.queue_full");
         }
+        reservePlan(grid, plan, found.getId());
         return net.minecraft.network.chat.Component.translatable("msg.simple_bytestorage.order.ok",
                 accepted, found.getOutput().getHoverName());
     }
