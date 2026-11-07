@@ -46,3 +46,7 @@ Open a Terminal remotely — see [Wireless Terminal](Wireless-Terminal).
 ## Power
 
 Terminals need the network to be online (see [Network and Power](Network-and-Power)).
+
+## Item tooltip
+
+Hovering an item in a terminal shows how many are stored, how many of them are **reserved** for accepted orders, and how many are currently **in production** (queued or running crafts).

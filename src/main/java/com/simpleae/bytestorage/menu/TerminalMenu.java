@@ -115,6 +115,10 @@ public class TerminalMenu extends AbstractContainerMenu implements IGridMenu {
                             new SyncTerminalDataPacket(currentCap, currentUsed, storage.getAllItems()),
                             serverPlayer
                     );
+                    if (serverPlayer.tickCount % 20 == 0) {
+                        SimpleByteStoragePackets.sendToPlayer(new com.simpleae.bytestorage.network.packet.TerminalAvailabilityPacket(
+                                com.simpleae.bytestorage.util.TerminalAvailability.compute(grid)), serverPlayer);
+                    }
                 }
             }
         }

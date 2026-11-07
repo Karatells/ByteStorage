@@ -279,5 +279,7 @@
   "msg.simple_bytestorage.order.missing_short": "не вистачає %s x %s",
   "gui.simple_bytestorage.journal.type.6": "Застрягло",
   "gui.simple_bytestorage.journal.type.7": "Скрипт",
-  "gui.simple_bytestorage.journal.type.8": "Попередження скрипту"
+  "gui.simple_bytestorage.journal.type.8": "Попередження скрипту",
+  "gui.simple_bytestorage.terminal.reserved": "Зарезервовано під замовлення: %s",
+  "gui.simple_bytestorage.terminal.in_production": "У виробництві: %s"
 }

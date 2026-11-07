@@ -154,9 +154,19 @@ public class TerminalScreen extends AbstractContainerScreen<TerminalMenu> {
         } else {
             tooltip.add(Component.translatable("gui.simple_bytestorage.terminal.stored", FORMAT.format(stack.getCount()))
                     .withStyle(ChatFormatting.GOLD));
+            int reservedCount = com.simpleae.bytestorage.client.TerminalAvailabilityClient.reserved(stack);
+            if (reservedCount > 0) {
+                tooltip.add(Component.translatable("gui.simple_bytestorage.terminal.reserved", FORMAT.format(reservedCount))
+                        .withStyle(ChatFormatting.YELLOW));
+            }
             if (extras.isCraftable(stack)) {
                 tooltip.add(Component.translatable("gui.simple_bytestorage.terminal.craft_hint").withStyle(ChatFormatting.AQUA));
             }
+        }
+        int craftingCount = com.simpleae.bytestorage.client.TerminalAvailabilityClient.crafting(stack);
+        if (craftingCount > 0) {
+            tooltip.add(Component.translatable("gui.simple_bytestorage.terminal.in_production", FORMAT.format(craftingCount))
+                    .withStyle(ChatFormatting.GREEN));
         }
         tooltip.add(Component.translatable("gui.simple_bytestorage.terminal.hint")
                 .withStyle(ChatFormatting.DARK_GRAY, ChatFormatting.ITALIC));

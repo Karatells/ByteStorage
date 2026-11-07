@@ -14,7 +14,7 @@ import net.minecraftforge.network.simple.SimpleChannel;
  */
 public class SimpleByteStoragePackets {
 
-    private static final String PROTOCOL_VERSION = "9";
+    private static final String PROTOCOL_VERSION = "10";
     public static final SimpleChannel CHANNEL = NetworkRegistry.newSimpleChannel(
             new ResourceLocation(SimpleByteStorage.MOD_ID, "main"),
             () -> PROTOCOL_VERSION,
@@ -109,6 +109,12 @@ public class SimpleByteStoragePackets {
                 .decoder(PatternOrderPacket::new)
                 .encoder(PatternOrderPacket::encode)
                 .consumerMainThread(PatternOrderPacket::handle)
+                .add();
+
+        CHANNEL.messageBuilder(TerminalAvailabilityPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(TerminalAvailabilityPacket::new)
+                .encoder(TerminalAvailabilityPacket::encode)
+                .consumerMainThread(TerminalAvailabilityPacket::handle)
                 .add();
     }
 

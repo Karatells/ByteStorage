@@ -4,6 +4,9 @@ All notable changes to the **Simple Byte Storage** mod will be documented in thi
 
 ## [Unreleased]
 
+### Added — 1.2.1.19
+- **Terminal tooltips** show stored / reserved for orders / in production for the hovered item (Terminal and Crafting Terminal). New packet; network protocol is now 10.
+
 ### Added — 1.2.1.18
 - **Reservations survive world reloads**: reserved raw materials are saved with the Controller and restored on the first tick after loading. New unit test for the ledger snapshot.
 

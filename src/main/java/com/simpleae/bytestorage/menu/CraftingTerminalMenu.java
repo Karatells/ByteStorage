@@ -206,6 +206,10 @@ public class CraftingTerminalMenu extends AbstractContainerMenu implements IGrid
                             new SyncCraftingTerminalDataPacket(currentCap, currentUsed, storage.getAllItems()),
                             serverPlayer
                     );
+                    if (serverPlayer.tickCount % 20 == 0) {
+                        SimpleByteStoragePackets.sendToPlayer(new com.simpleae.bytestorage.network.packet.TerminalAvailabilityPacket(
+                                com.simpleae.bytestorage.util.TerminalAvailability.compute(grid)), serverPlayer);
+                    }
                 }
             }
         }

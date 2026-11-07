@@ -72,7 +72,7 @@ Legend: **Expect** is the result that counts as a pass.
 
 ## 8. Multiplayer / compatibility
 - [ ] Two players use the same terminal / controller GUI at the same time.
-- [ ] Client with a different mod version is refused (protocol 9).
+- [ ] Client with a different mod version is refused (protocol 10).
 - [ ] JEI installed: recipe transfer into the Crafting Terminal works; JEI absent: no crash.
 
 ## 9. Before the release
