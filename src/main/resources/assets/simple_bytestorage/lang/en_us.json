@@ -298,5 +298,8 @@
   "gui.simple_bytestorage.controller.history.nodata": "collecting data...",
   "gui.simple_bytestorage.search.slot.empty": "Empty slot: click to save the current search",
   "gui.simple_bytestorage.search.slot.use": "Click: use this search",
-  "gui.simple_bytestorage.search.slot.overwrite": "Right click: overwrite with the current search (or clear if the box is empty)"
+  "gui.simple_bytestorage.search.slot.overwrite": "Right click: overwrite with the current search (or clear if the box is empty)",
+  "block.simple_bytestorage.capacitor": "Capacitor",
+  "item.simple_bytestorage.capacitor": "Capacitor",
+  "msg.simple_bytestorage.capacitor": "Capacitor: %s / %s FE"
 }

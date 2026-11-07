@@ -4,6 +4,9 @@ All notable changes to the **Simple Byte Storage** mod will be documented in thi
 
 ## [Unreleased]
 
+### Added — 1.2.1.29
+- **Capacitor** block: a reserve energy store (500,000 FE) on the network. Refills the Controller below 50% (to 60%), absorbs surplus above 90% (to 85%), accepts energy from adjacent generators, right-click shows the charge. New unit tests `CapacitorLogicTest`.
+
 ### Changed — 1.2.1.28
 - **Controller screen layout**: the tabs moved from the top into a column on the left (guidebook style); the content, all slots and the player inventory are shifted right and the window is wider.
 

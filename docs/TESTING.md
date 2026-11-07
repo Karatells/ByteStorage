@@ -70,6 +70,12 @@ Legend: **Expect** is the result that counts as a pass.
 - [ ] Insurance card: items are returned after death/respawn; Tool card swaps a broken tool; Macro card runs a macro (key binding).
 - [ ] With the Scripting addon: a Logic Bus whose identifier equals the macro name runs.
 
+## 7b. Capacitor
+- [ ] A Capacitor on a cable joins the network; right-click shows its charge (action bar).
+- [ ] With the Controller below 50% energy and a charged Capacitor, the Controller rises to about 60%.
+- [ ] With a full Controller and a generator feeding it, the Capacitor starts to fill; the charge survives a world reload.
+- [ ] A generator placed next to the Capacitor charges it.
+
 ## 8. Multiplayer / compatibility
 - [ ] Two players use the same terminal / controller GUI at the same time.
 - [ ] Client with a different mod version is refused (protocol 10).

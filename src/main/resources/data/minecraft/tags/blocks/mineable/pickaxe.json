@@ -2,6 +2,7 @@
   "replace": false,
   "values": [
     "simple_bytestorage:controller",
+    "simple_bytestorage:capacitor",
     "simple_bytestorage:drive",
     "simple_bytestorage:terminal",
     "simple_bytestorage:crafting_terminal",

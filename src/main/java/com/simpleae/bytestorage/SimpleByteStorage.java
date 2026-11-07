@@ -269,6 +269,21 @@ public class SimpleByteStorage {
             BLOCK_ENTITIES.register("energy_port",
                     () -> BlockEntityType.Builder.of(com.simpleae.bytestorage.block.entity.EnergyPortBlockEntity::new, ENERGY_PORT_BLOCK.get()).build(null));
 
+    // --- 7f. Конденсатор (Capacitor): резервный накопитель энергии сети ---
+    public static final RegistryObject<Block> CAPACITOR_BLOCK = BLOCKS.register("capacitor",
+            () -> new com.simpleae.bytestorage.block.CapacitorBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .requiresCorrectToolForDrops()
+                    .strength(3.0F)
+                    .sound(SoundType.METAL)));
+
+    public static final RegistryObject<Item> CAPACITOR_BLOCK_ITEM = ITEMS.register("capacitor",
+            () -> new BlockItem(CAPACITOR_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistryObject<BlockEntityType<com.simpleae.bytestorage.block.entity.CapacitorBlockEntity>> CAPACITOR_BLOCK_ENTITY =
+            BLOCK_ENTITIES.register("capacitor",
+                    () -> BlockEntityType.Builder.of(com.simpleae.bytestorage.block.entity.CapacitorBlockEntity::new, CAPACITOR_BLOCK.get()).build(null));
+
     public static final RegistryObject<MenuType<com.simpleae.bytestorage.menu.IoBusMenu>> IO_BUS_MENU =
             MENU_TYPES.register("io_bus", () -> IForgeMenuType.create(com.simpleae.bytestorage.menu.IoBusMenu::new));
 
@@ -338,6 +353,7 @@ public class SimpleByteStorage {
                         output.accept(PATTERN_PROVIDER_BLOCK.get());
                         output.accept(IO_BUS_BLOCK.get());
                         output.accept(ENERGY_PORT_BLOCK.get());
+                        output.accept(CAPACITOR_BLOCK.get());
                         output.accept(PATTERN_ITEM.get());
                         output.accept(SPEED_CARD.get());
                         output.accept(WIRELESS_TERMINAL.get());

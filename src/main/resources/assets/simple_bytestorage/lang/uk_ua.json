@@ -298,5 +298,8 @@
   "gui.simple_bytestorage.controller.history.nodata": "збір даних...",
   "gui.simple_bytestorage.search.slot.empty": "Порожня комірка: натисніть, щоб зберегти поточний пошук",
   "gui.simple_bytestorage.search.slot.use": "Клік: застосувати цей пошук",
-  "gui.simple_bytestorage.search.slot.overwrite": "Правий клік: перезаписати поточним пошуком (або очистити, якщо поле порожнє)"
+  "gui.simple_bytestorage.search.slot.overwrite": "Правий клік: перезаписати поточним пошуком (або очистити, якщо поле порожнє)",
+  "block.simple_bytestorage.capacitor": "Конденсатор",
+  "item.simple_bytestorage.capacitor": "Конденсатор",
+  "msg.simple_bytestorage.capacitor": "Конденсатор: %s / %s FE"
 }
