@@ -68,4 +68,4 @@ When an order is accepted, the **raw materials taken from the network storage** 
 - are not counted when a *new* order is planned, so two orders can no longer both rely on the same iron;
 - are still used by the Assemblers and Pattern Buses for crafting, and the reservation shrinks as they take the items.
 
-Cancelling an order releases what is left of its reservation; when the whole craft queue is empty all reservations are cleared automatically. Reservations are not saved: after a world reload they are gone, while the queue itself remains. Intermediate items (e.g. sticks made for a pickaxe) are not reserved while they sit in the storage.
+Cancelling an order releases what is left of its reservation; when the whole craft queue is empty all reservations are cleared automatically. Reservations are saved with the Controller, so they survive world reloads together with the queue (a reservation whose order no longer exists is dropped as soon as the queue is empty). Intermediate items (e.g. sticks made for a pickaxe) are not reserved while they sit in the storage.

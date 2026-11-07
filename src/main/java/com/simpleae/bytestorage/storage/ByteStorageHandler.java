@@ -189,6 +189,16 @@ public class ByteStorageHandler implements INetworkStorage {
     }
 
     @Override
+    public java.util.Map<String, java.util.Map<String, Integer>> getReservationSnapshot() {
+        return ledger.snapshot();
+    }
+
+    @Override
+    public void restoreReservations(java.util.Map<String, java.util.Map<String, Integer>> data) {
+        ledger.restore(data);
+    }
+
+    @Override
     public void clearReservations() {
         ledger.clear();
     }

@@ -79,4 +79,18 @@ class ReservationLedgerTest {
         assertTrue(l.isEmpty());
         assertEquals(0, l.totalReserved());
     }
+
+    @Test
+    void snapshotRoundTrip() {
+        ReservationLedger l = new ReservationLedger();
+        l.reserve("a", Map.of("iron", 10));
+        l.reserve("b", Map.of("iron", 5, "stick", 2));
+        ReservationLedger copy = new ReservationLedger();
+        copy.restore(l.snapshot());
+        assertEquals(15, copy.reserved("iron"));
+        assertEquals(2, copy.reserved("stick"));
+        copy.release("a");
+        assertEquals(5, copy.reserved("iron"));
+        assertEquals(15, l.reserved("iron"), "snapshot must be a copy");
+    }
 }

@@ -87,6 +87,15 @@ public interface INetworkStorage {
     default void releaseReservation(String orderId) {
     }
 
+    /** Копия резервов по заказам для сохранения в мире. */
+    default java.util.Map<String, java.util.Map<String, Integer>> getReservationSnapshot() {
+        return java.util.Map.of();
+    }
+
+    /** Восстановить резервы из сохранения. */
+    default void restoreReservations(java.util.Map<String, java.util.Map<String, Integer>> data) {
+    }
+
     default void clearReservations() {
     }
 

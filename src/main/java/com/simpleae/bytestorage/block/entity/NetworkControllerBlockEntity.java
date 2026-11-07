@@ -352,6 +352,8 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
     private boolean skipDecompress = true;
 
     private IGrid grid;
+    /** Резервы, прочитанные из мира; применяются при первом тике, когда сеть уже собрана. */
+    private java.util.Map<String, java.util.Map<String, Integer>> pendingReservations;
     private int tickCounter = 0;
 
     public NetworkControllerBlockEntity(BlockPos pos, BlockState state) {
@@ -540,6 +542,10 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
             return;
         }
 
+        if (controller.pendingReservations != null && grid.getStorage() != null) {
+            grid.getStorage().restoreReservations(controller.pendingReservations);
+            controller.pendingReservations = null;
+        }
         if (controller.tickCounter % 60 == 15 && grid.getState().isActive() && grid.getStorage() != null
                 && grid.getStorage().getTotalReserved() > 0
                 && com.simpleae.bytestorage.util.CraftingService.queue(grid).isEmpty()) {
@@ -646,6 +652,20 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
             paused.add(net.minecraft.nbt.StringTag.valueOf(id));
         }
         tag.put("QueuePaused", paused);
+        // Резерви сировини під замовлення — переживають перезавантаження світу
+        java.util.Map<String, java.util.Map<String, Integer>> reservations = pendingReservations;
+        if (reservations == null && grid != null && grid.getStorage() != null) {
+            reservations = grid.getStorage().getReservationSnapshot();
+        }
+        if (reservations != null && !reservations.isEmpty()) {
+            CompoundTag res = new CompoundTag();
+            reservations.forEach((order, items) -> {
+                CompoundTag one = new CompoundTag();
+                items.forEach(one::putInt);
+                res.put(order, one);
+            });
+            tag.put("Reservations", res);
+        }
         // Глобальний список шаблонів крафту живе в мережі — зберігаємо його разом із контролером.
         if (grid != null && grid.getPatternStorage() != null) {
             tag.put("Patterns", grid.getPatternStorage().save());
@@ -679,6 +699,20 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         }
         for (Tag t : tag.getList("QueuePaused", Tag.TAG_STRING)) {
             queuePaused.add(t.getAsString());
+        }
+        pendingReservations = null;
+        if (tag.contains("Reservations", Tag.TAG_COMPOUND)) {
+            java.util.Map<String, java.util.Map<String, Integer>> data = new java.util.LinkedHashMap<>();
+            CompoundTag res = tag.getCompound("Reservations");
+            for (String order : res.getAllKeys()) {
+                CompoundTag one = res.getCompound(order);
+                java.util.Map<String, Integer> items = new java.util.HashMap<>();
+                for (String k : one.getAllKeys()) {
+                    items.put(k, one.getInt(k));
+                }
+                data.put(order, items);
+            }
+            pendingReservations = data;
         }
         if (tag.contains("SkipDecompress")) {
             skipDecompress = tag.getBoolean("SkipDecompress");

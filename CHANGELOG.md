@@ -4,6 +4,9 @@ All notable changes to the **Simple Byte Storage** mod will be documented in thi
 
 ## [Unreleased]
 
+### Added — 1.2.1.18
+- **Reservations survive world reloads**: reserved raw materials are saved with the Controller and restored on the first tick after loading. New unit test for the ledger snapshot.
+
 ## [1.2.0]
 
 Journal tab, resource reservation, machine power from the network, shortage warnings, and a much larger scripting API. Full notes: `docs/RELEASE_NOTES_1.2.0.md`.

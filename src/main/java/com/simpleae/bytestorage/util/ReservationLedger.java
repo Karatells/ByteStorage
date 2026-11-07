@@ -71,6 +71,19 @@ public final class ReservationLedger {
         return sum;
     }
 
+    /** Копия резервов по заказам (для сохранения в мире). */
+    public Map<String, Map<String, Integer>> snapshot() {
+        Map<String, Map<String, Integer>> copy = new LinkedHashMap<>();
+        byOrder.forEach((id, m) -> copy.put(id, new HashMap<>(m)));
+        return copy;
+    }
+
+    /** Заменить содержимое книги сохранёнными данными. */
+    public void restore(Map<String, Map<String, Integer>> data) {
+        clear();
+        data.forEach(this::reserve);
+    }
+
     public boolean isEmpty() {
         return total.isEmpty();
     }
