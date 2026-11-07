@@ -6,7 +6,7 @@ import com.simpleae.bytestorage.scripting.net.ScriptActionPacket;
 import com.simpleae.bytestorage.scripting.net.ScriptStatePacket;
 import com.simpleae.bytestorage.scripting.net.ScriptingPackets;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.MultiLineEditBox;
+import com.simpleae.bytestorage.client.gui.CodeEditor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -30,7 +30,7 @@ public class LogicTerminalScreen extends Screen {
     private int left;
     private int top;
 
-    private MultiLineEditBox editor;
+    private CodeEditor editor;
     private int idScroll = 0;
     private final List<UiButton> buttons = new ArrayList<>();
 
@@ -51,8 +51,9 @@ public class LogicTerminalScreen extends Screen {
         this.top = (this.height - H) / 2;
 
         String previous = this.editor != null ? this.editor.getValue() : "";
-        this.editor = new MultiLineEditBox(this.font, left + 112, top + 20, 242, 118,
-                Component.empty(), Component.empty());
+        this.editor = new CodeEditor(this.font, left + 112, top + 20, 242, 118);
+        this.editor.setCompletion(ApiCatalog.engine(), ApiCatalog.GLOBALS);
+        this.editor.setMaxLength(state == null ? 8000 : Math.min(state.maxLength, 30000));
         this.editor.setValue(previous);
         this.addRenderableWidget(this.editor);
         this.setInitialFocus(this.editor);
@@ -92,6 +93,7 @@ public class LogicTerminalScreen extends Screen {
     public void apply(ScriptStatePacket packet) {
         this.state = packet;
         this.selected = packet.selected;
+        this.editor.setMaxLength(Math.min(packet.maxLength, 30000));
         if (packet.withScript) {
             this.editor.setValue(packet.script);
         }
@@ -213,6 +215,15 @@ public class LogicTerminalScreen extends Screen {
             return true;
         }
         return super.mouseScrolled(mouseX, mouseY, delta);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        // Редактор первым получает клавиши (ESC закрывает подсказки, а не окно)
+        if (this.editor.isFocused() && this.editor.keyPressed(keyCode, scanCode, modifiers)) {
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     @Override

@@ -4,6 +4,11 @@ All notable changes to the **Simple Byte Storage** mod will be documented in thi
 
 ## [Unreleased]
 
+### Added — 1.2.1.32
+- **Script code editor** in the Logic Terminal (Scripting addon) replaces the plain text box: line numbers, **syntax highlighting** (keywords, strings, numbers, comments, functions, API objects, properties), mouse and keyboard selection, copy/cut/paste, undo/redo (Ctrl+Z / Ctrl+Y), auto-indent, auto-closing brackets and quotes, Tab / Shift+Tab block indent, Ctrl+/ to comment lines.
+- **Autocomplete**: a popup suggests API objects and methods (`net.`, `stock.`, `recipes.`, `journal.`, port methods) and keywords while you type; inside quotes it suggests item ids. Up/Down to choose, Enter/Tab or click to accept, Esc to dismiss, Ctrl+Space to force it.
+- New unit tests `CodeEditorLogicTest` for the editor text model, lexer and completion engine.
+
 ### Changed — 1.2.1.31
 - **All screens restyled** like the Controller: every window header now has an icon for its block, a status LED and a **clickable close cross** (ESC still works); the "Inventory" and section labels have icons; buttons can carry icons (Pattern Bus record, I/O Bus mode, Encode, Assembler cancel). The Terminal's deposit button moved left to make room in the header. New icons: code, search, arrows, play, check, plus. Also applies to the Scripting addon windows.
 

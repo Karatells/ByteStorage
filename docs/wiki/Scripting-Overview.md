@@ -94,3 +94,18 @@ function tick() {
 ## Persistence
 
 Script text, identifier, enabled flag and interval are stored in the block entity's NBT. Script variables and the log are **not** persisted. After a world restart an enabled bus recompiles and continues.
+
+## The script editor
+
+The Logic Terminal editor highlights JavaScript syntax and has autocomplete.
+
+| Key | Action |
+|---|---|
+| Ctrl+Space | open suggestions |
+| Up / Down, Enter or Tab | choose / accept a suggestion (Esc dismisses it) |
+| Tab / Shift+Tab | indent / unindent (works on a selection) |
+| Ctrl+/ | comment or uncomment lines |
+| Ctrl+Z / Ctrl+Y | undo / redo |
+| Ctrl+A, C, X, V | select all, copy, cut, paste |
+
+Suggestions cover `net`, `stock`, `recipes`, `journal`, the global functions and, inside quotes, item ids. Brackets and quotes close automatically.
