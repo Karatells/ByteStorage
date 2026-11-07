@@ -4,6 +4,9 @@ All notable changes to the **Simple Byte Storage** mod will be documented in thi
 
 ## [Unreleased]
 
+### Changed — 1.2.2.33
+- **Cable redrawn**: new steel-and-cyan texture (hub with a glowing core, thinner wire with light bands). Where a cable connects to a **block** (terminal, drive, bus, controller…) it now ends in a **plug**: a flange with a glowing cyan rim and a collar, so connections are easy to tell from cable-to-cable links. The plug is part of the cable's hitbox. New item icon.
+
 ## [1.2.1] — beta
 
 New Controller design, restyled screens, statistics graphs, stock schedule, Capacitor, script code editor and events. Full notes: `docs/RELEASE_NOTES_1.2.1.md`.
