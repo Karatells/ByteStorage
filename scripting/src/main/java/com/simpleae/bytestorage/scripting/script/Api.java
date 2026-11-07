@@ -185,7 +185,7 @@ final class Api {
                     break;
                 }
                 out.add(obj(c, "kind", m.kind(), "x", m.pos().getX(), "y", m.pos().getY(), "z", m.pos().getZ(),
-                        "busy", m.busy(), "pending", m.pending(), "wait", m.wait(),
+                        "busy", m.busy(), "pending", m.pending(), "wait", m.waitReason(),
                         "output", m.output().isEmpty() ? null : idOf(m.output())));
             }
             return c.newArray(scope, out.toArray());

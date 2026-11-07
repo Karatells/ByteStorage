@@ -48,7 +48,7 @@ public final class NetworkControl {
     }
 
     /** Состояние автокрафт-машины: {@code kind} — "assembler" или "bus", {@code wait} — код причины простоя. */
-    public record MachineInfo(String kind, BlockPos pos, boolean busy, int pending, String wait, ItemStack output) {
+    public record MachineInfo(String kind, BlockPos pos, boolean busy, int pending, String waitReason, ItemStack output) {
     }
 
     private static final String[] ASSEMBLER_WAIT = {"none", "no_card", "resources", "card_busy", "card_small", "network_off", "storage_full"};

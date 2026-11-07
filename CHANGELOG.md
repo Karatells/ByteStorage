@@ -4,6 +4,9 @@ All notable changes to the **Simple Byte Storage** mod will be documented in thi
 
 ## [Unreleased]
 
+### Fixed — 1.2.1.24
+- Build fix for `NetworkControl.MachineInfo` (record component name clashed with `Object.wait`).
+
 ### Added — 1.2.1.23
 - **Scripts see machines**: `net.machines()` lists Assemblers and Pattern Buses with busy/pending/wait reason/current output (up to 64). Core API `NetworkControl.machines`.
 
