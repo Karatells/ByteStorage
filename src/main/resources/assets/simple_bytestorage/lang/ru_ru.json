@@ -282,5 +282,6 @@
   "gui.simple_bytestorage.journal.type.8": "Предупреждение скрипта",
   "gui.simple_bytestorage.terminal.reserved": "Зарезервировано под заказы: %s",
   "gui.simple_bytestorage.terminal.in_production": "В производстве: %s",
-  "msg.simple_bytestorage.alert.no_machine": "ни одна машина не принимает ингредиенты (нет или переполнена)"
+  "msg.simple_bytestorage.alert.no_machine": "ни одна машина не принимает ингредиенты (нет или переполнена)",
+  "gui.simple_bytestorage.plan.max": "Максимум: %s"
 }

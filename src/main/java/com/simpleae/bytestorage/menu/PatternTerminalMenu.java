@@ -239,7 +239,8 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
         }
         int total = Math.max(1, Math.min(MAX_ORDER, amount));
         CraftingService.Plan plan = CraftingService.plan(grid, root, total);
-        SimpleByteStoragePackets.sendToPlayer(CraftPlanPacket.of(patternId, total, plan), serverPlayer);
+        int maxAmount = plan.missing.isEmpty() ? 0 : CraftingService.maxPossibleCrafts(grid, root, total);
+        SimpleByteStoragePackets.sendToPlayer(CraftPlanPacket.of(patternId, total, plan, maxAmount), serverPlayer);
     }
 
     private void order(ServerPlayer serverPlayer, String patternId, int amount) {
@@ -340,8 +341,15 @@ public class PatternTerminalMenu extends AbstractContainerMenu {
     private List<CraftPlanPacket.Entry> planSteps = new ArrayList<>();
     private List<CraftPlanPacket.Entry> planMissing = new ArrayList<>();
 
+    private int planMax;
+
+    public int getPlanMax() {
+        return planMax;
+    }
+
     public void setClientPlan(String patternId, int amount,
-                              List<CraftPlanPacket.Entry> steps, List<CraftPlanPacket.Entry> missing) {
+                              List<CraftPlanPacket.Entry> steps, List<CraftPlanPacket.Entry> missing, int maxAmount) {
+        this.planMax = maxAmount;
         this.planPatternId = patternId;
         this.planAmount = amount;
         this.planSteps = steps;

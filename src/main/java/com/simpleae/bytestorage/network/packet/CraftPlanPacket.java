@@ -35,15 +35,18 @@ public class CraftPlanPacket {
     private final int amount;
     private final List<Entry> steps;
     private final List<Entry> missing;
+    /** Наибольшее количество (в тех же единицах, что и запрос), которое можно заказать целиком; 0 — нет. */
+    private final int maxAmount;
 
-    public CraftPlanPacket(String patternId, int amount, List<Entry> steps, List<Entry> missing) {
+    public CraftPlanPacket(String patternId, int amount, List<Entry> steps, List<Entry> missing, int maxAmount) {
         this.patternId = patternId;
         this.amount = amount;
         this.steps = steps;
         this.missing = missing;
+        this.maxAmount = maxAmount;
     }
 
-    public static CraftPlanPacket of(String patternId, int amount, CraftingService.Plan plan) {
+    public static CraftPlanPacket of(String patternId, int amount, CraftingService.Plan plan, int maxAmount) {
         List<Entry> steps = new ArrayList<>();
         for (CraftingService.Step step : plan.steps) {
             steps.add(new Entry(step.pattern.getOutput(), step.crafts, step.pattern.isProcessing()));
@@ -52,7 +55,7 @@ public class CraftPlanPacket {
         for (ItemStack stack : plan.missing) {
             missing.add(new Entry(stack, stack.getCount(), false));
         }
-        return new CraftPlanPacket(patternId, amount, steps, missing);
+        return new CraftPlanPacket(patternId, amount, steps, missing, plan.missing.isEmpty() ? 0 : maxAmount);
     }
 
     public CraftPlanPacket(FriendlyByteBuf buf) {
@@ -60,6 +63,7 @@ public class CraftPlanPacket {
         this.amount = buf.readVarInt();
         this.steps = readEntries(buf);
         this.missing = readEntries(buf);
+        this.maxAmount = buf.readVarInt();
     }
 
     public void encode(FriendlyByteBuf buf) {
@@ -67,6 +71,7 @@ public class CraftPlanPacket {
         buf.writeVarInt(amount);
         writeEntries(buf, steps);
         writeEntries(buf, missing);
+        buf.writeVarInt(maxAmount);
     }
 
     private static void writeEntries(FriendlyByteBuf buf, List<Entry> entries) {
@@ -100,9 +105,9 @@ public class CraftPlanPacket {
             }
             var open = Minecraft.getInstance().player.containerMenu;
             if (open instanceof PatternTerminalMenu menu) {
-                menu.setClientPlan(patternId, amount, steps, missing);
+                menu.setClientPlan(patternId, amount, steps, missing, maxAmount);
             } else if (open instanceof com.simpleae.bytestorage.menu.IGridMenu) {
-                com.simpleae.bytestorage.client.gui.TerminalExtras.setPlan(patternId, amount, steps, missing);
+                com.simpleae.bytestorage.client.gui.TerminalExtras.setPlan(patternId, amount, steps, missing, maxAmount);
             }
         }));
         ctx.setPacketHandled(true);

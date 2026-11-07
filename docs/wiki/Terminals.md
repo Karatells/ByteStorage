@@ -50,3 +50,7 @@ Terminals need the network to be online (see [Network and Power](Network-and-Pow
 ## Item tooltip
 
 Hovering an item in a terminal shows how many are stored, how many of them are **reserved** for accepted orders, and how many are currently **in production** (queued or running crafts).
+
+## Order dialog: "Max"
+
+If an order cannot be done in full (an ingredient is missing), the **Start** button becomes **Max: N**, where N is the largest amount the network can craft right now. Click it to recalculate the plan for N, then press **Start**.

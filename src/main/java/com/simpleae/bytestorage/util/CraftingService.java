@@ -108,6 +108,28 @@ public final class CraftingService {
 
     // --- Планування ---
 
+    /**
+     * Наибольшее число крафтов меньше {@code crafts}, которое сеть может выполнить целиком (без недостающего);
+     * 0, если нет такого. Используется кнопкой «Максимум» в окне подтверждения.
+     */
+    public static int maxPossibleCrafts(IGrid grid, PatternData root, int crafts) {
+        if (crafts <= 1) {
+            return 0;
+        }
+        int lo = 0;
+        int hi = crafts - 1;
+        while (lo < hi) {
+            int mid = (lo + hi + 1) >>> 1;
+            Plan p = plan(grid, root, mid);
+            if (p.missing.isEmpty() && !p.steps.isEmpty()) {
+                lo = mid;
+            } else {
+                hi = mid - 1;
+            }
+        }
+        return lo;
+    }
+
     public static Plan plan(IGrid grid, PatternData root, int amount) {
         Plan plan = new Plan();
         INetworkStorage storage = grid.getStorage();

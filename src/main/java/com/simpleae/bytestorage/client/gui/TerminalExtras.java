@@ -241,10 +241,12 @@ public class TerminalExtras {
     private static List<CraftPlanPacket.Entry> planSteps = new ArrayList<>();
     private static List<CraftPlanPacket.Entry> planMissing = new ArrayList<>();
     private static boolean planReady = false;
+    private static int planMax = 0;
 
     /** Ответ сервера с планом (вызывается пакетом). */
     public static void setPlan(String patternId, int crafts, List<CraftPlanPacket.Entry> steps,
-                               List<CraftPlanPacket.Entry> missing) {
+                               List<CraftPlanPacket.Entry> missing, int maxAmount) {
+        planMax = maxAmount;
         planSteps = steps;
         planMissing = missing;
         planReady = true;
@@ -269,6 +271,7 @@ public class TerminalExtras {
 
     private void requestPlan() {
         planReady = false;
+        planMax = 0;
         planSteps = new ArrayList<>();
         planMissing = new ArrayList<>();
         SimpleByteStoragePackets.sendToServer(new CraftRequestPacket(CraftRequestPacket.ACTION_PLAN, dialogStack, dialogAmount));
@@ -297,7 +300,7 @@ public class TerminalExtras {
         g.fill(0, 0, screenW, screenH, 0x90000000);
         CraftPlanView.draw(g, font, x, y, EXTRA,
                 Component.translatable("gui.simple_bytestorage.order.title", dialogStack.getHoverName()),
-                planSteps, planMissing, planOk(), mx, my);
+                planSteps, planMissing, planOk(), mx, my, planMax);
         g.renderItem(dialogStack, x + CraftPlanView.W - 22, y + 2);
         for (int i = 0; i < 3; i++) {
             drawStep(g, font, x + 6 + i * 26, y + 17, STEPS[i], mx, my);
@@ -342,6 +345,9 @@ public class TerminalExtras {
         if (CraftPlanView.startHit(mx, my, x, y, EXTRA) && planOk()) {
             SimpleByteStoragePackets.sendToServer(new CraftRequestPacket(CraftRequestPacket.ACTION_ORDER, dialogStack, dialogAmount));
             closeDialog();
+        } else if (CraftPlanView.startHit(mx, my, x, y, EXTRA) && planReady && !planMissing.isEmpty() && planMax > 0) {
+            dialogAmount = Math.min(CraftRequestPacket.MAX_AMOUNT, planMax);
+            requestPlan();
         } else if (CraftPlanView.cancelHit(mx, my, x, y, EXTRA)) {
             closeDialog();
         }

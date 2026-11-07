@@ -67,8 +67,9 @@ public class CraftRequestPacket {
             }
             int perCraft = Math.max(1, found.getOutput().getCount());
             int crafts = Math.max(1, Math.min(CraftingService.MAX_CRAFTS, (items + perCraft - 1) / perCraft));
-            SimpleByteStoragePackets.sendToPlayer(
-                    CraftPlanPacket.of(found.getId(), crafts, CraftingService.plan(grid, found, crafts)), player);
+            CraftingService.Plan plan = CraftingService.plan(grid, found, crafts);
+            int maxAmount = plan.missing.isEmpty() ? 0 : CraftingService.maxPossibleCrafts(grid, found, crafts) * perCraft;
+            SimpleByteStoragePackets.sendToPlayer(CraftPlanPacket.of(found.getId(), crafts, plan, maxAmount), player);
         });
         ctx.setPacketHandled(true);
     }

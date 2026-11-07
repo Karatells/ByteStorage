@@ -135,7 +135,7 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
                 this.topPos + this.imageHeight - 6, 0xB0000000);
         CraftPlanView.draw(graphics, this.font, x, y, 0,
                 Component.translatable("gui.simple_bytestorage.plan.title", this.menu.getPlanAmount()),
-                this.menu.getPlanSteps(), this.menu.getPlanMissing(), planOk(), mouseX, mouseY);
+                this.menu.getPlanSteps(), this.menu.getPlanMissing(), planOk(), mouseX, mouseY, this.menu.getPlanMax());
         graphics.pose().popPose();
     }
 
@@ -146,6 +146,11 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
             SimpleByteStoragePackets.sendToServer(new PatternOrderPacket(PatternOrderPacket.ACTION_ORDER,
                     this.menu.getPlanPatternId(), this.menu.getPlanAmount()));
             this.menu.clearClientPlan();
+        } else if (button == 0 && inside(mouseX, mouseY, x + 6, y + PLAN_H - 20, 92, 14) && this.menu.getPlanMax() > 0
+                && !this.menu.getPlanMissing().isEmpty()) {
+            // кнопка «Максимум»: пересчитать план на наибольшее выполнимое количество
+            SimpleByteStoragePackets.sendToServer(new PatternOrderPacket(PatternOrderPacket.ACTION_PLAN,
+                    this.menu.getPlanPatternId(), this.menu.getPlanMax()));
         } else if (button == 0 && inside(mouseX, mouseY, x + PLAN_W - 98, y + PLAN_H - 20, 92, 14)) {
             this.menu.clearClientPlan();
         }

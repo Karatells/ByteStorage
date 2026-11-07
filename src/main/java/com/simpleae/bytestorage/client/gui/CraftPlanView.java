@@ -29,6 +29,15 @@ public final class CraftPlanView {
     public static void draw(GuiGraphics g, Font font, int x, int y, int extra, Component title,
                             List<CraftPlanPacket.Entry> steps, List<CraftPlanPacket.Entry> missing,
                             boolean startEnabled, int mx, int my) {
+        draw(g, font, x, y, extra, title, steps, missing, startEnabled, mx, my, 0);
+    }
+
+    /**
+     * @param maxAmount если чего-то не хватает, но часть заказа выполнима — кнопка «Начать» превращается в «Максимум: N»
+     */
+    public static void draw(GuiGraphics g, Font font, int x, int y, int extra, Component title,
+                            List<CraftPlanPacket.Entry> steps, List<CraftPlanPacket.Entry> missing,
+                            boolean startEnabled, int mx, int my, int maxAmount) {
         int h = BASE_H + extra;
         GuiStyle.panel(g, x, y, W, h);
         g.drawString(font, title, x + 6, y + 5, GuiStyle.TEXT_TITLE, false);
@@ -63,8 +72,11 @@ public final class CraftPlanView {
         }
 
         int by = y + h - 20;
-        UiButton.paint(g, font, x + 6, by, 92, 14, Component.translatable("gui.simple_bytestorage.plan.start").getString(),
-                inside(mx, my, x + 6, by, 92, 14), startEnabled);
+        boolean offerMax = !startEnabled && !missing.isEmpty() && maxAmount > 0;
+        String startLabel = offerMax
+                ? Component.translatable("gui.simple_bytestorage.plan.max", maxAmount).getString()
+                : Component.translatable("gui.simple_bytestorage.plan.start").getString();
+        UiButton.paint(g, font, x + 6, by, 92, 14, startLabel, inside(mx, my, x + 6, by, 92, 14), startEnabled || offerMax);
         UiButton.paint(g, font, x + W - 98, by, 92, 14, Component.translatable("gui.simple_bytestorage.plan.cancel").getString(),
                 inside(mx, my, x + W - 98, by, 92, 14), true);
     }
