@@ -8,6 +8,7 @@ import com.simpleae.bytestorage.util.JournalLog;
 import com.simpleae.bytestorage.util.NetworkJournal;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -44,6 +45,34 @@ public final class NetworkControl {
     }
 
     public record EnergyInfo(int stored, int max) {
+    }
+
+    /** Состояние автокрафт-машины: {@code kind} — "assembler" или "bus", {@code wait} — код причины простоя. */
+    public record MachineInfo(String kind, BlockPos pos, boolean busy, int pending, String wait, ItemStack output) {
+    }
+
+    private static final String[] ASSEMBLER_WAIT = {"none", "no_card", "resources", "card_busy", "card_small", "network_off", "storage_full"};
+    private static final String[] BUS_WAIT = {"none", "resources", "no_machine"};
+
+    /** Все Асемблеры и Шины шаблонов сети с их состоянием. */
+    public static List<MachineInfo> machines(IGrid grid) {
+        List<MachineInfo> result = new ArrayList<>();
+        if (grid == null) {
+            return result;
+        }
+        for (com.simpleae.bytestorage.api.network.IGridNode node : grid.getNodes()) {
+            if (node instanceof com.simpleae.bytestorage.block.entity.AssemblerBlockEntity a) {
+                int w = Math.max(0, Math.min(ASSEMBLER_WAIT.length - 1, a.getWaitReason()));
+                result.add(new MachineInfo("assembler", a.getBlockPos(), a.isBusy(), a.getPendingCrafts(),
+                        ASSEMBLER_WAIT[w], a.getCurrentOutput()));
+            } else if (node instanceof com.simpleae.bytestorage.block.entity.PatternProviderBlockEntity b) {
+                int w = Math.max(0, Math.min(BUS_WAIT.length - 1, b.getWaitReason()));
+                result.add(new MachineInfo("bus", b.getBlockPos(), b.getPendingCrafts() > 0, b.getPendingCrafts(),
+                        BUS_WAIT[w], b.getCurrentOutput()));
+            }
+        }
+        result.sort(java.util.Comparator.comparingLong(m -> m.pos().asLong()));
+        return result;
     }
 
     /** Сводная статистика сети (как на экране Контроллера). */

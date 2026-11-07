@@ -176,6 +176,20 @@ final class Api {
             }
             return obj(c, "ok", plan.ok(), "steps", c.newArray(scope, steps.toArray()), "missing", c.newArray(scope, missing.toArray()));
         });
+        // --- net: состояние Асемблеров и Шин шаблонов ---
+        def(net, "machines", (c, s, a) -> {
+            budget.spendCall();
+            java.util.List<Object> out = new java.util.ArrayList<>();
+            for (NetworkControl.MachineInfo m : NetworkControl.machines(bus.grid())) {
+                if (out.size() >= 64) {
+                    break;
+                }
+                out.add(obj(c, "kind", m.kind(), "x", m.pos().getX(), "y", m.pos().getY(), "z", m.pos().getZ(),
+                        "busy", m.busy(), "pending", m.pending(), "wait", m.wait(),
+                        "output", m.output().isEmpty() ? null : idOf(m.output())));
+            }
+            return c.newArray(scope, out.toArray());
+        });
         // --- net: черга замовлень ---
         def(net, "queue", (c, s, a) -> {
             budget.spendCall();

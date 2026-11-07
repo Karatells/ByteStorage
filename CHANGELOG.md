@@ -4,6 +4,9 @@ All notable changes to the **Simple Byte Storage** mod will be documented in thi
 
 ## [Unreleased]
 
+### Added — 1.2.1.23
+- **Scripts see machines**: `net.machines()` lists Assemblers and Pattern Buses with busy/pending/wait reason/current output (up to 64). Core API `NetworkControl.machines`.
+
 ### Added — 1.2.1.22
 - **"Max" button in the order dialog**: when an order is short of ingredients, **Start** turns into **Max: N** (the largest amount that can be crafted now); one click recalculates the plan. Works in the Terminal, Crafting Terminal and Pattern Terminal. The plan packet changed (network protocol is still 10 since 1.2.1.19, which was never released).
 

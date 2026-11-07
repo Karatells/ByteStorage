@@ -402,3 +402,21 @@ function onLowStock(e) {
   journal.write("Auto-order: " + e.count + " x " + e.id);
 }
 ```
+
+## 26. Report idle-blocked machines (machines)
+
+```js
+var last = 0;
+
+function tick() {
+  var list = net.machines();
+  var blocked = 0;
+  for (var i = 0; i < list.length; i++) {
+    if (list[i].pending > 0 && list[i].wait !== "none") blocked++;
+  }
+  if (blocked !== last) {
+    if (blocked > 0) journal.warn(blocked + " machine(s) are blocked");
+    last = blocked;
+  }
+}
+```

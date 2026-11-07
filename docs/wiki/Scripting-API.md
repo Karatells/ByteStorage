@@ -46,6 +46,12 @@ If the bus has no network storage available, methods that need it throw `network
 | `net.energy()` | object | `{stored, max, percent}` of the Controller's energy buffer, or `null`. |
 | `net.stats()` | object | `{patterns, assemblers, assemblersBusy, patternBuses, busJobs, libraryRecipes, reserved}`. `libraryRecipes` is 0 without a Recipe Library. |
 
+### Machines
+
+| Method | Returns | Description |
+|---|---|---|
+| `net.machines()` | array | Up to 64 Assemblers and Pattern Buses: `[{kind, x, y, z, busy, pending, wait, output}]`. `kind` is `"assembler"` or `"bus"`; `pending` is the number of queued crafts; `output` is the item id of the current job or `null`. `wait` is `"none"` or the reason it is not progressing: Assembler — `no_card`, `resources`, `card_busy`, `card_small`, `network_off`, `storage_full`; Bus — `resources`, `no_machine`. |
+
 ### Planning (does not order anything)
 
 | Method | Returns | Description |
