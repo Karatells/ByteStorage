@@ -60,23 +60,27 @@ public class LogicTerminalScreen extends Screen {
 
         buttons.clear();
         int by = top + 142;
-        buttons.add(new UiButton(left + 112, by, 52, 16,
+        buttons.add(new UiButton(left + 112, by, 44, 16,
                 () -> Component.translatable("gui.simple_bytestorage_scripting.save"), UiButton.Icon.NONE,
                 () -> send(ScriptActionPacket.SAVE, 0, clampedText()))
                 .enabledWhen(this::canAct).primary()
                 .tooltip(Component.translatable("gui.simple_bytestorage_scripting.save.tip")));
-        buttons.add(new UiButton(left + 168, by, 62, 16,
+        buttons.add(new UiButton(left + 160, by, 54, 16,
                 () -> Component.translatable(isRunning()
                         ? "gui.simple_bytestorage_scripting.stop" : "gui.simple_bytestorage_scripting.run"),
                 UiButton.Icon.NONE,
                 () -> send(ScriptActionPacket.ENABLE, isRunning() ? 0 : 1, ""))
                 .enabledWhen(this::canAct)
                 .tooltip(Component.translatable("gui.simple_bytestorage_scripting.run.tip")));
-        buttons.add(new UiButton(left + 234, by, 52, 16,
+        buttons.add(new UiButton(left + 218, by, 44, 16,
                 () -> Component.translatable("gui.simple_bytestorage_scripting.reload"), UiButton.Icon.NONE,
                 () -> send(ScriptActionPacket.LIST, 0, ""))
                 .enabledWhen(() -> selected != null)
                 .tooltip(Component.translatable("gui.simple_bytestorage_scripting.reload.tip")));
+        buttons.add(new UiButton(left + 266, by, 22, 16, () -> Component.empty(), UiButton.Icon.NONE,
+                this::openFullscreen)
+                .icon("arrows")
+                .tooltip(Component.translatable("gui.simple_bytestorage_scripting.fullscreen.tip")));
         buttons.add(new UiButton(left + 292, by, 16, 16, () -> Component.literal("-"), UiButton.Icon.NONE,
                 () -> send(ScriptActionPacket.INTERVAL, Math.max(1, currentInterval() - 10), ""))
                 .enabledWhen(this::canAct));
@@ -84,8 +88,10 @@ public class LogicTerminalScreen extends Screen {
                 () -> send(ScriptActionPacket.INTERVAL, currentInterval() + 10, ""))
                 .enabledWhen(this::canAct));
 
-        // Перший запит списку шин
-        ScriptingPackets.CHANNEL.sendToServer(new ScriptActionPacket(terminal, ScriptActionPacket.LIST, null, 0, ""));
+        // Перший запит списку шин (при перебудові вікна стан і текст зберігаються)
+        if (state == null) {
+            ScriptingPackets.CHANNEL.sendToServer(new ScriptActionPacket(terminal, ScriptActionPacket.LIST, null, 0, ""));
+        }
     }
 
     // --- Стан ---
@@ -147,6 +153,22 @@ public class LogicTerminalScreen extends Screen {
         String text = editor.getValue();
         int max = state == null ? 8000 : Math.min(state.maxLength, 30000);
         return text.length() > max ? text.substring(0, max) : text;
+    }
+
+    private void openFullscreen() {
+        int max = state == null ? 8000 : Math.min(state.maxLength, 30000);
+        this.minecraft.setScreen(new ScriptEditorScreen(this, editor.getValue(), max, canAct()));
+    }
+
+    /** Збереження з повноекранного редактора. */
+    void saveFromFullscreen(String text) {
+        editor.setValue(text);
+        send(ScriptActionPacket.SAVE, 0, clampedText());
+    }
+
+    /** Повернення з повноекранного редактора: текст переходить у мале поле. */
+    void restoreFromFullscreen(String text) {
+        editor.setValue(text);
     }
 
     private void send(int action, int intArg, String text) {
@@ -220,6 +242,10 @@ public class LogicTerminalScreen extends Screen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Редактор первым получает клавиши (ESC закрывает подсказки, а не окно)
+        if (hasControlDown() && keyCode == org.lwjgl.glfw.GLFW.GLFW_KEY_E) {
+            openFullscreen();
+            return true;
+        }
         if (this.editor.isFocused() && this.editor.keyPressed(keyCode, scanCode, modifiers)) {
             return true;
         }

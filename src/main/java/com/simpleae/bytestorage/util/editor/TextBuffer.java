@@ -36,6 +36,10 @@ public final class TextBuffer {
         return text.length();
     }
 
+    public int maxLength() {
+        return maxLength;
+    }
+
     public void setMaxLength(int max) {
         this.maxLength = Math.max(1, max);
     }
@@ -314,6 +318,28 @@ public final class TextBuffer {
         cursor = a + part.length();
         anchor = cursor;
         preferredColumn = -1;
+    }
+
+    /**
+     * Вставляет шаблон вместо [from, to): строки шаблона получают отступ текущей строки,
+     * "$0" — позиция курсора после вставки.
+     */
+    public void replaceWithSnippet(int from, int to, String snippet) {
+        int a = Math.max(0, Math.min(from, text.length()));
+        int ls = lineStart(lineOf(a));
+        int ie = ls;
+        while (ie < a && text.charAt(ie) == ' ') {
+            ie++;
+        }
+        String indent = text.substring(ls, ie);
+        String body = normalize(snippet).replace("\n", "\n" + indent);
+        int marker = body.indexOf("$0");
+        body = body.replace("$0", "");
+        replaceRange(from, to, body);
+        if (marker >= 0) {
+            cursor = Math.min(text.length(), a + marker);
+            anchor = cursor;
+        }
     }
 
     /** Ввод символа с автозакрытием скобок/кавычек и «перешагиванием» через закрывающий символ. */

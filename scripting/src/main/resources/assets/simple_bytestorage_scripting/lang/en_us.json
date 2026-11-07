@@ -35,5 +35,11 @@
   "gui.simple_bytestorage_scripting.id.bus_hint": "Click an ID to copy it, Shift+click assigns it at once. Edit the script in the Logic Terminal.",
   "gui.simple_bytestorage_scripting.id.terminal_hint": "IDs are set in each Logic Bus GUI. Click an ID to select its bus.",
   "gui.simple_bytestorage_scripting.status.running": "Running",
-  "gui.simple_bytestorage_scripting.status.idle": "Stopped"
+  "gui.simple_bytestorage_scripting.status.idle": "Stopped",
+  "gui.simple_bytestorage_scripting.fullscreen.tip": "Open the full-screen editor (Ctrl+E)",
+  "gui.simple_bytestorage_scripting.editor.title": "Script editor",
+  "gui.simple_bytestorage_scripting.editor.back": "Back",
+  "gui.simple_bytestorage_scripting.editor.pos": "Ln %s, Col %s   %s / %s",
+  "gui.simple_bytestorage_scripting.editor.saved": "Saved",
+  "gui.simple_bytestorage_scripting.editor.hint": "Ctrl+S save · Ctrl+E back · Ctrl+Space suggestions"
 }

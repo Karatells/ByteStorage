@@ -35,5 +35,11 @@
   "gui.simple_bytestorage_scripting.id.bus_hint": "Клік по ID копіює його, Shift+клік призначає одразу. Скрипт редагується в Логічному терміналі.",
   "gui.simple_bytestorage_scripting.id.terminal_hint": "ID задаються в інтерфейсі кожної Логічної шини. Клік по ID вибирає його шину.",
   "gui.simple_bytestorage_scripting.status.running": "Працює",
-  "gui.simple_bytestorage_scripting.status.idle": "Зупинена"
+  "gui.simple_bytestorage_scripting.status.idle": "Зупинена",
+  "gui.simple_bytestorage_scripting.fullscreen.tip": "Відкрити редактор на весь екран (Ctrl+E)",
+  "gui.simple_bytestorage_scripting.editor.title": "Редактор скрипта",
+  "gui.simple_bytestorage_scripting.editor.back": "Назад",
+  "gui.simple_bytestorage_scripting.editor.pos": "Ряд. %s, Ст. %s   %s / %s",
+  "gui.simple_bytestorage_scripting.editor.saved": "Збережено",
+  "gui.simple_bytestorage_scripting.editor.hint": "Ctrl+S зберегти · Ctrl+E назад · Ctrl+Пробіл підказки"
 }

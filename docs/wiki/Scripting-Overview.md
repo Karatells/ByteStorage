@@ -106,6 +106,10 @@ The Logic Terminal editor highlights JavaScript syntax and has autocomplete.
 | Tab / Shift+Tab | indent / unindent (works on a selection) |
 | Ctrl+/ | comment or uncomment lines |
 | Ctrl+Z / Ctrl+Y | undo / redo |
+| Ctrl+E | open / close the full-screen editor |
+| Ctrl+S | save (full-screen editor) |
 | Ctrl+A, C, X, V | select all, copy, cut, paste |
 
 Suggestions cover `net`, `stock`, `recipes`, `journal`, the global functions and, inside quotes, item ids. Brackets and quotes close automatically.
+
+Autocomplete also offers code snippets (`tick`, `onCraft`, `for`, `if`...), your own variables and functions, the fields of a handler's event parameter, and context-aware values inside quotes (sides for `side("`, schedules for `stock.setMode("`, item ids elsewhere). While you type call arguments a signature hint shows the current parameter.
