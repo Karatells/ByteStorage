@@ -295,5 +295,8 @@
   "gui.simple_bytestorage.controller.history.rising": "Растёт",
   "gui.simple_bytestorage.controller.history.falling": "Убывает",
   "gui.simple_bytestorage.controller.history.window": "за %s мин",
-  "gui.simple_bytestorage.controller.history.nodata": "сбор данных..."
+  "gui.simple_bytestorage.controller.history.nodata": "сбор данных...",
+  "gui.simple_bytestorage.search.slot.empty": "Пустая ячейка: нажмите, чтобы сохранить текущий поиск",
+  "gui.simple_bytestorage.search.slot.use": "Клик: применить этот поиск",
+  "gui.simple_bytestorage.search.slot.overwrite": "Правый клик: перезаписать текущим поиском (или очистить, если поле пустое)"
 }

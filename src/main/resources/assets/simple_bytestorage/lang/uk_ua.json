@@ -295,5 +295,8 @@
   "gui.simple_bytestorage.controller.history.rising": "Зростає",
   "gui.simple_bytestorage.controller.history.falling": "Убуває",
   "gui.simple_bytestorage.controller.history.window": "за %s хв",
-  "gui.simple_bytestorage.controller.history.nodata": "збір даних..."
+  "gui.simple_bytestorage.controller.history.nodata": "збір даних...",
+  "gui.simple_bytestorage.search.slot.empty": "Порожня комірка: натисніть, щоб зберегти поточний пошук",
+  "gui.simple_bytestorage.search.slot.use": "Клік: застосувати цей пошук",
+  "gui.simple_bytestorage.search.slot.overwrite": "Правий клік: перезаписати поточним пошуком (або очистити, якщо поле порожнє)"
 }

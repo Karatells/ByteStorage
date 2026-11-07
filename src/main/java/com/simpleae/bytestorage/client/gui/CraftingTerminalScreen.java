@@ -49,6 +49,7 @@ public class CraftingTerminalScreen extends AbstractContainerScreen<CraftingTerm
         this.searchBox.setHint(Component.translatable("gui.simple_bytestorage.terminal.search")
                 .withStyle(ChatFormatting.DARK_GRAY));
         this.addRenderableWidget(this.searchBox);
+        this.extras.bindSearch(() -> this.searchBox.getValue(), q -> this.searchBox.setValue(q));
 
         this.depositButton = new UiButton(this.leftPos + 166, this.topPos + 46, 16, 16,
                 () -> Component.empty(), UiButton.Icon.DOWN, () -> {

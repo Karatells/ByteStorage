@@ -189,6 +189,98 @@ public class TerminalExtras {
         return craftableKeys.contains(CraftingService.key(stack));
     }
 
+    // --- Сохранённые поиски (3 ячейки под кнопками сортировки, хранятся локально в config) ---
+
+    public static final int SAVED_SLOTS = 3;
+    private static String[] savedSearches;
+
+    private java.util.function.Supplier<String> queryGetter = () -> "";
+    private java.util.function.Consumer<String> querySetter = q -> { };
+
+    /** Связывает ячейки поисков с полем поиска экрана. */
+    public void bindSearch(java.util.function.Supplier<String> getter, java.util.function.Consumer<String> setter) {
+        this.queryGetter = getter;
+        this.querySetter = setter;
+    }
+
+    private static java.nio.file.Path searchesFile() {
+        return net.minecraftforge.fml.loading.FMLPaths.CONFIGDIR.get().resolve("simple_bytestorage_searches.txt");
+    }
+
+    private static synchronized String[] searches() {
+        if (savedSearches == null) {
+            savedSearches = new String[SAVED_SLOTS];
+            java.util.Arrays.fill(savedSearches, "");
+            try {
+                java.nio.file.Path p = searchesFile();
+                if (java.nio.file.Files.exists(p)) {
+                    List<String> lines = java.nio.file.Files.readAllLines(p);
+                    for (int i = 0; i < Math.min(SAVED_SLOTS, lines.size()); i++) {
+                        savedSearches[i] = lines.get(i);
+                    }
+                }
+            } catch (Exception ignored) {
+                // файл не обязателен
+            }
+        }
+        return savedSearches;
+    }
+
+    private static void saveSearches() {
+        try {
+            java.nio.file.Files.write(searchesFile(), java.util.Arrays.asList(searches()));
+        } catch (Exception ignored) {
+            // не удалось сохранить — останется до конца игры
+        }
+    }
+
+    private static int savedY(int topPos, int slot) {
+        return topPos + 4 + (2 + slot) * (SORT_H + 2) + 4;
+    }
+
+    private void renderSaved(GuiGraphics g, Font font, int leftPos, int topPos, int imageWidth, int mx, int my) {
+        int x = leftPos + imageWidth + 2;
+        String[] saved = searches();
+        for (int i = 0; i < SAVED_SLOTS; i++) {
+            int y = savedY(topPos, i);
+            boolean filled = !saved[i].isEmpty();
+            String label = filled ? font.plainSubstrByWidth(saved[i], SORT_W - 8) : "+";
+            boolean hover = inside(mx, my, x, y, SORT_W, SORT_H);
+            UiButton.paint(g, font, x, y, SORT_W, SORT_H, label, hover, true);
+            if (hover) {
+                List<Component> tip = new ArrayList<>();
+                if (filled) {
+                    tip.add(Component.literal(saved[i]));
+                    tip.add(Component.translatable("gui.simple_bytestorage.search.slot.use"));
+                    tip.add(Component.translatable("gui.simple_bytestorage.search.slot.overwrite"));
+                } else {
+                    tip.add(Component.translatable("gui.simple_bytestorage.search.slot.empty"));
+                }
+                g.renderComponentTooltip(font, tip, mx, my);
+            }
+        }
+    }
+
+    /** Левый клик: применить сохранённый поиск (в пустой ячейке — сохранить текущий). Правый: перезаписать текущим или очистить. */
+    private boolean clickSaved(double mx, double my, int button, int leftPos, int topPos, int imageWidth) {
+        int x = leftPos + imageWidth + 2;
+        String[] saved = searches();
+        for (int i = 0; i < SAVED_SLOTS; i++) {
+            if (!inside(mx, my, x, savedY(topPos, i), SORT_W, SORT_H)) {
+                continue;
+            }
+            String current = queryGetter.get().trim();
+            if (button == 0 && !saved[i].isEmpty()) {
+                querySetter.accept(saved[i]);
+            } else if (button == 0 || button == 1) {
+                saved[i] = button == 1 && current.isEmpty() ? "" : current;
+                saveSearches();
+            }
+            return true;
+        }
+        return false;
+    }
+
     // --- Сортировка (кнопки справа от окна) ---
 
     private static boolean inside(double mx, double my, int x, int y, int w, int h) {
@@ -209,6 +301,7 @@ public class TerminalExtras {
         UiButton.paint(g, font, x, topPos + 4, SORT_W, SORT_H, keyLabel(), inside(mx, my, x, topPos + 4, SORT_W, SORT_H), true);
         UiButton.paint(g, font, x, topPos + 4 + SORT_H + 2, SORT_W, SORT_H, dirLabel(),
                 inside(mx, my, x, topPos + 4 + SORT_H + 2, SORT_W, SORT_H), true);
+        renderSaved(g, font, leftPos, topPos, imageWidth, mx, my);
         if (inside(mx, my, x, topPos + 4, SORT_W, SORT_H)) {
             g.renderTooltip(font, Component.translatable("gui.simple_bytestorage.sort.key.tip"), mx, my);
         } else if (inside(mx, my, x, topPos + 4 + SORT_H + 2, SORT_W, SORT_H)) {
@@ -218,6 +311,9 @@ public class TerminalExtras {
 
     /** @return true, если клик пришёлся на кнопку сортировки. */
     public boolean clickSort(double mx, double my, int button, int leftPos, int topPos, int imageWidth) {
+        if (clickSaved(mx, my, button, leftPos, topPos, imageWidth)) {
+            return true;
+        }
         if (button != 0) {
             return false;
         }

@@ -295,5 +295,8 @@
   "gui.simple_bytestorage.controller.history.rising": "Rising",
   "gui.simple_bytestorage.controller.history.falling": "Falling",
   "gui.simple_bytestorage.controller.history.window": "last %s min",
-  "gui.simple_bytestorage.controller.history.nodata": "collecting data..."
+  "gui.simple_bytestorage.controller.history.nodata": "collecting data...",
+  "gui.simple_bytestorage.search.slot.empty": "Empty slot: click to save the current search",
+  "gui.simple_bytestorage.search.slot.use": "Click: use this search",
+  "gui.simple_bytestorage.search.slot.overwrite": "Right click: overwrite with the current search (or clear if the box is empty)"
 }

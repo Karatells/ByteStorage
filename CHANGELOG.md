@@ -4,6 +4,9 @@ All notable changes to the **Simple Byte Storage** mod will be documented in thi
 
 ## [Unreleased]
 
+### Added — 1.2.1.27
+- **Saved searches**: three slots under the terminals' sort buttons store search queries (click to apply, empty slot saves the current search, right-click overwrites/clears). Saved in `config/simple_bytestorage_searches.txt`.
+
 ### Added — 1.2.1.26
 - **Statistics graphs** on the Controller's Overview tab: items stored and energy level over the last 20 minutes (sample every 20 s), plus the three items that rose and fell the most. History is not saved across reloads. New unit tests `StatsHistoryTest`.
 
