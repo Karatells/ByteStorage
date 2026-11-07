@@ -4,6 +4,9 @@ All notable changes to the **Simple Byte Storage** mod will be documented in thi
 
 ## [Unreleased]
 
+### Added — 1.2.1.26
+- **Statistics graphs** on the Controller's Overview tab: items stored and energy level over the last 20 minutes (sample every 20 s), plus the three items that rose and fell the most. History is not saved across reloads. New unit tests `StatsHistoryTest`.
+
 ### Added — 1.2.1.25
 - **Stock rule schedule**: a button on the Controller's Stock tab picks when rules place orders — always, night only, day only, or only when network energy is high (resume >50%, pause <25%). Saved with the Controller. Scripts: `stock.mode()` / `stock.setMode(name)`. New unit tests `StockScheduleTest`.
 

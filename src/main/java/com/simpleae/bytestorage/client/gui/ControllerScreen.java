@@ -6,6 +6,7 @@ import com.simpleae.bytestorage.menu.ControllerMenu;
 import com.simpleae.bytestorage.network.packet.ControllerQueuePacket;
 import com.simpleae.bytestorage.network.packet.SimpleByteStoragePackets;
 import com.simpleae.bytestorage.util.NetworkStats;
+import com.simpleae.bytestorage.util.StatsHistory;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -352,6 +353,73 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
         }
         if (s.blocks.size() > 4) {
             text(g, "+" + (s.blocks.size() - 4) + " ...", x, row + 22, GuiStyle.TEXT_MUTED);
+        }
+        drawHistory(g, s, x, y + 58);
+    }
+
+    /** Графики запасов и заряда за последние минуты и предметы, которые больше всего прибыли/убыли. */
+    private void drawHistory(GuiGraphics g, NetworkStats s, int x, int y) {
+        String items = Component.translatable("gui.simple_bytestorage.controller.history.items").getString();
+        String energy = Component.translatable("gui.simple_bytestorage.controller.history.energy").getString();
+        int lastItems = s.totalSeries.length == 0 ? 0 : s.totalSeries[s.totalSeries.length - 1];
+        int lastEnergy = s.energySeries.length == 0 ? 0 : s.energySeries[s.energySeries.length - 1];
+        text(g, items + ": " + n(lastItems), x, y, GuiStyle.TEXT_LABEL);
+        text(g, energy + ": " + lastEnergy + "%", x + 136, y, GuiStyle.TEXT_LABEL);
+        graph(g, x, y + 9, 128, 30, s.totalSeries, false, GuiStyle.ACCENT);
+        graph(g, x + 136, y + 9, 128, 30, s.energySeries, true, GuiStyle.LED_GOOD);
+        if (s.historySeconds > 0) {
+            String window = Component.translatable("gui.simple_bytestorage.controller.history.window",
+                    Math.max(1, Math.round(s.historySeconds / 60.0F))).getString();
+            text(g, window, x + 264 - this.font.width(window), y, GuiStyle.TEXT_MUTED);
+        }
+        int ty = y + 43;
+        text(g, Component.translatable("gui.simple_bytestorage.controller.history.rising").getString(), x, ty, GuiStyle.TEXT_GOOD);
+        text(g, Component.translatable("gui.simple_bytestorage.controller.history.falling").getString(), x + 136, ty, GuiStyle.TEXT_BAD);
+        trendRows(g, s.gaining, x, ty + 9, GuiStyle.TEXT_GOOD);
+        trendRows(g, s.losing, x + 136, ty + 9, GuiStyle.TEXT_BAD);
+    }
+
+    private void trendRows(GuiGraphics g, List<NetworkStats.ItemDelta> rows, int x, int y, int color) {
+        for (int i = 0; i < rows.size(); i++) {
+            NetworkStats.ItemDelta d = rows.get(i);
+            String value = (d.delta() > 0 ? "+" : "") + n(d.delta());
+            int w = this.font.width(value);
+            String name = this.font.plainSubstrByWidth(d.stack().getHoverName().getString(), 126 - w - 4);
+            text(g, name, x, y + i * 9, GuiStyle.TEXT_LABEL);
+            text(g, value, x + 126 - w, y + i * 9, color);
+        }
+    }
+
+    /** Столбчатый график: новые значения справа; {@code percent} — шкала 0..100, иначе от минимума до максимума. */
+    private void graph(GuiGraphics g, int x, int y, int w, int h, int[] series, boolean percent, int color) {
+        g.fill(x, y, x + w, y + h, GuiStyle.PANEL_EDGE_LIGHT);
+        g.fill(x + 1, y + 1, x + w - 1, y + h - 1, GuiStyle.DISPLAY_BG);
+        if (series.length < 2) {
+            text(g, Component.translatable("gui.simple_bytestorage.controller.history.nodata").getString(), x + 4, y + h / 2 - 4, GuiStyle.TEXT_MUTED);
+            return;
+        }
+        int lo = 0;
+        int hi = 100;
+        if (!percent) {
+            lo = Integer.MAX_VALUE;
+            hi = Integer.MIN_VALUE;
+            for (int v : series) {
+                lo = Math.min(lo, v);
+                hi = Math.max(hi, v);
+            }
+        }
+        int inner = h - 2;
+        int bar = Math.max(1, (w - 2) / StatsHistory.MAX_SAMPLES);
+        int right = x + w - 1;
+        for (int i = 0; i < series.length; i++) {
+            int idx = series.length - 1 - i;
+            float frac = hi == lo ? 0.5F : (series[idx] - lo) / (float) (hi - lo);
+            int bh = 1 + Math.round(frac * (inner - 1));
+            int bx = right - (i + 1) * bar;
+            if (bx < x + 1) {
+                break;
+            }
+            g.fill(bx, y + h - 1 - bh, bx + bar, y + h - 1, color);
         }
     }
 

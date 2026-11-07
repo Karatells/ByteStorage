@@ -46,3 +46,7 @@ Place a Wireless Terminal into the slot at the bottom to bind it to this network
 ## Stock rule schedule
 
 The button under the rules on the **Stock** tab chooses when stock rules place orders: **always**, **night only**, **day only**, or **only when energy is high** (resumes above 50% of the Controller's buffer, pauses below 25%). While paused by the schedule the button shows "(paused now)" and no new stock orders are made; orders already queued continue. The setting is saved with the Controller.
+
+## Statistics graphs
+
+The **Overview** tab shows two graphs built from snapshots taken every 20 seconds (the last 20 minutes are kept): the total number of items stored and the Controller's energy level. Below them, **Rising** and **Falling** list the three items whose stock changed the most over that period — handy for spotting what is draining. The history is not saved: it starts empty after a world reload, and the graphs show "collecting data..." until two snapshots exist.

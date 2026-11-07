@@ -391,6 +391,26 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
     /** Пропускать «распаковку» (блок -> много предметов), если есть обратный рецепт. */
     private boolean skipDecompress = true;
     /** Расписание правил запаса (см. StockSchedule) и признак «сейчас работают». */
+    private final com.simpleae.bytestorage.util.StatsHistory history = new com.simpleae.bytestorage.util.StatsHistory();
+
+    public com.simpleae.bytestorage.util.StatsHistory getHistory() {
+        return history;
+    }
+
+    private void sampleHistory(IGrid grid) {
+        com.simpleae.bytestorage.api.storage.INetworkStorage storage = grid.getStorage();
+        if (storage == null) {
+            return;
+        }
+        java.util.Map<String, Integer> counts = new java.util.HashMap<>();
+        for (ItemStack stack : storage.getAllItems()) {
+            counts.merge(com.simpleae.bytestorage.util.CraftingService.key(stack), stack.getCount(), Integer::sum);
+        }
+        int percent = energyStorage.getMaxEnergyStored() <= 0 ? 0
+                : (int) (energyStorage.getEnergyStored() * 100L / energyStorage.getMaxEnergyStored());
+        history.record(counts, percent);
+    }
+
     private int stockMode = com.simpleae.bytestorage.util.StockSchedule.ALWAYS;
     private boolean stockActive = true;
 
@@ -621,6 +641,9 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         }
         if (controller.tickCounter % 60 == 30 && grid.getState().isActive()) {
             controller.runStockRules(grid);
+        }
+        if (controller.tickCounter % com.simpleae.bytestorage.util.StatsHistory.SAMPLE_TICKS == 5 && grid.getState().isActive()) {
+            controller.sampleHistory(grid);
         }
 
         int drain = grid.getTotalEnergyDrain();

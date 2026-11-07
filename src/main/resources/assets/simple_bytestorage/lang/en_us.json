@@ -289,5 +289,11 @@
   "gui.simple_bytestorage.controller.stock.mode.2": "Stock rules: day only",
   "gui.simple_bytestorage.controller.stock.mode.3": "Stock rules: only when energy is high",
   "gui.simple_bytestorage.controller.stock.mode.paused": "(paused now)",
-  "gui.simple_bytestorage.controller.stock.mode.tip": "Click to change when stock rules place orders: always, night, day, or only while the network energy is above 50% (resumes above 50%, pauses below 25%)."
+  "gui.simple_bytestorage.controller.stock.mode.tip": "Click to change when stock rules place orders: always, night, day, or only while the network energy is above 50% (resumes above 50%, pauses below 25%).",
+  "gui.simple_bytestorage.controller.history.items": "Items stored",
+  "gui.simple_bytestorage.controller.history.energy": "Energy",
+  "gui.simple_bytestorage.controller.history.rising": "Rising",
+  "gui.simple_bytestorage.controller.history.falling": "Falling",
+  "gui.simple_bytestorage.controller.history.window": "last %s min",
+  "gui.simple_bytestorage.controller.history.nodata": "collecting data..."
 }

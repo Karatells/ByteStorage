@@ -289,5 +289,11 @@
   "gui.simple_bytestorage.controller.stock.mode.2": "Правила запасу: лише вдень",
   "gui.simple_bytestorage.controller.stock.mode.3": "Правила запасу: за високого заряду",
   "gui.simple_bytestorage.controller.stock.mode.paused": "(зараз пауза)",
-  "gui.simple_bytestorage.controller.stock.mode.tip": "Натисніть, щоб обрати, коли правила запасу роблять замовлення: завжди, вночі, вдень або лише поки заряд мережі вище 50% (відновлюються вище 50%, зупиняються нижче 25%)."
+  "gui.simple_bytestorage.controller.stock.mode.tip": "Натисніть, щоб обрати, коли правила запасу роблять замовлення: завжди, вночі, вдень або лише поки заряд мережі вище 50% (відновлюються вище 50%, зупиняються нижче 25%).",
+  "gui.simple_bytestorage.controller.history.items": "Предметів",
+  "gui.simple_bytestorage.controller.history.energy": "Заряд",
+  "gui.simple_bytestorage.controller.history.rising": "Зростає",
+  "gui.simple_bytestorage.controller.history.falling": "Убуває",
+  "gui.simple_bytestorage.controller.history.window": "за %s хв",
+  "gui.simple_bytestorage.controller.history.nodata": "збір даних..."
 }

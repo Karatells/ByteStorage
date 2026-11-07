@@ -74,6 +74,34 @@ public final class NetworkStats {
     }
     public final List<JournalRow> journal = new ArrayList<>();
 
+    /** Изменение количества предмета за период истории (отрицательное — убыль). */
+    public record ItemDelta(ItemStack stack, int delta) {
+    }
+
+    public static final int TREND_ROWS = 3;
+    public int[] totalSeries = new int[0];
+    public int[] energySeries = new int[0];
+    public int historySeconds;
+    public final List<ItemDelta> gaining = new ArrayList<>();
+    public final List<ItemDelta> losing = new ArrayList<>();
+
+    private static ItemStack stackForKey(String key) {
+        int nbt = key.indexOf('{');
+        String id = nbt >= 0 ? key.substring(0, nbt) : key;
+        ResourceLocation rl = ResourceLocation.tryParse(id);
+        Item item = rl == null ? null : ForgeRegistries.ITEMS.getValue(rl);
+        return item == null ? ItemStack.EMPTY : new ItemStack(item);
+    }
+
+    private static void collectTrend(List<ItemDelta> into, List<StatsHistory.Change> changes) {
+        for (StatsHistory.Change c : changes) {
+            ItemStack stack = stackForKey(c.key());
+            if (!stack.isEmpty()) {
+                into.add(new ItemDelta(stack, c.delta()));
+            }
+        }
+    }
+
     // --- Збір на сервері ---
 
     public static NetworkStats collect(NetworkControllerBlockEntity controller) {
@@ -155,6 +183,12 @@ public final class NetworkStats {
                 }
             }
         }
+        StatsHistory history = controller.getHistory();
+        s.totalSeries = history.totalSeries();
+        s.energySeries = history.energySeries();
+        s.historySeconds = history.spanSeconds();
+        collectTrend(s.gaining, history.topChanges(TREND_ROWS, true));
+        collectTrend(s.losing, history.topChanges(TREND_ROWS, false));
         s.patterns = CraftingService.allPatterns(grid).size();
         s.libraryRecipes = RecipeLibrary.count(grid);
         for (CraftingService.QueueEntry entry : CraftingService.queue(grid)) {
@@ -244,6 +278,41 @@ public final class NetworkStats {
             buf.writeVarInt(j.ageSeconds());
             buf.writeUtf(j.text(), JournalLog.MAX_TEXT);
         }
+        writeSeries(buf, totalSeries);
+        writeSeries(buf, energySeries);
+        buf.writeVarInt(historySeconds);
+        writeDeltas(buf, gaining);
+        writeDeltas(buf, losing);
+    }
+
+    private static void writeSeries(FriendlyByteBuf buf, int[] series) {
+        buf.writeVarInt(series.length);
+        for (int v : series) {
+            buf.writeVarInt(v);
+        }
+    }
+
+    private static int[] readSeries(FriendlyByteBuf buf) {
+        int[] series = new int[Math.min(buf.readVarInt(), StatsHistory.MAX_SAMPLES)];
+        for (int i = 0; i < series.length; i++) {
+            series[i] = buf.readVarInt();
+        }
+        return series;
+    }
+
+    private static void writeDeltas(FriendlyByteBuf buf, List<ItemDelta> deltas) {
+        buf.writeVarInt(deltas.size());
+        for (ItemDelta d : deltas) {
+            writeItem(buf, d.stack());
+            buf.writeVarInt(d.delta());
+        }
+    }
+
+    private static void readDeltas(FriendlyByteBuf buf, List<ItemDelta> into) {
+        int n = buf.readVarInt();
+        for (int i = 0; i < n; i++) {
+            into.add(new ItemDelta(readItem(buf), buf.readVarInt()));
+        }
     }
 
     public static NetworkStats read(FriendlyByteBuf buf) {
@@ -290,6 +359,11 @@ public final class NetworkStats {
         for (int i = 0; i < n; i++) {
             s.journal.add(new JournalRow(buf.readVarInt(), readItem(buf), buf.readVarInt(), buf.readVarInt(), buf.readUtf(JournalLog.MAX_TEXT)));
         }
+        s.totalSeries = readSeries(buf);
+        s.energySeries = readSeries(buf);
+        s.historySeconds = buf.readVarInt();
+        readDeltas(buf, s.gaining);
+        readDeltas(buf, s.losing);
         return s;
     }
 }
