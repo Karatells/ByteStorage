@@ -82,7 +82,7 @@ public class CraftingTerminalScreen extends AbstractContainerScreen<CraftingTerm
         float fill = max > 0 ? (float) used / max : 0.0F;
         int led = max <= 0 ? GuiStyle.LED_BAD : (fill >= 0.95F ? GuiStyle.LED_WARN : GuiStyle.LED_GOOD);
 
-        GuiStyle.window(graphics, x, y, imageWidth, imageHeight, this.title, led);
+        GuiStyle.window(graphics, x, y, imageWidth, imageHeight, this.title, led, "hammer");
 
         // Пошук
         GuiStyle.display(graphics, x + 96, y + 19, 88, 12);

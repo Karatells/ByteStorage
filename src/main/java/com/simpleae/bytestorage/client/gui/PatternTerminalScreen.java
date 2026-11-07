@@ -162,7 +162,7 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
         int x = this.leftPos;
         int y = this.topPos;
         int led = this.menu.getCapacityBytes() <= 0 ? GuiStyle.LED_BAD : GuiStyle.LED_GOOD;
-        GuiStyle.window(graphics, x, y, this.imageWidth, this.imageHeight, this.title, led);
+        GuiStyle.window(graphics, x, y, this.imageWidth, this.imageHeight, this.title, led, "grid");
         GuiStyle.display(graphics, x + 8, y + 19, 148, 14);
         GuiStyle.display(graphics, x + 8, y + 36, 214, 148);
         GuiStyle.panel(graphics, x + 8, y + 188, 214, 18);

@@ -42,7 +42,7 @@ public class PatternEncodingTerminalScreen extends AbstractContainerScreen<Patte
         this.encodeButton = new UiButton(this.leftPos + 40, this.topPos + 99, 96, 20,
                 () -> Component.translatable("gui.simple_bytestorage.encoder.encode"), UiButton.Icon.NONE,
                 () -> sendButton(PatternEncodingTerminalMenu.BUTTON_ENCODE))
-                .primary()
+                .primary().icon("check")
                 .enabledWhen(this::canEncode);
 
         this.clearButton = new UiButton(this.leftPos + 66, this.topPos + 20, 12, 12,
@@ -132,7 +132,7 @@ public class PatternEncodingTerminalScreen extends AbstractContainerScreen<Patte
         int y = this.topPos;
 
         GuiStyle.window(graphics, x, y, this.imageWidth, this.imageHeight, this.title,
-                canEncode() ? GuiStyle.LED_GOOD : 0xFF4A5260);
+                canEncode() ? GuiStyle.LED_GOOD : 0xFF4A5260, "doc");
 
         // Панель рецепту та панель результату
         GuiStyle.panel(graphics, x + 6, y + 18, 76, 74);

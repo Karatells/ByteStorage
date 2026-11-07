@@ -119,10 +119,6 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
 
     @Override
     public boolean mouseClicked(double mx, double my, int button) {
-        if (button == 0 && mx >= leftPos + imageWidth - 16 && mx < leftPos + imageWidth - 4 && my >= topPos + 3 && my < topPos + 16) {
-            this.onClose();
-            return true;
-        }
         for (UiButton b : tabButtons) {
             if (b.mouseClicked(mx, my, button)) {
                 return true;
@@ -241,14 +237,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
         int y = topPos;
         NetworkStats s = menu.getStats();
         int stateColor = s.state == 1 ? GuiStyle.LED_GOOD : (s.state == 2 ? GuiStyle.LED_BAD : GuiStyle.LED_WARN);
-        GuiStyle.window(g, leftPos, y, imageWidth, imageHeight, null, stateColor);
-        // Шапка: иконка сети + заголовок слева, крестик закрытия справа (вместо светодиода)
-        PixelIcons.draw(g, "network", leftPos + 8, y + 4, GuiStyle.ACCENT);
-        g.drawString(this.font, this.title, leftPos + 22, y + 5, GuiStyle.TEXT_TITLE, false);
-        g.fill(leftPos + imageWidth - 16, y + 3, leftPos + imageWidth - 3, y + 15, GuiStyle.HEADER_BG);
-        boolean overClose = mouseX >= leftPos + imageWidth - 16 && mouseX < leftPos + imageWidth - 4
-                && mouseY >= y + 3 && mouseY < y + 16;
-        PixelIcons.draw(g, "cross", leftPos + imageWidth - 15, y + 4, overClose ? GuiStyle.TEXT_BAD : GuiStyle.TEXT_GOOD);
+        GuiStyle.window(g, leftPos, y, imageWidth, imageHeight, this.title, stateColor, "network");
 
         // Колонка вкладок слева
         GuiStyle.panel(g, leftPos + 4, y + 22, ControllerMenu.TAB_COL - 8, TABS.length * 21 + 3);

@@ -30,7 +30,7 @@ public class IoBusScreen extends AbstractContainerScreen<IoBusMenu> {
             if (mc.gameMode != null) {
                 mc.gameMode.handleInventoryButtonClick(this.menu.containerId, IoBusMenu.BUTTON_MODE);
             }
-        }).primary();
+        }).primary().icon("arrows");
     }
 
     @Override
@@ -60,7 +60,7 @@ public class IoBusScreen extends AbstractContainerScreen<IoBusMenu> {
         int y = this.topPos;
 
         int led = !menu.isOnline() ? GuiStyle.LED_BAD : (menu.getMachines() > 0 ? GuiStyle.LED_GOOD : GuiStyle.LED_WARN);
-        GuiStyle.window(graphics, x, y, imageWidth, imageHeight, this.title, led);
+        GuiStyle.window(graphics, x, y, imageWidth, imageHeight, this.title, led, "cable");
 
         GuiStyle.panel(graphics, x + 6, y + 20, 164, 24);
         for (int i = 0; i < IoBusMenu.FILTER_SLOTS; i++) {

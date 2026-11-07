@@ -228,7 +228,7 @@ public class LogicTerminalScreen extends Screen {
 
         boolean online = state != null && state.online && state.modEnabled;
         int led = state == null ? GuiStyle.LED_WARN : (online ? GuiStyle.LED_GOOD : GuiStyle.LED_BAD);
-        GuiStyle.window(g, left, top, W, H, this.title, led);
+        GuiStyle.window(g, left, top, W, H, this.title, led, "code");
 
         // Список шин
         GuiStyle.display(g, left + 6, top + 20, 100, LIST_ROWS * ROW_H + 2);

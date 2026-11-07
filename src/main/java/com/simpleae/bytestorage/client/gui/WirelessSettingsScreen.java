@@ -124,7 +124,7 @@ public class WirelessSettingsScreen extends AbstractContainerScreen<WirelessSett
     protected void renderBg(GuiGraphics g, float partial, int mouseX, int mouseY) {
         int x = leftPos;
         int y = topPos;
-        GuiStyle.window(g, x, y, imageWidth, imageHeight, this.title, GuiStyle.LED_GOOD);
+        GuiStyle.window(g, x, y, imageWidth, imageHeight, this.title, GuiStyle.LED_GOOD, "network");
 
         switch (menu.getTab()) {
             case WirelessSettingsMenu.TAB_UPGRADES -> drawUpgrades(g, x, y);
@@ -157,7 +157,7 @@ public class WirelessSettingsScreen extends AbstractContainerScreen<WirelessSett
 
     private void drawTransfer(GuiGraphics g, int x, int y) {
         boolean installed = menu.hasUpgrade(WirelessUpgradeItem.Type.AUTO_TRANSFER);
-        GuiStyle.label(g, Component.translatable("gui.simple_bytestorage.wireless.filter"), x + 8, y + 60);
+        GuiStyle.label(g, "shield", Component.translatable("gui.simple_bytestorage.wireless.filter"), x + 8, y + 60);
         GuiStyle.panel(g, x + 6, y + 69, 164, 40);
         for (int i = 0; i < WirelessConfig.FILTER_SLOTS; i++) {
             GuiStyle.menuSlot(g, x, y, menu.slots.get(WirelessConfig.UPGRADE_SLOTS + i), GuiStyle.SLOT_POOL);
@@ -169,7 +169,7 @@ public class WirelessSettingsScreen extends AbstractContainerScreen<WirelessSett
     }
 
     private void drawMacro(GuiGraphics g, int x, int y) {
-        GuiStyle.label(g, Component.translatable("gui.simple_bytestorage.wireless.macro.name"), x + 8, y + 40);
+        GuiStyle.label(g, "code", Component.translatable("gui.simple_bytestorage.wireless.macro.name"), x + 8, y + 40);
         GuiStyle.display(g, x + 7, y + 52, 162, 16);
         int row = y + 74;
         boolean installed = menu.hasUpgrade(WirelessUpgradeItem.Type.MACRO);

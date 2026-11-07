@@ -54,7 +54,7 @@ public class AssemblerScreen extends AbstractContainerScreen<AssemblerMenu> {
             if (mc.gameMode != null) {
                 mc.gameMode.handleInventoryButtonClick(this.menu.containerId, AssemblerMenu.BUTTON_CANCEL);
             }
-        }).enabledWhen(() -> this.menu.getQueue() > 0 || this.menu.isBusy());
+        }).enabledWhen(() -> this.menu.getQueue() > 0 || this.menu.isBusy()).icon("cross");
     }
 
     @Override
@@ -79,7 +79,7 @@ public class AssemblerScreen extends AbstractContainerScreen<AssemblerMenu> {
         int x = this.leftPos;
         int y = this.topPos;
 
-        GuiStyle.window(graphics, x, y, this.imageWidth, this.imageHeight, this.title, ledColor());
+        GuiStyle.window(graphics, x, y, this.imageWidth, this.imageHeight, this.title, ledColor(), "wrench");
 
         // Верхня панель: картка → прогрес → результат
         GuiStyle.panel(graphics, x + 6, y + 18, 164, 44);
@@ -89,13 +89,13 @@ public class AssemblerScreen extends AbstractContainerScreen<AssemblerMenu> {
 
         // Панель буфера
         GuiStyle.display(graphics, x + 6, y + 66, 164, 36);
-        GuiStyle.label(graphics, Component.translatable("gui.simple_bytestorage.assembler.buffer"), x + 10, y + 70);
+        GuiStyle.label(graphics, "box", Component.translatable("gui.simple_bytestorage.assembler.buffer"), x + 10, y + 70);
         for (int i = 0; i < BUFFER_ICONS; i++) {
             GuiStyle.slot(graphics, x + 7 + i * 18, y + 82, GuiStyle.SLOT_POOL);
         }
 
         GuiStyle.panel(graphics, x + 6, y + 104, 164, 22);
-        GuiStyle.label(graphics, Component.translatable("gui.simple_bytestorage.assembler.upgrades"), x + 10, y + 111);
+        GuiStyle.label(graphics, "bolt", Component.translatable("gui.simple_bytestorage.assembler.upgrades"), x + 10, y + 111);
         for (int i = AssemblerMenu.UPGRADE_START; i < AssemblerMenu.UPGRADE_END; i++) {
             GuiStyle.menuSlot(graphics, x, y, this.menu.slots.get(i), GuiStyle.SLOT_OUTPUT);
         }

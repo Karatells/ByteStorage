@@ -30,7 +30,7 @@ public class PatternProviderScreen extends AbstractContainerScreen<PatternProvid
                     if (this.minecraft != null && this.minecraft.gameMode != null) {
                         this.minecraft.gameMode.handleInventoryButtonClick(menu.containerId, 0);
                     }
-                }).tooltip(Component.translatable("gui.simple_bytestorage.provider.record.tip"));
+                }).tooltip(Component.translatable("gui.simple_bytestorage.provider.record.tip")).icon("play");
     }
 
     @Override
@@ -56,7 +56,7 @@ public class PatternProviderScreen extends AbstractContainerScreen<PatternProvid
         int y = this.topPos;
 
         int led = !menu.isOnline() ? GuiStyle.LED_BAD : (menu.getMachines() > 0 ? GuiStyle.LED_GOOD : GuiStyle.LED_WARN);
-        GuiStyle.window(graphics, x, y, imageWidth, imageHeight, this.title, led);
+        GuiStyle.window(graphics, x, y, imageWidth, imageHeight, this.title, led, "chip");
 
         GuiStyle.panel(graphics, x + 6, y + 20, 164, 24);
         for (int i = 0; i < PatternProviderMenu.PATTERN_SLOTS; i++) {

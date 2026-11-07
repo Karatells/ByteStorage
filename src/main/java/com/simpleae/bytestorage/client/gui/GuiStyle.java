@@ -66,6 +66,28 @@ public final class GuiStyle {
      * Вікно: темний метал, фаски, смуга заголовка з бірюзовою лінією, світлодіод статусу, заклепки.
      */
     public static void window(GuiGraphics g, int x, int y, int w, int h, Component title, int ledColor) {
+        window(g, x, y, w, h, title, ledColor, null);
+    }
+
+    // Прямоугольник последнего нарисованного окна: по нему обработчик клика закрывает экран крестиком в шапке.
+    private static int lastX;
+    private static int lastY;
+    private static int lastW;
+
+    /** Область крестика закрытия в шапке последнего окна: {x, y, w, h}; null, если окна ещё не было. */
+    public static int[] closeButtonArea() {
+        return lastW == 0 ? null : new int[]{lastX + lastW - 16, lastY + 3, 13, 13};
+    }
+
+    /**
+     * Окно с иконкой экрана слева от заголовка, светодиодом статуса и крестиком закрытия справа.
+     *
+     * @param icon имя иконки из {@link PixelIcons}; null — без иконки
+     */
+    public static void window(GuiGraphics g, int x, int y, int w, int h, Component title, int ledColor, String icon) {
+        lastX = x;
+        lastY = y;
+        lastW = w;
         g.fill(x, y, x + w, y + h, WINDOW_EDGE);
         g.fill(x + 1, y + 1, x + w - 1, y + h - 1, WINDOW_BG);
         g.fill(x + 1, y + 1, x + w - 1, y + 2, BEVEL_LIGHT);
@@ -76,11 +98,25 @@ public final class GuiStyle {
         // Смуга заголовка
         g.fill(x + 3, y + 3, x + w - 3, y + 16, HEADER_BG);
         g.fill(x + 3, y + 15, x + w - 3, y + 16, ACCENT_DIM);
+        int titleX = x + 8;
+        if (icon != null) {
+            PixelIcons.draw(g, icon, x + 7, y + 4, ACCENT);
+            titleX = x + 22;
+        }
         if (title != null) {
             Font font = Minecraft.getInstance().font;
-            g.drawString(font, title, x + 8, y + 5, TEXT_TITLE, false);
+            g.drawString(font, title, titleX, y + 5, TEXT_TITLE, false);
         }
-        led(g, x + w - 11, y + 7, ledColor);
+        led(g, x + w - 24, y + 7, ledColor);
+        // Крестик закрытия: краснеет при наведении
+        boolean over = false;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.getWindow() != null && mc.mouseHandler != null) {
+            double mx = mc.mouseHandler.xpos() * mc.getWindow().getGuiScaledWidth() / mc.getWindow().getScreenWidth();
+            double my = mc.mouseHandler.ypos() * mc.getWindow().getGuiScaledHeight() / mc.getWindow().getScreenHeight();
+            over = mx >= x + w - 16 && mx < x + w - 3 && my >= y + 3 && my < y + 16;
+        }
+        PixelIcons.draw(g, "cross", x + w - 15, y + 4, over ? TEXT_BAD : TEXT_GOOD);
 
         // Заклепки внизу
         g.fill(x + 3, y + h - 5, x + 5, y + h - 3, 0xFF96A0AF);
@@ -116,6 +152,12 @@ public final class GuiStyle {
         g.drawString(Minecraft.getInstance().font, text, x, y, TEXT_LABEL, false);
     }
 
+    /** Підпис панелі з іконкою ліворуч. */
+    public static void label(GuiGraphics g, String icon, Component text, int x, int y) {
+        PixelIcons.draw(g, icon, x, y - 1, ACCENT_DIM, ACCENT);
+        g.drawString(Minecraft.getInstance().font, text, x + 13, y, TEXT_LABEL, false);
+    }
+
     // --- Слоти ---
 
     /** Рамка слота 18×18 (boxX/boxY — лівий верхній кут рамки; предмет лежить на +1/+1). */
@@ -148,7 +190,7 @@ public final class GuiStyle {
 
     /** Тонкий роздільник між інвентарем і хотбаром не потрібен; підпис «Інвентар» — дрібний, зліва. */
     public static void inventoryLabel(GuiGraphics g, Component text, int x, int y) {
-        g.drawString(Minecraft.getInstance().font, text, x, y, TEXT_LABEL, false);
+        label(g, "grid", text, x, y);
     }
 
     // --- Індикатори ---

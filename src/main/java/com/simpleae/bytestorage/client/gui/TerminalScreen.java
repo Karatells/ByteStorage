@@ -51,7 +51,7 @@ public class TerminalScreen extends AbstractContainerScreen<TerminalMenu> {
         this.addRenderableWidget(this.searchBox);
         this.extras.bindSearch(() -> this.searchBox.getValue(), q -> this.searchBox.setValue(q));
 
-        this.depositButton = new UiButton(this.leftPos + 166, this.topPos + 4, 14, 11,
+        this.depositButton = new UiButton(this.leftPos + 150, this.topPos + 4, 14, 11,
                 () -> Component.empty(), UiButton.Icon.DOWN, () -> {
             int flag = hasShiftDown() ? 1 : 0;
             SimpleByteStoragePackets.sendToServer(
@@ -82,7 +82,7 @@ public class TerminalScreen extends AbstractContainerScreen<TerminalMenu> {
         float fill = max > 0 ? (float) used / max : 0.0F;
         int led = max <= 0 ? GuiStyle.LED_BAD : (fill >= 0.95F ? GuiStyle.LED_WARN : GuiStyle.LED_GOOD);
 
-        GuiStyle.window(graphics, x, y, imageWidth, imageHeight, this.title, led);
+        GuiStyle.window(graphics, x, y, imageWidth, imageHeight, this.title, led, "monitor");
 
         // Поле пошуку (текст малює EditBox без власної рамки)
         GuiStyle.display(graphics, x + 82, y + 4, 80, 11);

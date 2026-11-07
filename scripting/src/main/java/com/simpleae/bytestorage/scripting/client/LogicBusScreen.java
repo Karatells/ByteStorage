@@ -144,7 +144,7 @@ public class LogicBusScreen extends Screen {
         this.renderBackground(g);
         boolean online = state != null && state.online && state.modEnabled;
         int led = state == null ? GuiStyle.LED_WARN : (online ? GuiStyle.LED_GOOD : GuiStyle.LED_BAD);
-        GuiStyle.window(g, left, top, W, H, this.title, led);
+        GuiStyle.window(g, left, top, W, H, this.title, led, "chip");
 
         // Список ID мережі
         GuiStyle.label(g, Component.translatable("gui.simple_bytestorage_scripting.id.list"), left + 6, top + 22);

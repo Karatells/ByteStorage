@@ -67,7 +67,7 @@ public class DriveScreen extends AbstractContainerScreen<DriveMenu> {
         int x = this.leftPos;
         int y = this.topPos;
 
-        GuiStyle.window(graphics, x, y, imageWidth, imageHeight, this.title);
+        GuiStyle.window(graphics, x, y, imageWidth, imageHeight, this.title, GuiStyle.LED_GOOD, "box");
 
         // Відсік накопичувача: 2 рядки по 5 слотів
         GuiStyle.panel(graphics, x + 38, y + 17, 102, 41);
@@ -85,7 +85,7 @@ public class DriveScreen extends AbstractContainerScreen<DriveMenu> {
 
         // Білий список
         GuiStyle.panel(graphics, x + 6, y + 60, 164, 34);
-        GuiStyle.label(graphics, Component.translatable("gui.simple_bytestorage.drive.filter"), x + 10, y + 63);
+        GuiStyle.label(graphics, "search", Component.translatable("gui.simple_bytestorage.drive.filter"), x + 10, y + 63);
         for (int i = DriveMenu.FILTER_START; i < DriveMenu.FILTER_END; i++) {
             GuiStyle.menuSlot(graphics, x, y, menu.slots.get(i), GuiStyle.SLOT_POOL);
         }

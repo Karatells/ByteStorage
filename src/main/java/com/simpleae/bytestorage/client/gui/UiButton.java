@@ -28,6 +28,7 @@ public class UiButton {
     private BooleanSupplier enabled = () -> true;
     private Component tooltip;
     private boolean primary;
+    private String pixelIcon;
 
     public UiButton(int x, int y, int width, int height, Supplier<Component> label, Icon icon, Runnable action) {
         this.x = x;
@@ -46,6 +47,12 @@ public class UiButton {
 
     public UiButton tooltip(Component text) {
         this.tooltip = text;
+        return this;
+    }
+
+    /** Иконка из {@link PixelIcons} слева от текста кнопки. */
+    public UiButton icon(String name) {
+        this.pixelIcon = name;
         return this;
     }
 
@@ -88,8 +95,17 @@ public class UiButton {
                 }
             }
             default -> {
-                String s = font.plainSubstrByWidth(label.get().getString(), width - 4);
-                g.drawString(font, s, cx - font.width(s) / 2, y + (height - 8) / 2, text, false);
+                int room = width - 4 - (pixelIcon != null ? PixelIcons.SIZE + 3 : 0);
+                String s = font.plainSubstrByWidth(label.get().getString(), room);
+                int textW = font.width(s);
+                if (pixelIcon != null) {
+                    int total = PixelIcons.SIZE + (s.isEmpty() ? 0 : 3 + textW);
+                    int ix = cx - total / 2;
+                    PixelIcons.draw(g, pixelIcon, ix, y + (height - PixelIcons.SIZE) / 2, text, GuiStyle.TEXT_TITLE);
+                    g.drawString(font, s, ix + PixelIcons.SIZE + 3, y + (height - 8) / 2, text, false);
+                } else {
+                    g.drawString(font, s, cx - textW / 2, y + (height - 8) / 2, text, false);
+                }
             }
         }
     }
