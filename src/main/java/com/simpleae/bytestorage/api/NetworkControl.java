@@ -248,6 +248,28 @@ public final class NetworkControl {
         return true;
     }
 
+    /** Событие журнала для аддонов; {@code seq} растёт монотонно. */
+    public record EventInfo(long seq, int type, String item, int amount, String text) {
+    }
+
+    /** Курсор «сейчас»: события, добавленные позже, вернёт {@link #eventsSince}. */
+    public static long eventCursor(IGrid grid) {
+        NetworkControllerBlockEntity c = controller(grid);
+        return c == null ? 0 : c.getJournal().eventCount();
+    }
+
+    public static List<EventInfo> eventsSince(IGrid grid, long cursor) {
+        List<EventInfo> result = new ArrayList<>();
+        NetworkControllerBlockEntity c = controller(grid);
+        if (c == null) {
+            return result;
+        }
+        for (JournalLog.Event e : c.getJournal().eventsSince(cursor)) {
+            result.add(new EventInfo(e.seq(), e.type(), e.item(), e.amount(), e.text()));
+        }
+        return result;
+    }
+
     public static List<JournalInfo> readJournal(IGrid grid, int limit) {
         List<JournalInfo> result = new ArrayList<>();
         NetworkControllerBlockEntity c = controller(grid);

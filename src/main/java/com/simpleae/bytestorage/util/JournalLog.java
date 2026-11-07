@@ -1,5 +1,6 @@
 package com.simpleae.bytestorage.util;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,12 +23,19 @@ public final class JournalLog {
     public static final int MAX_TEXT = 60;
 
     public static final int MAX_ENTRIES = 60;
+    public static final int MAX_EVENTS = 100;
     public static final long MERGE_TICKS = 600;
 
     public record Entry(long tick, int type, String item, int amount, String text) {
     }
 
+    /** Событие для подписчиков (скриптов): каждое добавление, без слияния, с порядковым номером. */
+    public record Event(long seq, int type, String item, int amount, String text) {
+    }
+
     private final List<Entry> entries = new ArrayList<>(); // от старых к новым
+    private final ArrayDeque<Event> events = new ArrayDeque<>();
+    private long seq;
 
     public void add(long now, int type, String item, int amount) {
         add(now, type, item, amount, "");
@@ -41,6 +49,10 @@ public final class JournalLog {
             text = "";
         } else if (text.length() > MAX_TEXT) {
             text = text.substring(0, MAX_TEXT);
+        }
+        events.addLast(new Event(++seq, type, item, amount, text));
+        if (events.size() > MAX_EVENTS) {
+            events.removeFirst();
         }
         if (!entries.isEmpty()) {
             Entry last = entries.get(entries.size() - 1);
@@ -61,6 +73,22 @@ public final class JournalLog {
         List<Entry> result = new ArrayList<>(Math.min(n, entries.size()));
         for (int i = entries.size() - 1; i >= 0 && result.size() < n; i--) {
             result.add(entries.get(i));
+        }
+        return result;
+    }
+
+    /** Сколько событий было добавлено всего (курсор для {@link #eventsSince}). */
+    public long eventCount() {
+        return seq;
+    }
+
+    /** События с номером больше {@code cursor}, от старых к новым (потерянные при переполнении пропускаются). */
+    public List<Event> eventsSince(long cursor) {
+        List<Event> result = new ArrayList<>();
+        for (Event e : events) {
+            if (e.seq() > cursor) {
+                result.add(e);
+            }
         }
         return result;
     }

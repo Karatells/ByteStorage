@@ -376,3 +376,29 @@ function tick() {
   if (total > 200) journal.write("Queue is long: " + total + " crafts");
 }
 ```
+
+## 24. React to finished crafts (onCraft)
+
+```js
+var made = 0;
+
+function onCraft(e) {
+  made += e.count;
+  if (made >= 256) {
+    journal.write("Crafted " + made + " items");
+    made = 0;
+  }
+}
+```
+
+## 25. Alert only on real problems (onAlert, onLowStock)
+
+```js
+function onAlert(e) {
+  if (e.type === "stuck") alert("Machine stuck on " + e.id);
+}
+
+function onLowStock(e) {
+  journal.write("Auto-order: " + e.count + " x " + e.id);
+}
+```

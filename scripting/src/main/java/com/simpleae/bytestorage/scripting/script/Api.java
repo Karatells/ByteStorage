@@ -358,6 +358,12 @@ final class Api {
     }
 
     /** Новий JS-об'єкт з пар «ім'я, значення». */
+    /** Объект события для обработчиков onCraft / onLowStock / onAlert. */
+    public Scriptable eventObject(Context cx, NetworkControl.EventInfo e) {
+        return obj(cx, "type", JOURNAL_TYPES[Math.max(0, Math.min(JOURNAL_TYPES.length - 1, e.type()))],
+                "id", e.item(), "count", e.amount(), "text", e.text());
+    }
+
     private Scriptable obj(Context cx, Object... pairs) {
         Scriptable o = cx.newObject(scope);
         for (int i = 0; i + 1 < pairs.length; i += 2) {

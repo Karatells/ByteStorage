@@ -99,6 +99,18 @@ These can be disabled by the server (`allowControl`).
 
 Identical consecutive journal lines from the same bus are merged into `x2`, `x3`, …
 
+## Event handlers
+
+Besides `tick()` a script may define handlers that are called when something happens in the network. They are optional; a script needs at least `tick()` or one handler. Events are delivered at the bus interval, before `tick()`, oldest first.
+
+| Handler | Called when | Event object |
+|---|---|---|
+| `onCraft(e)` | an Assembler finished a craft | `{type: "crafted", id, count, text}` |
+| `onLowStock(e)` | a stock rule ordered a missing amount | `{type: "stock_order", id, count, text}` (`count` = ordered) |
+| `onAlert(e)` | a stock rule failed or a machine is stuck | `{type: "stock_failed" \| "stuck", id, count, text}` |
+
+Rules: events that happened before the script was compiled are not replayed; at most 10 handler calls per run (the rest are dropped); events written by scripts (`journal.write/warn`) are never delivered, so handlers cannot trigger themselves. Handlers use the same budget as `tick()`, and an error in a handler stops the run like an error in `tick()`.
+
 ## `side(dir)` and `side(dir, id)`
 
 `dir` is one of `"down"`, `"up"`, `"north"`, `"south"`, `"west"`, `"east"`, relative to the Logic Bus the inventory is read from.
@@ -157,7 +169,7 @@ To avoid one-call memory bombs, `String.prototype.repeat`, `padStart`, `padEnd` 
 
 | Message | Cause |
 |---|---|
-| `script must define function tick()` | No `tick` function at top level. |
+| `script must define function tick() or an event handler …` | Neither `tick` nor `onCraft` / `onLowStock` / `onAlert` is defined at top level. |
 | `SyntaxError… (line N)` | The script doesn't parse. |
 | `unknown item: x` | Bad item id. |
 | `side(): expected down/up/north/south/west/east` | Bad direction. |

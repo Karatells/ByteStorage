@@ -65,4 +65,29 @@ class JournalLogTest {
         assertEquals(JournalLog.MAX_ENTRIES, log.size());
         assertTrue(log.latest(JournalLog.MAX_ENTRIES + 20).stream().noneMatch(e -> e.item().equals("item0")));
     }
+
+    @Test
+    void eventsAreNotMergedAndKeepOrder() {
+        JournalLog log = new JournalLog();
+        long start = log.eventCount();
+        log.add(0, JournalLog.CRAFTED, "planks", 4);
+        log.add(10, JournalLog.CRAFTED, "planks", 4); // merged in the journal, still two events
+        log.add(20, JournalLog.STUCK, "iron", 1);
+        List<JournalLog.Event> events = log.eventsSince(start);
+        assertEquals(3, events.size());
+        assertEquals(4, events.get(1).amount());
+        assertEquals(JournalLog.STUCK, events.get(2).type());
+        assertEquals(1, log.eventsSince(log.eventCount() - 1).size());
+        assertTrue(log.eventsSince(log.eventCount()).isEmpty());
+    }
+
+    @Test
+    void eventBufferIsBounded() {
+        JournalLog log = new JournalLog();
+        for (int i = 0; i < JournalLog.MAX_EVENTS + 20; i++) {
+            log.add(i * 1000L, JournalLog.CRAFTED, "i" + i, 1);
+        }
+        assertEquals(JournalLog.MAX_EVENTS, log.eventsSince(0).size());
+        assertEquals(JournalLog.MAX_EVENTS + 20, log.eventCount());
+    }
 }
