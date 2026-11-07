@@ -4,6 +4,9 @@ All notable changes to the **Simple Byte Storage** mod will be documented in thi
 
 ## [Unreleased]
 
+### Changed — 1.2.1.28
+- **Controller screen layout**: the tabs moved from the top into a column on the left (guidebook style); the content, all slots and the player inventory are shifted right and the window is wider.
+
 ### Added — 1.2.1.27
 - **Saved searches**: three slots under the terminals' sort buttons store search queries (click to apply, empty slot saves the current search, right-click overwrites/clears). Saved in `config/simple_bytestorage_searches.txt`.
 

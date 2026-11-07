@@ -1,6 +1,6 @@
 # Network Controller GUI
 
-Right-click the [Network Controller](Network-and-Power) to open its screen. It has three tabs and a slot for the [Wireless Terminal](Wireless-Terminal).
+Right-click the [Network Controller](Network-and-Power) to open its screen. It has six tabs (Overview, Storage, Crafting, Recipes, Stock, Journal) in a column on the left, like a guidebook, and a slot for the [Wireless Terminal](Wireless-Terminal). The content is shown to the right of the column and the player inventory sits below it.
 
 ## Overview
 Network status (Online / Offline / Conflict), number of connected devices, stored energy with a bar, the per-tick drain, and a count of each connected block type.

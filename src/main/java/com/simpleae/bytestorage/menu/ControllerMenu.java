@@ -24,9 +24,11 @@ import org.jetbrains.annotations.NotNull;
  */
 public class ControllerMenu extends AbstractContainerMenu {
 
-    public static final int WIRELESS_X = 8;
+    /** Ширина левой колонки вкладок: всё содержимое окна (слоты, инвентарь) сдвинуто вправо на неё. */
+    public static final int TAB_COL = 70;
+    public static final int WIRELESS_X = TAB_COL + 8;
     public static final int WIRELESS_Y = 124;
-    public static final int LIBRARY_X = 8;
+    public static final int LIBRARY_X = TAB_COL + 8;
     public static final int LIBRARY_Y = 152;
     public static final int BLACKLIST_START = 2;
     public static final int PREFS_START = BLACKLIST_START + NetworkControllerBlockEntity.RECIPE_SETTING_SLOTS;
@@ -38,10 +40,10 @@ public class ControllerMenu extends AbstractContainerMenu {
     public static final int STOCK_Y = 44;
     public static final int[] STOCK_DELTAS = {-100, -10, -1, 1, 10, 100};
     public static final int STOCK_BUTTON_BASE = 100;
-    public static final int GHOST_X = 10;
+    public static final int GHOST_X = TAB_COL + 10;
     public static final int BLACKLIST_Y = 54;
     public static final int PREFS_Y = 84;
-    public static final int PLAYER_INV_X = 63;
+    public static final int PLAYER_INV_X = TAB_COL + 63;
     public static final int PLAYER_INV_Y = 188;
 
     private final NetworkControllerBlockEntity controller;

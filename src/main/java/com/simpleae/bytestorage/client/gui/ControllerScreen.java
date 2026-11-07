@@ -37,7 +37,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
 
     public ControllerScreen(ControllerMenu menu, Inventory inv, Component title) {
         super(menu, inv, title);
-        this.imageWidth = 288;
+        this.imageWidth = ControllerMenu.TAB_COL + 288;
         this.imageHeight = 270;
     }
 
@@ -47,16 +47,17 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
         tabButtons.clear();
         for (int i = 0; i < TABS.length; i++) {
             final int index = i;
-            UiButton b = new UiButton(leftPos + 8 + i * 46, topPos + 20, 45, 14,
+            UiButton b = new UiButton(leftPos + 8, topPos + 24 + i * 19, ControllerMenu.TAB_COL - 14, 16,
                     () -> Component.translatable("gui.simple_bytestorage.controller.tab." + TABS[index]),
                     UiButton.Icon.NONE, () -> { tab = index; menu.setTab(index); });
             tabButtons.add(b);
         }
+        final int ox = leftPos + ControllerMenu.TAB_COL;
         rowButtons.clear();
         for (int r = 0; r < QUEUE_ROWS; r++) {
             final int row = r;
             int by = topPos + 42 + 14 + r * ROW_H - 2;
-            int bx = leftPos + 10 + 202;
+            int bx = ox + 10 + 202;
             rowButtons.add(new UiButton(bx, by, 12, 12, () -> Component.literal("+"), UiButton.Icon.NONE,
                     () -> queueAction(row, ControllerQueuePacket.PRIORITY_UP)).tooltip(Component.translatable("gui.simple_bytestorage.controller.queue.prio_up")));
             rowButtons.add(new UiButton(bx + 14, by, 12, 12, () -> Component.literal("-"), UiButton.Icon.NONE,
@@ -73,7 +74,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
                 final int row = r;
                 final int action = a;
                 final String label = labels[a];
-                stockButtons.add(new UiButton(leftPos + 10 + 68 + a * 25, topPos + ControllerMenu.STOCK_Y + r * 18 + 1, 24, 14,
+                stockButtons.add(new UiButton(ox + 10 + 68 + a * 25, topPos + ControllerMenu.STOCK_Y + r * 18 + 1, 24, 14,
                         () -> Component.literal(label), UiButton.Icon.NONE, () -> {
                             int rule = menu.getStockPage() * ControllerMenu.STOCK_ROWS + row;
                             if (this.minecraft != null && this.minecraft.gameMode != null) {
@@ -84,17 +85,17 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
                         + menu.getStockPage() * ControllerMenu.STOCK_ROWS + row).hasItem()));
             }
         }
-        pageButton = new UiButton(leftPos + 262, topPos + ControllerMenu.STOCK_Y + 1, 18, 14,
+        pageButton = new UiButton(ox + 262, topPos + ControllerMenu.STOCK_Y + 1, 18, 14,
                 () -> Component.literal(String.valueOf(menu.getStockPage() + 1)), UiButton.Icon.NONE,
                 () -> menu.setStockPage(1 - menu.getStockPage()))
                 .tooltip(Component.translatable("gui.simple_bytestorage.controller.stock.page"));
-        journalUp = new UiButton(leftPos + 262, topPos + 44, 18, 14, () -> Component.literal("^"), UiButton.Icon.NONE,
+        journalUp = new UiButton(ox + 262, topPos + 44, 18, 14, () -> Component.literal("^"), UiButton.Icon.NONE,
                 () -> journalOffset = Math.max(0, journalOffset - JOURNAL_PAGE))
                 .tooltip(Component.translatable("gui.simple_bytestorage.controller.journal.newer"));
-        journalDown = new UiButton(leftPos + 262, topPos + 98, 18, 14, () -> Component.literal("v"), UiButton.Icon.NONE,
+        journalDown = new UiButton(ox + 262, topPos + 98, 18, 14, () -> Component.literal("v"), UiButton.Icon.NONE,
                 () -> journalOffset += JOURNAL_PAGE)
                 .tooltip(Component.translatable("gui.simple_bytestorage.controller.journal.older"));
-        scheduleButton = new UiButton(leftPos + 10, topPos + 121, 264, 13,
+        scheduleButton = new UiButton(ox + 10, topPos + 121, 264, 13,
                 () -> Component.translatable("gui.simple_bytestorage.controller.stock.mode." + menu.getStockMode())
                         .append(menu.isStockActive() ? Component.empty()
                                 : Component.literal("  ").append(Component.translatable("gui.simple_bytestorage.controller.stock.mode.paused"))),
@@ -103,7 +104,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
                         this.minecraft.gameMode.handleInventoryButtonClick(menu.containerId, 1);
                     }
                 }).tooltip(Component.translatable("gui.simple_bytestorage.controller.stock.mode.tip"));
-        skipButton = new UiButton(leftPos + 10, topPos + 103, 264, 13,
+        skipButton = new UiButton(ox + 10, topPos + 103, 264, 13,
                 () -> Component.translatable(menu.isSkipDecompress() ? "gui.simple_bytestorage.controller.recipes.skip.on" : "gui.simple_bytestorage.controller.recipes.skip.off"),
                 UiButton.Icon.NONE, () -> {
                     if (this.minecraft != null && this.minecraft.gameMode != null) {
@@ -151,7 +152,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
             UiButton b = tabButtons.get(i);
             b.render(g, this.font, mouseX, mouseY);
             if (i == tab) {
-                g.fill(leftPos + 8 + i * 46, topPos + 34, leftPos + 53 + i * 46, topPos + 36, GuiStyle.ACCENT);
+                g.fill(leftPos + 5, topPos + 24 + i * 19, leftPos + 7, topPos + 40 + i * 19, GuiStyle.ACCENT);
             }
         }
         for (int i = 0; i < visibleRows() * 4; i++) {
@@ -167,7 +168,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
             NetworkStats st = menu.getStats();
             for (int row = 0; row < ControllerMenu.STOCK_ROWS; row++) {
                 int rule = menu.getStockPage() * ControllerMenu.STOCK_ROWS + row;
-                int rx = leftPos + 10 + 22;
+                int rx = leftPos + ControllerMenu.TAB_COL + 10 + 22;
                 int ry = topPos + ControllerMenu.STOCK_Y + row * 18;
                 if (st.stockState[rule] == 3 && st.stockReason[rule] != null
                         && mouseX >= rx && mouseX < rx + 46 && mouseY >= ry && mouseY < ry + 16) {
@@ -211,11 +212,13 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
 
     @Override
     protected void renderBg(GuiGraphics g, float partial, int mouseX, int mouseY) {
-        int x = leftPos;
+        int x = leftPos + ControllerMenu.TAB_COL; // начало области содержимого справа от колонки вкладок
         int y = topPos;
         NetworkStats s = menu.getStats();
         int led = s.state == 1 ? GuiStyle.LED_GOOD : (s.state == 2 ? GuiStyle.LED_BAD : GuiStyle.LED_WARN);
-        GuiStyle.window(g, x, y, imageWidth, imageHeight, this.title, led);
+        GuiStyle.window(g, leftPos, y, imageWidth, imageHeight, this.title, led);
+        // Колонка вкладок слева
+        GuiStyle.panel(g, leftPos + 4, y + 20, ControllerMenu.TAB_COL - 8, TABS.length * 19 + 6);
 
         GuiStyle.display(g, x + 6, y + 38, 276, 80);
         switch (tab) {
@@ -229,7 +232,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
 
         // Слот привязки беспроводного терминала
         GuiStyle.panel(g, x + 6, y + 120, 276, 26);
-        GuiStyle.menuSlot(g, x, y, menu.slots.get(0), GuiStyle.SLOT_CARD, GuiStyle.ACCENT);
+        GuiStyle.menuSlot(g, leftPos, y, menu.slots.get(0), GuiStyle.SLOT_CARD, GuiStyle.ACCENT);
         ItemStack w = menu.getWirelessStack();
         if (w.getItem() instanceof WirelessTerminalItem) {
             int energy = WirelessTerminalItem.getEnergy(w);
@@ -243,7 +246,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
 
         // Слот улучшения «Библиотека рецептов»
         GuiStyle.panel(g, x + 6, y + 148, 276, 26);
-        GuiStyle.menuSlot(g, x, y, menu.slots.get(1), GuiStyle.SLOT_CARD, GuiStyle.TEXT_WARN);
+        GuiStyle.menuSlot(g, leftPos, y, menu.slots.get(1), GuiStyle.SLOT_CARD, GuiStyle.TEXT_WARN);
         if (menu.getStats().libraryRecipes > 0) {
             text(g, Component.translatable("gui.simple_bytestorage.controller.library.active").getString(), x + 30, y + 152, GuiStyle.TEXT_GOOD);
             text(g, Component.translatable("gui.simple_bytestorage.controller.library.count", menu.getStats().libraryRecipes).getString(), x + 30, y + 163, GuiStyle.TEXT_LABEL);
@@ -252,8 +255,8 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
             text(g, Component.translatable("gui.simple_bytestorage.controller.library.hint").getString(), x + 30, y + 163, GuiStyle.TEXT_MUTED);
         }
 
-        GuiStyle.inventoryLabel(g, this.playerInventoryTitle, x + ControllerMenu.PLAYER_INV_X, y + ControllerMenu.PLAYER_INV_Y - 10);
-        GuiStyle.playerSlots(g, x, y, menu.slots, ControllerMenu.PLAYER_START);
+        GuiStyle.inventoryLabel(g, this.playerInventoryTitle, leftPos + ControllerMenu.PLAYER_INV_X, y + ControllerMenu.PLAYER_INV_Y - 10);
+        GuiStyle.playerSlots(g, leftPos, y, menu.slots, ControllerMenu.PLAYER_START);
     }
 
     private static final int JOURNAL_PAGE = 5;
@@ -300,7 +303,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
         for (int row = 0; row < ControllerMenu.STOCK_ROWS; row++) {
             int rule = page * ControllerMenu.STOCK_ROWS + row;
             net.minecraft.world.inventory.Slot slot = menu.slots.get(ControllerMenu.STOCK_START + rule);
-            GuiStyle.menuSlot(g, x, y, slot, GuiStyle.SLOT_CARD);
+            GuiStyle.menuSlot(g, x - ControllerMenu.TAB_COL, y, slot, GuiStyle.SLOT_CARD);
             if (slot.hasItem()) {
                 int color = switch (s.stockState[rule]) {
                     case 1 -> GuiStyle.TEXT_GOOD;
@@ -328,7 +331,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
         text(g, Component.translatable("gui.simple_bytestorage.controller.recipes.blacklist").getString(), x + 10, y + 42, GuiStyle.TEXT_BAD);
         text(g, Component.translatable("gui.simple_bytestorage.controller.recipes.prefs").getString(), x + 10, y + 72, GuiStyle.TEXT_GOOD);
         for (int i = ControllerMenu.BLACKLIST_START; i < ControllerMenu.STOCK_START; i++) {
-            GuiStyle.menuSlot(g, x, y, menu.slots.get(i), GuiStyle.SLOT_CARD);
+            GuiStyle.menuSlot(g, x - ControllerMenu.TAB_COL, y, menu.slots.get(i), GuiStyle.SLOT_CARD);
         }
         if (!menu.slots.get(1).hasItem()) {
             text(g, Component.translatable("gui.simple_bytestorage.controller.recipes.need_library").getString(), x + 10, y + 105, GuiStyle.TEXT_WARN);
