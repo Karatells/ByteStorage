@@ -4,6 +4,10 @@ All notable changes to the **Simple Byte Storage** mod will be documented in thi
 
 ## [Unreleased]
 
+## [1.2.1] — beta
+
+New Controller design, restyled screens, statistics graphs, stock schedule, Capacitor, script code editor and events. Full notes: `docs/RELEASE_NOTES_1.2.1.md`.
+
 ### Added — 1.2.1.32
 - **Script code editor** in the Logic Terminal (Scripting addon) replaces the plain text box: line numbers, **syntax highlighting** (keywords, strings, numbers, comments, functions, API objects, properties), mouse and keyboard selection, copy/cut/paste, undo/redo (Ctrl+Z / Ctrl+Y), auto-indent, auto-closing brackets and quotes, Tab / Shift+Tab block indent, Ctrl+/ to comment lines.
 - **Autocomplete**: a popup suggests API objects and methods (`net.`, `stock.`, `recipes.`, `journal.`, port methods) and keywords while you type; inside quotes it suggests item ids. Up/Down to choose, Enter/Tab or click to accept, Esc to dismiss, Ctrl+Space to force it.
