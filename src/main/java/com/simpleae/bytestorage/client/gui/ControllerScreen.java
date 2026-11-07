@@ -22,7 +22,11 @@ import java.util.Locale;
 public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
 
     private static final NumberFormat FMT = NumberFormat.getInstance(Locale.US);
-    private static final String[] TABS = {"overview", "storage", "crafting", "recipes", "stock", "journal"};
+    private static final String[] TABS = {"overview", "storage", "crafting", "recipes", "stock", "journal", "stats"};
+    private static final String[] TAB_ICONS = {"monitor", "box", "hammer", "grid", "shield", "doc", "chart"};
+    private static final int STATS_TAB = 6;
+    /** Верх области содержимого вкладок (от верха окна). */
+    private static final int CY = 26;
 
     private static final int JOURNAL_TAB = 5;
     private static final int QUEUE_ROWS = 4;
@@ -47,7 +51,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
         tabButtons.clear();
         for (int i = 0; i < TABS.length; i++) {
             final int index = i;
-            UiButton b = new UiButton(leftPos + 8, topPos + 24 + i * 19, ControllerMenu.TAB_COL - 14, 16,
+            UiButton b = new UiButton(leftPos + 8, topPos + CY + i * 21, ControllerMenu.TAB_COL - 14, 19,
                     () -> Component.translatable("gui.simple_bytestorage.controller.tab." + TABS[index]),
                     UiButton.Icon.NONE, () -> { tab = index; menu.setTab(index); });
             tabButtons.add(b);
@@ -56,7 +60,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
         rowButtons.clear();
         for (int r = 0; r < QUEUE_ROWS; r++) {
             final int row = r;
-            int by = topPos + 42 + 14 + r * ROW_H - 2;
+            int by = topPos + CY + 14 + r * ROW_H - 2;
             int bx = ox + 10 + 202;
             rowButtons.add(new UiButton(bx, by, 12, 12, () -> Component.literal("+"), UiButton.Icon.NONE,
                     () -> queueAction(row, ControllerQueuePacket.PRIORITY_UP)).tooltip(Component.translatable("gui.simple_bytestorage.controller.queue.prio_up")));
@@ -89,13 +93,13 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
                 () -> Component.literal(String.valueOf(menu.getStockPage() + 1)), UiButton.Icon.NONE,
                 () -> menu.setStockPage(1 - menu.getStockPage()))
                 .tooltip(Component.translatable("gui.simple_bytestorage.controller.stock.page"));
-        journalUp = new UiButton(ox + 262, topPos + 44, 18, 14, () -> Component.literal("^"), UiButton.Icon.NONE,
+        journalUp = new UiButton(ox + 262, topPos + CY + 2, 18, 14, () -> Component.literal("^"), UiButton.Icon.NONE,
                 () -> journalOffset = Math.max(0, journalOffset - JOURNAL_PAGE))
                 .tooltip(Component.translatable("gui.simple_bytestorage.controller.journal.newer"));
-        journalDown = new UiButton(ox + 262, topPos + 98, 18, 14, () -> Component.literal("v"), UiButton.Icon.NONE,
+        journalDown = new UiButton(ox + 262, topPos + CY + 70, 18, 14, () -> Component.literal("v"), UiButton.Icon.NONE,
                 () -> journalOffset += JOURNAL_PAGE)
                 .tooltip(Component.translatable("gui.simple_bytestorage.controller.journal.older"));
-        scheduleButton = new UiButton(ox + 10, topPos + 121, 264, 13,
+        scheduleButton = new UiButton(ox + 10, topPos + 101, 264, 12,
                 () -> Component.translatable("gui.simple_bytestorage.controller.stock.mode." + menu.getStockMode())
                         .append(menu.isStockActive() ? Component.empty()
                                 : Component.literal("  ").append(Component.translatable("gui.simple_bytestorage.controller.stock.mode.paused"))),
@@ -104,7 +108,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
                         this.minecraft.gameMode.handleInventoryButtonClick(menu.containerId, 1);
                     }
                 }).tooltip(Component.translatable("gui.simple_bytestorage.controller.stock.mode.tip"));
-        skipButton = new UiButton(ox + 10, topPos + 103, 264, 13,
+        skipButton = new UiButton(ox + 10, topPos + 97, 264, 13,
                 () -> Component.translatable(menu.isSkipDecompress() ? "gui.simple_bytestorage.controller.recipes.skip.on" : "gui.simple_bytestorage.controller.recipes.skip.off"),
                 UiButton.Icon.NONE, () -> {
                     if (this.minecraft != null && this.minecraft.gameMode != null) {
@@ -115,6 +119,10 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
 
     @Override
     public boolean mouseClicked(double mx, double my, int button) {
+        if (button == 0 && mx >= leftPos + imageWidth - 16 && mx < leftPos + imageWidth - 4 && my >= topPos + 3 && my < topPos + 16) {
+            this.onClose();
+            return true;
+        }
         for (UiButton b : tabButtons) {
             if (b.mouseClicked(mx, my, button)) {
                 return true;
@@ -149,11 +157,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
         this.renderBackground(g);
         super.render(g, mouseX, mouseY, partial);
         for (int i = 0; i < tabButtons.size(); i++) {
-            UiButton b = tabButtons.get(i);
-            b.render(g, this.font, mouseX, mouseY);
-            if (i == tab) {
-                g.fill(leftPos + 5, topPos + 24 + i * 19, leftPos + 7, topPos + 40 + i * 19, GuiStyle.ACCENT);
-            }
+            drawTab(g, i, mouseX, mouseY);
         }
         for (int i = 0; i < visibleRows() * 4; i++) {
             rowButtons.get(i).render(g, this.font, mouseX, mouseY);
@@ -193,6 +197,27 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
         this.renderTooltip(g, mouseX, mouseY);
     }
 
+    /** Вкладка в левой колонке: иконка + название, активная подсвечена бирюзовой рамкой. */
+    private void drawTab(GuiGraphics g, int i, int mouseX, int mouseY) {
+        int bx = leftPos + 8;
+        int by = topPos + CY + i * 21;
+        int bw = ControllerMenu.TAB_COL - 14;
+        boolean active = i == tab;
+        boolean hover = mouseX >= bx && mouseX < bx + bw && mouseY >= by && mouseY < by + 19;
+        int border = active ? GuiStyle.ACCENT : (hover ? GuiStyle.ACCENT_DIM : 0xFF2F353E);
+        int fill = active ? 0xFF15303C : (hover ? 0xFF2B3C4C : 0xFF222831);
+        g.fill(bx, by, bx + bw, by + 19, border);
+        g.fill(bx + 1, by + 1, bx + bw - 1, by + 18, fill);
+        if (active) {
+            g.fill(bx - 1, by + 2, bx, by + 17, GuiStyle.ACCENT_FAINT);
+            g.fill(bx + bw, by + 2, bx + bw + 1, by + 17, GuiStyle.ACCENT_FAINT);
+        }
+        PixelIcons.draw(g, TAB_ICONS[i], bx + 4, by + 5, active ? GuiStyle.ACCENT : GuiStyle.TEXT_LABEL,
+                active ? 0xFFFFFFFF : GuiStyle.TEXT_TITLE);
+        String name = Component.translatable("gui.simple_bytestorage.controller.tab." + TABS[i]).getString();
+        g.drawString(this.font, name, bx + 17, by + 6, active ? GuiStyle.TEXT_TITLE : GuiStyle.TEXT_LABEL, false);
+    }
+
     private boolean isPaused(int row) {
         List<NetworkStats.QueueRow> rows = menu.getStats().queue;
         return row < rows.size() && rows.get(row).paused();
@@ -215,39 +240,59 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
         int x = leftPos + ControllerMenu.TAB_COL; // начало области содержимого справа от колонки вкладок
         int y = topPos;
         NetworkStats s = menu.getStats();
-        int led = s.state == 1 ? GuiStyle.LED_GOOD : (s.state == 2 ? GuiStyle.LED_BAD : GuiStyle.LED_WARN);
-        GuiStyle.window(g, leftPos, y, imageWidth, imageHeight, this.title, led);
-        // Колонка вкладок слева
-        GuiStyle.panel(g, leftPos + 4, y + 20, ControllerMenu.TAB_COL - 8, TABS.length * 19 + 6);
+        int stateColor = s.state == 1 ? GuiStyle.LED_GOOD : (s.state == 2 ? GuiStyle.LED_BAD : GuiStyle.LED_WARN);
+        GuiStyle.window(g, leftPos, y, imageWidth, imageHeight, null, stateColor);
+        // Шапка: иконка сети + заголовок слева, крестик закрытия справа (вместо светодиода)
+        PixelIcons.draw(g, "network", leftPos + 8, y + 4, GuiStyle.ACCENT);
+        g.drawString(this.font, this.title, leftPos + 22, y + 5, GuiStyle.TEXT_TITLE, false);
+        g.fill(leftPos + imageWidth - 16, y + 3, leftPos + imageWidth - 3, y + 15, GuiStyle.HEADER_BG);
+        boolean overClose = mouseX >= leftPos + imageWidth - 16 && mouseX < leftPos + imageWidth - 4
+                && mouseY >= y + 3 && mouseY < y + 16;
+        PixelIcons.draw(g, "cross", leftPos + imageWidth - 15, y + 4, overClose ? GuiStyle.TEXT_BAD : GuiStyle.TEXT_GOOD);
 
-        GuiStyle.display(g, x + 6, y + 38, 276, 80);
-        switch (tab) {
-            case 0 -> drawOverview(g, s, x + 10, y + 42);
-            case 1 -> drawStorage(g, s, x + 10, y + 42);
-            case 2 -> drawCrafting(g, s, x + 10, y + 42);
-            case 3 -> drawRecipes(g, x, y);
-            case 4 -> drawStock(g, s, x, y);
-            default -> drawJournal(g, s, x + 10, y + 42);
+        // Колонка вкладок слева
+        GuiStyle.panel(g, leftPos + 4, y + 22, ControllerMenu.TAB_COL - 8, TABS.length * 21 + 3);
+
+        if (tab == 0) {
+            drawOverview(g, s, x, y);
+        } else {
+            GuiStyle.display(g, x + 6, y + 22, 276, 92);
+            switch (tab) {
+                case 1 -> drawStorage(g, s, x + 10, y + CY);
+                case 2 -> drawCrafting(g, s, x + 10, y + CY);
+                case 3 -> drawRecipes(g, x, y);
+                case 4 -> drawStock(g, s, x, y);
+                case STATS_TAB -> drawHistory(g, s, x + 10, y + CY);
+                default -> drawJournal(g, s, x + 10, y + CY);
+            }
         }
 
         // Слот привязки беспроводного терминала
-        GuiStyle.panel(g, x + 6, y + 120, 276, 26);
+        GuiStyle.panel(g, x + 6, y + 118, 276, 26);
         GuiStyle.menuSlot(g, leftPos, y, menu.slots.get(0), GuiStyle.SLOT_CARD, GuiStyle.ACCENT);
         ItemStack w = menu.getWirelessStack();
         if (w.getItem() instanceof WirelessTerminalItem) {
             int energy = WirelessTerminalItem.getEnergy(w);
-            text(g, Component.translatable("gui.simple_bytestorage.controller.wireless.bound").getString(), x + 30, y + 124, GuiStyle.TEXT_GOOD);
-            GuiStyle.meter(g, x + 30, y + 136, 100, 6, energy / (float) WirelessTerminalItem.CAPACITY);
-            text(g, n(energy) + " / " + n(WirelessTerminalItem.CAPACITY) + " FE", x + 136, y + 135, GuiStyle.TEXT_LABEL);
+            text(g, Component.translatable("gui.simple_bytestorage.controller.wireless.bound").getString(), x + 30, y + 122, GuiStyle.TEXT_GOOD);
+            GuiStyle.meter(g, x + 30, y + 134, 100, 6, energy / (float) WirelessTerminalItem.CAPACITY);
+            text(g, n(energy) + " / " + n(WirelessTerminalItem.CAPACITY) + " FE", x + 136, y + 133, GuiStyle.TEXT_LABEL);
         } else {
-            text(g, Component.translatable("gui.simple_bytestorage.controller.wireless.empty").getString(), x + 30, y + 124, GuiStyle.TEXT_MUTED);
-            text(g, Component.translatable("gui.simple_bytestorage.controller.wireless.hint").getString(), x + 30, y + 135, GuiStyle.TEXT_MUTED);
+            text(g, Component.translatable("gui.simple_bytestorage.controller.wireless.empty").getString(), x + 30, y + 122, GuiStyle.TEXT_TITLE);
+            text(g, Component.translatable("gui.simple_bytestorage.controller.wireless.hint").getString(), x + 30, y + 133, GuiStyle.TEXT_MUTED);
         }
 
         // Слот улучшения «Библиотека рецептов»
+        boolean library = menu.getStats().libraryRecipes > 0;
         GuiStyle.panel(g, x + 6, y + 148, 276, 26);
+        if (library) {
+            int c = GuiStyle.TEXT_WARN;
+            g.fill(x + 6, y + 148, x + 282, y + 149, c);
+            g.fill(x + 6, y + 173, x + 282, y + 174, c);
+            g.fill(x + 6, y + 148, x + 7, y + 174, c);
+            g.fill(x + 281, y + 148, x + 282, y + 174, c);
+        }
         GuiStyle.menuSlot(g, leftPos, y, menu.slots.get(1), GuiStyle.SLOT_CARD, GuiStyle.TEXT_WARN);
-        if (menu.getStats().libraryRecipes > 0) {
+        if (library) {
             text(g, Component.translatable("gui.simple_bytestorage.controller.library.active").getString(), x + 30, y + 152, GuiStyle.TEXT_GOOD);
             text(g, Component.translatable("gui.simple_bytestorage.controller.library.count", menu.getStats().libraryRecipes).getString(), x + 30, y + 163, GuiStyle.TEXT_LABEL);
         } else {
@@ -323,41 +368,82 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
             }
         }
         if (anyEmpty) {
-            text(g, Component.translatable("gui.simple_bytestorage.controller.stock.hint").getString(), x + 32, y + 48, GuiStyle.TEXT_MUTED);
+            text(g, Component.translatable("gui.simple_bytestorage.controller.stock.hint").getString(), x + 32, y + 32, GuiStyle.TEXT_MUTED);
         }
     }
 
     private void drawRecipes(GuiGraphics g, int x, int y) {
-        text(g, Component.translatable("gui.simple_bytestorage.controller.recipes.blacklist").getString(), x + 10, y + 42, GuiStyle.TEXT_BAD);
-        text(g, Component.translatable("gui.simple_bytestorage.controller.recipes.prefs").getString(), x + 10, y + 72, GuiStyle.TEXT_GOOD);
+        text(g, Component.translatable("gui.simple_bytestorage.controller.recipes.blacklist").getString(), x + 10, y + 28, GuiStyle.TEXT_BAD);
+        text(g, Component.translatable("gui.simple_bytestorage.controller.recipes.prefs").getString(), x + 10, y + 58, GuiStyle.TEXT_GOOD);
         for (int i = ControllerMenu.BLACKLIST_START; i < ControllerMenu.STOCK_START; i++) {
             GuiStyle.menuSlot(g, x - ControllerMenu.TAB_COL, y, menu.slots.get(i), GuiStyle.SLOT_CARD);
         }
         if (!menu.slots.get(1).hasItem()) {
-            text(g, Component.translatable("gui.simple_bytestorage.controller.recipes.need_library").getString(), x + 10, y + 105, GuiStyle.TEXT_WARN);
+            text(g, Component.translatable("gui.simple_bytestorage.controller.recipes.need_library").getString(), x + 10, y + 90, GuiStyle.TEXT_WARN);
         }
     }
 
+    /** Обзор: панель статуса и энергии, панель состава сети (в стиле референса). */
     private void drawOverview(GuiGraphics g, NetworkStats s, int x, int y) {
         String[] states = {"offline", "online", "conflict"};
         int stateColor = s.state == 1 ? GuiStyle.TEXT_GOOD : (s.state == 2 ? GuiStyle.TEXT_BAD : GuiStyle.TEXT_WARN);
-        text(g, Component.translatable("gui.simple_bytestorage.controller.status").getString() + ": "
-                + Component.translatable("gui.simple_bytestorage.controller.state." + states[Math.min(2, Math.max(0, s.state))]).getString()
-                + "   " + Component.translatable("gui.simple_bytestorage.controller.nodes", s.nodeTotal).getString(), x, y, stateColor);
+        int ledColor = s.state == 1 ? GuiStyle.LED_GOOD : (s.state == 2 ? GuiStyle.LED_BAD : GuiStyle.LED_WARN);
+
+        // --- Статус и энергия ---
+        GuiStyle.display(g, x + 6, y + 22, 276, 42);
+        GuiStyle.led(g, x + 14, y + 29, ledColor);
+        String status = Component.translatable("gui.simple_bytestorage.controller.status").getString() + ": ";
+        g.drawString(this.font, status, x + 24, y + 28, GuiStyle.TEXT_LABEL, false);
+        g.drawString(this.font, Component.translatable("gui.simple_bytestorage.controller.state."
+                + states[Math.min(2, Math.max(0, s.state))]).getString(), x + 24 + this.font.width(status), y + 28, stateColor, false);
+        PixelIcons.draw(g, "network", x + 150, y + 27, GuiStyle.ACCENT);
+        text(g, Component.translatable("gui.simple_bytestorage.controller.nodes", s.nodeTotal).getString(), x + 164, y + 28, GuiStyle.TEXT_TITLE);
+
+        PixelIcons.draw(g, "bolt", x + 12, y + 39, GuiStyle.TEXT_WARN);
         text(g, Component.translatable("gui.simple_bytestorage.controller.energy").getString() + ": " + n(s.energy) + " / " + n(s.maxEnergy)
-                + " FE   (-" + n(s.drain) + " FE/t)", x, y + 11, GuiStyle.TEXT_TITLE);
-        GuiStyle.meter(g, x, y + 22, 264, 6, s.maxEnergy == 0 ? 0 : s.energy / (float) s.maxEnergy);
-        int row = y + 32;
+                + " FE  (" + (s.drain > 0 ? "-" : "") + n(s.drain) + " FE/t)", x + 26, y + 40, GuiStyle.TEXT_TITLE);
+        GuiStyle.meter(g, x + 12, y + 53, 264, 6, s.maxEnergy == 0 ? 0 : s.energy / (float) s.maxEnergy);
+
+        // --- Состав сети ---
+        GuiStyle.display(g, x + 6, y + 68, 276, 46);
         int shown = 0;
         for (NetworkStats.BlockCount b : s.blocks) {
-            if (shown >= 4) break;
-            text(g, Component.translatable(b.nameKey()).getString() + " x" + b.count(), x + (shown % 2) * 118, row + (shown / 2) * 11, GuiStyle.TEXT_LABEL);
+            if (shown >= 4) {
+                break;
+            }
+            int cx = x + 12 + (shown % 2) * 144;
+            int cy = y + 72 + (shown / 2) * 13;
+            PixelIcons.draw(g, blockIcon(b.nameKey()), cx, cy, GuiStyle.ACCENT);
+            text(g, Component.translatable(b.nameKey()).getString() + " x" + b.count(), cx + 14, cy + 1, GuiStyle.TEXT_LABEL);
             shown++;
         }
-        if (s.blocks.size() > 4) {
-            text(g, "+" + (s.blocks.size() - 4) + " ...", x, row + 22, GuiStyle.TEXT_MUTED);
+        int percent = s.maxEnergy == 0 ? 0 : (int) (s.energy * 100L / s.maxEnergy);
+        int cy = y + 98;
+        PixelIcons.draw(g, "cube", x + 12, cy, GuiStyle.ACCENT);
+        text(g, Component.translatable("gui.simple_bytestorage.controller.items_total", n((int) Math.min(Integer.MAX_VALUE, s.totalItems))).getString(),
+                x + 26, cy + 1, GuiStyle.TEXT_LABEL);
+        PixelIcons.draw(g, "bolt", x + 156, cy, GuiStyle.TEXT_WARN);
+        String charge = Component.translatable("gui.simple_bytestorage.controller.charge", percent).getString();
+        if (s.drain > 0 && s.energy > 0) {
+            charge += "  (~" + formatEta((int) Math.max(1, s.energy / (s.drain * 20L))) + ")";
         }
-        drawHistory(g, s, x, y + 58);
+        text(g, charge, x + 170, cy + 1, percent < 25 ? GuiStyle.TEXT_BAD : GuiStyle.TEXT_LABEL);
+    }
+
+    private static String blockIcon(String nameKey) {
+        if (nameKey.contains("cable")) {
+            return "cable";
+        }
+        if (nameKey.contains("io_bus")) {
+            return "chip";
+        }
+        if (nameKey.contains("assembler")) {
+            return "wrench";
+        }
+        if (nameKey.contains("controller")) {
+            return "network";
+        }
+        return "cube";
     }
 
     /** Графики запасов и заряда за последние минуты и предметы, которые больше всего прибыли/убыли. */

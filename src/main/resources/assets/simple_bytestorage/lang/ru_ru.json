@@ -301,5 +301,8 @@
   "gui.simple_bytestorage.search.slot.overwrite": "Правый клик: перезаписать текущим поиском (или очистить, если поле пустое)",
   "block.simple_bytestorage.capacitor": "Конденсатор",
   "item.simple_bytestorage.capacitor": "Конденсатор",
-  "msg.simple_bytestorage.capacitor": "Конденсатор: %s / %s FE"
+  "msg.simple_bytestorage.capacitor": "Конденсатор: %s / %s FE",
+  "gui.simple_bytestorage.controller.tab.stats": "Графики",
+  "gui.simple_bytestorage.controller.items_total": "Предметов: %s",
+  "gui.simple_bytestorage.controller.charge": "Заряд: %s%%"
 }

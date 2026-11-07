@@ -51,6 +51,8 @@ public final class NetworkStats {
     public int usedBytes;
     public int capacityBytes;
     public int itemTypes;
+    /** Всего предметов в хранилище (сумма по всем типам). */
+    public long totalItems;
     public int nodeTotal;
     public int patterns;
     public int assemblers;
@@ -157,6 +159,9 @@ public final class NetworkStats {
             s.capacityBytes = storage.getTotalCapacityBytes();
             List<ItemStack> all = storage.getAllItems();
             s.itemTypes = all.size();
+            for (ItemStack stack : all) {
+                s.totalItems += stack.getCount();
+            }
             Map<Item, Integer> perItem = new HashMap<>();
             for (ItemStack stack : all) {
                 perItem.merge(stack.getItem(), stack.getCount(), Integer::sum);
@@ -224,6 +229,7 @@ public final class NetworkStats {
         buf.writeVarInt(usedBytes);
         buf.writeVarInt(capacityBytes);
         buf.writeVarInt(itemTypes);
+        buf.writeVarLong(totalItems);
         buf.writeVarInt(nodeTotal);
         buf.writeVarInt(patterns);
         buf.writeVarInt(assemblers);
@@ -324,6 +330,7 @@ public final class NetworkStats {
         s.usedBytes = buf.readVarInt();
         s.capacityBytes = buf.readVarInt();
         s.itemTypes = buf.readVarInt();
+        s.totalItems = buf.readVarLong();
         s.nodeTotal = buf.readVarInt();
         s.patterns = buf.readVarInt();
         s.assemblers = buf.readVarInt();

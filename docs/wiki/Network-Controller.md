@@ -1,6 +1,6 @@
 # Network Controller GUI
 
-Right-click the [Network Controller](Network-and-Power) to open its screen. It has six tabs (Overview, Storage, Crafting, Recipes, Stock, Journal) in a column on the left, like a guidebook, and a slot for the [Wireless Terminal](Wireless-Terminal). The content is shown to the right of the column and the player inventory sits below it.
+Right-click the [Network Controller](Network-and-Power) to open its screen. It has seven tabs (Overview, Storage, Crafting, Recipes, Stock, Journal, Graphs) in a column on the left, like a guidebook. The tab content is shown to the right of the column; below it, on every tab, are the slot for the [Wireless Terminal](Wireless-Terminal) and the slot for the Recipe Library, and under them the player inventory. The cross in the top-right corner closes the screen.
 
 ## Overview
 Network status (Online / Offline / Conflict), number of connected devices, stored energy with a bar, the per-tick drain, and a count of each connected block type.
@@ -49,4 +49,4 @@ The button under the rules on the **Stock** tab chooses when stock rules place o
 
 ## Statistics graphs
 
-The **Overview** tab shows two graphs built from snapshots taken every 20 seconds (the last 20 minutes are kept): the total number of items stored and the Controller's energy level. Below them, **Rising** and **Falling** list the three items whose stock changed the most over that period — handy for spotting what is draining. The history is not saved: it starts empty after a world reload, and the graphs show "collecting data..." until two snapshots exist.
+The **Graphs** tab shows two graphs built from snapshots taken every 20 seconds (the last 20 minutes are kept): the total number of items stored and the Controller's energy level. Below them, **Rising** and **Falling** list the three items whose stock changed the most over that period — handy for spotting what is draining. The history is not saved: it starts empty after a world reload, and the graphs show "collecting data..." until two snapshots exist.

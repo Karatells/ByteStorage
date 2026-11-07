@@ -4,6 +4,10 @@ All notable changes to the **Simple Byte Storage** mod will be documented in thi
 
 ## [Unreleased]
 
+### Changed — 1.2.1.30
+- **Controller screen redesigned** after the design reference: tabs with icons in the left column, a header with a network icon and a close cross, an Overview with a status/energy panel and a network-contents panel (items stored, charge with estimated time left), highlighted Recipe Library slot when active.
+- **Fixed overlapping**: the Wireless Terminal and Recipe Library slots no longer collide with the stock-schedule button and the graphs. The graphs moved to a new **Graphs** tab; the tab content area was moved up and compacted.
+
 ### Added — 1.2.1.29
 - **Capacitor** block: a reserve energy store (500,000 FE) on the network. Refills the Controller below 50% (to 60%), absorbs surplus above 90% (to 85%), accepts energy from adjacent generators, right-click shows the charge. New unit tests `CapacitorLogicTest`.
 
