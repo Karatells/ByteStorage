@@ -246,6 +246,46 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
     public static final int REC_NO_MACHINE = 6;
     public static final int REC_FAILED = 7;    // не удалось определить рецепт
 
+    public static final int WAIT_NONE = 0;
+    public static final int WAIT_RESOURCES = 1;   // в сети не хватает ингредиентов
+    public static final int WAIT_NO_MACHINE = 2;  // нет машины, которая принимает ингредиенты
+
+    private int waitReason = WAIT_NONE;
+
+    public int getWaitReason() {
+        return waitReason;
+    }
+
+    /** Результат первого задания шины (для предупреждений); пустой стак, если заданий нет. */
+    public ItemStack getCurrentOutput() {
+        if (jobs.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        PatternData pattern = findPattern(jobs.get(0).patternId);
+        return pattern == null ? ItemStack.EMPTY : pattern.getOutput();
+    }
+
+    /** Чего не хватает первому заданию; null, если всё есть. */
+    @Nullable
+    public Component describeMissing() {
+        if (jobs.isEmpty() || grid == null || grid.getStorage() == null) {
+            return null;
+        }
+        PatternData pattern = findPattern(jobs.get(0).patternId);
+        if (pattern == null) {
+            return Component.translatable("msg.simple_bytestorage.order.no_pattern");
+        }
+        for (ItemStack input : pattern.getInputs()) {
+            ItemStack have = grid.getStorage().extractForCrafting(input, input.getCount(), true);
+            int got = have.isEmpty() ? 0 : have.getCount();
+            if (got < input.getCount()) {
+                return Component.translatable("msg.simple_bytestorage.order.missing_short",
+                        input.getCount() - got, input.getHoverName());
+            }
+        }
+        return null;
+    }
+
     private int recState = REC_OFF;
     private java.util.Map<String, Integer> recBase = new java.util.HashMap<>();
     private java.util.Map<String, Integer> recPrev = new java.util.HashMap<>();
@@ -429,7 +469,12 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
         flushOverflow(storage);
         collectOutputs(storage, machines);
 
-        if (jobs.isEmpty() || machines.isEmpty()) {
+        waitReason = WAIT_NONE;
+        if (jobs.isEmpty()) {
+            return;
+        }
+        if (machines.isEmpty()) {
+            waitReason = WAIT_NO_MACHINE;
             return;
         }
         for (int i = 0; i < PUSHES_PER_CYCLE && !jobs.isEmpty(); i++) {
@@ -563,6 +608,7 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
         for (ItemStack input : pattern.getInputs()) {
             ItemStack available = storage.extractForCrafting(input, input.getCount(), true);
             if (available.isEmpty() || available.getCount() < input.getCount()) {
+                waitReason = WAIT_RESOURCES;
                 return false;
             }
         }
@@ -589,9 +635,11 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
             if (job.left <= 0) {
                 jobs.remove(0);
             }
+            waitReason = WAIT_NONE;
             setChanged();
             return true;
         }
+        waitReason = WAIT_NO_MACHINE;
         return false;
     }
 

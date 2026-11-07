@@ -225,6 +225,39 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
             }
             alert(key, message);
         }
+        for (com.simpleae.bytestorage.api.network.IGridNode node : grid.getNodes()) {
+            if (!(node instanceof PatternProviderBlockEntity bus) || bus.getPendingCrafts() <= 0) {
+                continue;
+            }
+            int reason = bus.getWaitReason();
+            if (reason == PatternProviderBlockEntity.WAIT_NONE) {
+                continue;
+            }
+            long id = bus.getBlockPos().asLong();
+            waiting.add(id);
+            int ticks = stuckTicks.merge(id, 60, Integer::sum);
+            // машина может законно занимать время (долгий рецепт), поэтому для неё порог вдвое больше
+            int limit = reason == PatternProviderBlockEntity.WAIT_NO_MACHINE ? STUCK_AFTER_TICKS * 2 : STUCK_AFTER_TICKS;
+            if (ticks < limit) {
+                continue;
+            }
+            net.minecraft.network.chat.Component why = reason == PatternProviderBlockEntity.WAIT_NO_MACHINE
+                    ? net.minecraft.network.chat.Component.translatable("msg.simple_bytestorage.alert.no_machine")
+                    : bus.describeMissing();
+            if (why == null) {
+                continue;
+            }
+            net.minecraft.world.item.ItemStack out = bus.getCurrentOutput();
+            net.minecraft.network.chat.Component message = net.minecraft.network.chat.Component.translatable(
+                    "msg.simple_bytestorage.alert.stuck", out.isEmpty() ? "?" : out.getHoverName(), why);
+            String key = "stuck:" + id;
+            Long last = alertTimes.get(key);
+            if (last == null || level == null || level.getGameTime() - last >= ALERT_COOLDOWN) {
+                com.simpleae.bytestorage.util.NetworkJournal.log(grid, com.simpleae.bytestorage.util.JournalLog.STUCK,
+                        out, Math.max(1, bus.getPendingCrafts()));
+            }
+            alert(key, message);
+        }
         stuckTicks.keySet().retainAll(waiting);
     }
 

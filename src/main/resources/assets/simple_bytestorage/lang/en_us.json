@@ -281,5 +281,6 @@
   "gui.simple_bytestorage.journal.type.7": "Script",
   "gui.simple_bytestorage.journal.type.8": "Script warning",
   "gui.simple_bytestorage.terminal.reserved": "Reserved for orders: %s",
-  "gui.simple_bytestorage.terminal.in_production": "In production: %s"
+  "gui.simple_bytestorage.terminal.in_production": "In production: %s",
+  "msg.simple_bytestorage.alert.no_machine": "no machine accepts the ingredients (missing or full)"
 }

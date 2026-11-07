@@ -4,6 +4,9 @@ All notable changes to the **Simple Byte Storage** mod will be documented in thi
 
 ## [Unreleased]
 
+### Added — 1.2.1.21
+- **Stuck Pattern Buses**: a bus that waits for ingredients for 30 s, or has no machine accepting them for 60 s, is reported like a stuck Assembler (journal "Stuck", chat warning, `onAlert` in scripts).
+
 ### Added — 1.2.1.20
 - **Scripting events**: optional `onCraft(e)`, `onLowStock(e)`, `onAlert(e)` handlers instead of polling in `tick()`. A script needs `tick()` or at least one handler. Journal events now carry a sequence number (unit tests added) and the core API has `NetworkControl.eventCursor/eventsSince`.
 

@@ -281,5 +281,6 @@
   "gui.simple_bytestorage.journal.type.7": "Скрипт",
   "gui.simple_bytestorage.journal.type.8": "Попередження скрипту",
   "gui.simple_bytestorage.terminal.reserved": "Зарезервовано під замовлення: %s",
-  "gui.simple_bytestorage.terminal.in_production": "У виробництві: %s"
+  "gui.simple_bytestorage.terminal.in_production": "У виробництві: %s",
+  "msg.simple_bytestorage.alert.no_machine": "жодна машина не приймає інгредієнти (немає або переповнена)"
 }
