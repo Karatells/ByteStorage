@@ -163,6 +163,27 @@ public final class NetworkControl {
 
     // --- Правила запаса ---
 
+    /** Режим расписания правил запаса: {@code name} — always/night/day/energy, {@code active} — работают ли правила сейчас. */
+    public record StockScheduleInfo(String name, boolean active) {
+    }
+
+    @Nullable
+    public static StockScheduleInfo stockSchedule(IGrid grid) {
+        NetworkControllerBlockEntity c = controller(grid);
+        return c == null ? null : new StockScheduleInfo(com.simpleae.bytestorage.util.StockSchedule.name(c.getStockMode()),
+                c.isStockScheduleActive());
+    }
+
+    public static boolean setStockSchedule(IGrid grid, String name) {
+        NetworkControllerBlockEntity c = controller(grid);
+        int mode = com.simpleae.bytestorage.util.StockSchedule.byName(name);
+        if (c == null || mode < 0) {
+            return false;
+        }
+        c.setStockMode(mode);
+        return true;
+    }
+
     public static List<StockInfo> stockRules(IGrid grid) {
         List<StockInfo> result = new ArrayList<>();
         NetworkControllerBlockEntity c = controller(grid);

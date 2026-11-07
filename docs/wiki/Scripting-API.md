@@ -80,6 +80,8 @@ The same rules as the Controller's **Stock** tab (8 rules).
 | `stock.list()` | array | `[{slot, id, min, have, state}]`; `state` is `"ok"`, `"crafting"`, `"failed"` or `"off"`. |
 | `stock.set(id, min)` | number | Creates the rule for the item (or changes the existing one). Returns its slot, or `-1` if all 8 rules are in use. `min = 0` removes it. |
 | `stock.clear(id)` | number | Removes the rules for the item; returns how many. |
+| `stock.mode()` | object | The schedule: `{mode, active}`; `mode` is `"always"`, `"night"`, `"day"` or `"energy"`, `active` tells whether rules are running now. |
+| `stock.setMode(name)` | boolean | Changes the schedule (`false` for an unknown name). Can be disabled by the server (`allowControl`). |
 
 ### `recipes` — Recipe Library settings
 

@@ -283,5 +283,11 @@
   "gui.simple_bytestorage.terminal.reserved": "Зарезервировано под заказы: %s",
   "gui.simple_bytestorage.terminal.in_production": "В производстве: %s",
   "msg.simple_bytestorage.alert.no_machine": "ни одна машина не принимает ингредиенты (нет или переполнена)",
-  "gui.simple_bytestorage.plan.max": "Максимум: %s"
+  "gui.simple_bytestorage.plan.max": "Максимум: %s",
+  "gui.simple_bytestorage.controller.stock.mode.0": "Правила запаса: всегда",
+  "gui.simple_bytestorage.controller.stock.mode.1": "Правила запаса: только ночью",
+  "gui.simple_bytestorage.controller.stock.mode.2": "Правила запаса: только днём",
+  "gui.simple_bytestorage.controller.stock.mode.3": "Правила запаса: при высоком заряде",
+  "gui.simple_bytestorage.controller.stock.mode.paused": "(сейчас пауза)",
+  "gui.simple_bytestorage.controller.stock.mode.tip": "Нажмите, чтобы выбрать, когда правила запаса делают заказы: всегда, ночью, днём или только пока заряд сети выше 50% (возобновляются выше 50%, останавливаются ниже 25%)."
 }

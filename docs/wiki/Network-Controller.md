@@ -42,3 +42,7 @@ The journal keeps the last 60 events in memory and is cleared when the world is 
 
 ## Wireless Terminal slot
 Place a Wireless Terminal into the slot at the bottom to bind it to this network and charge it from the controller's energy buffer. The slot's contents drop when the controller is broken.
+
+## Stock rule schedule
+
+The button under the rules on the **Stock** tab chooses when stock rules place orders: **always**, **night only**, **day only**, or **only when energy is high** (resumes above 50% of the Controller's buffer, pauses below 25%). While paused by the schedule the button shows "(paused now)" and no new stock orders are made; orders already queued continue. The setting is saved with the Controller.

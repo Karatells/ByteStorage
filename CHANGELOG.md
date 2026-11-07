@@ -4,6 +4,9 @@ All notable changes to the **Simple Byte Storage** mod will be documented in thi
 
 ## [Unreleased]
 
+### Added — 1.2.1.25
+- **Stock rule schedule**: a button on the Controller's Stock tab picks when rules place orders — always, night only, day only, or only when network energy is high (resume >50%, pause <25%). Saved with the Controller. Scripts: `stock.mode()` / `stock.setMode(name)`. New unit tests `StockScheduleTest`.
+
 ### Fixed — 1.2.1.24
 - Build fix for `NetworkControl.MachineInfo` (record component name clashed with `Object.wait`).
 

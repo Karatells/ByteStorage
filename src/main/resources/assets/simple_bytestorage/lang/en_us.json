@@ -283,5 +283,11 @@
   "gui.simple_bytestorage.terminal.reserved": "Reserved for orders: %s",
   "gui.simple_bytestorage.terminal.in_production": "In production: %s",
   "msg.simple_bytestorage.alert.no_machine": "no machine accepts the ingredients (missing or full)",
-  "gui.simple_bytestorage.plan.max": "Max: %s"
+  "gui.simple_bytestorage.plan.max": "Max: %s",
+  "gui.simple_bytestorage.controller.stock.mode.0": "Stock rules: always on",
+  "gui.simple_bytestorage.controller.stock.mode.1": "Stock rules: night only",
+  "gui.simple_bytestorage.controller.stock.mode.2": "Stock rules: day only",
+  "gui.simple_bytestorage.controller.stock.mode.3": "Stock rules: only when energy is high",
+  "gui.simple_bytestorage.controller.stock.mode.paused": "(paused now)",
+  "gui.simple_bytestorage.controller.stock.mode.tip": "Click to change when stock rules place orders: always, night, day, or only while the network energy is above 50% (resumes above 50%, pauses below 25%)."
 }

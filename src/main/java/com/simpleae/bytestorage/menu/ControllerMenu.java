@@ -115,6 +115,18 @@ public class ControllerMenu extends AbstractContainerMenu {
                 skipClient = value != 0;
             }
         });
+        this.addDataSlot(new net.minecraft.world.inventory.DataSlot() {
+            @Override
+            public int get() {
+                return controller.getStockMode() | (controller.isStockScheduleActive() ? 4 : 0);
+            }
+
+            @Override
+            public void set(int value) {
+                stockModeClient = value & 3;
+                stockActiveClient = (value & 4) != 0;
+            }
+        });
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
                 this.addSlot(new Slot(playerInventory, col + row * 9 + 9, PLAYER_INV_X + col * 18, PLAYER_INV_Y + row * 18));
@@ -126,6 +138,16 @@ public class ControllerMenu extends AbstractContainerMenu {
     }
 
     private boolean skipClient = true;
+    private int stockModeClient = 0;
+    private boolean stockActiveClient = true;
+
+    public int getStockMode() {
+        return stockModeClient;
+    }
+
+    public boolean isStockActive() {
+        return stockActiveClient;
+    }
 
     private void addGhostRow(net.minecraftforge.items.IItemHandler handler, int y) {
         for (int i = 0; i < handler.getSlots(); i++) {
@@ -176,6 +198,10 @@ public class ControllerMenu extends AbstractContainerMenu {
     public boolean clickMenuButton(Player p, int id) {
         if (id == 0 && !p.level().isClientSide && controller != null) {
             controller.setSkipDecompress(!controller.isSkipDecompress());
+            return true;
+        }
+        if (id == 1 && !p.level().isClientSide && controller != null) {
+            controller.cycleStockMode();
             return true;
         }
         if (id >= STOCK_BUTTON_BASE && !p.level().isClientSide && controller != null) {

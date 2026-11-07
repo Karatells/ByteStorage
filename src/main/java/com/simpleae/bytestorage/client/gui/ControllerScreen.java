@@ -31,6 +31,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
     private final List<UiButton> stockButtons = new ArrayList<>();
     private UiButton pageButton;
     private UiButton skipButton;
+    private UiButton scheduleButton;
     private final List<UiButton> tabButtons = new ArrayList<>();
 
     public ControllerScreen(ControllerMenu menu, Inventory inv, Component title) {
@@ -92,6 +93,15 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
         journalDown = new UiButton(leftPos + 262, topPos + 98, 18, 14, () -> Component.literal("v"), UiButton.Icon.NONE,
                 () -> journalOffset += JOURNAL_PAGE)
                 .tooltip(Component.translatable("gui.simple_bytestorage.controller.journal.older"));
+        scheduleButton = new UiButton(leftPos + 10, topPos + 121, 264, 13,
+                () -> Component.translatable("gui.simple_bytestorage.controller.stock.mode." + menu.getStockMode())
+                        .append(menu.isStockActive() ? Component.empty()
+                                : Component.literal("  ").append(Component.translatable("gui.simple_bytestorage.controller.stock.mode.paused"))),
+                UiButton.Icon.NONE, () -> {
+                    if (this.minecraft != null && this.minecraft.gameMode != null) {
+                        this.minecraft.gameMode.handleInventoryButtonClick(menu.containerId, 1);
+                    }
+                }).tooltip(Component.translatable("gui.simple_bytestorage.controller.stock.mode.tip"));
         skipButton = new UiButton(leftPos + 10, topPos + 103, 264, 13,
                 () -> Component.translatable(menu.isSkipDecompress() ? "gui.simple_bytestorage.controller.recipes.skip.on" : "gui.simple_bytestorage.controller.recipes.skip.off"),
                 UiButton.Icon.NONE, () -> {
@@ -117,7 +127,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
             return true;
         }
         if (tab == ControllerMenu.STOCK_TAB) {
-            if (pageButton.mouseClicked(mx, my, button)) {
+            if (pageButton.mouseClicked(mx, my, button) || scheduleButton.mouseClicked(mx, my, button)) {
                 return true;
             }
             for (UiButton b : stockButtons) {
@@ -165,6 +175,8 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
             }
             pageButton.render(g, this.font, mouseX, mouseY);
             pageButton.renderTooltip(g, this.font, mouseX, mouseY);
+            scheduleButton.render(g, this.font, mouseX, mouseY);
+            scheduleButton.renderTooltip(g, this.font, mouseX, mouseY);
             for (UiButton b : stockButtons) {
                 b.render(g, this.font, mouseX, mouseY);
             }

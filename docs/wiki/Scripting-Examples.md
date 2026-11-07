@@ -420,3 +420,15 @@ function tick() {
   }
 }
 ```
+
+## 27. Switch the stock schedule by power level (stock.mode)
+
+```js
+function tick() {
+  var e = net.energy();
+  if (!e) return;
+  var mode = stock.mode().mode;
+  if (e.percent < 20 && mode !== "night") stock.setMode("night");
+  else if (e.percent > 80 && mode !== "always") stock.setMode("always");
+}
+```

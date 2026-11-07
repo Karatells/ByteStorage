@@ -324,6 +324,13 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         if (storage == null) {
             return;
         }
+        int energyPercent = energyStorage.getMaxEnergyStored() <= 0 ? 0
+                : (int) (energyStorage.getEnergyStored() * 100L / energyStorage.getMaxEnergyStored());
+        stockActive = com.simpleae.bytestorage.util.StockSchedule.isActive(stockMode,
+                level != null ? level.getDayTime() : 0, energyPercent, stockActive);
+        if (!stockActive) {
+            return; // правила приостановлены расписанием: новых заказов нет
+        }
         java.util.Map<String, Integer> have = new java.util.HashMap<>();
         for (ItemStack stack : storage.getAllItems()) {
             have.merge(com.simpleae.bytestorage.util.CraftingService.key(stack), stack.getCount(), Integer::sum);
@@ -383,6 +390,30 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
 
     /** Пропускать «распаковку» (блок -> много предметов), если есть обратный рецепт. */
     private boolean skipDecompress = true;
+    /** Расписание правил запаса (см. StockSchedule) и признак «сейчас работают». */
+    private int stockMode = com.simpleae.bytestorage.util.StockSchedule.ALWAYS;
+    private boolean stockActive = true;
+
+    public int getStockMode() {
+        return stockMode;
+    }
+
+    public boolean isStockScheduleActive() {
+        return stockActive;
+    }
+
+    public void setStockMode(int mode) {
+        int clamped = Math.max(0, Math.min(com.simpleae.bytestorage.util.StockSchedule.MODES - 1, mode));
+        if (clamped != stockMode) {
+            stockMode = clamped;
+            stockActive = true;
+            setChanged();
+        }
+    }
+
+    public void cycleStockMode() {
+        setStockMode((stockMode + 1) % com.simpleae.bytestorage.util.StockSchedule.MODES);
+    }
 
     private IGrid grid;
     /** Резервы, прочитанные из мира; применяются при первом тике, когда сеть уже собрана. */
@@ -675,6 +706,7 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         tag.put("RecipeBlacklist", recipeBlacklist.serializeNBT());
         tag.put("RecipePrefs", recipePrefs.serializeNBT());
         tag.putBoolean("SkipDecompress", skipDecompress);
+        tag.putInt("StockMode", stockMode);
         tag.put("StockItems", stockItems.serializeNBT());
         tag.putIntArray("StockMin", stockMin);
         CompoundTag prio = new CompoundTag();
@@ -747,6 +779,8 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
             }
             pendingReservations = data;
         }
+        stockMode = Math.max(0, Math.min(com.simpleae.bytestorage.util.StockSchedule.MODES - 1, tag.getInt("StockMode")));
+        stockActive = true;
         if (tag.contains("SkipDecompress")) {
             skipDecompress = tag.getBoolean("SkipDecompress");
         }

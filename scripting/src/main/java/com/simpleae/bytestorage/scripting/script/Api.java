@@ -207,6 +207,17 @@ final class Api {
 
         // --- stock: правила запасу ---
         Scriptable stock = cx.newObject(scope);
+        def(stock, "mode", (c, s, a) -> {
+            budget.spendCall();
+            NetworkControl.StockScheduleInfo info = NetworkControl.stockSchedule(bus.grid());
+            return info == null ? null : obj(c, "mode", info.name(), "active", info.active());
+        });
+        def(stock, "setMode", (c, s, a) -> {
+            budget.spendCall();
+            requireControl("stock.setMode");
+            String name = str(a, 0);
+            return name != null && NetworkControl.setStockSchedule(bus.grid(), name);
+        });
         def(stock, "list", (c, s, a) -> {
             budget.spendCall();
             java.util.List<Object> out = new java.util.ArrayList<>();
