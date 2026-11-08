@@ -4,6 +4,12 @@ All notable changes to the **Simple Byte Storage** mod will be documented in thi
 
 ## [Unreleased]
 
+### Fixed — 1.2.2.38
+- Build fix for the Magnet Card (`setDeltaMovement`).
+
+### Changed — 1.2.2.38
+- **Favorites and saved searches are stored on the server** with your player data instead of in files in `config/`: they follow you between computers and survive death. On the first join the old local files are uploaded and removed. Limits: 500 favorites, 3 searches of 64 characters. The network protocol is now **11** (client and server must run the same version). New unit tests `UserPrefsTest`.
+
 ### Added — 1.2.2.37
 - **Magnet Card** (Wireless Terminal upgrade): pulls dropped items within 6 blocks toward you, not while sneaking; respects the terminal's filter; 1 FE per item per pulse. Together with the Auto-Transfer Card the items go straight into the network.
 - **Remote Crafting Card** (Wireless Terminal upgrade): right-clicking the terminal opens a Crafting Terminal (3×3 grid, ingredients from the network) instead of the plain Terminal, from any distance. Both cards have recipes, textures, translations and are in the creative tab.

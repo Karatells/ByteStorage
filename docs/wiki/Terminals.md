@@ -25,7 +25,7 @@ The search box takes several words; **all** must match:
 | `$stock` | it is stored in the network |
 | `$fav` | favorites only |
 
-Example: `@minecraft #ingots >64`. **Alt + click** an item to mark it as a favorite (gold corner); favorites are listed first inside their group. Favorites are stored on your computer (`config/simple_bytestorage_favorites.txt`). The list order is always: items in stock first, then craft-only items.
+Example: `@minecraft #ingots >64`. **Alt + click** an item to mark it as a favorite (gold corner); favorites are listed first inside their group. Favorites are stored on the server with your player data, so they follow you between computers and survive death (up to 500 items). Old local favorites (`config/simple_bytestorage_favorites.txt`) are moved to the server once, the first time you join. The list order is always: items in stock first, then craft-only items.
 
 ## Crafting Terminal
 
@@ -57,4 +57,4 @@ If an order cannot be done in full (an ingredient is missing), the **Start** but
 
 ## Saved searches
 
-Three slots under the sort buttons (right of the terminal window) store search queries. Click an empty slot (`+`) to save the current search; click a filled slot to apply it; right-click a filled slot to overwrite it with the current search, or to clear it when the search box is empty. The slots are shared by all terminals and saved in `config/simple_bytestorage_searches.txt`.
+Three slots under the sort buttons (right of the terminal window) store search queries. Click an empty slot (`+`) to save the current search; click a filled slot to apply it; right-click a filled slot to overwrite it with the current search, or to clear it when the search box is empty. The slots are shared by all terminals and stored on the server with your player data (old `config/simple_bytestorage_searches.txt` is moved there once; saved searches are up to 64 characters).

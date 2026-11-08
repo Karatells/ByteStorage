@@ -129,43 +129,63 @@ public class TerminalExtras {
         return true;
     }
 
-    // --- Избранное (хранится локально в config) ---
+    // --- Избранное (хранится на сервере у игрока; старый локальный файл переносится один раз) ---
 
-    private static Set<String> favorites;
+    private static final Set<String> favorites = new HashSet<>();
+    private static boolean migrated;
 
     private static java.nio.file.Path favoritesFile() {
         return net.minecraftforge.fml.loading.FMLPaths.CONFIGDIR.get().resolve("simple_bytestorage_favorites.txt");
     }
 
-    private static synchronized Set<String> favorites() {
-        if (favorites == null) {
-            favorites = new HashSet<>();
-            try {
-                java.nio.file.Path p = favoritesFile();
-                if (java.nio.file.Files.exists(p)) {
-                    favorites.addAll(java.nio.file.Files.readAllLines(p));
-                }
-            } catch (Exception ignored) {
-                // файл не обязателен
-            }
-        }
-        return favorites;
-    }
-
     public static boolean isFavorite(ItemStack stack) {
-        return favorites().contains(CraftingService.key(stack));
+        return favorites.contains(CraftingService.key(stack));
     }
 
     public static void toggleFavorite(ItemStack stack) {
-        Set<String> f = favorites();
         String key = CraftingService.key(stack);
-        if (!f.remove(key)) {
-            f.add(key);
+        boolean on = !favorites.contains(key);
+        if (on) {
+            favorites.add(key);
+        } else {
+            favorites.remove(key);
         }
+        com.simpleae.bytestorage.network.packet.SimpleByteStoragePackets.sendToServer(
+                com.simpleae.bytestorage.network.packet.UserPrefsActionPacket.setFavorite(key, on));
+    }
+
+    /** Пришло состояние с сервера: заменяет локальное; старые файлы config переносятся на сервер один раз. */
+    public static synchronized void applyServerPrefs(List<String> serverFavorites, List<String> serverSearches) {
+        favorites.clear();
+        favorites.addAll(serverFavorites);
+        String[] arr = searches();
+        for (int i = 0; i < SAVED_SLOTS; i++) {
+            arr[i] = i < serverSearches.size() ? serverSearches.get(i) : "";
+        }
+        if (migrated) {
+            return;
+        }
+        migrated = true;
+        List<String> legacyFavorites = new ArrayList<>();
+        List<String> legacySearches = new ArrayList<>();
         try {
-            java.nio.file.Files.write(favoritesFile(), new ArrayList<>(f));
+            java.nio.file.Path fav = favoritesFile();
+            if (java.nio.file.Files.exists(fav)) {
+                legacyFavorites.addAll(java.nio.file.Files.readAllLines(fav));
+            }
+            java.nio.file.Path srch = searchesFile();
+            if (java.nio.file.Files.exists(srch)) {
+                legacySearches.addAll(java.nio.file.Files.readAllLines(srch));
+            }
+            if (!legacyFavorites.isEmpty() || !legacySearches.isEmpty()) {
+                com.simpleae.bytestorage.network.packet.SimpleByteStoragePackets.sendToServer(
+                        com.simpleae.bytestorage.network.packet.UserPrefsActionPacket.merge(legacyFavorites, legacySearches));
+                java.nio.file.Files.deleteIfExists(fav);
+                java.nio.file.Files.deleteIfExists(srch);
+            }
         } catch (Exception ignored) {
-            // не удалось сохранить — останется до конца игры
+            // перенос не обязателен: файлы останутся, попробуем при следующем входе
+            migrated = false;
         }
     }
 
@@ -189,7 +209,7 @@ public class TerminalExtras {
         return craftableKeys.contains(CraftingService.key(stack));
     }
 
-    // --- Сохранённые поиски (3 ячейки под кнопками сортировки, хранятся локально в config) ---
+    // --- Сохранённые поиски (3 ячейки под кнопками сортировки, хранятся на сервере у игрока) ---
 
     public static final int SAVED_SLOTS = 3;
     private static String[] savedSearches;
@@ -211,27 +231,13 @@ public class TerminalExtras {
         if (savedSearches == null) {
             savedSearches = new String[SAVED_SLOTS];
             java.util.Arrays.fill(savedSearches, "");
-            try {
-                java.nio.file.Path p = searchesFile();
-                if (java.nio.file.Files.exists(p)) {
-                    List<String> lines = java.nio.file.Files.readAllLines(p);
-                    for (int i = 0; i < Math.min(SAVED_SLOTS, lines.size()); i++) {
-                        savedSearches[i] = lines.get(i);
-                    }
-                }
-            } catch (Exception ignored) {
-                // файл не обязателен
-            }
         }
         return savedSearches;
     }
 
-    private static void saveSearches() {
-        try {
-            java.nio.file.Files.write(searchesFile(), java.util.Arrays.asList(searches()));
-        } catch (Exception ignored) {
-            // не удалось сохранить — останется до конца игры
-        }
+    private static void saveSearch(int slot, String text) {
+        com.simpleae.bytestorage.network.packet.SimpleByteStoragePackets.sendToServer(
+                com.simpleae.bytestorage.network.packet.UserPrefsActionPacket.setSearch(slot, text));
     }
 
     private static int savedY(int topPos, int slot) {
@@ -274,7 +280,7 @@ public class TerminalExtras {
                 querySetter.accept(saved[i]);
             } else if (button == 0 || button == 1) {
                 saved[i] = button == 1 && current.isEmpty() ? "" : current;
-                saveSearches();
+                saveSearch(i, saved[i]);
             }
             return true;
         }

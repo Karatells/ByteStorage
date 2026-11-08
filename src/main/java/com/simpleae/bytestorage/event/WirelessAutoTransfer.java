@@ -168,7 +168,7 @@ public final class WirelessAutoTransfer {
             }
             net.minecraft.world.phys.Vec3 pull = target.subtract(item.position()).normalize()
                     .scale(Math.min(0.4, 0.1 + distance * 0.05));
-            item.setDeltaMotion(pull);
+            item.setDeltaMovement(pull);
             item.hasImpulse = true;
             moved++;
             energy--;
