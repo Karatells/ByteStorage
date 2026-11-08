@@ -4,6 +4,11 @@ All notable changes to the **Simple Byte Storage** mod will be documented in thi
 
 ## [Unreleased]
 
+### Changed — 1.2.2.39
+- **Texture overhaul**: new casing, top, bottom and drive-side textures (bevels, rivets, vents, seams); the bus, pattern provider, energy port and capacitor blocks now have proper tops and bottoms instead of the same picture on all six faces.
+- **Animated glow**: terminal, crafting/pattern terminal, assembler, drive, bus, energy port, capacitor and controller fronts gently pulse; the conflict controller blinks. The cable has a light pulse running along the wire and a breathing hub; new Pattern item and cable icons.
+- `tools/generate_textures.py` regenerates the generated textures from `tools/textures_src` (needs Pillow).
+
 ### Fixed — 1.2.2.38
 - Build fix for the Magnet Card (`setDeltaMovement`).
 
