@@ -7,6 +7,7 @@ import com.simpleae.bytestorage.scripting.ScriptingConfig;
 import com.simpleae.bytestorage.scripting.SimpleAeScripting;
 import com.simpleae.bytestorage.scripting.script.BusContext;
 import com.simpleae.bytestorage.scripting.script.LogicRuntime;
+import com.simpleae.bytestorage.scripting.script.UiElement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
@@ -50,6 +51,8 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
     private boolean dirty = true;
     private LogicRuntime runtime;
     private final Deque<String> log = new ArrayDeque<>();
+    private List<UiElement> panel = List.of();
+    private final Deque<String> buttons = new ArrayDeque<>();
 
     public LogicBusBlockEntity(BlockPos pos, BlockState state) {
         super(SimpleAeScripting.LOGIC_BUS_ENTITY.get(), pos, state);
@@ -134,6 +137,29 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
         }
     }
 
+    @Override
+    public void setPanel(List<UiElement> elements) {
+        this.panel = List.copyOf(elements);
+    }
+
+    @Override
+    public List<String> takeButtons() {
+        List<String> taken = new ArrayList<>(buttons);
+        buttons.clear();
+        return taken;
+    }
+
+    /** Нажатие кнопки панели в терминале: скрипт получит его при следующем запуске (onButton). */
+    public void pressButton(String id) {
+        if (enabled && buttons.size() < 8 && !id.isEmpty()) {
+            buttons.addLast(id.length() > UiElement.MAX_ID ? id.substring(0, UiElement.MAX_ID) : id);
+        }
+    }
+
+    public List<UiElement> getPanel() {
+        return panel;
+    }
+
     // --- Стан для терміналу ---
 
     public String getScript() {
@@ -186,6 +212,8 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
         this.dirty = true;
         this.enabled = false;
         this.status = "saved";
+        this.panel = List.of();
+        this.buttons.clear();
         setChanged();
     }
 
@@ -195,6 +223,9 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
             status = "";
         }
         this.enabled = value;
+        if (!value) {
+            buttons.clear();
+        }
         if (!value && status.isEmpty()) {
             status = "stopped";
         }

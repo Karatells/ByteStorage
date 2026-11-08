@@ -107,9 +107,25 @@ These can be disabled by the server (`allowControl`).
 
 Identical consecutive journal lines from the same bus are merged into `x2`, `x3`, …
 
+## `ui` — script panels
+
+A script can draw a small control panel that appears in the Logic Terminal's **Panel** tab for that bus. Call the `ui` functions in `tick()` (or an event handler): the first `ui` call of a run starts a new panel, so just redraw it every run. If a run makes no `ui` call, the previous panel stays.
+
+| Function | Description |
+|---|---|
+| `ui.text(text, [color])` | A line of text (48 characters). |
+| `ui.bar(label, value, max, [color])` | A progress bar with `value/max`. |
+| `ui.button(id, text, [color])` | A button. Consecutive buttons share a row. |
+| `ui.item(id, text, [color])` | An item icon with text. |
+| `ui.clear()` | Start an empty panel. |
+
+`color` is a name (`"green"`, `"red"`, `"yellow"`, `"cyan"`, `"gray"`, `"white"`) or a number like `0xFF8800`.
+
+Pressing a button calls the optional handler `onButton(id)` at the bus's next run (before `tick()`); up to 8 presses are queued. Buttons work only while the bus is running, and — like editing — only for players allowed to edit scripts (`opsOnly`). Limits: 24 elements per panel (more stops the script like a budget violation), panels are not saved with the world (the running script redraws them).
+
 ## Event handlers
 
-Besides `tick()` a script may define handlers that are called when something happens in the network. They are optional; a script needs at least `tick()` or one handler. Events are delivered at the bus interval, before `tick()`, oldest first.
+Besides `tick()` a script may define handlers (plus `onButton(id)` for panel buttons, see `ui`) that are called when something happens in the network. They are optional; a script needs at least `tick()` or one handler. Events are delivered at the bus interval, before `tick()`, oldest first.
 
 | Handler | Called when | Event object |
 |---|---|---|

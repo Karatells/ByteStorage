@@ -4,6 +4,9 @@ All notable changes to the **Simple Byte Storage** mod will be documented in thi
 
 ## [Unreleased]
 
+### Added — 1.2.2.35
+- **Script panels** (Scripting addon): a script can draw its own control panel with `ui.text`, `ui.bar`, `ui.button` and `ui.item`. The Logic Terminal got **Code / Panel** tabs; the Panel tab shows what the selected bus drew, with scrolling. Pressing a button calls the optional `onButton(id)` handler on the bus's next run (works while the bus is running and for players who may edit scripts). Autocomplete knows `ui`, `onButton` and the new snippet. Wiki: `Scripting-API` (new `ui` section), example 28.
+
 ### Added — 1.2.2.34
 - **Full-screen script editor**: a button next to Save in the Logic Terminal (or **Ctrl+E**) opens the editor over the whole screen with a status line (line, column, length); **Ctrl+S** saves, Ctrl+E or Esc goes back. The text carries over in both directions. The Logic Terminal no longer reloads the script from the server when its window is rebuilt, so unsaved edits survive a window resize.
 - **Smarter autocomplete**: short descriptions for every API function; a **signature hint** while you type call arguments (the current argument is highlighted); **code snippets** (`tick`, `onCraft`, `onLowStock`, `onAlert`, `for`, `if`, `ifelse`, `while`, `each`) that insert a ready template; **your own variables, functions and parameters** are suggested too; handler parameters (`e`) complete `type`, `id`, `count`, `text`; variables assigned from `side(...)` complete container methods; **fuzzy matching** (`sp` finds `setPriority`); inside quotes the list depends on the call — sides for `side("`, schedules for `stock.setMode("`, item ids elsewhere. Accepting a method puts the cursor between the parentheses.

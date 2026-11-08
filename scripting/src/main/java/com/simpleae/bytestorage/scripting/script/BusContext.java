@@ -19,4 +19,10 @@ public interface BusContext {
 
     /** Усі Логічні шини цієї мережі з таким ідентифікатором (у стабільному порядку за позицією). */
     java.util.List<BusContext> busesWithId(String id);
+
+    /** Заменяет панель, нарисованную скриптом (показывается в Логическом терминале). */
+    void setPanel(java.util.List<UiElement> elements);
+
+    /** Забирает нажатые на панели кнопки (идентификаторы) с прошлого запуска. */
+    java.util.List<String> takeButtons();
 }

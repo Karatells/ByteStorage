@@ -41,5 +41,9 @@
   "gui.simple_bytestorage_scripting.editor.back": "Назад",
   "gui.simple_bytestorage_scripting.editor.pos": "Стр. %s, Кол. %s   %s / %s",
   "gui.simple_bytestorage_scripting.editor.saved": "Сохранено",
-  "gui.simple_bytestorage_scripting.editor.hint": "Ctrl+S сохранить · Ctrl+E назад · Ctrl+Пробел подсказки"
+  "gui.simple_bytestorage_scripting.editor.hint": "Ctrl+S сохранить · Ctrl+E назад · Ctrl+Пробел подсказки",
+  "gui.simple_bytestorage_scripting.tab.code": "Код",
+  "gui.simple_bytestorage_scripting.tab.panel": "Панель",
+  "gui.simple_bytestorage_scripting.panel.empty": "У этого скрипта нет панели. Вызывайте ui.text(), ui.bar(), ui.button() или ui.item() в tick(), чтобы нарисовать её.",
+  "gui.simple_bytestorage_scripting.panel.stopped": "Шина остановлена: кнопки отключены"
 }

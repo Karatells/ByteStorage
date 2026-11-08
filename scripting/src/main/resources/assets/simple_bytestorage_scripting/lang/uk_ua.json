@@ -41,5 +41,9 @@
   "gui.simple_bytestorage_scripting.editor.back": "Назад",
   "gui.simple_bytestorage_scripting.editor.pos": "Ряд. %s, Ст. %s   %s / %s",
   "gui.simple_bytestorage_scripting.editor.saved": "Збережено",
-  "gui.simple_bytestorage_scripting.editor.hint": "Ctrl+S зберегти · Ctrl+E назад · Ctrl+Пробіл підказки"
+  "gui.simple_bytestorage_scripting.editor.hint": "Ctrl+S зберегти · Ctrl+E назад · Ctrl+Пробіл підказки",
+  "gui.simple_bytestorage_scripting.tab.code": "Код",
+  "gui.simple_bytestorage_scripting.tab.panel": "Панель",
+  "gui.simple_bytestorage_scripting.panel.empty": "У цього скрипта немає панелі. Викликайте ui.text(), ui.bar(), ui.button() або ui.item() у tick(), щоб намалювати її.",
+  "gui.simple_bytestorage_scripting.panel.stopped": "Шину зупинено: кнопки вимкнено"
 }

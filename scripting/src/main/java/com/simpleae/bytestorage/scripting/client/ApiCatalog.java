@@ -14,7 +14,7 @@ import java.util.TreeSet;
 final class ApiCatalog {
 
     static final Set<String> GLOBALS = Set.of("net", "stock", "recipes", "journal", "side", "buses", "log",
-            "time", "alert", "busId");
+            "time", "alert", "busId", "ui");
 
     private static final List<String> DIRECTIONS = List.of("down", "up", "north", "south", "west", "east");
     private static final List<String> STOCK_MODES = List.of("always", "night", "day", "energy");
@@ -34,6 +34,8 @@ final class ApiCatalog {
         global("time", "time()", true, "Current game tick.");
         global("alert", "alert(text)", true, "Raise an alert: journal entry and chat warning (needs allowAlerts).");
         global("busId", "this bus id", false, "The identifier assigned to this bus.");
+        global("ui", "panel API", false, "Draw a panel with text, bars, buttons and items in the Logic Terminal's Panel tab.");
+        global("onButton", "handler", false, "Optional. Called with the id of a panel button the player pressed.");
         global("tick", "handler", false, "Optional. Called every run of the bus.");
         global("onCraft", "handler", false, "Optional. Called when a craft finishes; e has type, id, count, text.");
         global("onLowStock", "handler", false, "Optional. Called when a stock rule fails; e has type, id, count, text.");
@@ -84,6 +86,12 @@ final class ApiCatalog {
         member("ep", "pull(id, n)", "Take items from the container into the network.");
         member("ep", "push(id, n)", "Put items from the network into the container.");
         member("ep", "slots()", "Number of slots.");
+
+        member("ui", "text(text, color)", "A line of text. Color: \"green\", \"red\", \"yellow\", \"cyan\", \"gray\", \"white\" or 0xRRGGBB.");
+        member("ui", "bar(label, value, max, color)", "A progress bar with a label and value/max.");
+        member("ui", "button(id, text, color)", "A button. A press calls onButton(id) on the next run (bus must be running).");
+        member("ui", "item(id, text, color)", "An item icon with text next to it.");
+        member("ui", "clear()", "Start an empty panel.");
 
         field("event", "type", "order, crafted, started, stock_order, stock_failed, cancelled, stuck, script...");
         field("event", "id", "Item id of the event.");

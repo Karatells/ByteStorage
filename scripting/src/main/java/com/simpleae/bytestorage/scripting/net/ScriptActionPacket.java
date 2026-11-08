@@ -18,6 +18,8 @@ public class ScriptActionPacket {
     /** intArg: 1 = запустити, 0 = зупинити. */
     public static final int ENABLE = 3;
     public static final int INTERVAL = 4;
+    /** Нажатие кнопки панели; id кнопки передаётся в text. */
+    public static final int UI_BUTTON = 5;
 
     private final BlockPos terminal;
     private final int action;

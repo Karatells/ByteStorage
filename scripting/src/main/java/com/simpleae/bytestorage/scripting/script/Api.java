@@ -41,13 +41,100 @@ final class Api {
         this.scope = scope;
     }
 
+    /** Панель, которую скрипт собирает в текущем запуске (null — ui.* не вызывался). */
+    private java.util.List<UiElement> panelBuild;
+
     void beginRun(Budget budget) {
         this.budget = budget;
+        this.panelBuild = null;
         endpoints.clear();
         ScriptableObject.putProperty(scope, "busId", bus.identifier());
     }
 
+    /** Публикует панель, если скрипт рисовал её в этом запуске. */
+    void finishRun() {
+        if (panelBuild != null) {
+            bus.setPanel(panelBuild);
+            panelBuild = null;
+        }
+    }
+
+    private java.util.List<UiElement> panel() {
+        if (panelBuild == null) {
+            panelBuild = new java.util.ArrayList<>();
+        }
+        return panelBuild;
+    }
+
+    private void addUi(UiElement element) {
+        java.util.List<UiElement> list = panel();
+        if (list.size() >= UiElement.MAX_ELEMENTS) {
+            throw new ScriptBudgetExceeded("panel element limit exceeded (" + UiElement.MAX_ELEMENTS + ")");
+        }
+        list.add(element);
+    }
+
+    /** Цвет: число 0xRRGGBB или имя; 0 — цвет по умолчанию. */
+    private static int uiColor(Object[] a, int i) {
+        if (a.length <= i || a[i] == null || a[i] == Undefined.instance) {
+            return 0;
+        }
+        if (a[i] instanceof Number n) {
+            return n.intValue() & 0xFFFFFF;
+        }
+        return switch (Context.toString(a[i]).toLowerCase(Locale.ROOT)) {
+            case "green" -> 0x3DDC84;
+            case "red" -> 0xFF5A47;
+            case "yellow", "orange" -> 0xFF9F1C;
+            case "cyan", "blue" -> 0x00D8F0;
+            case "gray", "grey" -> 0x9FB0C4;
+            case "white" -> 0xFFFFFF;
+            default -> 0;
+        };
+    }
+
+    private Scriptable buildUi(Context cx) {
+        Scriptable ui = cx.newObject(scope);
+        def(ui, "clear", (c, s, a) -> {
+            panel().clear();
+            return null;
+        });
+        def(ui, "text", (c, s, a) -> {
+            String text = str(a, 0);
+            addUi(new UiElement(UiElement.TEXT, trim(text == null ? "" : text, UiElement.MAX_TEXT), "", uiColor(a, 1), 0, 0));
+            return null;
+        });
+        def(ui, "bar", (c, s, a) -> {
+            String label = str(a, 0);
+            addUi(new UiElement(UiElement.BAR, trim(label == null ? "" : label, UiElement.MAX_TEXT), "",
+                    uiColor(a, 3), num(a, 1, 0), Math.max(1, num(a, 2, 100))));
+            return null;
+        });
+        def(ui, "button", (c, s, a) -> {
+            String id = str(a, 0);
+            if (id == null || id.isEmpty()) {
+                throw org.mozilla.javascript.ScriptRuntime.typeError("ui.button(id, text): id is required");
+            }
+            String text = str(a, 1);
+            addUi(new UiElement(UiElement.BUTTON, trim(text == null ? id : text, 24),
+                    trim(id, UiElement.MAX_ID), uiColor(a, 2), 0, 0));
+            return null;
+        });
+        def(ui, "item", (c, s, a) -> {
+            String id = str(a, 0);
+            if (id == null) {
+                throw org.mozilla.javascript.ScriptRuntime.typeError("ui.item(id, text): id is required");
+            }
+            String text = str(a, 1);
+            addUi(new UiElement(UiElement.ITEM, trim(text == null ? "" : text, UiElement.MAX_TEXT),
+                    trim(id, UiElement.MAX_ID), uiColor(a, 2), 0, 0));
+            return null;
+        });
+        return ui;
+    }
+
     void install(Context cx) {
+        ScriptableObject.putProperty(scope, "ui", buildUi(cx));
         ScriptableObject.putProperty(scope, "net", buildNet(cx));
         // side(dir) — інвентар біля цієї шини; side(dir, id) — біля ВСІХ шин мережі з таким ідентифікатором
         ScriptableObject.putProperty(scope, "side", new Fn(scope, "side", (c, s, a) -> {

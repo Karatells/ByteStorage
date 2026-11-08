@@ -41,5 +41,9 @@
   "gui.simple_bytestorage_scripting.editor.back": "Back",
   "gui.simple_bytestorage_scripting.editor.pos": "Ln %s, Col %s   %s / %s",
   "gui.simple_bytestorage_scripting.editor.saved": "Saved",
-  "gui.simple_bytestorage_scripting.editor.hint": "Ctrl+S save · Ctrl+E back · Ctrl+Space suggestions"
+  "gui.simple_bytestorage_scripting.editor.hint": "Ctrl+S save · Ctrl+E back · Ctrl+Space suggestions",
+  "gui.simple_bytestorage_scripting.tab.code": "Code",
+  "gui.simple_bytestorage_scripting.tab.panel": "Panel",
+  "gui.simple_bytestorage_scripting.panel.empty": "This script has no panel. Call ui.text(), ui.bar(), ui.button() or ui.item() in tick() to draw one.",
+  "gui.simple_bytestorage_scripting.panel.stopped": "Bus is stopped: buttons are disabled"
 }

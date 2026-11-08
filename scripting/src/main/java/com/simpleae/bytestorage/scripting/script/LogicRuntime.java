@@ -24,6 +24,7 @@ public final class LogicRuntime {
     private Function onCraft;
     private Function onLowStock;
     private Function onAlert;
+    private Function onButton;
     /** Номер последнего обработанного события журнала; -1 — ещё не определён (сеть не была доступна). */
     private long eventCursor = -1;
     private static final int MAX_EVENTS_PER_RUN = 10;
@@ -47,6 +48,7 @@ public final class LogicRuntime {
         onCraft = null;
         onLowStock = null;
         onAlert = null;
+        onButton = null;
         eventCursor = -1;
         Context cx = SandboxFactory.INSTANCE.enterContext();
         try {
@@ -63,8 +65,10 @@ public final class LogicRuntime {
             onCraft = function("onCraft");
             onLowStock = function("onLowStock");
             onAlert = function("onAlert");
-            if (tickFn == null && onCraft == null && onLowStock == null && onAlert == null) {
-                return "script must define function tick() or an event handler (onCraft, onLowStock, onAlert)";
+            onButton = function("onButton");
+            api.finishRun();
+            if (!compiled()) {
+                return "script must define function tick() or a handler (onCraft, onLowStock, onAlert, onButton)";
             }
             return null;
         } catch (RhinoException e) {
@@ -85,7 +89,7 @@ public final class LogicRuntime {
     }
 
     private boolean compiled() {
-        return tickFn != null || onCraft != null || onLowStock != null || onAlert != null;
+        return tickFn != null || onCraft != null || onLowStock != null || onAlert != null || onButton != null;
     }
 
     /** Передаёт скрипту новые события журнала (до {@link #MAX_EVENTS_PER_RUN} за запуск, остальные отбрасываются). */
@@ -115,6 +119,17 @@ public final class LogicRuntime {
         }
     }
 
+    /** Передаёт скрипту нажатия кнопок панели (onButton(id)). */
+    private void dispatchButtons(Context cx) {
+        java.util.List<String> pressed = bus.takeButtons();
+        if (onButton == null) {
+            return;
+        }
+        for (String id : pressed) {
+            onButton.call(cx, scope, scope, new Object[]{id});
+        }
+    }
+
     /** Один запуск: события, затем tick(). Повертає текст помилки або null. */
     public String tick() {
         if (!compiled()) {
@@ -125,10 +140,12 @@ public final class LogicRuntime {
             Budget budget = newBudget();
             cx.putThreadLocal(SandboxFactory.BUDGET_KEY, budget);
             api.beginRun(budget);
+            dispatchButtons(cx);
             dispatchEvents(cx);
             if (tickFn != null) {
                 tickFn.call(cx, scope, scope, new Object[0]);
             }
+            api.finishRun();
             return null;
         } catch (RhinoException e) {
             return describe(e);

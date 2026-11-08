@@ -4,12 +4,16 @@ import com.simpleae.bytestorage.client.gui.GuiStyle;
 import com.simpleae.bytestorage.client.gui.UiButton;
 import com.simpleae.bytestorage.scripting.net.ScriptActionPacket;
 import com.simpleae.bytestorage.scripting.net.ScriptStatePacket;
+import com.simpleae.bytestorage.scripting.script.UiElement;
 import com.simpleae.bytestorage.scripting.net.ScriptingPackets;
 import net.minecraft.client.gui.GuiGraphics;
 import com.simpleae.bytestorage.client.gui.CodeEditor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +43,17 @@ public class LogicTerminalScreen extends Screen {
     private int listScroll = 0;
     private int tickCounter = 0;
     private boolean autoSelected = false;
+    private boolean panelTab = false;
+    private int panelScroll = 0;
+    private int panelContentHeight = 0;
+
+    private static final int AREA_X = 112;
+    private static final int AREA_Y = 34;
+    private static final int AREA_W = 242;
+    private static final int AREA_H = 104;
+
+    private record Cell(int x, int y, int w, int h, UiElement element) {
+    }
 
     public LogicTerminalScreen(BlockPos terminal) {
         super(Component.translatable("block.simple_bytestorage_scripting.logic_terminal"));
@@ -51,12 +66,14 @@ public class LogicTerminalScreen extends Screen {
         this.top = (this.height - H) / 2;
 
         String previous = this.editor != null ? this.editor.getValue() : "";
-        this.editor = new CodeEditor(this.font, left + 112, top + 20, 242, 118);
+        this.editor = new CodeEditor(this.font, left + AREA_X, top + AREA_Y, AREA_W, AREA_H);
         this.editor.setCompletion(ApiCatalog.engine(), ApiCatalog.GLOBALS);
         this.editor.setMaxLength(state == null ? 8000 : Math.min(state.maxLength, 30000));
         this.editor.setValue(previous);
         this.addRenderableWidget(this.editor);
         this.setInitialFocus(this.editor);
+        this.editor.visible = !panelTab;
+        this.editor.active = !panelTab;
 
         buttons.clear();
         int by = top + 142;
@@ -155,6 +172,175 @@ public class LogicTerminalScreen extends Screen {
         return text.length() > max ? text.substring(0, max) : text;
     }
 
+    private void setPanelTab(boolean panel) {
+        this.panelTab = panel;
+        this.editor.visible = !panel;
+        this.editor.active = !panel;
+        if (panel) {
+            this.editor.setFocused(false);
+            this.setFocused(null);
+        } else {
+            this.setInitialFocus(this.editor);
+        }
+    }
+
+    private List<UiElement> panelElements() {
+        return state == null ? List.of() : state.panel;
+    }
+
+    /** Раскладка панели скрипта: текст/полосы/предметы — по строке, кнопки идут в ряд и переносятся. */
+    private List<Cell> layoutPanel() {
+        List<Cell> cells = new ArrayList<>();
+        int width = AREA_W - 8;
+        int y = 0;
+        int bx = 0;
+        boolean inRow = false;
+        for (UiElement e : panelElements()) {
+            if (e.kind() == UiElement.BUTTON) {
+                int w = Math.max(30, this.font.width(e.text()) + 12);
+                if (!inRow || bx + w > width) {
+                    if (inRow) {
+                        y += 19;
+                    }
+                    bx = 0;
+                    inRow = true;
+                }
+                cells.add(new Cell(bx, y, w, 16, e));
+                bx += w + 4;
+                continue;
+            }
+            if (inRow) {
+                y += 19;
+                inRow = false;
+                bx = 0;
+            }
+            int h = e.kind() == UiElement.ITEM ? 18 : (e.kind() == UiElement.BAR ? 13 : 11);
+            cells.add(new Cell(0, y, width, h, e));
+            y += h + 2;
+        }
+        panelContentHeight = y + (inRow ? 19 : 0);
+        return cells;
+    }
+
+    private void drawTabs(GuiGraphics g, int mouseX, int mouseY) {
+        String[] labels = {
+                Component.translatable("gui.simple_bytestorage_scripting.tab.code").getString(),
+                Component.translatable("gui.simple_bytestorage_scripting.tab.panel").getString()
+                        + (panelElements().isEmpty() ? "" : " (" + panelElements().size() + ")")};
+        for (int i = 0; i < 2; i++) {
+            int tx = left + AREA_X + i * 70;
+            int ty = top + 20;
+            boolean active = (i == 1) == panelTab;
+            boolean hover = mouseX >= tx && mouseX < tx + 68 && mouseY >= ty && mouseY < ty + 13;
+            g.fill(tx, ty, tx + 68, ty + 13, active ? GuiStyle.ACCENT_DIM : (hover ? GuiStyle.ACCENT_FAINT : GuiStyle.PANEL_BG));
+            g.fill(tx, ty + 12, tx + 68, ty + 13, active ? GuiStyle.ACCENT : GuiStyle.PANEL_EDGE_LIGHT);
+            g.drawString(this.font, this.font.plainSubstrByWidth(labels[i], 64), tx + 4, ty + 3,
+                    active ? GuiStyle.TEXT_TITLE : GuiStyle.TEXT_LABEL, false);
+        }
+    }
+
+    private void drawPanel(GuiGraphics g, int mouseX, int mouseY) {
+        int rx = left + AREA_X;
+        int ry = top + AREA_Y;
+        GuiStyle.display(g, rx, ry, AREA_W, AREA_H);
+        List<Cell> cells = layoutPanel();
+        if (cells.isEmpty()) {
+            int y = ry + 6;
+            for (net.minecraft.util.FormattedCharSequence line : this.font.split(
+                    Component.translatable("gui.simple_bytestorage_scripting.panel.empty"), AREA_W - 12)) {
+                g.drawString(this.font, line, rx + 6, y, GuiStyle.TEXT_MUTED, false);
+                y += 10;
+            }
+            return;
+        }
+        panelScroll = Math.max(0, Math.min(panelScroll, Math.max(0, panelContentHeight - (AREA_H - 8))));
+        boolean live = canAct() && isRunning();
+        g.enableScissor(rx + 1, ry + 1, rx + AREA_W - 1, ry + AREA_H - 1);
+        for (Cell cell : cells) {
+            int x = rx + 4 + cell.x();
+            int y = ry + 4 + cell.y() - panelScroll;
+            if (y + cell.h() < ry || y > ry + AREA_H) {
+                continue;
+            }
+            UiElement e = cell.element();
+            int color = e.color() == 0 ? 0 : 0xFF000000 | e.color();
+            switch (e.kind()) {
+                case UiElement.TEXT -> g.drawString(this.font, this.font.plainSubstrByWidth(e.text(), cell.w()), x, y + 1,
+                        color == 0 ? GuiStyle.TEXT_TITLE : color, false);
+                case UiElement.BAR -> {
+                    int labelW = 96;
+                    g.drawString(this.font, this.font.plainSubstrByWidth(e.text(), labelW - 4), x, y + 2, GuiStyle.TEXT_LABEL, false);
+                    int bx = x + labelW;
+                    int bw = cell.w() - labelW;
+                    g.fill(bx, y, bx + bw, y + 11, GuiStyle.PANEL_EDGE_DARK);
+                    g.fill(bx + 1, y + 1, bx + bw - 1, y + 10, GuiStyle.PANEL_BG);
+                    float fraction = Math.max(0f, Math.min(1f, e.value() / (float) e.max()));
+                    int fill = (int) ((bw - 2) * fraction);
+                    g.fill(bx + 1, y + 1, bx + 1 + fill, y + 10, color == 0 ? GuiStyle.ACCENT_DIM : color);
+                    String value = e.value() + "/" + e.max();
+                    g.drawString(this.font, value, bx + (bw - this.font.width(value)) / 2, y + 2, GuiStyle.TEXT_TITLE, true);
+                }
+                case UiElement.ITEM -> {
+                    ResourceLocation id = ResourceLocation.tryParse(e.id());
+                    var item = id == null ? null : ForgeRegistries.ITEMS.getValue(id);
+                    if (item != null && id != null && ForgeRegistries.ITEMS.containsKey(id)) {
+                        g.renderItem(new ItemStack(item), x, y);
+                    }
+                    g.drawString(this.font, this.font.plainSubstrByWidth(e.text(), cell.w() - 22), x + 20, y + 5,
+                            color == 0 ? GuiStyle.TEXT_TITLE : color, false);
+                }
+                case UiElement.BUTTON -> {
+                    boolean hover = live && mouseX >= x && mouseX < x + cell.w() && mouseY >= y && mouseY < y + cell.h()
+                            && mouseY >= ry && mouseY < ry + AREA_H;
+                    g.fill(x, y, x + cell.w(), y + cell.h(), GuiStyle.PANEL_EDGE_DARK);
+                    g.fill(x + 1, y + 1, x + cell.w() - 1, y + cell.h() - 1,
+                            hover ? GuiStyle.ACCENT_DIM : GuiStyle.WINDOW_BG);
+                    g.fill(x + 1, y + 1, x + cell.w() - 1, y + 2, GuiStyle.BEVEL_LIGHT);
+                    int tc = !live ? GuiStyle.TEXT_MUTED : (color == 0 ? GuiStyle.TEXT_TITLE : color);
+                    g.drawString(this.font, this.font.plainSubstrByWidth(e.text(), cell.w() - 6),
+                            x + (cell.w() - Math.min(cell.w() - 6, this.font.width(e.text()))) / 2, y + 4, tc, false);
+                }
+                default -> {
+                }
+            }
+        }
+        g.disableScissor();
+        if (panelContentHeight > AREA_H - 8) {
+            int trackH = AREA_H - 4;
+            int thumbH = Math.max(8, trackH * (AREA_H - 8) / panelContentHeight);
+            int thumbY = ry + 2 + (trackH - thumbH) * panelScroll / Math.max(1, panelContentHeight - (AREA_H - 8));
+            g.fill(rx + AREA_W - 4, ry + 2, rx + AREA_W - 2, ry + AREA_H - 2, 0xFF101822);
+            g.fill(rx + AREA_W - 4, thumbY, rx + AREA_W - 2, thumbY + thumbH, GuiStyle.ACCENT_DIM);
+        }
+        if (!live) {
+            g.drawString(this.font, this.font.plainSubstrByWidth(
+                    Component.translatable("gui.simple_bytestorage_scripting.panel.stopped").getString(), AREA_W - 8),
+                    rx + 4, ry + AREA_H - 11, GuiStyle.TEXT_WARN, false);
+        }
+    }
+
+    private boolean clickPanel(double mouseX, double mouseY) {
+        int rx = left + AREA_X;
+        int ry = top + AREA_Y;
+        if (mouseX < rx || mouseX >= rx + AREA_W || mouseY < ry || mouseY >= ry + AREA_H) {
+            return false;
+        }
+        if (canAct() && isRunning()) {
+            for (Cell cell : layoutPanel()) {
+                if (cell.element().kind() != UiElement.BUTTON) {
+                    continue;
+                }
+                int x = rx + 4 + cell.x();
+                int y = ry + 4 + cell.y() - panelScroll;
+                if (mouseX >= x && mouseX < x + cell.w() && mouseY >= y && mouseY < y + cell.h()) {
+                    send(ScriptActionPacket.UI_BUTTON, 0, cell.element().id());
+                    break;
+                }
+            }
+        }
+        return true;
+    }
+
     private void openFullscreen() {
         int max = state == null ? 8000 : Math.min(state.maxLength, 30000);
         this.minecraft.setScreen(new ScriptEditorScreen(this, editor.getValue(), max, canAct()));
@@ -192,6 +378,18 @@ public class LogicTerminalScreen extends Screen {
                 return true;
             }
         }
+        if (button == 0) {
+            for (int i = 0; i < 2; i++) {
+                int tx = left + AREA_X + i * 70;
+                if (mouseX >= tx && mouseX < tx + 68 && mouseY >= top + 20 && mouseY < top + 33) {
+                    setPanelTab(i == 1);
+                    return true;
+                }
+            }
+            if (panelTab && clickPanel(mouseX, mouseY)) {
+                return true;
+            }
+        }
         if (state != null && button == 0) {
             int ix = left + ID_X;
             int iy = top + 31;
@@ -226,6 +424,12 @@ public class LogicTerminalScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        if (panelTab && mouseX >= left + AREA_X && mouseX < left + AREA_X + AREA_W
+                && mouseY >= top + AREA_Y && mouseY < top + AREA_Y + AREA_H) {
+            int max = Math.max(0, panelContentHeight - (AREA_H - 8));
+            panelScroll = Math.max(0, Math.min(max, panelScroll - (int) Math.signum(delta) * 12));
+            return true;
+        }
         if (state != null && mouseX >= left + ID_X) {
             int max = Math.max(0, idCounts().size() - ID_ROWS);
             idScroll = Math.max(0, Math.min(max, idScroll - (int) Math.signum(delta)));
@@ -242,7 +446,7 @@ public class LogicTerminalScreen extends Screen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Редактор первым получает клавиши (ESC закрывает подсказки, а не окно)
-        if (hasControlDown() && keyCode == org.lwjgl.glfw.GLFW.GLFW_KEY_E) {
+        if (!panelTab && hasControlDown() && keyCode == org.lwjgl.glfw.GLFW.GLFW_KEY_E) {
             openFullscreen();
             return true;
         }
@@ -300,6 +504,10 @@ public class LogicTerminalScreen extends Screen {
         // Лог / статус
         GuiStyle.display(g, left + 112, top + 162, 242, 64);
         super.render(g, mouseX, mouseY, partialTick);
+        drawTabs(g, mouseX, mouseY);
+        if (panelTab) {
+            drawPanel(g, mouseX, mouseY);
+        }
         drawStatus(g);
 
         for (UiButton b : buttons) {
