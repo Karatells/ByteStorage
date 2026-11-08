@@ -306,5 +306,11 @@
   "gui.simple_bytestorage.controller.items_total": "Items: %s",
   "gui.simple_bytestorage.controller.charge": "Charge: %s%%",
   "tooltip.simple_bytestorage.pattern.extra": "Also yields: ",
-  "msg.simple_bytestorage.alert.no_fuel": "the furnace has no fuel and the network has no charcoal, coal or dried kelp blocks"
+  "msg.simple_bytestorage.alert.no_fuel": "the furnace has no fuel and the network has no charcoal, coal or dried kelp blocks",
+  "item.simple_bytestorage.magnet_card": "Magnet Card",
+  "item.simple_bytestorage.crafting_card": "Remote Crafting Card",
+  "gui.simple_bytestorage.wireless.upgrade.magnet": "Magnet Card",
+  "gui.simple_bytestorage.wireless.upgrade.magnet.desc": "Pulls dropped items toward you (not while sneaking). Respects the filter",
+  "gui.simple_bytestorage.wireless.upgrade.crafting": "Remote Crafting Card",
+  "gui.simple_bytestorage.wireless.upgrade.crafting.desc": "The terminal opens as a Crafting Terminal with a 3x3 grid"
 }

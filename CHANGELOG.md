@@ -4,6 +4,10 @@ All notable changes to the **Simple Byte Storage** mod will be documented in thi
 
 ## [Unreleased]
 
+### Added — 1.2.2.37
+- **Magnet Card** (Wireless Terminal upgrade): pulls dropped items within 6 blocks toward you, not while sneaking; respects the terminal's filter; 1 FE per item per pulse. Together with the Auto-Transfer Card the items go straight into the network.
+- **Remote Crafting Card** (Wireless Terminal upgrade): right-clicking the terminal opens a Crafting Terminal (3×3 grid, ingredients from the network) instead of the plain Terminal, from any distance. Both cards have recipes, textures, translations and are in the creative tab.
+
 ### Added — 1.2.2.36
 - **Pattern Bus: byproducts (multi-output recording)**. When recording a recipe the largest gain is still the main result, but up to three other products are now saved as byproducts. The bus collects them from the machine with the main result and returns them to the network, so crushers and similar machines no longer clog on secondary outputs. The pattern tooltip lists them ("Also yields"). Old patterns keep working. New unit tests `RecordingAnalysisTest`.
 - **Pattern Bus: automatic fuel for furnaces**. A furnace, blast furnace or smoker next to the bus that has no fuel gets charcoal, coal or dried kelp blocks from the network when there is work to do. Without fuel the bus waits with a new reason "no fuel" (stuck warning, `net.machines()` reports `no_fuel`).

@@ -306,5 +306,11 @@
   "gui.simple_bytestorage.controller.items_total": "Предметів: %s",
   "gui.simple_bytestorage.controller.charge": "Заряд: %s%%",
   "tooltip.simple_bytestorage.pattern.extra": "Також дає: ",
-  "msg.simple_bytestorage.alert.no_fuel": "печі потрібне паливо, а в мережі немає деревного вугілля, вугілля та блоків сушених водоростей"
+  "msg.simple_bytestorage.alert.no_fuel": "печі потрібне паливо, а в мережі немає деревного вугілля, вугілля та блоків сушених водоростей",
+  "item.simple_bytestorage.magnet_card": "Карта магніта",
+  "item.simple_bytestorage.crafting_card": "Карта віддаленого верстака",
+  "gui.simple_bytestorage.wireless.upgrade.magnet": "Карта магніта",
+  "gui.simple_bytestorage.wireless.upgrade.magnet.desc": "Притягує випалі предмети до вас (не під час присідання). Враховує фільтр",
+  "gui.simple_bytestorage.wireless.upgrade.crafting": "Карта віддаленого верстака",
+  "gui.simple_bytestorage.wireless.upgrade.crafting.desc": "Термінал відкривається як Термінал крафту з сіткою 3x3"
 }

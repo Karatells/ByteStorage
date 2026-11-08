@@ -317,6 +317,12 @@ public class SimpleByteStorage {
     public static final RegistryObject<Item> MACRO_CARD = ITEMS.register("macro_card",
             () -> new com.simpleae.bytestorage.item.WirelessUpgradeItem(com.simpleae.bytestorage.item.WirelessUpgradeItem.Type.MACRO, new Item.Properties().stacksTo(1)));
 
+    public static final RegistryObject<Item> MAGNET_CARD = ITEMS.register("magnet_card",
+            () -> new com.simpleae.bytestorage.item.WirelessUpgradeItem(com.simpleae.bytestorage.item.WirelessUpgradeItem.Type.MAGNET, new Item.Properties().stacksTo(1)));
+
+    public static final RegistryObject<Item> CRAFTING_CARD = ITEMS.register("crafting_card",
+            () -> new com.simpleae.bytestorage.item.WirelessUpgradeItem(com.simpleae.bytestorage.item.WirelessUpgradeItem.Type.CRAFTING, new Item.Properties().stacksTo(1)));
+
     public static final RegistryObject<Item> RECIPE_LIBRARY = ITEMS.register("recipe_library",
             () -> new com.simpleae.bytestorage.item.RecipeLibraryItem(new Item.Properties().stacksTo(1)));
 
@@ -361,6 +367,8 @@ public class SimpleByteStorage {
                         output.accept(INSURANCE_CARD.get());
                         output.accept(TOOL_CARD.get());
                         output.accept(MACRO_CARD.get());
+                        output.accept(MAGNET_CARD.get());
+                        output.accept(CRAFTING_CARD.get());
                         output.accept(RECIPE_LIBRARY.get());
                         output.accept(GUIDE_BOOK.get());
                         output.accept(CELL_1K.get());

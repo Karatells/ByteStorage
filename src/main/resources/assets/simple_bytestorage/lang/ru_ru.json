@@ -306,5 +306,11 @@
   "gui.simple_bytestorage.controller.items_total": "Предметов: %s",
   "gui.simple_bytestorage.controller.charge": "Заряд: %s%%",
   "tooltip.simple_bytestorage.pattern.extra": "Также даёт: ",
-  "msg.simple_bytestorage.alert.no_fuel": "печи нужно топливо, а в сети нет древесного угля, угля и блоков сушёных водорослей"
+  "msg.simple_bytestorage.alert.no_fuel": "печи нужно топливо, а в сети нет древесного угля, угля и блоков сушёных водорослей",
+  "item.simple_bytestorage.magnet_card": "Карта магнита",
+  "item.simple_bytestorage.crafting_card": "Карта удалённого верстака",
+  "gui.simple_bytestorage.wireless.upgrade.magnet": "Карта магнита",
+  "gui.simple_bytestorage.wireless.upgrade.magnet.desc": "Притягивает выпавшие предметы к вам (не при приседании). Учитывает фильтр",
+  "gui.simple_bytestorage.wireless.upgrade.crafting": "Карта удалённого верстака",
+  "gui.simple_bytestorage.wireless.upgrade.crafting.desc": "Терминал открывается как Терминал крафта с сеткой 3x3"
 }

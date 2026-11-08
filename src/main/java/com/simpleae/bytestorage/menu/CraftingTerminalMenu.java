@@ -2,6 +2,7 @@ package com.simpleae.bytestorage.menu;
 
 import com.simpleae.bytestorage.SimpleByteStorage;
 import com.simpleae.bytestorage.api.network.IGrid;
+import com.simpleae.bytestorage.api.network.IGridNode;
 import com.simpleae.bytestorage.api.storage.INetworkStorage;
 import com.simpleae.bytestorage.block.entity.CraftingTerminalBlockEntity;
 import com.simpleae.bytestorage.network.packet.SimpleByteStoragePackets;
@@ -45,7 +46,8 @@ public class CraftingTerminalMenu extends AbstractContainerMenu implements IGrid
     }
 
 
-    private final CraftingTerminalBlockEntity terminalEntity;
+    private final IGridNode terminalEntity;
+    private final boolean wireless;
     private final Player player;
     private final TransientCraftingContainer craftMatrix;
     private final ResultContainer resultContainer = new ResultContainer();
@@ -61,13 +63,26 @@ public class CraftingTerminalMenu extends AbstractContainerMenu implements IGrid
 
     // Клієнтський конструктор
     public CraftingTerminalMenu(int containerId, Inventory playerInventory, FriendlyByteBuf extraData) {
-        this(containerId, playerInventory, (CraftingTerminalBlockEntity) playerInventory.player.level().getBlockEntity(extraData.readBlockPos()));
+        this(containerId, playerInventory, nodeAt(playerInventory, extraData),
+                extraData.isReadable() && extraData.readBoolean());
+    }
+
+    private static IGridNode nodeAt(Inventory playerInventory, FriendlyByteBuf extraData) {
+        net.minecraft.world.level.block.entity.BlockEntity be =
+                playerInventory.player.level().getBlockEntity(extraData.readBlockPos());
+        return be instanceof IGridNode node ? node : null;
     }
 
     // Серверний конструктор
     public CraftingTerminalMenu(int containerId, Inventory playerInventory, CraftingTerminalBlockEntity terminalEntity) {
+        this(containerId, playerInventory, terminalEntity, false);
+    }
+
+    /** @param wireless true — открыто Беспроводным терминалом с картой верстака: расстояние до блока не ограничено. */
+    public CraftingTerminalMenu(int containerId, Inventory playerInventory, IGridNode terminalEntity, boolean wireless) {
         super(SimpleByteStorage.CRAFTING_TERMINAL_MENU.get(), containerId);
         this.terminalEntity = terminalEntity;
+        this.wireless = wireless;
         this.player = playerInventory.player;
         this.access = terminalEntity != null
                 ? ContainerLevelAccess.create(terminalEntity.getNodeLevel(), terminalEntity.getNodePos())
@@ -177,6 +192,9 @@ public class CraftingTerminalMenu extends AbstractContainerMenu implements IGrid
         if (terminalEntity == null) return false;
         Level level = terminalEntity.getNodeLevel();
         if (level == null) return false;
+        if (wireless) {
+            return level.getBlockEntity(terminalEntity.getNodePos()) == terminalEntity;
+        }
         return level.getBlockState(terminalEntity.getNodePos()).is(SimpleByteStorage.CRAFTING_TERMINAL_BLOCK.get())
                 && player.distanceToSqr(
                 terminalEntity.getNodePos().getX() + 0.5,
@@ -389,7 +407,7 @@ public class CraftingTerminalMenu extends AbstractContainerMenu implements IGrid
         return Collections.unmodifiableList(clientVirtualPool);
     }
 
-    public CraftingTerminalBlockEntity getTerminalEntity() {
+    public IGridNode getTerminalEntity() {
         return terminalEntity;
     }
 

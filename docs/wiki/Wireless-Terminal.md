@@ -36,6 +36,8 @@ Shift + right-click the terminal in the air to open its settings. There are thre
 | **Auto-Transfer Card** | *Restock*: the stack in your main/off hand is topped up from the network. *Pickup*: picked-up items go into the network (whatever does not fit stays a normal pickup). Filtered. | 2 FE per item |
 | **Insurance Card** | When you die, the items you would drop are moved into the network (as far as the terminal's energy allows; the terminal itself too). When you respawn, they are taken back out; armor is re-equipped. If the network is unreachable they wait in it. | 2 FE per item |
 | **Tool Card** | When a tool breaks, the same kind of item is taken from the network into the same hand. | 20 FE |
+| **Magnet Card** | Dropped items within 6 blocks fly toward you (not while you sneak, and not for items dropped less than a second ago). The terminal's filter decides which items; combine with the Auto-Transfer Card to send them straight into the network. | 1 FE per item per pulse |
+| **Remote Crafting Card** | Right-clicking the terminal opens a **Crafting Terminal** (network view plus a 3×3 grid, ingredients taken from the network) instead of the plain Terminal. Anything left in the grid returns to you when you close it. | 100 FE per opening |
 | **Macro Card** | A hotkey (default **V**, see Controls) runs once every Logic Bus whose identifier equals the macro name. Needs the [Scripting addon](Scripting-Overview). | 50 FE |
 
 The terminal must be bound and anywhere in your inventory for cards to work. Recipes are in [Recipes](Recipes).

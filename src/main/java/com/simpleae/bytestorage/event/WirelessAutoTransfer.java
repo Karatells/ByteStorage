@@ -131,6 +131,53 @@ public final class WirelessAutoTransfer {
         event.setCanceled(true);
     }
 
+    // --- Карта магнита ---
+
+    private static final int MAGNET_INTERVAL = 4;
+    private static final double MAGNET_RADIUS = 6.0;
+    private static final int MAGNET_MAX_ITEMS = 16;
+
+    /** Притягивает выпавшие предметы к игроку (не при приседании); 1 FE за предмет за такт, фильтр терминала учитывается. */
+    @SubscribeEvent
+    public static void onMagnetTick(TickEvent.PlayerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END || !(event.player instanceof ServerPlayer player)
+                || player.tickCount % MAGNET_INTERVAL != 0 || player.isShiftKeyDown() || player.isSpectator()) {
+            return;
+        }
+        ItemStack terminal = findTerminal(player, WirelessUpgradeItem.Type.MAGNET, 1);
+        if (terminal.isEmpty()) {
+            return;
+        }
+        List<ItemEntity> items = player.level().getEntitiesOfClass(ItemEntity.class,
+                player.getBoundingBox().inflate(MAGNET_RADIUS),
+                e -> e.isAlive() && e.tickCount >= 20 && !e.getPersistentData().contains("PreventRemoteMovement")
+                        && WirelessConfig.allows(terminal, e.getItem()));
+        if (items.isEmpty()) {
+            return;
+        }
+        int energy = WirelessTerminalItem.getEnergy(terminal);
+        net.minecraft.world.phys.Vec3 target = player.position().add(0, player.getBbHeight() / 2.0, 0);
+        int moved = 0;
+        for (ItemEntity item : items) {
+            if (moved >= MAGNET_MAX_ITEMS || energy <= 0) {
+                break;
+            }
+            double distance = item.position().distanceTo(target);
+            if (distance < 0.8) {
+                continue;
+            }
+            net.minecraft.world.phys.Vec3 pull = target.subtract(item.position()).normalize()
+                    .scale(Math.min(0.4, 0.1 + distance * 0.05));
+            item.setDeltaMotion(pull);
+            item.hasImpulse = true;
+            moved++;
+            energy--;
+        }
+        if (moved > 0) {
+            WirelessTerminalItem.setEnergy(terminal, energy);
+        }
+    }
+
     // --- Карта инструментов ---
 
     public static final int TOOL_COST = 20;
