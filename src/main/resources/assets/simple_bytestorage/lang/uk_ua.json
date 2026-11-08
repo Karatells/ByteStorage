@@ -304,5 +304,7 @@
   "msg.simple_bytestorage.capacitor": "Конденсатор: %s / %s FE",
   "gui.simple_bytestorage.controller.tab.stats": "Графіки",
   "gui.simple_bytestorage.controller.items_total": "Предметів: %s",
-  "gui.simple_bytestorage.controller.charge": "Заряд: %s%%"
+  "gui.simple_bytestorage.controller.charge": "Заряд: %s%%",
+  "tooltip.simple_bytestorage.pattern.extra": "Також дає: ",
+  "msg.simple_bytestorage.alert.no_fuel": "печі потрібне паливо, а в мережі немає деревного вугілля, вугілля та блоків сушених водоростей"
 }

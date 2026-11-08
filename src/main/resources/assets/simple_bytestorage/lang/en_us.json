@@ -304,5 +304,7 @@
   "msg.simple_bytestorage.capacitor": "Capacitor: %s / %s FE",
   "gui.simple_bytestorage.controller.tab.stats": "Graphs",
   "gui.simple_bytestorage.controller.items_total": "Items: %s",
-  "gui.simple_bytestorage.controller.charge": "Charge: %s%%"
+  "gui.simple_bytestorage.controller.charge": "Charge: %s%%",
+  "tooltip.simple_bytestorage.pattern.extra": "Also yields: ",
+  "msg.simple_bytestorage.alert.no_fuel": "the furnace has no fuel and the network has no charcoal, coal or dried kelp blocks"
 }

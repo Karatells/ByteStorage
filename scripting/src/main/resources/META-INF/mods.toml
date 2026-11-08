@@ -4,7 +4,7 @@ license="MIT"
 
 [[mods]]
 modId="simple_bytestorage_scripting"
-version="1.2.2.35"
+version="1.2.2.36"
 displayName="Simple Byte Storage: Scripting"
 authors="Simple Byte Storage Team"
 description='''

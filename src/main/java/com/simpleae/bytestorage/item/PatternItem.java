@@ -28,6 +28,7 @@ public class PatternItem extends Item {
     public static final String TAG_OUTPUT = "PatternOutput";
     public static final String TAG_GRID = "PatternGrid";
     public static final String TAG_PROCESSING = "PatternProcessing";
+    public static final String TAG_EXTRAS = "PatternExtras";
 
     public PatternItem(Properties properties) {
         super(properties.stacksTo(1));
@@ -62,7 +63,18 @@ public class PatternItem extends Item {
             grid.add(ItemStack.of(list.getCompound(i)));
         }
         if (tag.getBoolean(TAG_PROCESSING)) {
-            return PatternData.processing(output, grid);
+            List<ItemStack> extras = new ArrayList<>();
+            ListTag extraList = tag.getList(TAG_EXTRAS, 10);
+            for (int i = 0; i < extraList.size(); i++) {
+                CompoundTag entry = extraList.getCompound(i);
+                ItemStack extra = ItemStack.of(entry);
+                int count = entry.getInt("N");
+                if (!extra.isEmpty() && count > 0) {
+                    extra.setCount(count);
+                    extras.add(extra);
+                }
+            }
+            return PatternData.processing(output, grid, extras);
         }
         return new PatternData(output, grid);
     }
@@ -81,6 +93,18 @@ public class PatternItem extends Item {
             list.add(cell.save(new CompoundTag()));
         }
         tag.put(TAG_GRID, list);
+        tag.remove(TAG_EXTRAS);
+        if (!pattern.getExtras().isEmpty()) {
+            ListTag extraList = new ListTag();
+            for (ItemStack extra : pattern.getExtras()) {
+                ItemStack one = extra.copy();
+                one.setCount(1);
+                CompoundTag entry = one.save(new CompoundTag());
+                entry.putInt("N", extra.getCount());
+                extraList.add(entry);
+            }
+            tag.put(TAG_EXTRAS, extraList);
+        }
         stack.setCount(1);
     }
 
@@ -95,6 +119,7 @@ public class PatternItem extends Item {
             tag.remove(TAG_PROCESSING);
             tag.remove(TAG_OUTPUT);
             tag.remove(TAG_GRID);
+            tag.remove(TAG_EXTRAS);
             if (tag.isEmpty()) {
                 stack.setTag(null);
             }
@@ -133,6 +158,14 @@ public class PatternItem extends Item {
                 .append(pattern.getOutput().getHoverName().copy().withStyle(ChatFormatting.GREEN))
                 .append(Component.literal(" x" + pattern.getOutput().getCount()).withStyle(ChatFormatting.GOLD)));
 
+        if (!pattern.getExtras().isEmpty()) {
+            for (ItemStack extra : pattern.getExtras()) {
+                tooltip.add(Component.translatable("tooltip.simple_bytestorage.pattern.extra")
+                        .withStyle(ChatFormatting.GRAY)
+                        .append(extra.getHoverName().copy().withStyle(ChatFormatting.GREEN))
+                        .append(Component.literal(" x" + extra.getCount()).withStyle(ChatFormatting.GOLD)));
+            }
+        }
         tooltip.add(Component.translatable("tooltip.simple_bytestorage.pattern.ingredients")
                 .withStyle(ChatFormatting.YELLOW));
         for (ItemStack input : pattern.getInputs()) {

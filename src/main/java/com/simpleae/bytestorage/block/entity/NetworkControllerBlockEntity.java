@@ -243,6 +243,8 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
             }
             net.minecraft.network.chat.Component why = reason == PatternProviderBlockEntity.WAIT_NO_MACHINE
                     ? net.minecraft.network.chat.Component.translatable("msg.simple_bytestorage.alert.no_machine")
+                    : reason == PatternProviderBlockEntity.WAIT_NO_FUEL
+                    ? net.minecraft.network.chat.Component.translatable("msg.simple_bytestorage.alert.no_fuel")
                     : bus.describeMissing();
             if (why == null) {
                 continue;

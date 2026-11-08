@@ -60,7 +60,7 @@ Instead of encoding a processing pattern by hand you can let the bus **record** 
 3. Put the ingredients into the machine yourself, once, and let it finish one cycle.
 4. When the result appears, the bus writes a processing pattern (what the machine consumed → what it produced) into a free slot. No blank pattern is needed.
 
-While recording the bus does not move items by itself. A pattern holds a single output item; if the machine makes several products, the largest gain is used. Machines that take all ingredients at once and machines that consume one item per cycle both work, because the pattern is based on what disappeared when the result appeared.
+While recording the bus does not move items by itself. The largest gain becomes the pattern's main result (the one orders and the planner use); up to three other products are stored as **byproducts** (shown in the pattern's tooltip as "Also yields"). The bus collects byproducts from the machine together with the main result and puts them into the network, so they no longer clog the machine. The planner does not count byproducts. Machines that take all ingredients at once and machines that consume one item per cycle both work, because the pattern is based on what disappeared when the result appeared.
 
 ## Resource reservation
 When an order is accepted, the **raw materials taken from the network storage** for it (not intermediate items made by sub-crafts) are **reserved**. Reserved items:

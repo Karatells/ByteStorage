@@ -4,6 +4,10 @@ All notable changes to the **Simple Byte Storage** mod will be documented in thi
 
 ## [Unreleased]
 
+### Added — 1.2.2.36
+- **Pattern Bus: byproducts (multi-output recording)**. When recording a recipe the largest gain is still the main result, but up to three other products are now saved as byproducts. The bus collects them from the machine with the main result and returns them to the network, so crushers and similar machines no longer clog on secondary outputs. The pattern tooltip lists them ("Also yields"). Old patterns keep working. New unit tests `RecordingAnalysisTest`.
+- **Pattern Bus: automatic fuel for furnaces**. A furnace, blast furnace or smoker next to the bus that has no fuel gets charcoal, coal or dried kelp blocks from the network when there is work to do. Without fuel the bus waits with a new reason "no fuel" (stuck warning, `net.machines()` reports `no_fuel`).
+
 ### Added — 1.2.2.35
 - **Script panels** (Scripting addon): a script can draw its own control panel with `ui.text`, `ui.bar`, `ui.button` and `ui.item`. The Logic Terminal got **Code / Panel** tabs; the Panel tab shows what the selected bus drew, with scrolling. Pressing a button calls the optional `onButton(id)` handler on the bus's next run (works while the bus is running and for players who may edit scripts). Autocomplete knows `ui`, `onButton` and the new snippet. Wiki: `Scripting-API` (new `ui` section), example 28.
 
