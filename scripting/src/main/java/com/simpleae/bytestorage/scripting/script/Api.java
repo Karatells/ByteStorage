@@ -97,7 +97,98 @@ final class Api {
             return Undefined.instance;
         }));
         ScriptableObject.putProperty(scope, "time", new Fn(scope, "time", (c, s, a) -> bus.level().getGameTime()));
+        installStoreAndRedstone(cx);
         installControl(cx);
+    }
+
+    private void installStoreAndRedstone(Context cx) {
+        Scriptable store = cx.newObject(scope);
+        ScriptableObject.putProperty(scope, "store", store);
+        def(store, "get", (c, s, a) -> {
+            budget.spendCall();
+            java.util.Map<String, String> map = bus.memoryStore();
+            String key = str(a, 0);
+            if (map == null || key == null) return null;
+            return map.get(key);
+        });
+        def(store, "set", (c, s, a) -> {
+            budget.spendCall();
+            java.util.Map<String, String> map = bus.memoryStore();
+            String key = str(a, 0);
+            if (map == null || key == null || key.length() > 64) return false;
+            String val = a.length > 1 && a[1] != null && a[1] != Undefined.instance ? Context.toString(a[1]) : "";
+            if (val.length() > 512) val = val.substring(0, 512);
+            if (!map.containsKey(key) && map.size() >= 64) return false;
+            map.put(key, val);
+            bus.markStoreDirty();
+            return true;
+        });
+        def(store, "remove", (c, s, a) -> {
+            budget.spendCall();
+            java.util.Map<String, String> map = bus.memoryStore();
+            String key = str(a, 0);
+            if (map == null || key == null) return false;
+            boolean removed = map.remove(key) != null;
+            if (removed) bus.markStoreDirty();
+            return removed;
+        });
+        def(store, "clear", (c, s, a) -> {
+            budget.spendCall();
+            java.util.Map<String, String> map = bus.memoryStore();
+            if (map != null && !map.isEmpty()) {
+                map.clear();
+                bus.markStoreDirty();
+            }
+            return Undefined.instance;
+        });
+
+        Scriptable rs = cx.newObject(scope);
+        ScriptableObject.putProperty(scope, "redstone", rs);
+        def(rs, "get", (c, s, a) -> {
+            budget.spendCall();
+            String name = str(a, 0);
+            Direction dir = name == null ? null : Direction.byName(name.toLowerCase(Locale.ROOT));
+            if (dir == null) {
+                throw org.mozilla.javascript.ScriptRuntime.typeError("redstone.get(): expected down/up/north/south/west/east");
+            }
+            return bus.getRedstone(dir);
+        });
+        def(rs, "set", (c, s, a) -> {
+            budget.spendCall();
+            String name = str(a, 0);
+            Direction dir = name == null ? null : Direction.byName(name.toLowerCase(Locale.ROOT));
+            if (dir == null) {
+                throw org.mozilla.javascript.ScriptRuntime.typeError("redstone.set(): expected down/up/north/south/west/east");
+            }
+            int power = a.length > 1 ? (int) Context.toNumber(a[1]) : 0;
+            bus.setRedstone(dir, power);
+            return Undefined.instance;
+        });
+
+        Scriptable display = cx.newObject(scope);
+        ScriptableObject.putProperty(scope, "display", display);
+        def(display, "set", (c, s, a) -> {
+            budget.spendCall();
+            if (bus.grid() == null) return Undefined.instance;
+            int line = a.length > 0 ? (int) Context.toNumber(a[0]) : 0;
+            String text = a.length > 1 && a[1] != null && a[1] != Undefined.instance ? Context.toString(a[1]) : "";
+            for (com.simpleae.bytestorage.api.network.IGridNode node : bus.grid().getNodes()) {
+                if (node instanceof com.simpleae.bytestorage.block.entity.NetworkDisplayBlockEntity disp) {
+                    disp.setLine(line, text);
+                }
+            }
+            return Undefined.instance;
+        });
+        def(display, "clear", (c, s, a) -> {
+            budget.spendCall();
+            if (bus.grid() == null) return Undefined.instance;
+            for (com.simpleae.bytestorage.api.network.IGridNode node : bus.grid().getNodes()) {
+                if (node instanceof com.simpleae.bytestorage.block.entity.NetworkDisplayBlockEntity disp) {
+                    disp.clearLines();
+                }
+            }
+            return Undefined.instance;
+        });
     }
 
     // --- Керування мережею: журнал, черга, запас, рецепти, попередження ---

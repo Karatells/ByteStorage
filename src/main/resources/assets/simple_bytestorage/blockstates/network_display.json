@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "simple_bytestorage:block/network_display"
+    },
+    "facing=east": {
+      "model": "simple_bytestorage:block/network_display",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "simple_bytestorage:block/network_display",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "simple_bytestorage:block/network_display",
+      "y": 270
+    }
+  }
+}

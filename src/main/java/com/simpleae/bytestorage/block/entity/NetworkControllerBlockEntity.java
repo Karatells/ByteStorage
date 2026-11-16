@@ -611,8 +611,9 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
     public static void serverTick(Level level, BlockPos pos, BlockState state, NetworkControllerBlockEntity controller) {
         controller.tickCounter++;
 
-        // Кожні 20 тіків (1 секунда) оновлюємо структуру підключених нод мережі
-        if (controller.tickCounter % 20 == 0) {
+        // Оновлюємо структуру підключених нод мережі при змінах або раз на 100 тіків (5 секунд) як страховку
+        if (controller.topologyDirty || controller.tickCounter % 100 == 0) {
+            controller.topologyDirty = false;
             controller.scanNetworkTopology();
         }
 
@@ -647,6 +648,7 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         }
 
         int drain = grid.getTotalEnergyDrain();
+        grid.setEcoMode(controller.energyStorage.getEnergyStored() < MAX_ENERGY_CAPACITY / 10);
         if (controller.energyStorage.getEnergyStored() >= drain) {
             controller.energyStorage.consumeInternalEnergy(drain);
             grid.setState(GridState.ONLINE);
@@ -655,33 +657,56 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         }
     }
 
+    private boolean topologyDirty = true;
+
+    public void markTopologyDirty() {
+        this.topologyDirty = true;
+    }
+
     /**
-     * Пошук у ширину (BFS) для виявлення всіх з'єднаних компонентів мережі Simple Byte Storage.
+     * Пошук у ширину (BFS) для виявлення всіх з'єднаних компонентів мережі Simple Byte Storage
+     * (включно з квантовими ретрансляторами між віддаленими сегментами та вимірами).
      */
     public void scanNetworkTopology() {
         if (level == null || level.isClientSide) return;
 
-        Set<BlockPos> visited = new HashSet<>();
-        Queue<BlockPos> queue = new ArrayDeque<>();
+        record NodeRef(Level lvl, BlockPos pos) {}
 
-        visited.add(worldPosition);
-        queue.add(worldPosition);
+        Set<NodeRef> visited = new HashSet<>();
+        Queue<NodeRef> queue = new ArrayDeque<>();
+
+        NodeRef start = new NodeRef(level, worldPosition);
+        visited.add(start);
+        queue.add(start);
 
         Set<IGridNode> foundNodes = new HashSet<>();
         foundNodes.add(this);
 
         while (!queue.isEmpty()) {
-            BlockPos currentPos = queue.poll();
+            NodeRef current = queue.poll();
 
             for (Direction direction : Direction.values()) {
-                BlockPos neighborPos = currentPos.relative(direction);
-                if (visited.contains(neighborPos)) continue;
+                BlockPos neighborPos = current.pos().relative(direction);
+                NodeRef neighborRef = new NodeRef(current.lvl(), neighborPos);
+                if (visited.contains(neighborRef) || !current.lvl().isLoaded(neighborPos)) continue;
 
-                BlockEntity neighborBe = level.getBlockEntity(neighborPos);
+                BlockEntity neighborBe = current.lvl().getBlockEntity(neighborPos);
                 if (neighborBe instanceof IGridNode node) {
-                    visited.add(neighborPos);
+                    visited.add(neighborRef);
                     foundNodes.add(node);
-                    queue.add(neighborPos);
+                    queue.add(neighborRef);
+
+                    if (neighborBe instanceof QuantumRelayBlockEntity relay) {
+                        for (QuantumRelayBlockEntity partner : relay.getLinkedPartners()) {
+                            Level partnerLvl = partner.getLevel();
+                            if (partnerLvl == null || !partnerLvl.isLoaded(partner.getBlockPos())) continue;
+                            NodeRef partnerRef = new NodeRef(partnerLvl, partner.getBlockPos());
+                            if (visited.add(partnerRef)) {
+                                foundNodes.add(partner);
+                                queue.add(partnerRef);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -758,6 +783,10 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         if (grid != null && grid.getPatternStorage() != null) {
             tag.put("Patterns", grid.getPatternStorage().save());
         }
+        if (history.size() > 0) {
+            tag.putIntArray("StatsTotals", history.totalSeries());
+            tag.putIntArray("StatsEnergy", history.energySeries());
+        }
     }
 
     @Override
@@ -787,6 +816,9 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         }
         for (Tag t : tag.getList("QueuePaused", Tag.TAG_STRING)) {
             queuePaused.add(t.getAsString());
+        }
+        if (tag.contains("StatsTotals") && tag.contains("StatsEnergy")) {
+            history.restoreSeries(tag.getIntArray("StatsTotals"), tag.getIntArray("StatsEnergy"));
         }
         pendingReservations = null;
         if (tag.contains("Reservations", Tag.TAG_COMPOUND)) {

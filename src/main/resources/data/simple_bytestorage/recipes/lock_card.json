@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "simple_bytestorage:logic_wafer"
+    },
+    {
+      "item": "minecraft:gold_ingot"
+    },
+    {
+      "item": "simple_bytestorage:bytite_ingot"
+    }
+  ],
+  "result": {
+    "item": "simple_bytestorage:lock_card",
+    "count": 1
+  }
+}

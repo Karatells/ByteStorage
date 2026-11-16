@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "simple_bytestorage:cable"
+    },
+    {
+      "item": "simple_bytestorage:logic_wafer"
+    },
+    {
+      "item": "simple_bytestorage:quantum_quartz"
+    }
+  ],
+  "result": {
+    "item": "simple_bytestorage:crafting_coprocessor",
+    "count": 1
+  }
+}

@@ -6,10 +6,10 @@
       "item": "simple_bytestorage:cable"
     },
     {
-      "item": "minecraft:hopper"
+      "item": "simple_bytestorage:bytite_ingot"
     },
     {
-      "item": "minecraft:redstone"
+      "item": "minecraft:hopper"
     }
   ],
   "result": {

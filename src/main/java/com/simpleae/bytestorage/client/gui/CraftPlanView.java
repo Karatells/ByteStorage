@@ -44,13 +44,16 @@ public final class CraftPlanView {
 
         GuiStyle.label(g, Component.translatable("gui.simple_bytestorage.plan.steps"), x + 6, y + 17 + extra);
         int line = y + 28 + extra;
-        for (int i = 0; i < steps.size() && i < 6; i++) {
+        int visibleSteps = Math.min(steps.size(), 6);
+        for (int i = 0; i < visibleSteps; i++) {
             CraftPlanPacket.Entry entry = steps.get(i);
-            String text = entry.count + "× " + entry.stack.getHoverName().getString();
+            String prefix = (i == steps.size() - 1) ? "▶ " : (i == visibleSteps - 1 ? "└ " : "├ ");
+            String text = prefix + entry.count + "× " + entry.stack.getHoverName().getString();
             if (entry.processing) {
                 text += " " + Component.translatable("gui.simple_bytestorage.pattern.tag.process").getString();
             }
-            g.drawString(font, font.plainSubstrByWidth(text, W - 16), x + 10, line, GuiStyle.TEXT_GOOD, false);
+            int color = (i == steps.size() - 1) ? GuiStyle.ACCENT : GuiStyle.TEXT_GOOD;
+            g.drawString(font, font.plainSubstrByWidth(text, W - 16), x + 10, line, color, false);
             line += 10;
         }
         if (steps.size() > 6) {

@@ -69,3 +69,8 @@ When an order is accepted, the **raw materials taken from the network storage** 
 - are still used by the Assemblers and Pattern Buses for crafting, and the reservation shrinks as they take the items.
 
 Cancelling an order releases what is left of its reservation; when the whole craft queue is empty all reservations are cleared automatically. Reservations are saved with the Controller, so they survive world reloads together with the queue (a reservation whose order no longer exists is dropped as soon as the queue is empty). Intermediate items (e.g. sticks made for a pickaxe) are not reserved while they sit in the storage.
+
+## Crafting Co-Processor & Blocking Mode
+- **Crafting Co-Processor (`crafting_coprocessor`)**: each co-processor on the network reduces Assembler craft time alongside Speed Cards (costs 8 FE/t).
+- **Pattern Bus Blocking Mode**: toggle **Block: ON/OFF** in the Pattern Bus GUI to prevent pushing the next craft's ingredients while the adjacent machine still contains input items.
+- **Crafting Plan Tree**: the order confirmation dialog highlights sub-craft hierarchy (`├`, `└`, `▶`) for easier inspection.

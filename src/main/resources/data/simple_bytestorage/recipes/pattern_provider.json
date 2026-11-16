@@ -1,22 +1,17 @@
 {
-  "type": "minecraft:crafting_shaped",
+  "type": "minecraft:crafting_shapeless",
   "category": "misc",
-  "pattern": [
-    "IRI",
-    "RHR",
-    "IRI"
-  ],
-  "key": {
-    "I": {
-      "item": "minecraft:iron_ingot"
+  "ingredients": [
+    {
+      "item": "simple_bytestorage:bytite_ingot"
     },
-    "R": {
-      "item": "minecraft:redstone"
+    {
+      "item": "simple_bytestorage:logic_wafer"
     },
-    "H": {
+    {
       "item": "minecraft:hopper"
     }
-  },
+  ],
   "result": {
     "item": "simple_bytestorage:pattern_provider",
     "count": 1

@@ -1,0 +1,10 @@
+{
+  "type": "forge:add_features",
+  "biomes": "#minecraft:is_overworld",
+  "features": [
+    "simple_bytestorage:silicon_rift_patch",
+    "simple_bytestorage:quantum_cluster",
+    "simple_bytestorage:circuit_bloom"
+  ],
+  "step": "vegetal_decoration"
+}

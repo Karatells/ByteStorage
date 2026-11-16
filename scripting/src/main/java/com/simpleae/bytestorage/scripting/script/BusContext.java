@@ -19,4 +19,19 @@ public interface BusContext {
 
     /** Усі Логічні шини цієї мережі з таким ідентифікатором (у стабільному порядку за позицією). */
     java.util.List<BusContext> busesWithId(String id);
+
+    /** Персистентне сховище ключ-значення шини (зберігається в NBT). */
+    default java.util.Map<String, String> memoryStore() {
+        return null;
+    }
+
+    default void markStoreDirty() {
+    }
+
+    default int getRedstone(net.minecraft.core.Direction dir) {
+        return 0;
+    }
+
+    default void setRedstone(net.minecraft.core.Direction dir, int power) {
+    }
 }

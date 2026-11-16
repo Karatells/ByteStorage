@@ -1,17 +1,17 @@
 {
-  "type": "minecraft:crafting_shaped",
+  "type": "minecraft:crafting_shapeless",
   "category": "misc",
-  "pattern": [
-    "IRI"
-  ],
-  "key": {
-    "I": {
-      "item": "minecraft:iron_ingot"
+  "ingredients": [
+    {
+      "item": "simple_bytestorage:bytite_ingot"
     },
-    "R": {
+    {
       "item": "minecraft:redstone"
+    },
+    {
+      "item": "minecraft:glass_pane"
     }
-  },
+  ],
   "result": {
     "item": "simple_bytestorage:cable",
     "count": 4

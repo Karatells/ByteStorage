@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "simple_bytestorage:cable"
+    },
+    {
+      "item": "simple_bytestorage:cyan_phosphor"
+    },
+    {
+      "item": "minecraft:glass_pane"
+    }
+  ],
+  "result": {
+    "item": "simple_bytestorage:network_display",
+    "count": 1
+  }
+}

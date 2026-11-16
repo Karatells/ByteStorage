@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "simple_bytestorage:bytite_ore",
+    "simple_bytestorage:deepslate_bytite_ore",
+    "simple_bytestorage:bytite_block",
+    "simple_bytestorage:quantum_cluster"
+  ]
+}

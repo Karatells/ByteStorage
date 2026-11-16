@@ -35,6 +35,10 @@ import java.util.List;
 public class IoBusBlockEntity extends BlockEntity implements IGridNode, MenuProvider {
 
     public static final int FILTER_SLOTS = 9;
+    public static final int UPGRADE_SLOTS = 4;
+    public static final int REDSTONE_ALWAYS = 0;
+    public static final int REDSTONE_HIGH = 1;
+    public static final int REDSTONE_LOW = 2;
     private static final int CYCLE_TICKS = 10;
     private static final int ITEMS_PER_CYCLE = 64;
 
@@ -42,6 +46,25 @@ public class IoBusBlockEntity extends BlockEntity implements IGridNode, MenuProv
     private int tickCounter = 0;
     private int machineCount = 0;
     private boolean exportMode = false;
+    private boolean blacklistMode = false;
+    private int redstoneMode = REDSTONE_ALWAYS;
+
+    private final ItemStackHandler upgrades = new ItemStackHandler(UPGRADE_SLOTS) {
+        @Override
+        public boolean isItemValid(int slot, net.minecraft.world.item.ItemStack stack) {
+            return stack.getItem() instanceof com.simpleae.bytestorage.item.SpeedCardItem;
+        }
+
+        @Override
+        public int getSlotLimit(int slot) {
+            return 1;
+        }
+
+        @Override
+        protected void onContentsChanged(int slot) {
+            setChanged();
+        }
+    };
 
     private final ItemStackHandler filter = new ItemStackHandler(FILTER_SLOTS) {
         @Override
@@ -111,12 +134,34 @@ public class IoBusBlockEntity extends BlockEntity implements IGridNode, MenuProv
         return filter;
     }
 
+    public ItemStackHandler getUpgradesInventory() {
+        return upgrades;
+    }
+
     public boolean isExportMode() {
         return exportMode;
     }
 
     public void toggleMode() {
         exportMode = !exportMode;
+        setChanged();
+    }
+
+    public boolean isBlacklistMode() {
+        return blacklistMode;
+    }
+
+    public void toggleBlacklistMode() {
+        blacklistMode = !blacklistMode;
+        setChanged();
+    }
+
+    public int getRedstoneMode() {
+        return redstoneMode;
+    }
+
+    public void cycleRedstoneMode() {
+        redstoneMode = (redstoneMode + 1) % 3;
         setChanged();
     }
 
@@ -129,7 +174,32 @@ public class IoBusBlockEntity extends BlockEntity implements IGridNode, MenuProv
     }
 
     public List<ItemStack> getDroppedItems() {
-        return new ArrayList<>();
+        List<ItemStack> drops = new ArrayList<>();
+        for (int i = 0; i < UPGRADE_SLOTS; i++) {
+            ItemStack s = upgrades.getStackInSlot(i);
+            if (!s.isEmpty()) {
+                drops.add(s.copy());
+            }
+        }
+        return drops;
+    }
+
+    private int speedCardCount() {
+        int count = 0;
+        for (int i = 0; i < UPGRADE_SLOTS; i++) {
+            if (!upgrades.getStackInSlot(i).isEmpty()) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private boolean isRedstoneAllowed() {
+        if (level == null || redstoneMode == REDSTONE_ALWAYS) {
+            return true;
+        }
+        boolean powered = level.hasNeighborSignal(worldPosition);
+        return redstoneMode == REDSTONE_HIGH ? powered : !powered;
     }
 
     // --- Тік ---
@@ -139,7 +209,12 @@ public class IoBusBlockEntity extends BlockEntity implements IGridNode, MenuProv
     }
 
     private void tick() {
-        if (level == null || level.isClientSide || ++tickCounter % CYCLE_TICKS != 0) {
+        int cards = speedCardCount();
+        int cycle = Math.max(2, CYCLE_TICKS - cards * 2);
+        if (level == null || level.isClientSide || ++tickCounter % cycle != 0) {
+            return;
+        }
+        if (!isRedstoneAllowed()) {
             return;
         }
         List<IItemHandler> handlers = new ArrayList<>();
@@ -150,35 +225,40 @@ public class IoBusBlockEntity extends BlockEntity implements IGridNode, MenuProv
             }
         }
         machineCount = handlers.size();
-        if (handlers.isEmpty() || grid == null || !grid.getState().isActive() || grid.getStorage() == null) {
+        if (handlers.isEmpty() || grid == null || !grid.getState().isActive() || grid.isEcoMode() || grid.getStorage() == null) {
             return;
         }
+        int budget = ITEMS_PER_CYCLE * (1 + cards);
         INetworkStorage storage = grid.getStorage();
         for (IItemHandler handler : handlers) {
             if (exportMode) {
-                export(storage, handler);
+                export(storage, handler, budget);
             } else {
-                importItems(storage, handler);
+                importItems(storage, handler, budget);
             }
         }
     }
 
     private boolean matchesFilter(ItemStack stack) {
         boolean any = false;
+        boolean matched = false;
         for (int i = 0; i < FILTER_SLOTS; i++) {
             ItemStack entry = filter.getStackInSlot(i);
             if (!entry.isEmpty()) {
                 any = true;
                 if (ItemStack.isSameItemSameTags(entry, stack)) {
-                    return true;
+                    matched = true;
+                    break;
                 }
             }
         }
-        return !any;
+        if (!any) {
+            return true;
+        }
+        return blacklistMode != matched;
     }
 
-    private void importItems(INetworkStorage storage, IItemHandler handler) {
-        int budget = ITEMS_PER_CYCLE;
+    private void importItems(INetworkStorage storage, IItemHandler handler, int budget) {
         for (int slot = 0; slot < handler.getSlots() && budget > 0; slot++) {
             ItemStack inSlot = handler.getStackInSlot(slot);
             if (inSlot.isEmpty() || !matchesFilter(inSlot)) {
@@ -206,8 +286,7 @@ public class IoBusBlockEntity extends BlockEntity implements IGridNode, MenuProv
         }
     }
 
-    private void export(INetworkStorage storage, IItemHandler handler) {
-        int budget = ITEMS_PER_CYCLE;
+    private void export(INetworkStorage storage, IItemHandler handler, int budget) {
         for (int i = 0; i < FILTER_SLOTS && budget > 0; i++) {
             ItemStack wanted = filter.getStackInSlot(i);
             if (wanted.isEmpty()) {
@@ -242,7 +321,10 @@ public class IoBusBlockEntity extends BlockEntity implements IGridNode, MenuProv
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.put("Filter", filter.serializeNBT());
+        tag.put("Upgrades", upgrades.serializeNBT());
         tag.putBoolean("Export", exportMode);
+        tag.putBoolean("Blacklist", blacklistMode);
+        tag.putInt("Redstone", redstoneMode);
     }
 
     @Override
@@ -251,6 +333,11 @@ public class IoBusBlockEntity extends BlockEntity implements IGridNode, MenuProv
         if (tag.contains("Filter")) {
             filter.deserializeNBT(tag.getCompound("Filter"));
         }
+        if (tag.contains("Upgrades")) {
+            upgrades.deserializeNBT(tag.getCompound("Upgrades"));
+        }
         exportMode = tag.getBoolean("Export");
+        blacklistMode = tag.getBoolean("Blacklist");
+        redstoneMode = tag.getInt("Redstone");
     }
 }

@@ -54,3 +54,16 @@ A network block (recipe: 4 Gold Ingots, 4 Redstone Blocks and a Cable, in the sh
 - when the Controller is **above 90%** full, the Capacitor takes the surplus down to 85%, so incoming energy is not wasted.
 
 It also accepts energy directly from generators placed next to it (up to 2,000 FE/t) but never gives energy to anything except the Controller. Right-click it to see how much it holds. The stored energy is saved with the block. It costs 1 FE/t of idle energy. Several Capacitors work independently and add up.
+
+## Eco Mode
+When the Controller's energy buffer drops **below 10%**, the network enters **Eco Mode**: I/O Buses, Fluid I/O Buses, and Byte Archivers pause automatically while Terminals remain usable so you can still access your items.
+
+## Quantum Relay & Entangled Crystal
+Connect remote bases or different dimensions to the same network without cables:
+1. Hold **2 or more Entangled Crystals (`entangled_crystal`)** and **Shift + Right-Click** to pair them with a shared Link ID.
+2. Place **Quantum Relays (`quantum_relay`)** at each end and insert one paired crystal into each relay's GUI.
+3. Linked relays bridge both sides as a single network (50 FE/t idle per linked relay).
+
+## Security Terminal & Network Analyzer
+- **Security Terminal (`security_terminal`)**: binds to the player who places it and lets the owner toggle **Locked / Public** access for network terminals.
+- **Network Analyzer (`network_analyzer`)**: right-click any network block to inspect its grid state, node count, power drain, energy, and byte capacity.

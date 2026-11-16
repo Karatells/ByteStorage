@@ -1,25 +1,17 @@
 {
-  "type": "minecraft:crafting_shaped",
+  "type": "minecraft:crafting_shapeless",
   "category": "misc",
-  "pattern": [
-    "IPI",
-    "RTR",
-    "III"
-  ],
-  "key": {
-    "I": {
-      "item": "minecraft:iron_ingot"
+  "ingredients": [
+    {
+      "item": "simple_bytestorage:bytite_ingot"
     },
-    "P": {
-      "item": "minecraft:piston"
+    {
+      "item": "simple_bytestorage:logic_wafer"
     },
-    "R": {
-      "item": "minecraft:redstone"
-    },
-    "T": {
+    {
       "item": "minecraft:crafting_table"
     }
-  },
+  ],
   "result": {
     "item": "simple_bytestorage:assembler",
     "count": 1

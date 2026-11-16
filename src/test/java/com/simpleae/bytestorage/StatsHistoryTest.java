@@ -51,4 +51,13 @@ class StatsHistoryTest {
         assertTrue(h.topChanges(3, true).isEmpty());
         assertEquals(0, h.spanSeconds());
     }
+
+    @Test
+    void restoreSeriesRoundTrip() {
+        StatsHistory h = new StatsHistory();
+        h.restoreSeries(new int[]{100, 200, 350}, new int[]{50, 75, 120});
+        assertEquals(3, h.size());
+        assertArrayEquals(new int[]{100, 200, 350}, h.totalSeries());
+        assertArrayEquals(new int[]{50, 75, 100}, h.energySeries());
+    }
 }

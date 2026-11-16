@@ -1,0 +1,18 @@
+{
+  "parent": "simple_bytestorage:first_byte",
+  "display": {
+    "icon": { "item": "simple_bytestorage:terminal" },
+    "title": { "translate": "advancements.simple_bytestorage.storage_network.title" },
+    "description": { "translate": "advancements.simple_bytestorage.storage_network.desc" }
+  },
+  "criteria": {
+    "drive": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": { "items": [{ "items": ["simple_bytestorage:drive"] }] }
+    },
+    "terminal": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": { "items": [{ "items": ["simple_bytestorage:terminal"] }] }
+    }
+  }
+}

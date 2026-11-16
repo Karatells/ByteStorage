@@ -6,16 +6,10 @@
       "item": "simple_bytestorage:cell_1k"
     },
     {
-      "item": "minecraft:gold_ingot"
+      "item": "simple_bytestorage:bytite_ingot"
     },
     {
-      "item": "minecraft:gold_ingot"
-    },
-    {
-      "item": "minecraft:redstone"
-    },
-    {
-      "item": "minecraft:redstone"
+      "item": "minecraft:lapis_lazuli"
     }
   ],
   "result": {

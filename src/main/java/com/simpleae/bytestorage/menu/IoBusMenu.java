@@ -23,12 +23,18 @@ import org.jetbrains.annotations.NotNull;
 public class IoBusMenu extends AbstractContainerMenu {
 
     public static final int BUTTON_MODE = 0;
+    public static final int BUTTON_BLACKLIST = 1;
+    public static final int BUTTON_REDSTONE = 2;
     public static final int FILTER_SLOTS = IoBusBlockEntity.FILTER_SLOTS;
-    public static final int PLAYER_START = FILTER_SLOTS;
+    public static final int UPGRADE_SLOTS = IoBusBlockEntity.UPGRADE_SLOTS;
+    public static final int UPGRADE_START = FILTER_SLOTS;
+    public static final int PLAYER_START = FILTER_SLOTS + UPGRADE_SLOTS;
     public static final int PLAYER_END = PLAYER_START + 36;
     public static final int FILTER_X = 8;
     public static final int FILTER_Y = 24;
-    public static final int PLAYER_INV_Y = 88;
+    public static final int UPGRADE_X = 8;
+    public static final int UPGRADE_Y = 78;
+    public static final int PLAYER_INV_Y = 114;
 
     private final IoBusBlockEntity bus;
     private final ContainerData data;
@@ -43,14 +49,16 @@ public class IoBusMenu extends AbstractContainerMenu {
         this.bus = bus;
 
         this.data = playerInventory.player.level().isClientSide
-                ? new SimpleContainerData(3)
+                ? new SimpleContainerData(5)
                 : new ContainerData() {
                     @Override
                     public int get(int index) {
                         return switch (index) {
                             case 0 -> bus.isExportMode() ? 1 : 0;
                             case 1 -> bus.getMachineCount();
-                            default -> bus.isOnline() ? 1 : 0;
+                            case 2 -> bus.isOnline() ? 1 : 0;
+                            case 3 -> bus.isBlacklistMode() ? 1 : 0;
+                            default -> bus.getRedstoneMode();
                         };
                     }
 
@@ -60,7 +68,7 @@ public class IoBusMenu extends AbstractContainerMenu {
 
                     @Override
                     public int getCount() {
-                        return 3;
+                        return 5;
                     }
                 };
         this.addDataSlots(this.data);
@@ -77,6 +85,9 @@ public class IoBusMenu extends AbstractContainerMenu {
                     return false;
                 }
             });
+        }
+        for (int i = 0; i < UPGRADE_SLOTS; i++) {
+            this.addSlot(new SlotItemHandler(bus.getUpgradesInventory(), i, UPGRADE_X + i * 18, UPGRADE_Y));
         }
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
@@ -98,6 +109,14 @@ public class IoBusMenu extends AbstractContainerMenu {
 
     public boolean isOnline() {
         return data.get(2) != 0;
+    }
+
+    public boolean isBlacklistMode() {
+        return data.get(3) != 0;
+    }
+
+    public int getRedstoneMode() {
+        return data.get(4);
     }
 
     @Override
@@ -143,18 +162,48 @@ public class IoBusMenu extends AbstractContainerMenu {
 
     @Override
     public boolean clickMenuButton(Player player, int id) {
-        if (id == BUTTON_MODE) {
-            if (!player.level().isClientSide && bus != null) {
-                bus.toggleMode();
+        if (!player.level().isClientSide && bus != null) {
+            switch (id) {
+                case BUTTON_MODE -> {
+                    bus.toggleMode();
+                    return true;
+                }
+                case BUTTON_BLACKLIST -> {
+                    bus.toggleBlacklistMode();
+                    return true;
+                }
+                case BUTTON_REDSTONE -> {
+                    bus.cycleRedstoneMode();
+                    return true;
+                }
+                default -> {
+                }
             }
-            return true;
         }
-        return false;
+        return id == BUTTON_MODE || id == BUTTON_BLACKLIST || id == BUTTON_REDSTONE;
     }
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
-        return ItemStack.EMPTY;
+        Slot slot = this.slots.get(index);
+        if (slot == null || !slot.hasItem() || index < FILTER_SLOTS) {
+            return ItemStack.EMPTY;
+        }
+        ItemStack stack = slot.getItem();
+        ItemStack original = stack.copy();
+        if (index < PLAYER_START) {
+            if (!this.moveItemStackTo(stack, PLAYER_START, PLAYER_END, true)) {
+                return ItemStack.EMPTY;
+            }
+        } else if (!this.moveItemStackTo(stack, UPGRADE_START, PLAYER_START, false)) {
+            return ItemStack.EMPTY;
+        }
+        if (stack.isEmpty()) {
+            slot.set(ItemStack.EMPTY);
+        } else {
+            slot.setChanged();
+        }
+        return original;
     }
 
     @Override

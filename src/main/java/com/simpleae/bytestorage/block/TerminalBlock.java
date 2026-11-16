@@ -60,7 +60,9 @@ public class TerminalBlock extends BaseEntityBlock {
         if (!level.isClientSide) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof TerminalBlockEntity terminalEntity && player instanceof ServerPlayer serverPlayer) {
-                NetworkHooks.openScreen(serverPlayer, terminalEntity, pos);
+                if (com.simpleae.bytestorage.block.entity.SecurityTerminalBlockEntity.canAccess(terminalEntity.getGrid(), player)) {
+                    NetworkHooks.openScreen(serverPlayer, terminalEntity, pos);
+                }
             }
         }
         return InteractionResult.sidedSuccess(level.isClientSide);

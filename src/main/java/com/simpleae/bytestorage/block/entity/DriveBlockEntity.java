@@ -50,15 +50,47 @@ public class DriveBlockEntity extends BlockEntity implements IDriveHost, MenuPro
         }
     };
 
-    private IGrid grid;
-    private final ItemStackHandler driveInventory = new ItemStackHandler(CELL_SLOTS) {
+    /** Слот карти покращення (Void Overflow або Lock). */
+    private final ItemStackHandler upgradeSlot = new ItemStackHandler(1) {
         @Override
         public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-            return stack.getItem() instanceof IByteStorageCell;
+            return stack.getItem() instanceof com.simpleae.bytestorage.item.VoidCardItem
+                    || stack.getItem() instanceof com.simpleae.bytestorage.item.LockCardItem;
+        }
+
+        @Override
+        public int getSlotLimit(int slot) {
+            return 1;
         }
 
         @Override
         protected void onContentsChanged(int slot) {
+            setChanged();
+        }
+    };
+
+    private IGrid grid;
+    private final ICellInventory[] cachedCells = new ICellInventory[CELL_SLOTS];
+    private final ItemStackHandler driveInventory = new ItemStackHandler(CELL_SLOTS) {
+        @Override
+        public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+            return stack.getItem() instanceof IByteStorageCell
+                    || stack.getItem() instanceof com.simpleae.bytestorage.item.FluidCellItem;
+        }
+
+        @Override
+        public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
+            if (!simulate && slot >= 0 && slot < CELL_SLOTS && cachedCells[slot] != null) {
+                cachedCells[slot].flush();
+            }
+            return super.extractItem(slot, amount, simulate);
+        }
+
+        @Override
+        protected void onContentsChanged(int slot) {
+            if (slot >= 0 && slot < CELL_SLOTS) {
+                cachedCells[slot] = null;
+            }
             setChanged();
             if (grid != null) {
                 // При зміні/вставці дисків сповіщаємо сховище мережі про оновлення кешу
@@ -81,10 +113,25 @@ public class DriveBlockEntity extends BlockEntity implements IDriveHost, MenuPro
         for (int i = 0; i < driveInventory.getSlots(); i++) {
             ItemStack stack = driveInventory.getStackInSlot(i);
             if (!stack.isEmpty() && stack.getItem() instanceof IByteStorageCell cellItem) {
-                list.add(cellItem.getCellInventory(stack));
+                ICellInventory cached = cachedCells[i];
+                if (cached == null) {
+                    cached = cellItem.getCellInventory(stack, false);
+                    cachedCells[i] = cached;
+                }
+                list.add(cached);
+            } else {
+                cachedCells[i] = null;
             }
         }
         return list;
+    }
+
+    private void flushCachedCells() {
+        for (ICellInventory cell : cachedCells) {
+            if (cell != null) {
+                cell.flush();
+            }
+        }
     }
 
     @Override
@@ -101,6 +148,10 @@ public class DriveBlockEntity extends BlockEntity implements IDriveHost, MenuPro
         return filter;
     }
 
+    public ItemStackHandler getUpgradeInventory() {
+        return upgradeSlot;
+    }
+
     @Override
     public int getPriority() {
         return priority;
@@ -113,6 +164,9 @@ public class DriveBlockEntity extends BlockEntity implements IDriveHost, MenuPro
 
     @Override
     public boolean acceptsItem(ItemStack stack) {
+        if (upgradeSlot.getStackInSlot(0).getItem() instanceof com.simpleae.bytestorage.item.LockCardItem) {
+            return false;
+        }
         boolean any = false;
         for (int i = 0; i < FILTER_SLOTS; i++) {
             ItemStack entry = filter.getStackInSlot(i);
@@ -127,7 +181,22 @@ public class DriveBlockEntity extends BlockEntity implements IDriveHost, MenuPro
     }
 
     @Override
+    public boolean voidsOverflow(ItemStack stack) {
+        if (!(upgradeSlot.getStackInSlot(0).getItem() instanceof com.simpleae.bytestorage.item.VoidCardItem)) {
+            return false;
+        }
+        for (int i = 0; i < FILTER_SLOTS; i++) {
+            ItemStack entry = filter.getStackInSlot(i);
+            if (!entry.isEmpty() && ItemStack.isSameItemSameTags(entry, stack)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public void onCellContentsChanged() {
+        flushCachedCells();
         setChanged();
     }
 
@@ -204,18 +273,24 @@ public class DriveBlockEntity extends BlockEntity implements IDriveHost, MenuPro
 
     @Override
     protected void saveAdditional(CompoundTag tag) {
+        flushCachedCells();
         super.saveAdditional(tag);
         tag.put("DriveInventory", driveInventory.serializeNBT());
         tag.put("Filter", filter.serializeNBT());
+        tag.put("Upgrade", upgradeSlot.serializeNBT());
         tag.putInt("Priority", priority);
     }
 
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
+        java.util.Arrays.fill(cachedCells, null);
         priority = tag.getInt("Priority");
         if (tag.contains("Filter")) {
             filter.deserializeNBT(tag.getCompound("Filter"));
+        }
+        if (tag.contains("Upgrade")) {
+            upgradeSlot.deserializeNBT(tag.getCompound("Upgrade"));
         }
         if (tag.contains("DriveInventory")) {
             driveInventory.deserializeNBT(tag.getCompound("DriveInventory"));

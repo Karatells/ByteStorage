@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "simple_bytestorage:cell_64k"
+    },
+    {
+      "item": "simple_bytestorage:quantum_quartz"
+    },
+    {
+      "item": "simple_bytestorage:logic_wafer"
+    },
+    {
+      "item": "minecraft:nether_star"
+    }
+  ],
+  "result": {
+    "item": "simple_bytestorage:cell_256k",
+    "count": 1
+  }
+}

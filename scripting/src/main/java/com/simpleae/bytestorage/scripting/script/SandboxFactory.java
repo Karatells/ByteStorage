@@ -21,7 +21,7 @@ final class SandboxFactory extends ContextFactory {
         cx.setOptimizationLevel(-1);
         cx.setLanguageVersion(Context.VERSION_ES6);
         cx.setMaximumInterpreterStackDepth(120);
-        cx.setInstructionObserverThreshold(1000);
+        cx.setInstructionObserverThreshold(250);
         cx.setClassShutter(name -> false);
         return cx;
     }

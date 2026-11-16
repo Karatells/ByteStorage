@@ -72,11 +72,14 @@ public class DriveScreen extends AbstractContainerScreen<DriveMenu> {
         // Відсік накопичувача: 2 рядки по 5 слотів
         GuiStyle.panel(graphics, x + 38, y + 17, 102, 41);
 
-        // Слоти меню: перші 10 — комірки накопичувача, решта — інвентар гравця
+        // Слоти меню: перші 10 — комірки накопичувача, слот покращення — ліворуч
         int cells = Math.min(10, menu.slots.size());
         for (int i = 0; i < cells; i++) {
             Slot slot = menu.slots.get(i);
             GuiStyle.menuSlot(graphics, x, y, slot, GuiStyle.SLOT_CARD);
+        }
+        if (DriveMenu.UPGRADE_SLOT < menu.slots.size()) {
+            GuiStyle.menuSlot(graphics, x, y, menu.slots.get(DriveMenu.UPGRADE_SLOT), GuiStyle.SLOT_CARD);
         }
 
         // Пріоритет вставки

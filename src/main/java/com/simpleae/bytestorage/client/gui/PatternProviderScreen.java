@@ -19,11 +19,12 @@ public class PatternProviderScreen extends AbstractContainerScreen<PatternProvid
     }
 
     private UiButton recordButton;
+    private UiButton blockingButton;
 
     @Override
     protected void init() {
         super.init();
-        recordButton = new UiButton(leftPos + 6, topPos + 78, 164, 14,
+        recordButton = new UiButton(leftPos + 6, topPos + 78, 108, 14,
                 () -> Component.translatable(menu.getRecordState() >= 1 && menu.getRecordState() <= 3
                         ? "gui.simple_bytestorage.provider.record.stop" : "gui.simple_bytestorage.provider.record.start"),
                 UiButton.Icon.NONE, () -> {
@@ -31,11 +32,19 @@ public class PatternProviderScreen extends AbstractContainerScreen<PatternProvid
                         this.minecraft.gameMode.handleInventoryButtonClick(menu.containerId, 0);
                     }
                 }).tooltip(Component.translatable("gui.simple_bytestorage.provider.record.tip")).icon("play");
+        blockingButton = new UiButton(leftPos + 116, topPos + 78, 54, 14,
+                () -> Component.translatable(menu.isBlockingMode()
+                        ? "gui.simple_bytestorage.provider.blocking.on" : "gui.simple_bytestorage.provider.blocking.off"),
+                UiButton.Icon.NONE, () -> {
+                    if (this.minecraft != null && this.minecraft.gameMode != null) {
+                        this.minecraft.gameMode.handleInventoryButtonClick(menu.containerId, 1);
+                    }
+                }).tooltip(Component.translatable("gui.simple_bytestorage.provider.blocking.tip"));
     }
 
     @Override
     public boolean mouseClicked(double mx, double my, int button) {
-        if (recordButton.mouseClicked(mx, my, button)) {
+        if (recordButton.mouseClicked(mx, my, button) || blockingButton.mouseClicked(mx, my, button)) {
             return true;
         }
         return super.mouseClicked(mx, my, button);
@@ -46,7 +55,9 @@ public class PatternProviderScreen extends AbstractContainerScreen<PatternProvid
         this.renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
         recordButton.render(graphics, this.font, mouseX, mouseY);
+        blockingButton.render(graphics, this.font, mouseX, mouseY);
         recordButton.renderTooltip(graphics, this.font, mouseX, mouseY);
+        blockingButton.renderTooltip(graphics, this.font, mouseX, mouseY);
         this.renderTooltip(graphics, mouseX, mouseY);
     }
 
