@@ -68,10 +68,13 @@ public class NetworkDisplayRenderer implements BlockEntityRenderer<NetworkDispla
             int y = START_Y + i * LINE_STEP;
             if (parsed.isBar()) {
                 renderBar(matrix, buffer, START_X, y + 1, CONTENT_W, 8, parsed.barPercent(), parsed.color());
+                poseStack.pushPose();
+                poseStack.translate(0.0, 0.0, 0.25);
                 String pct = parsed.text();
                 int tw = this.font.width(pct);
                 this.font.drawInBatch(pct, START_X + (CONTENT_W - tw) / 2.0F, y + 1,
-                        0xFFFFFFFF, false, matrix, buffer, Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
+                        0xFFFFFFFF, false, poseStack.last().pose(), buffer, Font.DisplayMode.NORMAL, 0, LightTexture.FULL_BRIGHT);
+                poseStack.popPose();
             } else {
                 String clipped = this.font.plainSubstrByWidth(parsed.text(), CONTENT_W);
                 this.font.drawInBatch(clipped, START_X, y,

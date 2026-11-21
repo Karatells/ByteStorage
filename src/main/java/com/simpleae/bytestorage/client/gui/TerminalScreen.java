@@ -96,7 +96,8 @@ public class TerminalScreen extends AbstractContainerScreen<TerminalMenu> {
         float fill = max > 0 ? (float) used / max : 0.0F;
         int led = max <= 0 ? GuiStyle.LED_BAD : (fill >= 0.95F ? GuiStyle.LED_WARN : GuiStyle.LED_GOOD);
 
-        GuiStyle.window(graphics, x, y, imageWidth, imageHeight, this.title, led, "monitor");
+        Component clippedTitle = Component.literal(GuiStyle.clip(this.font, this.title.getString(), 60));
+        GuiStyle.window(graphics, x, y, imageWidth, imageHeight, clippedTitle, led, "monitor");
 
         // Поле пошуку (текст малює EditBox без власної рамки)
         GuiStyle.display(graphics, x + 82, y + 4, 80, 11);
