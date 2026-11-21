@@ -411,5 +411,8 @@
   "item.simple_bytestorage.quantum_quartz": "Квантовий кристал",
   "item.simple_bytestorage.cyan_phosphor": "Ціановий люмінофор",
   "biome.simple_bytestorage.silicon_rift": "Кремнієвий розлом",
-  "gui.simple_bytestorage.workbench.migrate.tip": "Перенести предмети/рідини з лівої комірки у праву"
+  "gui.simple_bytestorage.workbench.migrate.tip": "Перенести предмети/рідини з лівої комірки у праву",
+  "block.simple_bytestorage.network_interface": "Мережевий інтерфейс",
+  "gui.simple_bytestorage.interface.config": "Підтримувати запас",
+  "gui.simple_bytestorage.interface.buffer": "Буфер (вихід / вхід)"
 }

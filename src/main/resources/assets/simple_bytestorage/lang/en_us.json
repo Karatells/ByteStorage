@@ -411,5 +411,8 @@
   "item.simple_bytestorage.quantum_quartz": "Quantum Quartz",
   "item.simple_bytestorage.cyan_phosphor": "Cyan Phosphor",
   "biome.simple_bytestorage.silicon_rift": "Silicon Rift",
-  "gui.simple_bytestorage.workbench.migrate.tip": "Migrate stored items/fluids from left cell into right cell"
+  "gui.simple_bytestorage.workbench.migrate.tip": "Migrate stored items/fluids from left cell into right cell",
+  "block.simple_bytestorage.network_interface": "Network Interface",
+  "gui.simple_bytestorage.interface.config": "Keep in Stock (Config)",
+  "gui.simple_bytestorage.interface.buffer": "Buffer (Output / Input)"
 }

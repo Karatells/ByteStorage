@@ -24,6 +24,7 @@
     "simple_bytestorage:security_terminal",
     "simple_bytestorage:archiver",
     "simple_bytestorage:fluid_io_bus",
-    "simple_bytestorage:network_display"
+    "simple_bytestorage:network_display",
+    "simple_bytestorage:network_interface"
   ]
 }

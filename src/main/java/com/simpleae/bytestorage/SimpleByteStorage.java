@@ -338,6 +338,24 @@ public class SimpleByteStorage {
     public static final RegistryObject<MenuType<com.simpleae.bytestorage.menu.NetworkDisplayMenu>> NETWORK_DISPLAY_MENU =
             MENU_TYPES.register("network_display", () -> IForgeMenuType.create(com.simpleae.bytestorage.menu.NetworkDisplayMenu::new));
 
+    // --- 7o. Мережевий інтерфейс (Network Interface) ---
+    public static final RegistryObject<Block> NETWORK_INTERFACE_BLOCK = BLOCKS.register("network_interface",
+            () -> new com.simpleae.bytestorage.block.NetworkInterfaceBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .requiresCorrectToolForDrops()
+                    .strength(3.0F)
+                    .sound(SoundType.METAL)));
+
+    public static final RegistryObject<Item> NETWORK_INTERFACE_BLOCK_ITEM = ITEMS.register("network_interface",
+            () -> new BlockItem(NETWORK_INTERFACE_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistryObject<BlockEntityType<com.simpleae.bytestorage.block.entity.NetworkInterfaceBlockEntity>> NETWORK_INTERFACE_BLOCK_ENTITY =
+            BLOCK_ENTITIES.register("network_interface",
+                    () -> BlockEntityType.Builder.of(com.simpleae.bytestorage.block.entity.NetworkInterfaceBlockEntity::new, NETWORK_INTERFACE_BLOCK.get()).build(null));
+
+    public static final RegistryObject<MenuType<com.simpleae.bytestorage.menu.NetworkInterfaceMenu>> NETWORK_INTERFACE_MENU =
+            MENU_TYPES.register("network_interface", () -> IForgeMenuType.create(com.simpleae.bytestorage.menu.NetworkInterfaceMenu::new));
+
     // --- 7i. Квантовий ретранслятор (Quantum Relay) ---
     public static final RegistryObject<Block> QUANTUM_RELAY_BLOCK = BLOCKS.register("quantum_relay",
             () -> new com.simpleae.bytestorage.block.QuantumRelayBlock(BlockBehaviour.Properties.of()
@@ -624,6 +642,7 @@ public class SimpleByteStorage {
                         output.accept(ARCHIVER_BLOCK.get());
                         output.accept(FLUID_IO_BUS_BLOCK.get());
                         output.accept(NETWORK_DISPLAY_BLOCK.get());
+                        output.accept(NETWORK_INTERFACE_BLOCK.get());
                         output.accept(ENERGY_PORT_BLOCK.get());
                         output.accept(CAPACITOR_BLOCK.get());
                         output.accept(PATTERN_ITEM.get());
@@ -706,6 +725,7 @@ public class SimpleByteStorage {
             MenuScreens.register(QUANTUM_RELAY_MENU.get(), com.simpleae.bytestorage.client.gui.QuantumRelayScreen::new);
             MenuScreens.register(SECURITY_TERMINAL_MENU.get(), com.simpleae.bytestorage.client.gui.SecurityTerminalScreen::new);
             MenuScreens.register(NETWORK_DISPLAY_MENU.get(), com.simpleae.bytestorage.client.gui.NetworkDisplayScreen::new);
+            MenuScreens.register(NETWORK_INTERFACE_MENU.get(), com.simpleae.bytestorage.client.gui.NetworkInterfaceScreen::new);
             MenuScreens.register(WIRELESS_SETTINGS_MENU.get(), com.simpleae.bytestorage.client.gui.WirelessSettingsScreen::new);
             MenuScreens.register(CONTROLLER_MENU.get(), com.simpleae.bytestorage.client.gui.ControllerScreen::new);
             net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(

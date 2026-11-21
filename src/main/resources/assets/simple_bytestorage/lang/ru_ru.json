@@ -411,5 +411,8 @@
   "item.simple_bytestorage.quantum_quartz": "Квантовый кристалл",
   "item.simple_bytestorage.cyan_phosphor": "Циановый люминофор",
   "biome.simple_bytestorage.silicon_rift": "Кремниевый разлом",
-  "gui.simple_bytestorage.workbench.migrate.tip": "Перенести предметы/жидкости из левой ячейки в правую"
+  "gui.simple_bytestorage.workbench.migrate.tip": "Перенести предметы/жидкости из левой ячейки в правую",
+  "block.simple_bytestorage.network_interface": "Сетевой интерфейс",
+  "gui.simple_bytestorage.interface.config": "Поддерживать запас",
+  "gui.simple_bytestorage.interface.buffer": "Буфер (выход / вход)"
 }
