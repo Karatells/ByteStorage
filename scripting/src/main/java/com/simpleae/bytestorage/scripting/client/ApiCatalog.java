@@ -13,8 +13,8 @@ import java.util.TreeSet;
 /** Каталог JS API скриптов для подсветки и автодополнения редактора. */
 final class ApiCatalog {
 
-    static final Set<String> GLOBALS = Set.of("net", "stock", "recipes", "journal", "side", "buses", "log",
-            "time", "alert", "busId");
+    static final Set<String> GLOBALS = Set.of("net", "stock", "recipes", "journal", "store", "redstone", "display",
+            "side", "buses", "log", "time", "alert", "busId");
 
     private static final List<Entry> ENTRIES = new ArrayList<>();
     private static List<String> itemIds;
@@ -24,6 +24,9 @@ final class ApiCatalog {
         global("stock", "stock targets", false);
         global("recipes", "recipe rules", false);
         global("journal", "network journal", false);
+        global("store", "persistent NBT key-value store", false);
+        global("redstone", "redstone I/O (0..15)", false);
+        global("display", "Network Display text lines", false);
         global("side", "side(name) → endpoint", true);
         global("buses", "buses() → list", true);
         global("log", "log(text)", true);
@@ -50,6 +53,15 @@ final class ApiCatalog {
         }
         for (String m : new String[]{"read(n)", "warn(text)", "write(text)"}) {
             member("journal", m);
+        }
+        for (String m : new String[]{"clear()", "get(key)", "remove(key)", "set(key,val)"}) {
+            member("store", m);
+        }
+        for (String m : new String[]{"get(dir)", "set(dir,power)"}) {
+            member("redstone", m);
+        }
+        for (String m : new String[]{"clear()", "set(line,text)"}) {
+            member("display", m);
         }
         for (String m : new String[]{"count(id)", "list()", "move(from,to,n)", "pull(id,n)", "push(id,n)", "slots()"}) {
             member("ep", m);

@@ -54,4 +54,17 @@ public class IoBusBlock extends BaseEntityBlock {
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
+
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        if (!state.is(newState.getBlock())) {
+            BlockEntity be = level.getBlockEntity(pos);
+            if (be instanceof IoBusBlockEntity bus) {
+                for (net.minecraft.world.item.ItemStack drop : bus.getDroppedItems()) {
+                    net.minecraft.world.Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, drop);
+                }
+            }
+            super.onRemove(state, level, pos, newState, isMoving);
+        }
+    }
 }

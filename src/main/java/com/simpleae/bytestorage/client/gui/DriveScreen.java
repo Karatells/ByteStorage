@@ -88,7 +88,8 @@ public class DriveScreen extends AbstractContainerScreen<DriveMenu> {
 
         // Білий список
         GuiStyle.panel(graphics, x + 6, y + 60, 164, 34);
-        GuiStyle.label(graphics, "search", Component.translatable("gui.simple_bytestorage.drive.filter"), x + 10, y + 63);
+        String filterTitle = GuiStyle.clip(this.font, Component.translatable("gui.simple_bytestorage.drive.filter").getString(), 144);
+        GuiStyle.label(graphics, "search", Component.literal(filterTitle), x + 10, y + 63);
         for (int i = DriveMenu.FILTER_START; i < DriveMenu.FILTER_END; i++) {
             GuiStyle.menuSlot(graphics, x, y, menu.slots.get(i), GuiStyle.SLOT_POOL);
         }

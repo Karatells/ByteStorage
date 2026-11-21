@@ -64,7 +64,9 @@ public class DriveBlock extends BaseEntityBlock {
         if (!level.isClientSide) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof DriveBlockEntity driveEntity && player instanceof ServerPlayer serverPlayer) {
-                NetworkHooks.openScreen(serverPlayer, driveEntity, pos);
+                if (com.simpleae.bytestorage.block.entity.SecurityTerminalBlockEntity.canAccess(driveEntity.getGrid(), player)) {
+                    NetworkHooks.openScreen(serverPlayer, driveEntity, pos);
+                }
             }
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
@@ -75,12 +77,18 @@ public class DriveBlock extends BaseEntityBlock {
         if (!state.is(newState.getBlock())) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof DriveBlockEntity driveEntity) {
+                driveEntity.flushCachedCells();
                 // Випадання всіх ячеєк при руйнуванні блоку
                 for (int i = 0; i < driveEntity.getDriveInventory().getSlots(); i++) {
                     ItemStack stack = driveEntity.getDriveInventory().getStackInSlot(i);
                     if (!stack.isEmpty()) {
                         Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), stack);
                     }
+                }
+                // Випадання карти покращення (Void / Lock)
+                ItemStack upgrade = driveEntity.getUpgradeInventory().getStackInSlot(0);
+                if (!upgrade.isEmpty()) {
+                    Containers.dropItemStack(level, pos.getX(), pos.getY(), pos.getZ(), upgrade);
                 }
                 level.updateNeighbourForOutputSignal(pos, this);
             }

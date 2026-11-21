@@ -126,7 +126,7 @@ public class DriveBlockEntity extends BlockEntity implements IDriveHost, MenuPro
         return list;
     }
 
-    private void flushCachedCells() {
+    public void flushCachedCells() {
         for (ICellInventory cell : cachedCells) {
             if (cell != null) {
                 cell.flush();
@@ -150,6 +150,10 @@ public class DriveBlockEntity extends BlockEntity implements IDriveHost, MenuPro
 
     public ItemStackHandler getUpgradeInventory() {
         return upgradeSlot;
+    }
+
+    public boolean isLocked() {
+        return upgradeSlot.getStackInSlot(0).getItem() instanceof com.simpleae.bytestorage.item.LockCardItem;
     }
 
     @Override
@@ -231,6 +235,8 @@ public class DriveBlockEntity extends BlockEntity implements IDriveHost, MenuPro
             if (!stack.isEmpty() && stack.getItem() instanceof IByteStorageCell cellItem) {
                 CellTier tier = cellItem.getTier(stack);
                 drain += tier.getIdleEnergyDrain();
+            } else if (!stack.isEmpty() && stack.getItem() instanceof com.simpleae.bytestorage.item.FluidCellItem fluidCell) {
+                drain += fluidCell.getTier().getIdleEnergyDrain();
             }
         }
         return drain;

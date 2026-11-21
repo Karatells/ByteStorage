@@ -33,8 +33,15 @@ final class Api {
 
     private final BusContext bus;
     private final Scriptable scope;
-    private final Map<Scriptable, Port> endpoints = new IdentityHashMap<>();
     Budget budget;
+
+    private static final class Endpoint extends org.mozilla.javascript.NativeObject {
+        final Port port;
+
+        Endpoint(Port port) {
+            this.port = port;
+        }
+    }
 
     Api(BusContext bus, Scriptable scope) {
         this.bus = bus;
@@ -43,7 +50,6 @@ final class Api {
 
     void beginRun(Budget budget) {
         this.budget = budget;
-        endpoints.clear();
         ScriptableObject.putProperty(scope, "busId", bus.identifier());
     }
 
@@ -557,8 +563,9 @@ final class Api {
     // --- endpoint ---
 
     private Scriptable buildEndpoint(Context cx, Port port) {
-        Scriptable ep = cx.newObject(scope);
-        endpoints.put(ep, port);
+        Endpoint ep = new Endpoint(port);
+        ep.setParentScope(scope);
+        ep.setPrototype(ScriptableObject.getObjectPrototype(scope));
         def(ep, "slots", (c, s, a) -> port.slots());
         def(ep, "list", (c, s, a) -> {
             budget.spendCall();
@@ -590,7 +597,7 @@ final class Api {
         // move(other, [id], [n]) — між двома інвентарями напряму
         def(ep, "move", (c, s, a) -> {
             budget.spendCall();
-            Port other = a.length > 0 && a[0] instanceof Scriptable sc ? endpoints.get(sc) : null;
+            Port other = a.length > 0 && a[0] instanceof Endpoint otherEp ? otherEp.port : null;
             if (other == null) {
                 throw org.mozilla.javascript.ScriptRuntime.typeError("move(): first argument must be an endpoint from side()");
             }

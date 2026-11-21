@@ -196,6 +196,9 @@ public class WirelessTerminalItem extends Item {
             player.displayClientMessage(Component.translatable("msg.simple_bytestorage.wireless.no_network"), true);
             return InteractionResultHolder.fail(stack);
         }
+        if (!com.simpleae.bytestorage.block.entity.SecurityTerminalBlockEntity.canAccess(controller.getGrid(), player)) {
+            return InteractionResultHolder.fail(stack);
+        }
         if (getEnergy(stack) < COST_PER_OPEN) {
             player.displayClientMessage(Component.translatable("msg.simple_bytestorage.wireless.no_energy"), true);
             return InteractionResultHolder.fail(stack);

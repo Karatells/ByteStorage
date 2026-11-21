@@ -113,12 +113,19 @@ public class CraftingTerminalScreen extends AbstractContainerScreen<CraftingTerm
 
         // Пам'ять
         GuiStyle.meter(graphics, x + 8, y + 132, 179, 4, fill);
+        GuiStyle.inventoryLabel(graphics, this.playerInventoryTitle, x + 8, y + this.inventoryLabelY);
+        int invRight = 8 + 13 + this.font.width(this.playerInventoryTitle) + 6;
+        int availW = Math.max(40, 187 - invRight);
         String text = Component.translatable("gui.simple_bytestorage.terminal.memory",
                 FORMAT.format(used), FORMAT.format(max),
                 String.format(Locale.ROOT, "%.0f", fill * 100.0F)).getString();
+        if (this.font.width(text) > availW) {
+            text = GuiStyle.compactNumber(used) + "/" + GuiStyle.compactNumber(max) + " B ("
+                    + String.format(Locale.ROOT, "%.0f", fill * 100.0F) + "%)";
+        }
+        text = GuiStyle.clip(this.font, text, availW);
         int color = max > 0 && used >= max ? GuiStyle.TEXT_BAD : GuiStyle.TEXT_GOOD;
         graphics.drawString(this.font, text, x + 187 - this.font.width(text), y + this.inventoryLabelY, color, false);
-        GuiStyle.inventoryLabel(graphics, this.playerInventoryTitle, x + 8, y + this.inventoryLabelY);
 
         renderPoolItems(graphics, mouseX, mouseY, filtered);
     }

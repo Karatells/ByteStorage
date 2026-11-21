@@ -58,7 +58,7 @@ public class NetworkDisplayScreen extends AbstractContainerScreen<NetworkDisplay
         for (int i = 0; i < NetworkDisplayBlockEntity.MAX_LINES; i++) {
             String line = menu.getLine(i);
             if (!line.isEmpty()) {
-                graphics.drawString(this.font, this.font.plainSubstrByWidth(line, 156),
+                graphics.drawString(this.font, GuiStyle.clip(this.font, line, 156),
                         x + 10, y + 24 + i * 10, GuiStyle.ACCENT, false);
             }
         }

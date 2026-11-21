@@ -67,7 +67,9 @@ public class PatternEncodingTerminalBlock extends BaseEntityBlock {
         if (!level.isClientSide) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof PatternEncodingTerminalBlockEntity terminal && player instanceof ServerPlayer serverPlayer) {
-                NetworkHooks.openScreen(serverPlayer, terminal, pos);
+                if (com.simpleae.bytestorage.block.entity.SecurityTerminalBlockEntity.canAccess(terminal.getGrid(), player)) {
+                    NetworkHooks.openScreen(serverPlayer, terminal, pos);
+                }
             }
         }
         return InteractionResult.sidedSuccess(level.isClientSide);

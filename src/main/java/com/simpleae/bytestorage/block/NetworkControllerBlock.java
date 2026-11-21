@@ -86,7 +86,9 @@ public class NetworkControllerBlock extends BaseEntityBlock {
         if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof NetworkControllerBlockEntity controller) {
-                NetworkHooks.openScreen(serverPlayer, controller, pos);
+                if (com.simpleae.bytestorage.block.entity.SecurityTerminalBlockEntity.canAccess(controller.getGrid(), player)) {
+                    NetworkHooks.openScreen(serverPlayer, controller, pos);
+                }
             }
         }
         return InteractionResult.sidedSuccess(level.isClientSide);

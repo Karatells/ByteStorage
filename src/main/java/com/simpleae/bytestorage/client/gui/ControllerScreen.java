@@ -73,12 +73,15 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
         }
         stockButtons.clear();
         String[] labels = {"-100", "-10", "-1", "+1", "+10", "+100"};
+        int[] widths = {30, 24, 20, 20, 24, 30};
         for (int r = 0; r < ControllerMenu.STOCK_ROWS; r++) {
+            int bx = ox + 78;
             for (int a = 0; a < labels.length; a++) {
                 final int row = r;
                 final int action = a;
                 final String label = labels[a];
-                stockButtons.add(new UiButton(ox + 10 + 68 + a * 25, topPos + ControllerMenu.STOCK_Y + r * 18 + 1, 24, 14,
+                int bw = widths[a];
+                stockButtons.add(new UiButton(bx, topPos + ControllerMenu.STOCK_Y + r * 18 + 1, bw, 14,
                         () -> Component.literal(label), UiButton.Icon.NONE, () -> {
                             int rule = menu.getStockPage() * ControllerMenu.STOCK_ROWS + row;
                             if (this.minecraft != null && this.minecraft.gameMode != null) {
@@ -87,6 +90,7 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
                             }
                         }).enabledWhen(() -> menu.slots.get(ControllerMenu.STOCK_START
                         + menu.getStockPage() * ControllerMenu.STOCK_ROWS + row).hasItem()));
+                bx += bw + 2;
             }
         }
         pageButton = new UiButton(ox + 262, topPos + ControllerMenu.STOCK_Y + 1, 18, 14,
@@ -519,9 +523,10 @@ public class ControllerScreen extends AbstractContainerScreen<ControllerMenu> {
     }
 
     private void drawCrafting(GuiGraphics g, NetworkStats s, int x, int y) {
-        text(g, Component.translatable("gui.simple_bytestorage.controller.patterns", s.patterns).getString() + "   "
-                + Component.translatable("gui.simple_bytestorage.controller.assemblers", s.assemblersBusy, s.assemblers).getString() + "   "
-                + Component.translatable("gui.simple_bytestorage.controller.buses", s.buses, s.busJobs).getString(), x, y, GuiStyle.TEXT_TITLE);
+        String header = Component.translatable("gui.simple_bytestorage.controller.patterns", s.patterns).getString() + " · "
+                + Component.translatable("gui.simple_bytestorage.controller.assemblers", s.assemblersBusy, s.assemblers).getString() + " · "
+                + Component.translatable("gui.simple_bytestorage.controller.buses", s.buses, s.busJobs).getString();
+        text(g, GuiStyle.clip(this.font, header, 268), x, y, GuiStyle.TEXT_TITLE);
         if (s.queue.isEmpty()) {
             text(g, Component.translatable("gui.simple_bytestorage.controller.queue.empty").getString(), x, y + 16, GuiStyle.TEXT_MUTED);
             return;

@@ -87,6 +87,9 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
 
     @Override
     public void onGridStateChanged(GridState newState) {
+        if (!newState.isActive()) {
+            clearRedstone();
+        }
         setChanged();
     }
 
@@ -197,8 +200,11 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
             status = "";
         }
         this.enabled = value;
-        if (!value && status.isEmpty()) {
-            status = "stopped";
+        if (!value) {
+            clearRedstone();
+            if (status.isEmpty()) {
+                status = "stopped";
+            }
         }
         setChanged();
     }
@@ -270,9 +276,23 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
 
     private void fail(String error) {
         enabled = false;
+        clearRedstone();
         status = "ERROR: " + error;
         log("ERROR: " + error);
         setChanged();
+    }
+
+    private void clearRedstone() {
+        boolean changed = false;
+        for (int i = 0; i < redstoneOut.length; i++) {
+            if (redstoneOut[i] != 0) {
+                redstoneOut[i] = 0;
+                changed = true;
+            }
+        }
+        if (changed && level != null && !level.isClientSide) {
+            level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
+        }
     }
 
     // --- Збереження ---

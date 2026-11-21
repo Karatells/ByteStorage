@@ -702,4 +702,34 @@ public class SimpleByteStorage {
             MenuScreens.register(CONTROLLER_MENU.get(), com.simpleae.bytestorage.client.gui.ControllerScreen::new);
         });
     }
+
+    @net.minecraftforge.eventbus.api.SubscribeEvent
+    public void onBlockPlace(net.minecraftforge.event.level.BlockEvent.EntityPlaceEvent event) {
+        if (event.getLevel() instanceof net.minecraft.world.level.Level level && !level.isClientSide) {
+            notifyGridTopology(level, event.getPos());
+        }
+    }
+
+    @net.minecraftforge.eventbus.api.SubscribeEvent
+    public void onBlockBreak(net.minecraftforge.event.level.BlockEvent.BreakEvent event) {
+        if (event.getLevel() instanceof net.minecraft.world.level.Level level && !level.isClientSide) {
+            notifyGridTopology(level, event.getPos());
+        }
+    }
+
+    private static void notifyGridTopology(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos) {
+        for (net.minecraft.core.Direction dir : net.minecraft.core.Direction.values()) {
+            net.minecraft.core.BlockPos adj = pos.relative(dir);
+            if (!level.isLoaded(adj)) continue;
+            net.minecraft.world.level.block.entity.BlockEntity be = level.getBlockEntity(adj);
+            if (be instanceof com.simpleae.bytestorage.api.network.IGridNode node
+                    && node.getGrid() != null && node.getGrid().getController() != null) {
+                node.getGrid().getController().markTopologyDirty();
+            }
+        }
+        if (level.isLoaded(pos) && level.getBlockEntity(pos) instanceof com.simpleae.bytestorage.api.network.IGridNode self
+                && self.getGrid() != null && self.getGrid().getController() != null) {
+            self.getGrid().getController().markTopologyDirty();
+        }
+    }
 }

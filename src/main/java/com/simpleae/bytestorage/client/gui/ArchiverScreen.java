@@ -55,7 +55,8 @@ public class ArchiverScreen extends AbstractContainerScreen<ArchiverMenu> {
         GuiStyle.window(graphics, x, y, imageWidth, imageHeight, this.title, led, "chip");
 
         GuiStyle.display(graphics, x + 6, y + 20, 164, 24);
-        graphics.drawString(this.font, Component.translatable("gui.simple_bytestorage.archiver.info"),
+        String info = Component.translatable("gui.simple_bytestorage.archiver.info").getString();
+        graphics.drawString(this.font, GuiStyle.clip(this.font, info, 156),
                 x + 10, y + 28, GuiStyle.TEXT_LABEL, false);
 
         GuiStyle.display(graphics, x + 6, y + 48, 164, 22);

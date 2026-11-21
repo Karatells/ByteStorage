@@ -354,9 +354,14 @@ public class PatternTerminalScreen extends AbstractContainerScreen<PatternTermin
             text = Component.translatable("gui.simple_bytestorage.pattern.status",
                     FORMAT.format(this.menu.getUsedBytes()), FORMAT.format(this.menu.getCapacityBytes()),
                     this.menu.getAssemblerCount()).getString();
+            if (this.font.width(text) > 206) {
+                text = Component.translatable("gui.simple_bytestorage.pattern.status",
+                        GuiStyle.compactNumber(this.menu.getUsedBytes()), GuiStyle.compactNumber(this.menu.getCapacityBytes()),
+                        this.menu.getAssemblerCount()).getString();
+            }
             color = GuiStyle.TEXT_GOOD;
         }
-        graphics.drawString(this.font, this.font.plainSubstrByWidth(text, 206), x + 12, y + 193, color, false);
+        graphics.drawString(this.font, GuiStyle.clip(this.font, text, 206), x + 12, y + 193, color, false);
     }
 
     private static boolean inside(double mx, double my, int x, int y, int w, int h) {

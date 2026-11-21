@@ -51,7 +51,8 @@ final class TerminalService {
             }
         }
 
-        boolean canEdit = ScriptingConfig.canEdit(player);
+        boolean canEdit = ScriptingConfig.canEdit(player)
+                && com.simpleae.bytestorage.block.entity.SecurityTerminalBlockEntity.canAccess(grid, player);
         if (selected != null && canEdit) {
             switch (action) {
                 case ScriptActionPacket.SAVE -> selected.setScript(text);

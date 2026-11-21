@@ -24,18 +24,18 @@ public class IoBusScreen extends AbstractContainerScreen<IoBusMenu> {
     @Override
     protected void init() {
         super.init();
-        this.modeButton = new UiButton(this.leftPos + 8, this.topPos + 51, 78, 16,
+        this.modeButton = new UiButton(this.leftPos + 8, this.topPos + 51, 88, 16,
                 () -> Component.translatable(this.menu.isExportMode()
                         ? "gui.simple_bytestorage.iobus.export" : "gui.simple_bytestorage.iobus.import"),
                 UiButton.Icon.NONE, () -> clickBtn(IoBusMenu.BUTTON_MODE)).primary().icon("arrows");
 
-        this.filterModeButton = new UiButton(this.leftPos + 84, this.topPos + 78, 42, 16,
+        this.filterModeButton = new UiButton(this.leftPos + 81, this.topPos + 78, 31, 16,
                 () -> Component.translatable(this.menu.isBlacklistMode()
                         ? "gui.simple_bytestorage.iobus.blacklist" : "gui.simple_bytestorage.iobus.whitelist"),
                 UiButton.Icon.NONE, () -> clickBtn(IoBusMenu.BUTTON_BLACKLIST))
                 .tooltip(Component.translatable("gui.simple_bytestorage.iobus.filter_mode.tip"));
 
-        this.redstoneButton = new UiButton(this.leftPos + 128, this.topPos + 78, 42, 16,
+        this.redstoneButton = new UiButton(this.leftPos + 114, this.topPos + 78, 56, 16,
                 () -> Component.translatable("gui.simple_bytestorage.iobus.redstone." + this.menu.getRedstoneMode()),
                 UiButton.Icon.NONE, () -> clickBtn(IoBusMenu.BUTTON_REDSTONE))
                 .tooltip(Component.translatable("gui.simple_bytestorage.iobus.redstone.tip"));
@@ -96,10 +96,10 @@ public class IoBusScreen extends AbstractContainerScreen<IoBusMenu> {
         GuiStyle.display(graphics, x + 6, y + 48, 164, 22);
         Component status = Component.translatable(!menu.isOnline()
                 ? "gui.simple_bytestorage.provider.offline"
-                : (menu.getMachines() > 0 ? "gui.simple_bytestorage.provider.machine.ok"
-                : "gui.simple_bytestorage.provider.machine.none"));
+                : (menu.getMachines() > 0 ? "gui.simple_bytestorage.storage_bus.ok"
+                : "gui.simple_bytestorage.storage_bus.none"));
         int color = !menu.isOnline() ? GuiStyle.TEXT_BAD : (menu.getMachines() > 0 ? GuiStyle.TEXT_GOOD : GuiStyle.TEXT_WARN);
-        graphics.drawString(this.font, this.font.plainSubstrByWidth(status.getString(), 78), x + 90, y + 55, color, false);
+        graphics.drawString(this.font, GuiStyle.clip(this.font, status.getString(), 68), x + 100, y + 55, color, false);
 
         GuiStyle.inventoryLabel(graphics, this.playerInventoryTitle, x + 8, y + this.inventoryLabelY);
         GuiStyle.playerSlots(graphics, x, y, menu.slots, IoBusMenu.PLAYER_START);

@@ -75,7 +75,7 @@ public class FluidIoBusBlockEntity extends BlockEntity implements IGridNode, Men
         if (drained.isEmpty()) return;
         int remaining = drained.getAmount();
         for (IGridNode node : grid.getNodes()) {
-            if (!(node instanceof DriveBlockEntity drive)) continue;
+            if (!(node instanceof DriveBlockEntity drive) || drive.isLocked()) continue;
             IItemHandler inv = drive.getDriveInventory();
             for (int i = 0; i < inv.getSlots() && remaining > 0; i++) {
                 ItemStack cell = inv.getStackInSlot(i);

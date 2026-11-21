@@ -22,7 +22,7 @@ public class FluidIoBusScreen extends AbstractContainerScreen<FluidIoBusMenu> {
     @Override
     protected void init() {
         super.init();
-        this.modeButton = new UiButton(this.leftPos + 8, this.topPos + 51, 78, 16,
+        this.modeButton = new UiButton(this.leftPos + 8, this.topPos + 51, 88, 16,
                 () -> Component.translatable(this.menu.isExportMode()
                         ? "gui.simple_bytestorage.iobus.export" : "gui.simple_bytestorage.iobus.import"),
                 UiButton.Icon.NONE, () -> {
@@ -63,7 +63,7 @@ public class FluidIoBusScreen extends AbstractContainerScreen<FluidIoBusMenu> {
                 ? "gui.simple_bytestorage.provider.offline"
                 : (menu.isEcoMode() ? "gui.simple_bytestorage.eco_mode" : "gui.simple_bytestorage.storage_bus.ok"));
         int color = !menu.isOnline() ? GuiStyle.TEXT_BAD : (menu.isEcoMode() ? GuiStyle.TEXT_WARN : GuiStyle.TEXT_GOOD);
-        graphics.drawString(this.font, this.font.plainSubstrByWidth(status.getString(), 78), x + 90, y + 55, color, false);
+        graphics.drawString(this.font, GuiStyle.clip(this.font, status.getString(), 68), x + 100, y + 55, color, false);
 
         GuiStyle.inventoryLabel(graphics, this.playerInventoryTitle, x + 8, y + this.inventoryLabelY);
         GuiStyle.playerSlots(graphics, x, y, menu.slots, 0);

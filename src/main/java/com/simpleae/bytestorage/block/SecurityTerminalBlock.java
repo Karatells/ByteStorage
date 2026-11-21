@@ -79,4 +79,12 @@ public class SecurityTerminalBlock extends BaseEntityBlock {
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
+
+    @Override
+    public float getDestroyProgress(BlockState state, Player player, net.minecraft.world.level.BlockGetter level, BlockPos pos) {
+        if (level.getBlockEntity(pos) instanceof SecurityTerminalBlockEntity sec && sec.isLocked() && !sec.isOwner(player)) {
+            return 0.0F;
+        }
+        return super.getDestroyProgress(state, player, level, pos);
+    }
 }

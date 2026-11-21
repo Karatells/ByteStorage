@@ -29,12 +29,13 @@ final class BusService {
         if (!(be instanceof LogicBusBlockEntity bus)) {
             return;
         }
-        boolean canEdit = ScriptingConfig.canEdit(player);
+        IGrid grid = bus.getGrid();
+        boolean canEdit = ScriptingConfig.canEdit(player)
+                && com.simpleae.bytestorage.block.entity.SecurityTerminalBlockEntity.canAccess(grid, player);
         if (action == BusActionPacket.SET_ID && canEdit) {
             bus.setIdentifier(text);
         }
 
-        IGrid grid = bus.getGrid();
         boolean online = grid != null && grid.getState().isActive();
         Map<String, Integer> counts = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         if (grid != null) {

@@ -117,7 +117,7 @@ public class WirelessSettingsScreen extends AbstractContainerScreen<WirelessSett
     }
 
     private void line(GuiGraphics g, String text, int x, int y, int color) {
-        g.drawString(this.font, this.font.plainSubstrByWidth(text, 160), x, y, color, false);
+        g.drawString(this.font, GuiStyle.clip(this.font, text, 160), x, y, color, false);
     }
 
     @Override
@@ -141,17 +141,25 @@ public class WirelessSettingsScreen extends AbstractContainerScreen<WirelessSett
         for (int i = 0; i < WirelessConfig.UPGRADE_SLOTS; i++) {
             GuiStyle.menuSlot(g, x, y, menu.slots.get(i), GuiStyle.SLOT_CARD, GuiStyle.ACCENT);
         }
-        int row = y + 68;
-        boolean any = false;
+        java.util.List<WirelessUpgradeItem.Type> installed = new java.util.ArrayList<>();
         for (WirelessUpgradeItem.Type type : WirelessUpgradeItem.Type.values()) {
-            if (!menu.hasUpgrade(type)) continue;
-            any = true;
-            line(g, Component.translatable(type.nameKey()).getString(), x + 8, row, GuiStyle.TEXT_GOOD);
-            line(g, Component.translatable(type.descKey()).getString(), x + 8, row + 10, GuiStyle.TEXT_MUTED);
-            row += 22;
+            if (menu.hasUpgrade(type)) installed.add(type);
         }
-        if (!any) {
+        int row = y + 66;
+        if (installed.isEmpty()) {
             line(g, Component.translatable("gui.simple_bytestorage.wireless.upgrades.empty").getString(), x + 8, row, GuiStyle.TEXT_MUTED);
+        } else if (installed.size() <= 2) {
+            for (WirelessUpgradeItem.Type type : installed) {
+                line(g, Component.translatable(type.nameKey()).getString(), x + 8, row, GuiStyle.TEXT_GOOD);
+                line(g, Component.translatable(type.descKey()).getString(), x + 8, row + 10, GuiStyle.TEXT_MUTED);
+                row += 22;
+            }
+        } else {
+            for (WirelessUpgradeItem.Type type : installed) {
+                if (row + 9 > y + WirelessSettingsMenu.PLAYER_INV_Y - 13) break;
+                line(g, "+ " + Component.translatable(type.nameKey()).getString(), x + 8, row, GuiStyle.TEXT_GOOD);
+                row += 11;
+            }
         }
     }
 
