@@ -45,8 +45,14 @@ public class LogicTerminalScreen extends Screen {
     private boolean autoSelected = false;
     private int templateIdx = 0;
     private boolean panelTab = false;
+    private boolean libraryTab = false;
     private int panelScroll = 0;
     private int panelContentHeight = 0;
+    private int libraryScroll = 0;
+    private List<ScriptLibraryIndex.Entry> libraryEntries = null;
+    private String libraryError = null;
+    private boolean libraryLoading = false;
+    private String libraryStatus = null;
 
     private static final int AREA_X = 112;
     private static final int AREA_Y = 34;
@@ -73,8 +79,8 @@ public class LogicTerminalScreen extends Screen {
         this.editor.setValue(previous);
         this.addRenderableWidget(this.editor);
         this.setInitialFocus(this.editor);
-        this.editor.visible = !panelTab;
-        this.editor.active = !panelTab;
+        this.editor.visible = !panelTab && !libraryTab;
+        this.editor.active = !panelTab && !libraryTab;
 
         buttons.clear();
         int by = top + 142;
@@ -105,12 +111,12 @@ public class LogicTerminalScreen extends Screen {
         buttons.add(new UiButton(left + 338, by, 16, 16, () -> Component.literal("+"), UiButton.Icon.NONE,
                 () -> send(ScriptActionPacket.INTERVAL, currentInterval() + 10, ""))
                 .enabledWhen(this::canAct));
-        buttons.add(new UiButton(left + AREA_X + 146, top + 20, 96, 13,
-                () -> Component.literal("Template (" + (templateIdx + 1) + "/" + ScriptTemplates.ALL.size() + ")"),
+        buttons.add(new UiButton(left + AREA_X + 162, top + 20, 80, 13,
+                () -> Component.literal("Tpl (" + (templateIdx + 1) + "/" + ScriptTemplates.ALL.size() + ")"),
                 UiButton.Icon.NONE,
                 this::applyNextTemplate)
                 .enabledWhen(this::canAct)
-                .tooltip(Component.literal("Insert ready-to-use JS script template into editor")));
+                .tooltip(Component.literal("Insert built-in JS script template into editor")));
 
         // Перший запит списку шин (при перебудові вікна стан і текст зберігаються)
         if (state == null) {
@@ -180,15 +186,42 @@ public class LogicTerminalScreen extends Screen {
     }
 
     private void setPanelTab(boolean panel) {
-        this.panelTab = panel;
-        this.editor.visible = !panel;
-        this.editor.active = !panel;
-        if (panel) {
+        selectTab(panel ? 1 : 0);
+    }
+
+    /** 0 = Code, 1 = Panel, 2 = Online Library. */
+    private void selectTab(int tab) {
+        this.panelTab = (tab == 1);
+        this.libraryTab = (tab == 2);
+        boolean code = (tab == 0);
+        this.editor.visible = code;
+        this.editor.active = code;
+        if (!code) {
             this.editor.setFocused(false);
             this.setFocused(null);
         } else {
             this.setInitialFocus(this.editor);
         }
+        if (this.libraryTab && state != null && state.allowOnlineLibrary
+                && libraryEntries == null && !libraryLoading) {
+            loadOnlineLibrary(false);
+        }
+    }
+
+    private void loadOnlineLibrary(boolean force) {
+        if (state == null || !state.allowOnlineLibrary) return;
+        this.libraryLoading = true;
+        this.libraryError = null;
+        this.libraryStatus = null;
+        OnlineScriptLibrary.fetchIndex(state.onlineLibraryUrl, force,
+                entries -> {
+                    this.libraryLoading = false;
+                    this.libraryEntries = entries;
+                },
+                err -> {
+                    this.libraryLoading = false;
+                    this.libraryError = err;
+                });
     }
 
     private List<UiElement> panelElements() {
@@ -229,21 +262,137 @@ public class LogicTerminalScreen extends Screen {
         return cells;
     }
 
+    private static final int[] TAB_X = {0, 52, 104};
+    private static final int[] TAB_W = {50, 50, 54};
+
     private void drawTabs(GuiGraphics g, int mouseX, int mouseY) {
         String[] labels = {
                 Component.translatable("gui.simple_bytestorage_scripting.tab.code").getString(),
                 Component.translatable("gui.simple_bytestorage_scripting.tab.panel").getString()
-                        + (panelElements().isEmpty() ? "" : " (" + panelElements().size() + ")")};
-        for (int i = 0; i < 2; i++) {
-            int tx = left + AREA_X + i * 70;
+                        + (panelElements().isEmpty() ? "" : "(" + panelElements().size() + ")"),
+                Component.translatable("gui.simple_bytestorage_scripting.tab.library").getString()};
+        int current = libraryTab ? 2 : (panelTab ? 1 : 0);
+        for (int i = 0; i < 3; i++) {
+            int tx = left + AREA_X + TAB_X[i];
+            int tw = TAB_W[i];
             int ty = top + 20;
-            boolean active = (i == 1) == panelTab;
-            boolean hover = mouseX >= tx && mouseX < tx + 68 && mouseY >= ty && mouseY < ty + 13;
-            g.fill(tx, ty, tx + 68, ty + 13, active ? GuiStyle.ACCENT_DIM : (hover ? GuiStyle.ACCENT_FAINT : GuiStyle.PANEL_BG));
-            g.fill(tx, ty + 12, tx + 68, ty + 13, active ? GuiStyle.ACCENT : GuiStyle.PANEL_EDGE_LIGHT);
-            g.drawString(this.font, this.font.plainSubstrByWidth(labels[i], 64), tx + 4, ty + 3,
+            boolean active = (i == current);
+            boolean hover = mouseX >= tx && mouseX < tx + tw && mouseY >= ty && mouseY < ty + 13;
+            g.fill(tx, ty, tx + tw, ty + 13, active ? GuiStyle.ACCENT_DIM : (hover ? GuiStyle.ACCENT_FAINT : GuiStyle.PANEL_BG));
+            g.fill(tx, ty + 12, tx + tw, ty + 13, active ? GuiStyle.ACCENT : GuiStyle.PANEL_EDGE_LIGHT);
+            g.drawString(this.font, this.font.plainSubstrByWidth(labels[i], tw - 6), tx + 3, ty + 3,
                     active ? GuiStyle.TEXT_TITLE : GuiStyle.TEXT_LABEL, false);
         }
+    }
+
+    private static final int LIB_ROW_H = 19;
+    private static final int LIB_ROWS = 5;
+
+    private void drawLibrary(GuiGraphics g, int mouseX, int mouseY) {
+        int rx = left + AREA_X;
+        int ry = top + AREA_Y;
+        GuiStyle.display(g, rx, ry, AREA_W, AREA_H);
+
+        if (state == null || !state.allowOnlineLibrary) {
+            int y = ry + 8;
+            for (net.minecraft.util.FormattedCharSequence line : this.font.split(
+                    Component.translatable("gui.simple_bytestorage_scripting.library.disabled"), AREA_W - 12)) {
+                g.drawString(this.font, line, rx + 6, y, GuiStyle.TEXT_WARN, false);
+                y += 10;
+            }
+            return;
+        }
+        if (libraryLoading) {
+            g.drawString(this.font, Component.translatable("gui.simple_bytestorage_scripting.library.loading"),
+                    rx + 6, ry + 8, GuiStyle.TEXT_MUTED, false);
+            return;
+        }
+        if (libraryError != null) {
+            g.drawString(this.font, this.font.plainSubstrByWidth(libraryError, AREA_W - 12),
+                    rx + 6, ry + 8, GuiStyle.TEXT_BAD, false);
+            g.drawString(this.font, Component.translatable("gui.simple_bytestorage_scripting.library.retry"),
+                    rx + 6, ry + 22, GuiStyle.ACCENT, false);
+            return;
+        }
+        if (libraryEntries == null || libraryEntries.isEmpty()) {
+            g.drawString(this.font, Component.translatable("gui.simple_bytestorage_scripting.library.empty"),
+                    rx + 6, ry + 8, GuiStyle.TEXT_MUTED, false);
+            return;
+        }
+
+        String curVer = OnlineScriptLibrary.currentModVersion();
+        ScriptLibraryIndex.Entry hoveredEntry = null;
+        for (int row = 0; row < LIB_ROWS; row++) {
+            int idx = libraryScroll + row;
+            if (idx >= libraryEntries.size()) break;
+            ScriptLibraryIndex.Entry e = libraryEntries.get(idx);
+            int y = ry + 3 + row * LIB_ROW_H;
+            boolean compat = ScriptLibraryIndex.isCompatible(curVer, e.minModVersion(), e.maxModVersion());
+            boolean hover = mouseX >= rx + 2 && mouseX < rx + AREA_W - 2 && mouseY >= y && mouseY < y + LIB_ROW_H - 1;
+            if (hover) {
+                hoveredEntry = e;
+                g.fill(rx + 2, y, rx + AREA_W - 2, y + LIB_ROW_H - 1, GuiStyle.ACCENT_FAINT);
+            }
+            String badge = compat ? ("v" + e.minModVersion() + "+") : ("REQ " + e.minModVersion());
+            int badgeW = this.font.width(badge);
+            g.drawString(this.font, this.font.plainSubstrByWidth(e.name(), AREA_W - badgeW - 16),
+                    rx + 5, y + 2, compat ? GuiStyle.TEXT_TITLE : GuiStyle.TEXT_MUTED, false);
+            g.drawString(this.font, badge, rx + AREA_W - badgeW - 5, y + 2,
+                    compat ? GuiStyle.TEXT_GOOD : GuiStyle.TEXT_BAD, false);
+            String sub = "by " + e.author() + (e.needsControl() ? " [CTRL]" : "") + (e.needsAlerts() ? " [ALERT]" : "");
+            g.drawString(this.font, this.font.plainSubstrByWidth(sub, AREA_W - 12),
+                    rx + 5, y + 10, GuiStyle.TEXT_MUTED, false);
+        }
+        if (libraryStatus != null) {
+            g.drawString(this.font, this.font.plainSubstrByWidth(libraryStatus, AREA_W - 10),
+                    rx + 5, ry + AREA_H - 10, GuiStyle.ACCENT, false);
+        }
+        if (hoveredEntry != null) {
+            List<Component> tip = new ArrayList<>();
+            tip.add(Component.literal(hoveredEntry.name()).withStyle(net.minecraft.ChatFormatting.AQUA));
+            if (!hoveredEntry.description().isEmpty()) {
+                tip.add(Component.literal(hoveredEntry.description()).withStyle(net.minecraft.ChatFormatting.GRAY));
+            }
+            boolean compat = ScriptLibraryIndex.isCompatible(curVer, hoveredEntry.minModVersion(), hoveredEntry.maxModVersion());
+            tip.add(Component.translatable(compat
+                    ? "gui.simple_bytestorage_scripting.library.click_load"
+                    : "gui.simple_bytestorage_scripting.library.incompatible", hoveredEntry.minModVersion())
+                    .withStyle(compat ? net.minecraft.ChatFormatting.GREEN : net.minecraft.ChatFormatting.RED));
+            g.renderComponentTooltip(this.font, tip, mouseX, mouseY);
+        }
+    }
+
+    private boolean clickLibrary(double mouseX, double mouseY) {
+        int rx = left + AREA_X;
+        int ry = top + AREA_Y;
+        if (mouseX < rx || mouseX >= rx + AREA_W || mouseY < ry || mouseY >= ry + AREA_H) {
+            return false;
+        }
+        if (state == null || !state.allowOnlineLibrary) return true;
+        if (libraryError != null) {
+            loadOnlineLibrary(true);
+            return true;
+        }
+        if (libraryEntries == null || libraryLoading || !canAct()) return true;
+        int row = (int) ((mouseY - (ry + 3)) / LIB_ROW_H);
+        int idx = libraryScroll + row;
+        if (row >= 0 && row < LIB_ROWS && idx >= 0 && idx < libraryEntries.size()) {
+            ScriptLibraryIndex.Entry e = libraryEntries.get(idx);
+            String curVer = OnlineScriptLibrary.currentModVersion();
+            if (!ScriptLibraryIndex.isCompatible(curVer, e.minModVersion(), e.maxModVersion())) {
+                libraryStatus = "Requires mod " + e.minModVersion() + "+";
+                return true;
+            }
+            libraryStatus = "Downloading " + e.id() + "...";
+            OnlineScriptLibrary.fetchScript(state.onlineLibraryUrl, e,
+                    code -> {
+                        this.libraryStatus = null;
+                        this.editor.setValue(code);
+                        selectTab(0);
+                    },
+                    err -> this.libraryStatus = err);
+        }
+        return true;
     }
 
     private void drawPanel(GuiGraphics g, int mouseX, int mouseY) {
@@ -393,14 +542,17 @@ public class LogicTerminalScreen extends Screen {
             }
         }
         if (button == 0) {
-            for (int i = 0; i < 2; i++) {
-                int tx = left + AREA_X + i * 70;
-                if (mouseX >= tx && mouseX < tx + 68 && mouseY >= top + 20 && mouseY < top + 33) {
-                    setPanelTab(i == 1);
+            for (int i = 0; i < 3; i++) {
+                int tx = left + AREA_X + TAB_X[i];
+                if (mouseX >= tx && mouseX < tx + TAB_W[i] && mouseY >= top + 20 && mouseY < top + 33) {
+                    selectTab(i);
                     return true;
                 }
             }
             if (panelTab && clickPanel(mouseX, mouseY)) {
+                return true;
+            }
+            if (libraryTab && clickLibrary(mouseX, mouseY)) {
                 return true;
             }
         }
@@ -438,6 +590,12 @@ public class LogicTerminalScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        if (libraryTab && libraryEntries != null && mouseX >= left + AREA_X && mouseX < left + AREA_X + AREA_W
+                && mouseY >= top + AREA_Y && mouseY < top + AREA_Y + AREA_H) {
+            int max = Math.max(0, libraryEntries.size() - LIB_ROWS);
+            libraryScroll = Math.max(0, Math.min(max, libraryScroll - (int) Math.signum(delta)));
+            return true;
+        }
         if (panelTab && mouseX >= left + AREA_X && mouseX < left + AREA_X + AREA_W
                 && mouseY >= top + AREA_Y && mouseY < top + AREA_Y + AREA_H) {
             int max = Math.max(0, panelContentHeight - (AREA_H - 8));
@@ -521,6 +679,8 @@ public class LogicTerminalScreen extends Screen {
         drawTabs(g, mouseX, mouseY);
         if (panelTab) {
             drawPanel(g, mouseX, mouseY);
+        } else if (libraryTab) {
+            drawLibrary(g, mouseX, mouseY);
         }
         drawStatus(g);
 

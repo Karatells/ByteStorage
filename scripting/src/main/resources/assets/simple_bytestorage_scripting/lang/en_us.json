@@ -52,5 +52,12 @@
   "msg.simple_bytestorage_scripting.disk.empty": "Disk is empty (Shift+RMB on a Logic Bus to copy)",
   "tooltip.simple_bytestorage_scripting.disk.saved": "Stored script: %s lines (from %s)",
   "tooltip.simple_bytestorage_scripting.disk.use": "RMB on Logic Bus to paste, Shift+RMB to copy",
-  "tooltip.simple_bytestorage_scripting.disk.empty": "Empty — Shift+RMB on a Logic Bus to copy its script"
+  "tooltip.simple_bytestorage_scripting.disk.empty": "Empty — Shift+RMB on a Logic Bus to copy its script",
+  "gui.simple_bytestorage_scripting.tab.library": "Library",
+  "gui.simple_bytestorage_scripting.library.disabled": "Online script library is disabled by the server admin (allowOnlineLibrary = false).",
+  "gui.simple_bytestorage_scripting.library.loading": "Loading community script library...",
+  "gui.simple_bytestorage_scripting.library.retry": "Click here to retry",
+  "gui.simple_bytestorage_scripting.library.empty": "No scripts found in library.",
+  "gui.simple_bytestorage_scripting.library.click_load": "Click to load into editor (does not auto-run)",
+  "gui.simple_bytestorage_scripting.library.incompatible": "Incompatible: requires mod version %s+"
 }

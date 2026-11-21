@@ -52,5 +52,12 @@
   "msg.simple_bytestorage_scripting.disk.empty": "Диск порожній (Shift+ПКМ по Логічній шині — скопіювати)",
   "tooltip.simple_bytestorage_scripting.disk.saved": "Збережено рядків: %s (шина: %s)",
   "tooltip.simple_bytestorage_scripting.disk.use": "ПКМ по Логічній шині — записати, Shift+ПКМ — скопіювати",
-  "tooltip.simple_bytestorage_scripting.disk.empty": "Порожній — Shift+ПКМ по Логічній шині, щоб скопіювати"
+  "tooltip.simple_bytestorage_scripting.disk.empty": "Порожній — Shift+ПКМ по Логічній шині, щоб скопіювати",
+  "gui.simple_bytestorage_scripting.tab.library": "Бібл.",
+  "gui.simple_bytestorage_scripting.library.disabled": "Онлайн-бібліотека скриптів вимкнена адміністратором сервера (allowOnlineLibrary = false).",
+  "gui.simple_bytestorage_scripting.library.loading": "Завантаження бібліотеки скриптів...",
+  "gui.simple_bytestorage_scripting.library.retry": "Натисніть тут, щоб повторити",
+  "gui.simple_bytestorage_scripting.library.empty": "У бібліотеці поки немає скриптів.",
+  "gui.simple_bytestorage_scripting.library.click_load": "Клік — завантажити в редактор (без автозапуску)",
+  "gui.simple_bytestorage_scripting.library.incompatible": "Несумісно: потрібна версія мода %s+"
 }

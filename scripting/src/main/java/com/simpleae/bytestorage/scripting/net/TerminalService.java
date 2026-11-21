@@ -78,7 +78,9 @@ final class TerminalService {
                 withScript,
                 withScript ? selected.getScript() : "",
                 selected == null ? List.of() : selected.getLog(),
-                selected == null ? List.of() : selected.getPanel());
+                selected == null ? List.of() : selected.getPanel(),
+                ScriptingConfig.ALLOW_ONLINE_LIBRARY.get(),
+                ScriptingConfig.ONLINE_LIBRARY_URL.get());
         ScriptingPackets.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), reply);
     }
 }

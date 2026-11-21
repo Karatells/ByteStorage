@@ -32,10 +32,13 @@ public class ScriptStatePacket {
     public final String script;
     public final List<String> log;
     public final List<UiElement> panel;
+    public final boolean allowOnlineLibrary;
+    public final String onlineLibraryUrl;
 
     public ScriptStatePacket(boolean modEnabled, boolean online, boolean canEdit, int minInterval, int maxLength,
                              List<BusInfo> buses, @Nullable BlockPos selected, boolean withScript,
-                             String script, List<String> log, List<UiElement> panel) {
+                             String script, List<String> log, List<UiElement> panel,
+                             boolean allowOnlineLibrary, String onlineLibraryUrl) {
         this.modEnabled = modEnabled;
         this.online = online;
         this.canEdit = canEdit;
@@ -47,6 +50,8 @@ public class ScriptStatePacket {
         this.script = script;
         this.log = log;
         this.panel = panel;
+        this.allowOnlineLibrary = allowOnlineLibrary;
+        this.onlineLibraryUrl = onlineLibraryUrl == null ? "" : onlineLibraryUrl;
     }
 
     public ScriptStatePacket(FriendlyByteBuf buf) {
@@ -74,6 +79,8 @@ public class ScriptStatePacket {
             panel.add(new UiElement(buf.readVarInt(), buf.readUtf(UiElement.MAX_TEXT * 4), buf.readUtf(UiElement.MAX_ID * 4),
                     buf.readInt(), buf.readInt(), buf.readInt()));
         }
+        this.allowOnlineLibrary = buf.readBoolean();
+        this.onlineLibraryUrl = buf.readUtf(256);
     }
 
     public void encode(FriendlyByteBuf buf) {
@@ -109,6 +116,8 @@ public class ScriptStatePacket {
             buf.writeInt(e.value());
             buf.writeInt(e.max());
         }
+        buf.writeBoolean(allowOnlineLibrary);
+        buf.writeUtf(onlineLibraryUrl, 256);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctxSupplier) {
