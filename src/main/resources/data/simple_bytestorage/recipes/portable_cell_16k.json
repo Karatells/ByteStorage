@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BTB",
+    "BCB",
+    "BHB"
+  ],
+  "key": {
+    "B": {
+      "item": "simple_bytestorage:bytite_ingot"
+    },
+    "T": {
+      "item": "simple_bytestorage:terminal"
+    },
+    "C": {
+      "item": "simple_bytestorage:cell_16k"
+    },
+    "H": {
+      "item": "minecraft:chest"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage:portable_cell_16k",
+    "count": 1
+  }
+}

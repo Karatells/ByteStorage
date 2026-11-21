@@ -414,5 +414,12 @@
   "gui.simple_bytestorage.workbench.migrate.tip": "Перенести предмети/рідини з лівої комірки у праву",
   "block.simple_bytestorage.network_interface": "Мережевий інтерфейс",
   "gui.simple_bytestorage.interface.config": "Підтримувати запас",
-  "gui.simple_bytestorage.interface.buffer": "Буфер (вихід / вхід)"
+  "gui.simple_bytestorage.interface.buffer": "Буфер (вихід / вхід)",
+  "item.simple_bytestorage.portable_cell_1k": "Портативна байт-комірка 1k",
+  "item.simple_bytestorage.portable_cell_4k": "Портативна байт-комірка 4k",
+  "item.simple_bytestorage.portable_cell_16k": "Портативна байт-комірка 16k",
+  "msg.simple_bytestorage.portable_cell.pickup_on": "Авто-підбір комірки: УВІМК",
+  "msg.simple_bytestorage.portable_cell.pickup_off": "Авто-підбір комірки: ВИМК",
+  "tooltip.simple_bytestorage.portable_cell.pickup_on": "Авто-підбір: УВІМК (Shift+ПКМ — перемкнути)",
+  "tooltip.simple_bytestorage.portable_cell.pickup_off": "Авто-підбір: ВИМК (Shift+ПКМ — перемкнути)"
 }

@@ -414,5 +414,12 @@
   "gui.simple_bytestorage.workbench.migrate.tip": "Migrate stored items/fluids from left cell into right cell",
   "block.simple_bytestorage.network_interface": "Network Interface",
   "gui.simple_bytestorage.interface.config": "Keep in Stock (Config)",
-  "gui.simple_bytestorage.interface.buffer": "Buffer (Output / Input)"
+  "gui.simple_bytestorage.interface.buffer": "Buffer (Output / Input)",
+  "item.simple_bytestorage.portable_cell_1k": "1k Portable Byte Cell",
+  "item.simple_bytestorage.portable_cell_4k": "4k Portable Byte Cell",
+  "item.simple_bytestorage.portable_cell_16k": "16k Portable Byte Cell",
+  "msg.simple_bytestorage.portable_cell.pickup_on": "Portable Cell Auto-Pickup: ON",
+  "msg.simple_bytestorage.portable_cell.pickup_off": "Portable Cell Auto-Pickup: OFF",
+  "tooltip.simple_bytestorage.portable_cell.pickup_on": "Auto-Pickup: ON (Shift+RMB to toggle)",
+  "tooltip.simple_bytestorage.portable_cell.pickup_off": "Auto-Pickup: OFF (Shift+RMB to toggle)"
 }

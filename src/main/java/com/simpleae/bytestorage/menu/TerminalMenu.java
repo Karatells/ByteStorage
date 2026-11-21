@@ -60,7 +60,11 @@ public class TerminalMenu extends AbstractContainerMenu implements IGridMenu {
 
     /** @param wireless true — відкрито бездротовим терміналом: відстань до блока не обмежена. */
     public TerminalMenu(int containerId, Inventory playerInventory, IGridNode terminalEntity, boolean wireless) {
-        super(SimpleByteStorage.TERMINAL_MENU.get(), containerId);
+        this(SimpleByteStorage.TERMINAL_MENU.get(), containerId, playerInventory, terminalEntity, wireless);
+    }
+
+    public TerminalMenu(net.minecraft.world.inventory.MenuType<?> menuType, int containerId, Inventory playerInventory, IGridNode terminalEntity, boolean wireless) {
+        super(menuType, containerId);
         this.wireless = wireless;
         this.terminalEntity = terminalEntity;
         this.player = playerInventory.player;
@@ -81,6 +85,9 @@ public class TerminalMenu extends AbstractContainerMenu implements IGridMenu {
     @Override
     public boolean stillValid(Player player) {
         if (terminalEntity == null) return false;
+        if (terminalEntity instanceof com.simpleae.bytestorage.item.PortableByteCellItem.PortableCellNode portable) {
+            return portable.isValid(player);
+        }
         if (wireless) {
             net.minecraft.world.level.Level lvl = this.terminalEntity.getNodeLevel();
             return lvl != null && lvl.getBlockEntity(this.terminalEntity.getNodePos()) == this.terminalEntity;
@@ -95,7 +102,8 @@ public class TerminalMenu extends AbstractContainerMenu implements IGridMenu {
     @Override
     public void broadcastChanges() {
         super.broadcastChanges();
-        if (player instanceof ServerPlayer craftSyncPlayer && (craftSyncTimer++ % 40 == 0)) {
+        boolean isPortable = terminalEntity instanceof com.simpleae.bytestorage.item.PortableByteCellItem.PortableCellNode;
+        if (!isPortable && player instanceof ServerPlayer craftSyncPlayer && (craftSyncTimer++ % 40 == 0)) {
             sendCraftables(craftSyncPlayer);
         }
 
@@ -115,7 +123,7 @@ public class TerminalMenu extends AbstractContainerMenu implements IGridMenu {
                             new SyncTerminalDataPacket(currentCap, currentUsed, storage.getAllItems()),
                             serverPlayer
                     );
-                    if (serverPlayer.tickCount % 20 == 0) {
+                    if (!isPortable && serverPlayer.tickCount % 20 == 0) {
                         SimpleByteStoragePackets.sendToPlayer(new com.simpleae.bytestorage.network.packet.TerminalAvailabilityPacket(
                                 com.simpleae.bytestorage.util.TerminalAvailability.compute(grid)), serverPlayer);
                     }

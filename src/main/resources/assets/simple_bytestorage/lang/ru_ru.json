@@ -414,5 +414,12 @@
   "gui.simple_bytestorage.workbench.migrate.tip": "Перенести предметы/жидкости из левой ячейки в правую",
   "block.simple_bytestorage.network_interface": "Сетевой интерфейс",
   "gui.simple_bytestorage.interface.config": "Поддерживать запас",
-  "gui.simple_bytestorage.interface.buffer": "Буфер (выход / вход)"
+  "gui.simple_bytestorage.interface.buffer": "Буфер (выход / вход)",
+  "item.simple_bytestorage.portable_cell_1k": "Портативная байт-ячейка 1k",
+  "item.simple_bytestorage.portable_cell_4k": "Портативная байт-ячейка 4k",
+  "item.simple_bytestorage.portable_cell_16k": "Портативная байт-ячейка 16k",
+  "msg.simple_bytestorage.portable_cell.pickup_on": "Авто-подбор ячейки: ВКЛ",
+  "msg.simple_bytestorage.portable_cell.pickup_off": "Авто-подбор ячейки: ВЫКЛ",
+  "tooltip.simple_bytestorage.portable_cell.pickup_on": "Авто-подбор: ВКЛ (Shift+ПКМ — переключить)",
+  "tooltip.simple_bytestorage.portable_cell.pickup_off": "Авто-подбор: ВЫКЛ (Shift+ПКМ — переключить)"
 }

@@ -618,6 +618,20 @@ public class SimpleByteStorage {
     public static final RegistryObject<Item> CELL_1M = ITEMS.register("cell_1m",
             () -> new ByteStorageCellItem(CellTier.TIER_1M, new Item.Properties()));
 
+    // --- 9b. Портативні байт-ячейки (Portable Byte Cells: 1k, 4k, 16k) ---
+    public static final RegistryObject<Item> PORTABLE_CELL_1K = ITEMS.register("portable_cell_1k",
+            () -> new com.simpleae.bytestorage.item.PortableByteCellItem(CellTier.TIER_1K, new Item.Properties()));
+
+    public static final RegistryObject<Item> PORTABLE_CELL_4K = ITEMS.register("portable_cell_4k",
+            () -> new com.simpleae.bytestorage.item.PortableByteCellItem(CellTier.TIER_4K, new Item.Properties()));
+
+    public static final RegistryObject<Item> PORTABLE_CELL_16K = ITEMS.register("portable_cell_16k",
+            () -> new com.simpleae.bytestorage.item.PortableByteCellItem(CellTier.TIER_16K, new Item.Properties()));
+
+    public static final RegistryObject<MenuType<TerminalMenu>> PORTABLE_CELL_MENU =
+            MENU_TYPES.register("portable_cell", () -> IForgeMenuType.create(
+                    (id, inv, buf) -> new TerminalMenu(SimpleByteStorage.PORTABLE_CELL_MENU.get(), id, inv, null, true)));
+
     // --- 6. Креативна вкладка ---
     public static final RegistryObject<CreativeModeTab> TAB = CREATIVE_MODE_TABS.register("simple_bytestorage_tab",
             () -> CreativeModeTab.builder()
@@ -666,6 +680,9 @@ public class SimpleByteStorage {
                         output.accept(CELL_64K.get());
                         output.accept(CELL_256K.get());
                         output.accept(CELL_1M.get());
+                        output.accept(PORTABLE_CELL_1K.get());
+                        output.accept(PORTABLE_CELL_4K.get());
+                        output.accept(PORTABLE_CELL_16K.get());
                         output.accept(FLUID_CELL_1K.get());
                         output.accept(FLUID_CELL_4K.get());
                         output.accept(FLUID_CELL_16K.get());
@@ -711,6 +728,7 @@ public class SimpleByteStorage {
         event.enqueueWork(() -> {
             com.simpleae.bytestorage.client.guide.GuideRegistry.registerBuiltin();
             MenuScreens.register(TERMINAL_MENU.get(), TerminalScreen::new);
+            MenuScreens.register(PORTABLE_CELL_MENU.get(), TerminalScreen::new);
             MenuScreens.register(CRAFTING_TERMINAL_MENU.get(), CraftingTerminalScreen::new);
             MenuScreens.register(DRIVE_MENU.get(), DriveScreen::new);
             MenuScreens.register(ASSEMBLER_MENU.get(), AssemblerScreen::new);
@@ -732,6 +750,24 @@ public class SimpleByteStorage {
                     NETWORK_DISPLAY_BLOCK_ENTITY.get(),
                     com.simpleae.bytestorage.client.render.NetworkDisplayRenderer::new);
         });
+    }
+
+    @net.minecraftforge.eventbus.api.SubscribeEvent
+    public void onItemPickup(net.minecraftforge.event.entity.player.EntityItemPickupEvent event) {
+        net.minecraft.world.entity.player.Player player = event.getEntity();
+        if (player.level().isClientSide) return;
+        net.minecraft.world.entity.item.ItemEntity entity = event.getItem();
+        ItemStack stack = entity.getItem();
+        if (stack.isEmpty()) return;
+        ItemStack rest = com.simpleae.bytestorage.item.PortableByteCellItem.tryAutoPickup(player, stack);
+        if (rest.getCount() != stack.getCount()) {
+            if (rest.isEmpty()) {
+                entity.discard();
+                event.setCanceled(true);
+            } else {
+                entity.setItem(rest);
+            }
+        }
     }
 
     @net.minecraftforge.eventbus.api.SubscribeEvent
