@@ -31,9 +31,30 @@ Cell upgrades are crafted by combining the lower tier with extra materials — s
 Any storage cell can also be used as the buffer of an [Assembler](Assembler).
 
 ## Cell Workbench & Drive Upgrade Cards
-- **Cell Workbench (`cell_workbench`)**: insert a storage cell and configure up to 9 filter slots in **Allow** (whitelist) or **Deny** (blacklist) mode. The filter is saved directly on the cell's NBT.
+- **Cell Workbench (`cell_workbench`)**:
+  - **Per-cell filter**: insert a storage cell in the left slot and configure up to 9 filter slots in **Allow** (whitelist) or **Deny** (blacklist) mode. The filter is saved directly on the cell's NBT.
+  - **Cell Migration (`->` button)**: insert a source cell in the left slot and a target cell in the right slot, then click **`->`** to transfer all compatible items (between `ByteCellItem`) or fluids (between `FluidCellItem`) respecting filters and remaining capacity.
+  - **Corrupted Cell Restoration**: place a **Corrupted Byte Cell (`corrupted_cell`)** found in `Silicon Rift` (`quantum_cluster`, 15% drop chance without Silk Touch) into the left slot with an empty right slot and click **`->`** to restore it into a valuable reward (`4k`/`16k` cell, `Fluid Cell 4k`, `Energy Cell 1k`, `Portable Cell 1k`, or upgrade cards).
 - **Void Overflow Card (`void_card`)**: insert into a Drive's upgrade slot; excess items matching the Drive's filter are destroyed when the Drive is full.
-- **Lock Card (`lock_card`)**: insert into a Drive's upgrade slot to make the Drive read-only (allows extraction, blocks new insertions).
+- **Lock Card (`lock_card`)**: insert into a Drive's upgrade slot to make the Drive read-only (allows extraction, blocks new item and fluid insertions).
+
+## Portable Byte Cells (`portable_cell_1k` / `4k` / `16k`)
+Handheld storage cells that bring the **no-type-limit** byte system on the go:
+- **Right-click** in hand to open a full **Terminal GUI** (search, sort, Shift-click, deposit) backed by that cell.
+- **Shift + Right-click** in air to toggle **Auto-Pickup**: picked-up ground loot goes straight into the Portable Cell (respecting any filter set in the Cell Workbench).
+- Fully compatible with **Drive** and **Cell Workbench** — drop your Portable Cell into a Drive at home or migrate it in a Cell Workbench.
+- Protected against recursion (a Portable Byte Cell cannot be inserted inside itself).
+
+## Energy Byte Cells (`energy_cell_1k` / `4k` / `16k`)
+Store Forge Energy directly inside any **Drive** slot at **1 byte = 1,000 FE**:
+
+| Energy Cell | Capacity |
+|---|---|
+| `energy_cell_1k` | 1,024,000 FE |
+| `energy_cell_4k` | 4,096,000 FE |
+| `energy_cell_16k` | 16,384,000 FE |
+
+Connected Energy Cells automatically balance energy with the **Network Controller** (same thresholds as Capacitor: refilling the Controller below 50% and absorbing surplus above 90%).
 
 ## Storage Bus
 The **Storage Bus (`storage_bus`)** connects adjacent external inventories (chests, barrels, drawers) directly to the virtual network pool without importing their contents into cells. Supports priority (`-999..+999`) and a 9-slot Allow/Deny filter.

@@ -212,4 +212,43 @@ To avoid one-call memory bombs, `String.prototype.repeat`, `padStart`, `padEnd` 
 - `redstone.get(dir)` — returns the incoming redstone signal (`0..15`) on side `dir` (`down`/`up`/`north`/`south`/`west`/`east`).
 - `redstone.set(dir, power)` — outputs a redstone signal (`0..15`) from the Logic Bus on side `dir`.
 - `store.get(key)` / `store.set(key, value)` / `store.remove(key)` / `store.clear()` — persistent per-bus key-value store saved in NBT (up to 64 keys, max 512 chars per value).
-- `display.set(line, text)` / `display.clear()` — updates lines `0..5` on all **Network Display (`network_display`)** blocks connected to the grid.
+- `display.set(line, text)` / `display.clear()` — updates lines `0..5` on all **Network Display (`network_display`)** blocks connected to the grid. Text renders **in 3D directly on the block face** in the world and supports:
+  - Leading color codes: `&a` (green), `&b` (cyan), `&c` (red), `&d` (purple), `&e` (yellow), `&f` (white), `&6` (orange), `&7` (gray), `&9` (blue).
+  - Progress bars: `"[bar:75]"` or `"[bar:75:green]"` (0–100%, colors: `green`, `cyan`, `red`, `yellow`, `orange`, `blue`, `purple`, `white`, `gray`).
+
+### Fluids (1.4.0+)
+- `net.fluidCount(fluidId)` — returns total millibuckets (`mB`) of `fluidId` (e.g. `"minecraft:water"`, `"minecraft:lava"`) stored across all **Fluid Byte Cells** in connected Drives.
+- `net.fluids()` — returns an array of `{id, amount}` objects for every fluid stored in the network (amounts in `mB`).
+
+```js
+function tick() {
+  var water = net.fluidCount("minecraft:water");
+  display.set(0, "&9Water: &f" + (water / 1000) + " B");
+  redstone.set("north", water < 4000 ? 15 : 0);
+}
+```
+
+### Inter-Bus Messaging (1.4.0+)
+Logic Buses on the same network (including across **Quantum Relays**) can send text messages to each other by Bus ID:
+- `bus.send(targetId, text)` — delivers `text` (max 256 chars) to all other enabled Logic Buses whose identifier equals `targetId`. Returns the number of recipient buses.
+- `function onMessage(fromId, text)` — optional handler called on the recipient bus before `tick()` for each queued message (queue cap: 32 messages; cleared when the bus stops).
+
+```js
+// Sender bus (ID: "hub_main")
+function tick() {
+  var e = net.energy();
+  if (e && e.percent < 25) {
+    bus.send("farm_1", "pause");
+  }
+}
+
+// Receiver bus (ID: "farm_1")
+function onMessage(from, text) {
+  log("From " + from + ": " + text);
+  redstone.set("up", text === "pause" ? 15 : 0);
+}
+```
+
+### Redstone & Endpoint Notes (1.3.1 / 1.4.0+)
+- `redstone.set(dir, power)` automatically resets all outputs to `0` (and notifies neighbors) if the bus is stopped, hits a runtime error, or loses grid power.
+- Top-level `var a = side("up"); var b = side("down");` endpoints remain valid across ticks for `a.move(b, ...)`.

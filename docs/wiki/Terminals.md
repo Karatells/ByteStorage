@@ -17,15 +17,23 @@ The search box takes several words; **all** must match:
 
 | Word | Meaning |
 |------|---------|
-| `iron` | part of the item name |
+| `iron` | part of the item name **or** item registry path (e.g. `iron_ingot`) |
 | `@mod` | the item's mod id contains `mod` |
 | `#tag` | the item has a tag containing `tag` (e.g. `#ingots`) |
-| `>100` `<100` `=100` | stored amount (craft-only items count as 0) |
+| `%text` | matches text inside the item's tooltip (enchantments, descriptions) |
+| `>100` `<100` `=100` `>=10k` `<=2m` | stored amount with optional `k` (1,000) and `m` (1,000,000) suffixes (craft-only items count as 0) |
 | `$craftable` | the network can craft it |
 | `$stock` | it is stored in the network |
 | `$fav` | favorites only |
 
-Example: `@minecraft #ingots >64`. **Alt + click** an item to mark it as a favorite (gold corner); favorites are listed first inside their group. Favorites are stored on the server with your player data, so they follow you between computers and survive death (up to 500 items). Old local favorites (`config/simple_bytestorage_favorites.txt`) are moved to the server once, the first time you join. The list order is always: items in stock first, then craft-only items.
+Example: `@minecraft #ingots >=1k %unbreaking`. **Alt + click** an item to mark it as a favorite (gold corner); favorites are listed first inside their group. Favorites are stored on the server with your player data, so they follow you between computers and survive death (up to 500 items). Old local favorites (`config/simple_bytestorage_favorites.txt`) are moved to the server once, the first time you join. The list order is always: items in stock first, then craft-only items.
+
+## Fluids Tab (`Items / Fluids`)
+
+The **Terminal** includes an **`Items` / `Fluids`** toggle button on the right side (below the saved search slots):
+- Switch to **`Fluids`** to view all fluids stored in **Fluid Byte Cells** across the network (shown with bucket icons and amounts in Buckets / mB).
+- **Click with an empty bucket** on a fluid to fill it (`1,000 mB` extracted from the network).
+- **Click with a filled bucket** anywhere in the fluid grid to drain `1,000 mB` into the network's Fluid Byte Cells (respects locked Drives).
 
 ## Crafting Terminal
 

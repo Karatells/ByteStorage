@@ -1,0 +1,21 @@
+# Simple Byte Storage 1.4.0 (Development)
+
+**Minecraft 1.20.1 · Forge 47.2.0+ · Java 17.** Feature update for both the main mod and the optional Scripting addon. Network protocol is now **12** (main mod) and **4** (Scripting addon) — client and server must run the same version.
+
+## Main mod — New blocks, items & features
+- **Network Interface (`network_interface`)**: bidirectional bridge for hoppers, pipes, and machines from other mods — inserted items go straight into the network, while 9 ghost config slots automatically keep 9 buffer slots stocked from storage.
+- **Portable Byte Cells (`portable_cell_1k` / `4k` / `16k`)**: handheld no-type-limit storage cells; Right-click opens a full Terminal GUI, `Shift + Right-click` toggles **Auto-Pickup** of ground loot, compatible with `Drive` and `Cell Workbench`.
+- **Energy Byte Cells (`energy_cell_1k` / `4k` / `16k`)**: store Forge Energy inside any `Drive` at **1 byte = 1,000 FE** (up to 16.38M FE), automatically balancing with the Controller like a Capacitor.
+- **Corrupted Byte Cell (`corrupted_cell`)**: drops (15% chance without Silk Touch) from `quantum_cluster` in the `Silicon Rift` biome; restore it in the **Cell Workbench** (`->` button) into cells or upgrade cards.
+- **Cell Workbench Migration**: added a second target cell slot and **`->`** button to migrate items between `ByteCellItem` or fluids between `FluidCellItem`.
+- **Cable Facades (`cable_facade`)**: disguise any Network Cable as any solid building block (`Shift + Right-click` block to copy, `Right-click` cable to apply, `Shift + Right-click` empty hand to remove).
+- **3D In-World `Network Display` Renderer**: renders up to 6 glowing lines directly on the block face with color codes (`&a..&f`) and progress bars (`[bar:0..100:color]`).
+- **Terminal Fluids Tab (`Items / Fluids`)**: view all stored fluids from `FluidCellItem` and fill/drain buckets by clicking directly in the Terminal.
+- **Smart Terminal Search**: added `%tooltip` search, `>=` / `<=` comparisons, `k` / `m` suffixes (`>=10k`, `<=2m`), and item registry path matching.
+
+## Scripting addon (`simple_bytestorage_scripting`)
+- **Online Script Library (`Library` tab)**: browse moderated community scripts from `https://github.com/Karatells/sbs-scripts` with **categories**, **in-game item/block icons**, **mod version compatibility checks**, and **SHA-256 verification** (never auto-runs). Controlled by server config `allowOnlineLibrary` and `onlineLibraryUrl`.
+- **Script Disk (`script_disk`)**: `Shift + Right-click` a Logic Bus to copy its script and interval, `Right-click` another Logic Bus to paste.
+- **Inter-Bus Messaging**: `bus.send(targetId, text)` and `onMessage(fromId, text)` across the entire network (including Quantum Relays).
+- **Fluid API**: `net.fluidCount(id)` and `net.fluids()` for automating Fluid Byte Cells.
+- **Built-in Script Templates**: `Tpl (1/5)` button in the Logic Terminal with 5 ready-to-use scripts.
