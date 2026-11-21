@@ -32,7 +32,8 @@ public class CellWorkbenchBlockEntity extends BlockEntity implements MenuProvide
         @Override
         public boolean isItemValid(int slot, @NotNull ItemStack stack) {
             return stack.getItem() instanceof IByteStorageCell
-                    || stack.getItem() instanceof com.simpleae.bytestorage.item.FluidCellItem;
+                    || stack.getItem() instanceof com.simpleae.bytestorage.item.FluidCellItem
+                    || stack.getItem() instanceof com.simpleae.bytestorage.item.CorruptedCellItem;
         }
 
         @Override
@@ -51,7 +52,8 @@ public class CellWorkbenchBlockEntity extends BlockEntity implements MenuProvide
         @Override
         public boolean isItemValid(int slot, @NotNull ItemStack stack) {
             return stack.getItem() instanceof IByteStorageCell
-                    || stack.getItem() instanceof com.simpleae.bytestorage.item.FluidCellItem;
+                    || stack.getItem() instanceof com.simpleae.bytestorage.item.FluidCellItem
+                    || stack.getItem() instanceof com.simpleae.bytestorage.item.CorruptedCellItem;
         }
 
         @Override
@@ -93,6 +95,13 @@ public class CellWorkbenchBlockEntity extends BlockEntity implements MenuProvide
     public boolean migrateCells() {
         ItemStack src = cellSlot.getStackInSlot(0);
         ItemStack dst = targetCellSlot.getStackInSlot(0);
+        if (src.getItem() instanceof com.simpleae.bytestorage.item.CorruptedCellItem && dst.isEmpty() && level != null && !level.isClientSide) {
+            ItemStack reward = com.simpleae.bytestorage.item.CorruptedCellItem.rollRestoredReward(level.random);
+            cellSlot.setStackInSlot(0, ItemStack.EMPTY);
+            targetCellSlot.setStackInSlot(0, reward);
+            setChanged();
+            return true;
+        }
         if (src.isEmpty() || dst.isEmpty()) {
             return false;
         }

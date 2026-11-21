@@ -648,6 +648,9 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
         if (controller.tickCounter % com.simpleae.bytestorage.util.StatsHistory.SAMPLE_TICKS == 5 && grid.getState().isActive()) {
             controller.sampleHistory(grid);
         }
+        if (controller.tickCounter % 10 == 0) {
+            controller.balanceEnergyCells(grid);
+        }
 
         int drain = grid.getTotalEnergyDrain();
         grid.setEcoMode(controller.energyStorage.getEnergyStored() < MAX_ENERGY_CAPACITY / 10);
@@ -656,6 +659,34 @@ public class NetworkControllerBlockEntity extends BlockEntity implements IGridNo
             grid.setState(GridState.ONLINE);
         } else {
             grid.setState(GridState.OFFLINE);
+        }
+    }
+
+    private void balanceEnergyCells(IGrid grid) {
+        int maxTransfer = 20_000;
+        for (IGridNode node : grid.getNodes()) {
+            if (!(node instanceof DriveBlockEntity drive)) continue;
+            net.minecraftforge.items.IItemHandler inv = drive.getDriveInventory();
+            for (int i = 0; i < inv.getSlots(); i++) {
+                ItemStack stack = inv.getStackInSlot(i);
+                if (stack.getItem() instanceof com.simpleae.bytestorage.item.EnergyCellItem cell) {
+                    int stored = cell.getStoredEnergy(stack);
+                    int move = com.simpleae.bytestorage.util.CapacitorLogic.transfer(
+                            energyStorage.getEnergyStored(), MAX_ENERGY_CAPACITY,
+                            stored, cell.getMaxEnergy(), maxTransfer);
+                    if (move > 0) {
+                        cell.setStoredEnergy(stack, stored - move);
+                        refundEnergy(move);
+                        drive.setChanged();
+                    } else if (move < 0) {
+                        int taken = drawEnergy(-move);
+                        if (taken > 0) {
+                            cell.setStoredEnergy(stack, stored + taken);
+                            drive.setChanged();
+                        }
+                    }
+                }
+            }
         }
     }
 

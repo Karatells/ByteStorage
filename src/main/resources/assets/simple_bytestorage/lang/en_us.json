@@ -421,5 +421,20 @@
   "msg.simple_bytestorage.portable_cell.pickup_on": "Portable Cell Auto-Pickup: ON",
   "msg.simple_bytestorage.portable_cell.pickup_off": "Portable Cell Auto-Pickup: OFF",
   "tooltip.simple_bytestorage.portable_cell.pickup_on": "Auto-Pickup: ON (Shift+RMB to toggle)",
-  "tooltip.simple_bytestorage.portable_cell.pickup_off": "Auto-Pickup: OFF (Shift+RMB to toggle)"
+  "tooltip.simple_bytestorage.portable_cell.pickup_off": "Auto-Pickup: OFF (Shift+RMB to toggle)",
+  "item.simple_bytestorage.energy_cell_1k": "1k Energy Byte Cell",
+  "item.simple_bytestorage.energy_cell_4k": "4k Energy Byte Cell",
+  "item.simple_bytestorage.energy_cell_16k": "16k Energy Byte Cell",
+  "tooltip.simple_bytestorage.energy_cell": "Energy: %s / %s FE",
+  "item.simple_bytestorage.corrupted_cell": "Corrupted Byte Cell",
+  "tooltip.simple_bytestorage.corrupted_cell": "Restore in Cell Workbench (left slot -> button)",
+  "item.simple_bytestorage.cable_facade": "Cable Facade",
+  "msg.simple_bytestorage.facade.copied": "Facade copied: %s",
+  "msg.simple_bytestorage.facade.empty": "Shift+RMB a solid block first to copy its appearance",
+  "tooltip.simple_bytestorage.facade.bound": "Disguise: %s (RMB on Cable)",
+  "tooltip.simple_bytestorage.facade.empty": "Empty — Shift+RMB a solid block to copy",
+  "gui.simple_bytestorage.terminal.tab.items": "Items",
+  "gui.simple_bytestorage.terminal.tab.fluids": "Fluids",
+  "gui.simple_bytestorage.terminal.tab.tip": "Switch between Items and Fluids stored in Fluid Cells",
+  "gui.simple_bytestorage.terminal.fluid.hint": "Click with empty/full bucket to fill or drain"
 }

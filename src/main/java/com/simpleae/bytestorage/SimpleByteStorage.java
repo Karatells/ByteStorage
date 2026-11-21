@@ -628,6 +628,22 @@ public class SimpleByteStorage {
     public static final RegistryObject<Item> PORTABLE_CELL_16K = ITEMS.register("portable_cell_16k",
             () -> new com.simpleae.bytestorage.item.PortableByteCellItem(CellTier.TIER_16K, new Item.Properties()));
 
+    // --- 9c. Енергетичні ячейки, пошкоджена ячейка та фасад кабелю ---
+    public static final RegistryObject<Item> ENERGY_CELL_1K = ITEMS.register("energy_cell_1k",
+            () -> new com.simpleae.bytestorage.item.EnergyCellItem(CellTier.TIER_1K, new Item.Properties()));
+
+    public static final RegistryObject<Item> ENERGY_CELL_4K = ITEMS.register("energy_cell_4k",
+            () -> new com.simpleae.bytestorage.item.EnergyCellItem(CellTier.TIER_4K, new Item.Properties()));
+
+    public static final RegistryObject<Item> ENERGY_CELL_16K = ITEMS.register("energy_cell_16k",
+            () -> new com.simpleae.bytestorage.item.EnergyCellItem(CellTier.TIER_16K, new Item.Properties()));
+
+    public static final RegistryObject<Item> CORRUPTED_CELL = ITEMS.register("corrupted_cell",
+            () -> new com.simpleae.bytestorage.item.CorruptedCellItem(new Item.Properties()));
+
+    public static final RegistryObject<Item> CABLE_FACADE = ITEMS.register("cable_facade",
+            () -> new com.simpleae.bytestorage.item.CableFacadeItem(new Item.Properties()));
+
     public static final RegistryObject<MenuType<TerminalMenu>> PORTABLE_CELL_MENU =
             MENU_TYPES.register("portable_cell", () -> IForgeMenuType.create(
                     (id, inv, buf) -> new TerminalMenu(SimpleByteStorage.PORTABLE_CELL_MENU.get(), id, inv, null, true)));
@@ -683,6 +699,11 @@ public class SimpleByteStorage {
                         output.accept(PORTABLE_CELL_1K.get());
                         output.accept(PORTABLE_CELL_4K.get());
                         output.accept(PORTABLE_CELL_16K.get());
+                        output.accept(ENERGY_CELL_1K.get());
+                        output.accept(ENERGY_CELL_4K.get());
+                        output.accept(ENERGY_CELL_16K.get());
+                        output.accept(CORRUPTED_CELL.get());
+                        output.accept(CABLE_FACADE.get());
                         output.accept(FLUID_CELL_1K.get());
                         output.accept(FLUID_CELL_4K.get());
                         output.accept(FLUID_CELL_16K.get());
@@ -749,6 +770,9 @@ public class SimpleByteStorage {
             net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(
                     NETWORK_DISPLAY_BLOCK_ENTITY.get(),
                     com.simpleae.bytestorage.client.render.NetworkDisplayRenderer::new);
+            net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(
+                    CABLE_BLOCK_ENTITY.get(),
+                    com.simpleae.bytestorage.client.render.CableFacadeRenderer::new);
         });
     }
 

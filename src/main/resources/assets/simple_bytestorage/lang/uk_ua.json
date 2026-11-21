@@ -421,5 +421,20 @@
   "msg.simple_bytestorage.portable_cell.pickup_on": "Авто-підбір комірки: УВІМК",
   "msg.simple_bytestorage.portable_cell.pickup_off": "Авто-підбір комірки: ВИМК",
   "tooltip.simple_bytestorage.portable_cell.pickup_on": "Авто-підбір: УВІМК (Shift+ПКМ — перемкнути)",
-  "tooltip.simple_bytestorage.portable_cell.pickup_off": "Авто-підбір: ВИМК (Shift+ПКМ — перемкнути)"
+  "tooltip.simple_bytestorage.portable_cell.pickup_off": "Авто-підбір: ВИМК (Shift+ПКМ — перемкнути)",
+  "item.simple_bytestorage.energy_cell_1k": "Енергетична байт-комірка 1k",
+  "item.simple_bytestorage.energy_cell_4k": "Енергетична байт-комірка 4k",
+  "item.simple_bytestorage.energy_cell_16k": "Енергетична байт-комірка 16k",
+  "tooltip.simple_bytestorage.energy_cell": "Енергія: %s / %s FE",
+  "item.simple_bytestorage.corrupted_cell": "Пошкоджена байт-комірка",
+  "tooltip.simple_bytestorage.corrupted_cell": "Відновіть у Верстаку комірок (лівий слот -> кнопка)",
+  "item.simple_bytestorage.cable_facade": "Фасад кабелю",
+  "msg.simple_bytestorage.facade.copied": "Фасад скопійовано: %s",
+  "msg.simple_bytestorage.facade.empty": "Спочатку Shift+ПКМ по цілому блоку, щоб скопіювати вигляд",
+  "tooltip.simple_bytestorage.facade.bound": "Маскування: %s (ПКМ по кабелю)",
+  "tooltip.simple_bytestorage.facade.empty": "Порожній — Shift+ПКМ по цілому блоку",
+  "gui.simple_bytestorage.terminal.tab.items": "Речі",
+  "gui.simple_bytestorage.terminal.tab.fluids": "Рідини",
+  "gui.simple_bytestorage.terminal.tab.tip": "Перемикання між предметами та рідинами з рідинних комірок",
+  "gui.simple_bytestorage.terminal.fluid.hint": "Клік порожнім/повним відром — набрати або злити"
 }

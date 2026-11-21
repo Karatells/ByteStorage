@@ -149,4 +149,36 @@ public class CableBlock extends BaseEntityBlock {
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new CableBlockEntity(pos, state);
     }
+
+    @Override
+    public net.minecraft.world.InteractionResult use(BlockState state, net.minecraft.world.level.Level level, BlockPos pos,
+                                                     net.minecraft.world.entity.player.Player player,
+                                                     net.minecraft.world.InteractionHand hand,
+                                                     net.minecraft.world.phys.BlockHitResult hit) {
+        if (player.isShiftKeyDown() && player.getItemInHand(hand).isEmpty()
+                && level.getBlockEntity(pos) instanceof CableBlockEntity cable && cable.getFacade() != null) {
+            if (!level.isClientSide) {
+                net.minecraft.world.item.ItemStack drop = new net.minecraft.world.item.ItemStack(
+                        com.simpleae.bytestorage.SimpleByteStorage.CABLE_FACADE.get());
+                com.simpleae.bytestorage.item.CableFacadeItem.setSavedState(drop, cable.getFacade());
+                cable.setFacade(null);
+                if (!player.getInventory().add(drop)) {
+                    net.minecraft.world.Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, drop);
+                }
+            }
+            return net.minecraft.world.InteractionResult.sidedSuccess(level.isClientSide);
+        }
+        return super.use(state, level, pos, player, hand, hit);
+    }
+
+    @Override
+    public void onRemove(BlockState state, net.minecraft.world.level.Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        if (!state.is(newState.getBlock()) && level.getBlockEntity(pos) instanceof CableBlockEntity cable && cable.getFacade() != null) {
+            net.minecraft.world.item.ItemStack drop = new net.minecraft.world.item.ItemStack(
+                    com.simpleae.bytestorage.SimpleByteStorage.CABLE_FACADE.get());
+            com.simpleae.bytestorage.item.CableFacadeItem.setSavedState(drop, cable.getFacade());
+            net.minecraft.world.Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, drop);
+        }
+        super.onRemove(state, level, pos, newState, isMoving);
+    }
 }

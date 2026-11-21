@@ -421,5 +421,20 @@
   "msg.simple_bytestorage.portable_cell.pickup_on": "Авто-подбор ячейки: ВКЛ",
   "msg.simple_bytestorage.portable_cell.pickup_off": "Авто-подбор ячейки: ВЫКЛ",
   "tooltip.simple_bytestorage.portable_cell.pickup_on": "Авто-подбор: ВКЛ (Shift+ПКМ — переключить)",
-  "tooltip.simple_bytestorage.portable_cell.pickup_off": "Авто-подбор: ВЫКЛ (Shift+ПКМ — переключить)"
+  "tooltip.simple_bytestorage.portable_cell.pickup_off": "Авто-подбор: ВЫКЛ (Shift+ПКМ — переключить)",
+  "item.simple_bytestorage.energy_cell_1k": "Энергетическая байт-ячейка 1k",
+  "item.simple_bytestorage.energy_cell_4k": "Энергетическая байт-ячейка 4k",
+  "item.simple_bytestorage.energy_cell_16k": "Энергетическая байт-ячейка 16k",
+  "tooltip.simple_bytestorage.energy_cell": "Энергия: %s / %s FE",
+  "item.simple_bytestorage.corrupted_cell": "Повреждённая байт-ячейка",
+  "tooltip.simple_bytestorage.corrupted_cell": "Восстановите в Верстаке ячеек (левый слот -> кнопка)",
+  "item.simple_bytestorage.cable_facade": "Фасад кабеля",
+  "msg.simple_bytestorage.facade.copied": "Фасад скопирован: %s",
+  "msg.simple_bytestorage.facade.empty": "Сначала Shift+ПКМ по целому блоку, чтобы скопировать вид",
+  "tooltip.simple_bytestorage.facade.bound": "Маскировка: %s (ПКМ по кабелю)",
+  "tooltip.simple_bytestorage.facade.empty": "Пустой — Shift+ПКМ по целому блоку",
+  "gui.simple_bytestorage.terminal.tab.items": "Вещи",
+  "gui.simple_bytestorage.terminal.tab.fluids": "Жидк.",
+  "gui.simple_bytestorage.terminal.tab.tip": "Переключение между предметами и жидкостями из жидкостных ячеек",
+  "gui.simple_bytestorage.terminal.fluid.hint": "Клик пустым/полным ведром — налить или слить"
 }

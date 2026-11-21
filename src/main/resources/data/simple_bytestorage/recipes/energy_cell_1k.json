@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "RBR",
+    "BCB",
+    "RGR"
+  ],
+  "key": {
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "B": {
+      "item": "simple_bytestorage:bytite_ingot"
+    },
+    "C": {
+      "item": "simple_bytestorage:cell_1k"
+    },
+    "G": {
+      "item": "minecraft:gold_ingot"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage:energy_cell_1k",
+    "count": 1
+  }
+}
