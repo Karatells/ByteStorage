@@ -7,6 +7,9 @@
     },
     {
       "item": "minecraft:crafting_table"
+    },
+    {
+      "item": "simple_bytestorage:bytite_ingot"
     }
   ],
   "result": {

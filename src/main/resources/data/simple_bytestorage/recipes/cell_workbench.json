@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:crafting_table"
+    },
+    {
+      "item": "simple_bytestorage:bytite_ingot"
+    },
+    {
+      "item": "simple_bytestorage:logic_wafer"
+    }
+  ],
+  "result": {
+    "item": "simple_bytestorage:cell_workbench",
+    "count": 1
+  }
+}

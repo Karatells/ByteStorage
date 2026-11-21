@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "simple_bytestorage:cable"
+    },
+    {
+      "item": "simple_bytestorage:quantum_quartz"
+    },
+    {
+      "item": "simple_bytestorage:logic_wafer"
+    },
+    {
+      "item": "minecraft:ender_pearl"
+    }
+  ],
+  "result": {
+    "item": "simple_bytestorage:quantum_relay",
+    "count": 1
+  }
+}

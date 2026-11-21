@@ -6,16 +6,10 @@
       "item": "simple_bytestorage:cell_16k"
     },
     {
-      "item": "minecraft:diamond"
+      "item": "simple_bytestorage:quantum_quartz"
     },
     {
       "item": "minecraft:diamond"
-    },
-    {
-      "item": "minecraft:emerald"
-    },
-    {
-      "item": "minecraft:emerald"
     }
   ],
   "result": {

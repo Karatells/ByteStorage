@@ -1,0 +1,18 @@
+{
+  "display": {
+    "icon": { "item": "simple_bytestorage:controller" },
+    "title": { "translate": "advancements.simple_bytestorage.root.title" },
+    "description": { "translate": "advancements.simple_bytestorage.root.desc" },
+    "background": "minecraft:textures/block/deepslate.png",
+    "show_toast": false,
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "controller": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [{ "items": ["simple_bytestorage:controller", "simple_bytestorage:cable"] }]
+      }
+    }
+  }
+}

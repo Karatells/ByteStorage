@@ -25,6 +25,7 @@ build/
 .gradle/
 *.jar
 !gradle/wrapper/gradle-wrapper.jar
+dist/
 run/
 .idea/
 *.iml

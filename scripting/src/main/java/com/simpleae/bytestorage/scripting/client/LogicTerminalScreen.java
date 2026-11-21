@@ -515,7 +515,7 @@ public class LogicTerminalScreen extends Screen {
         }
         // Інтервал між кнопками «-» і «+»
         String interval = currentInterval() + "t";
-        g.drawString(this.font, interval, left + 300 + (30 - this.font.width(interval)) / 2, top + 146,
+        g.drawString(this.font, interval, left + 308 + (30 - this.font.width(interval)) / 2, top + 146,
                 GuiStyle.TEXT_TITLE, false);
         for (UiButton b : buttons) {
             b.renderTooltip(g, this.font, mouseX, mouseY);

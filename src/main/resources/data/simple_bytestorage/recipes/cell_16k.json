@@ -6,16 +6,10 @@
       "item": "simple_bytestorage:cell_4k"
     },
     {
-      "item": "minecraft:diamond"
+      "item": "simple_bytestorage:quantum_quartz"
     },
     {
-      "item": "minecraft:diamond"
-    },
-    {
-      "item": "minecraft:redstone"
-    },
-    {
-      "item": "minecraft:redstone"
+      "item": "simple_bytestorage:logic_wafer"
     }
   ],
   "result": {

@@ -221,9 +221,10 @@ public class AssemblerBlockEntity extends BlockEntity implements IGridNode, Menu
         return cards;
     }
 
-    /** Тіків на один крафт: 40 / (1 + кількість карт), не менше 4. */
+    /** Тіків на один крафт: 40 / (1 + кількість карт + сопроцесори), не менше 4. */
     public int getCraftTicks() {
-        return Math.max(MIN_CRAFT_TICKS, CRAFT_TICKS_PER_RECIPE / (1 + getSpeedCards()));
+        int coprocessors = Math.min(8, CraftingCoprocessorBlockEntity.countOnGrid(grid));
+        return Math.max(MIN_CRAFT_TICKS, CRAFT_TICKS_PER_RECIPE / (1 + getSpeedCards() + coprocessors));
     }
 
     public java.util.List<ItemStack> getDroppedItems() {

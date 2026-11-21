@@ -13,12 +13,12 @@ import java.util.List;
 /** Екран Книги-довідника: зліва розділи, справа текст із прокруткою. */
 public class GuideScreen extends Screen {
 
-    private static final int W = 340;
+    private static final int W = 360;
     private static final int H = 224;
-    private static final int LIST_W = 100;
+    private static final int LIST_W = 118;
     private static final int ROW_H = 16;
-    private static final int TEXT_X = 112;
-    private static final int TEXT_W = 214;
+    private static final int TEXT_X = 130;
+    private static final int TEXT_W = 216;
     private static final int TEXT_H = 190;
 
     // Запам'ятовуємо вибір між відкриттями

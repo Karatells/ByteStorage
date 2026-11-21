@@ -1,0 +1,15 @@
+{
+  "parent": "simple_bytestorage:first_byte",
+  "display": {
+    "icon": { "item": "simple_bytestorage:cell_1m" },
+    "title": { "translate": "advancements.simple_bytestorage.megabyte.title" },
+    "description": { "translate": "advancements.simple_bytestorage.megabyte.desc" },
+    "frame": "challenge"
+  },
+  "criteria": {
+    "cell_1m": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": { "items": [{ "items": ["simple_bytestorage:cell_1m"] }] }
+    }
+  }
+}

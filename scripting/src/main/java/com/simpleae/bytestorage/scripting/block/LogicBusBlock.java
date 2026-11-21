@@ -52,4 +52,18 @@ public class LogicBusBlock extends BaseEntityBlock {
         }
         return InteractionResult.sidedSuccess(level.isClientSide);
     }
+
+    @Override
+    public boolean isSignalSource(BlockState state) {
+        return true;
+    }
+
+    @Override
+    public int getSignal(BlockState state, net.minecraft.world.level.BlockGetter level, BlockPos pos, net.minecraft.core.Direction side) {
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof LogicBusBlockEntity bus) {
+            return bus.getOutputSignal(side.getOpposite());
+        }
+        return 0;
+    }
 }

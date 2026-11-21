@@ -207,3 +207,9 @@ To avoid one-call memory bombs, `String.prototype.repeat`, `padStart`, `padEnd` 
 | `API call limit exceeded` / `craft call limit exceeded` | Too many calls in one run. |
 
 `try`/`catch` can handle ordinary script errors (like a bad item id). Budget violations **cannot** be caught.
+
+## Redstone, Persistent Store & Network Display
+- `redstone.get(dir)` — returns the incoming redstone signal (`0..15`) on side `dir` (`down`/`up`/`north`/`south`/`west`/`east`).
+- `redstone.set(dir, power)` — outputs a redstone signal (`0..15`) from the Logic Bus on side `dir`.
+- `store.get(key)` / `store.set(key, value)` / `store.remove(key)` / `store.clear()` — persistent per-bus key-value store saved in NBT (up to 64 keys, max 512 chars per value).
+- `display.set(line, text)` / `display.clear()` — updates lines `0..5` on all **Network Display (`network_display`)** blocks connected to the grid.

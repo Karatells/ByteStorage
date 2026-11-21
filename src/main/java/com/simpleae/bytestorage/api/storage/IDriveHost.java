@@ -45,4 +45,11 @@ public interface IDriveHost extends IGridNode {
     default boolean acceptsItem(net.minecraft.world.item.ItemStack stack) {
         return true;
     }
+
+    /**
+     * Чи знищує накопичувач надлишок даного предмета при заповненні (карта Void Overflow).
+     */
+    default boolean voidsOverflow(net.minecraft.world.item.ItemStack stack) {
+        return false;
+    }
 }

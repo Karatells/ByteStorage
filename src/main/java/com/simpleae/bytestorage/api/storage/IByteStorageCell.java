@@ -31,6 +31,13 @@ public interface IByteStorageCell {
     ICellInventory getCellInventory(ItemStack stack);
 
     /**
+     * Отримати обгортку інвентаря з можливістю відкладеного запису в NBT (flush).
+     */
+    default ICellInventory getCellInventory(ItemStack stack, boolean autoFlush) {
+        return getCellInventory(stack);
+    }
+
+    /**
      * Перевірка, чи можна вставити хоча б 1 байт.
      */
     default boolean hasSpace(ItemStack stack) {

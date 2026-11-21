@@ -13,8 +13,8 @@ import java.util.TreeSet;
 /** Каталог JS API скриптов для подсветки и автодополнения редактора. */
 final class ApiCatalog {
 
-    static final Set<String> GLOBALS = Set.of("net", "stock", "recipes", "journal", "side", "buses", "log",
-            "time", "alert", "busId", "ui");
+    static final Set<String> GLOBALS = Set.of("net", "stock", "recipes", "journal", "store", "redstone", "display",
+            "side", "buses", "log", "time", "alert", "busId", "ui");
 
     private static final List<String> DIRECTIONS = List.of("down", "up", "north", "south", "west", "east");
     private static final List<String> STOCK_MODES = List.of("always", "night", "day", "energy");
@@ -28,6 +28,9 @@ final class ApiCatalog {
         global("stock", "stock targets", false, "Stock rules: keep an item at a target amount.");
         global("recipes", "recipe rules", false, "Block or prefer recipes, skip unpacking.");
         global("journal", "network journal", false, "Write to or read the Controller's Journal tab.");
+        global("store", "persistent NBT store", false, "Key-value store persisted in the Logic Bus NBT.");
+        global("redstone", "redstone I/O (0..15)", false, "Read or emit analog redstone signals on bus sides.");
+        global("display", "Network Display lines", false, "Write or clear text lines on connected Network Displays.");
         global("side", "side(name, id)", true, "Container next to this bus: \"up\", \"north\"... With an id it finds the first matching slot.");
         global("buses", "buses()", true, "List of Logic Buses on this network.");
         global("log", "log(text)", true, "Write a line to this bus's log (shown in the Logic Terminal).");
@@ -79,6 +82,17 @@ final class ApiCatalog {
         member("journal", "read(n)", "The last n journal entries.");
         member("journal", "warn(text)", "Write a warning entry (limited per run).");
         member("journal", "write(text)", "Write an entry (limited per run).");
+
+        member("store", "clear()", "Remove all keys from this bus's persistent store.");
+        member("store", "get(key)", "Read a string value from this bus's NBT store (or null).");
+        member("store", "remove(key)", "Delete a key from this bus's NBT store.");
+        member("store", "set(key, val)", "Save a key-value pair to this bus's NBT store.");
+
+        member("redstone", "get(dir)", "Read incoming redstone power (0..15) on a side.");
+        member("redstone", "set(dir, power)", "Emit analog redstone power (0..15) on a side.");
+
+        member("display", "clear()", "Clear all lines on connected Network Displays.");
+        member("display", "set(line, text)", "Set a line (0..7) on connected Network Displays.");
 
         member("ep", "count(id)", "Items of this kind in the container.");
         member("ep", "list()", "Container contents as {slot, id, count}.");

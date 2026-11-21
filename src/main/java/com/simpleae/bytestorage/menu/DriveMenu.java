@@ -26,7 +26,8 @@ public class DriveMenu extends AbstractContainerMenu {
     public static final int DRIVE_SLOTS = 10;
     public static final int FILTER_START = DRIVE_SLOTS;
     public static final int FILTER_END = FILTER_START + DriveBlockEntity.FILTER_SLOTS;
-    public static final int PLAYER_START = FILTER_END;
+    public static final int UPGRADE_SLOT = FILTER_END;
+    public static final int PLAYER_START = UPGRADE_SLOT + 1;
     public static final int FILTER_X = 8;
     public static final int FILTER_Y = 73;
     public static final int PLAYER_INV_Y = 110;
@@ -81,7 +82,8 @@ public class DriveMenu extends AbstractContainerMenu {
                 this.addSlot(new SlotItemHandler(driveInv, slotIndex, x, y) {
                     @Override
                     public boolean mayPlace(@NotNull ItemStack stack) {
-                        return stack.getItem() instanceof IByteStorageCell;
+                        return stack.getItem() instanceof IByteStorageCell
+                                || stack.getItem() instanceof com.simpleae.bytestorage.item.FluidCellItem;
                     }
 
                     @Override
@@ -107,6 +109,10 @@ public class DriveMenu extends AbstractContainerMenu {
                 }
             });
         }
+
+        // Слот карти покращення (Void Overflow / Lock)
+        IItemHandler upgradeInv = blockEntity != null ? blockEntity.getUpgradeInventory() : new ItemStackHandler(1);
+        this.addSlot(new SlotItemHandler(upgradeInv, 0, 12, 29));
 
         // Інвентар гравця (3 рядки по 9 слотів)
         for (int row = 0; row < 3; row++) {

@@ -66,6 +66,16 @@ public final class StatsHistory {
         return result;
     }
 
+    /** Відновлює серії графіків після перезавантаження світу (без мап окремих предметів для економії NBT). */
+    public void restoreSeries(int[] totals, int[] energies) {
+        samples.clear();
+        int len = Math.min(totals.length, energies.length);
+        int start = Math.max(0, len - MAX_SAMPLES);
+        for (int i = start; i < len; i++) {
+            samples.addLast(new Sample(Map.of(), Math.max(0, totals[i]), Math.max(0, Math.min(100, energies[i]))));
+        }
+    }
+
     /**
      * До {@code n} предметов с наибольшим ростом ({@code gain} = true) или убылью за весь период истории.
      * Нулевые изменения не возвращаются; убыль отдаётся отрицательными числами.

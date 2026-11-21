@@ -34,6 +34,18 @@ All notable changes to the **Simple Byte Storage** mod will be documented in thi
 ### Changed — 1.2.2.33
 - **Cable redrawn**: new steel-and-cyan texture (hub with a glowing core, thinner wire with light bands). Where a cable connects to a **block** (terminal, drive, bus, controller…) it now ends in a **plug**: a flange with a glowing cyan rim and a collar, so connections are easy to tell from cable-to-cable links. The plug is part of the cable's hitbox. New item icon.
 
+## [1.3.1]
+
+Bugfix and GUI polish release for both the main mod and the Scripting addon. Full notes: `docs/RELEASE_NOTES_1.3.1.md`.
+
+### Fixed
+- **Drive & I/O Bus drops**: flush cached cell NBT and drop the upgrade card when breaking a Drive; drop all installed Speed Cards when breaking an I/O Bus.
+- **Security Terminal**: prevent non-owners from breaking locked Security Terminals and enforce `canAccess` on Drives, Crafting/Pattern/Encoding Terminals, Network Controllers, Wireless Terminals, and Scripting Logic Terminals/Buses.
+- **Fluid I/O Bus & Drive**: respect Drive `LockCard` during fluid import; include Fluid Cells in Drive idle energy drain.
+- **Network topology & worldgen**: immediately refresh controller topology on block place/break; prevent `quantum_cluster` and `circuit_bloom` from spawning over water or leaves.
+- **GUI polish**: clip long window titles; compact memory readout in Terminals; widen `-100`/`+100` Stock buttons in Controller; compact 3–4 card list in Wireless Settings; widen I/O Bus and Fluid I/O Bus buttons (`Mode: Import`, `RS: Always`); widen Guide Book chapter sidebar.
+- **Scripting addon**: keep `side(...)` endpoints valid across ticks for `move()`; clear `redstone.set()` signals on stop/error/offline; add `store.*`, `redstone.*`, `display.*` to editor syntax highlighting and autocomplete; center interval label in Logic Terminal.
+
 ## [1.2.1] — beta
 
 New Controller design, restyled screens, statistics graphs, stock schedule, Capacitor, script code editor and events. Full notes: `docs/RELEASE_NOTES_1.2.1.md`.

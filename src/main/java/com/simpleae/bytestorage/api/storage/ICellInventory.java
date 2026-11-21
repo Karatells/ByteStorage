@@ -72,4 +72,29 @@ public interface ICellInventory {
      * Очистити всі предмети з ячейки (після виконання крафту).
      */
     void clear();
+
+    /**
+     * Перевірка, чи містить ячейка такий самий предмет (з урахуванням NBT).
+     */
+    default boolean containsItem(ItemStack match) {
+        for (ItemStack item : getStoredItems()) {
+            if (ItemStack.isSameItemSameTags(item, match)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Скинути відкладені зміни в NBT (якщо інвентар використовує буферизацію запису).
+     */
+    default void flush() {
+    }
+
+    /**
+     * Індивідуальний фільтр ячейки (налаштовується у Верстаку ячеек).
+     */
+    default boolean acceptsItem(ItemStack stack) {
+        return true;
+    }
 }

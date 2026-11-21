@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "simple_bytestorage:bytite_block"
+    }
+  ],
+  "result": {
+    "item": "simple_bytestorage:bytite_ingot",
+    "count": 9
+  }
+}

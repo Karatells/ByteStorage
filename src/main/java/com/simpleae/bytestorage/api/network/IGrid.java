@@ -29,6 +29,14 @@ public interface IGrid {
      */
     void setState(GridState newState);
 
+    /** Режим енергозбереження (низький заряд контролера < 10%). */
+    default boolean isEcoMode() {
+        return false;
+    }
+
+    default void setEcoMode(boolean eco) {
+    }
+
     /**
      * Контролер, що живить і координує мережу.
      */

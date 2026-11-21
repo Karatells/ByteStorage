@@ -90,10 +90,10 @@ public class ByteStorageHandler implements INetworkStorage {
             for (ICellInventory cell : drive.getActiveCellInventories()) {
                 for (ItemStack stack : cell.getStoredItems()) {
                     if (!stack.isEmpty()) {
-                        ItemKey key = new ItemKey(stack);
+                        ItemKey key = ItemKey.of(stack);
                         ItemStack existing = aggregatedMap.get(key);
                         if (existing == null) {
-                            aggregatedMap.put(key, stack.copy());
+                            aggregatedMap.put(ItemKey.owned(stack), stack.copy());
                         } else {
                             existing.grow(stack.getCount());
                         }
@@ -115,7 +115,7 @@ public class ByteStorageHandler implements INetworkStorage {
         // Перевіряємо глобальний ліміт пам'яті мережі
         int freeBytes = getRemainingBytes();
         if (freeBytes <= 0) {
-            return stack.copy();
+            return voidsAny(stack) ? ItemStack.EMPTY : stack.copy();
         }
 
         // Максимум, скільки ми можемо прийняти взагалі
@@ -128,44 +128,63 @@ public class ByteStorageHandler implements INetworkStorage {
         unacceptedOverflow.shrink(canAcceptTotal);
 
         // Накопичувачі, що приймають предмет (білий список), згруповані за пріоритетом: вищий — першим.
-        java.util.TreeMap<Integer, List<ICellInventory>> tiers = new java.util.TreeMap<>(Collections.reverseOrder());
+        TreeMap<Integer, List<IDriveHost>> tiers = new TreeMap<>(Collections.reverseOrder());
         for (IDriveHost drive : connectedDrives) {
             if (drive.acceptsItem(toDistribute)) {
-                tiers.computeIfAbsent(drive.getPriority(), k -> new ArrayList<>())
-                        .addAll(drive.getActiveCellInventories());
+                tiers.computeIfAbsent(drive.getPriority(), k -> new ArrayList<>()).add(drive);
             }
         }
 
-        for (List<ICellInventory> allCells : tiers.values()) {
+        Set<IDriveHost> modifiedDrives = simulate ? null : new HashSet<>();
+
+        for (List<IDriveHost> drivesInTier : tiers.values()) {
             if (toDistribute.isEmpty()) break;
 
             // Усередині рівня: 1-й прохід — диски, де ЦЕЙ предмет уже зберігається (дефрагментація)
-            for (ICellInventory cell : allCells) {
+            for (IDriveHost drive : drivesInTier) {
                 if (toDistribute.isEmpty()) break;
-                if (hasItem(cell, toDistribute)) {
-                    toDistribute = cell.insertItem(toDistribute, simulate);
+                for (ICellInventory cell : drive.getActiveCellInventories()) {
+                    if (toDistribute.isEmpty()) break;
+                    if (cell.acceptsItem(toDistribute) && cell.containsItem(toDistribute)) {
+                        int before = toDistribute.getCount();
+                        toDistribute = cell.insertItem(toDistribute, simulate);
+                        if (!simulate && toDistribute.getCount() < before) {
+                            modifiedDrives.add(drive);
+                        }
+                    }
                 }
             }
 
             // 2-й прохід: будь-які диски рівня з вільними байтами
             if (!toDistribute.isEmpty()) {
-                for (ICellInventory cell : allCells) {
+                for (IDriveHost drive : drivesInTier) {
                     if (toDistribute.isEmpty()) break;
-                    if (!cell.isFull()) {
-                        toDistribute = cell.insertItem(toDistribute, simulate);
+                    for (ICellInventory cell : drive.getActiveCellInventories()) {
+                        if (toDistribute.isEmpty()) break;
+                        if (!cell.isFull() && cell.acceptsItem(toDistribute)) {
+                            int before = toDistribute.getCount();
+                            toDistribute = cell.insertItem(toDistribute, simulate);
+                            if (!simulate && toDistribute.getCount() < before) {
+                                modifiedDrives.add(drive);
+                            }
+                        }
                     }
                 }
             }
         }
 
-        if (!simulate) {
-            invalidateCache();
-            markDrivesDirty();
+        int insertedCount = canAcceptTotal - toDistribute.getCount();
+        if (!simulate && insertedCount > 0) {
+            this.cachedVirtualPool = null;
+            if (this.cachedTotalUsed != -1) {
+                this.cachedTotalUsed += insertedCount;
+            }
+            markDrivesDirty(modifiedDrives);
         }
 
         // Сумарний залишок = те, що не помістилося в диски + початковий оверфлоу
         int finalRemainderCount = toDistribute.getCount() + unacceptedOverflow.getCount();
-        if (finalRemainderCount <= 0) {
+        if (finalRemainderCount <= 0 || voidsAny(stack)) {
             return ItemStack.EMPTY;
         }
 
@@ -221,8 +240,14 @@ public class ByteStorageHandler implements INetworkStorage {
         }
         int reserved = ledger.isEmpty() ? 0 : getReserved(template);
         if (reserved > 0) {
-            ItemStack all = extractRaw(template, Integer.MAX_VALUE, true);
-            int free = all.isEmpty() ? 0 : all.getCount() - reserved;
+            int total = 0;
+            for (ItemStack stored : getAllItems()) {
+                if (ItemStack.isSameItemSameTags(stored, template)) {
+                    total = stored.getCount();
+                    break;
+                }
+            }
+            int free = total - reserved;
             if (free <= 0) {
                 return ItemStack.EMPTY;
             }
@@ -247,8 +272,13 @@ public class ByteStorageHandler implements INetworkStorage {
 
         int needed = count;
         ItemStack result = ItemStack.EMPTY;
+        Set<IDriveHost> modifiedDrives = simulate ? null : new HashSet<>();
 
-        for (IDriveHost drive : connectedDrives) {
+        // Витягуємо спочатку з накопичувачів з найнижчим пріоритетом, щоб буферні диски звільнялися першими.
+        List<IDriveHost> orderedDrives = new ArrayList<>(connectedDrives);
+        orderedDrives.sort(Comparator.comparingInt(IDriveHost::getPriority));
+
+        for (IDriveHost drive : orderedDrives) {
             if (needed <= 0) break;
 
             for (ICellInventory cell : drive.getActiveCellInventories()) {
@@ -262,13 +292,19 @@ public class ByteStorageHandler implements INetworkStorage {
                         result.grow(extracted.getCount());
                     }
                     needed -= extracted.getCount();
+                    if (!simulate) {
+                        modifiedDrives.add(drive);
+                    }
                 }
             }
         }
 
         if (!simulate && !result.isEmpty()) {
-            invalidateCache();
-            markDrivesDirty();
+            this.cachedVirtualPool = null;
+            if (this.cachedTotalUsed != -1) {
+                this.cachedTotalUsed = Math.max(0, this.cachedTotalUsed - result.getCount());
+            }
+            markDrivesDirty(modifiedDrives);
         }
 
         return result;
@@ -290,19 +326,19 @@ public class ByteStorageHandler implements INetworkStorage {
         return ItemStack.EMPTY;
     }
 
-    private void markDrivesDirty() {
+    private boolean voidsAny(ItemStack stack) {
         for (IDriveHost drive : connectedDrives) {
-            drive.onCellContentsChanged();
-        }
-    }
-
-    private boolean hasItem(ICellInventory cell, ItemStack match) {
-        for (ItemStack item : cell.getStoredItems()) {
-            if (ItemStack.isSameItemSameTags(item, match)) {
+            if (drive.voidsOverflow(stack)) {
                 return true;
             }
         }
         return false;
+    }
+
+    private void markDrivesDirty(Set<IDriveHost> drives) {
+        for (IDriveHost drive : drives) {
+            drive.onCellContentsChanged();
+        }
     }
 
     /**
@@ -311,10 +347,21 @@ public class ByteStorageHandler implements INetworkStorage {
     private static class ItemKey {
         private final Item item;
         private final net.minecraft.nbt.CompoundTag tag;
+        private final int hash;
 
-        public ItemKey(ItemStack stack) {
-            this.item = stack.getItem();
-            this.tag = stack.getTag() != null ? stack.getTag().copy() : null;
+        private ItemKey(Item item, net.minecraft.nbt.CompoundTag tag) {
+            this.item = item;
+            this.tag = tag;
+            this.hash = Objects.hash(item, tag);
+        }
+
+        static ItemKey of(ItemStack stack) {
+            return new ItemKey(stack.getItem(), stack.getTag());
+        }
+
+        static ItemKey owned(ItemStack stack) {
+            net.minecraft.nbt.CompoundTag t = stack.getTag();
+            return new ItemKey(stack.getItem(), t != null ? t.copy() : null);
         }
 
         @Override
@@ -327,7 +374,7 @@ public class ByteStorageHandler implements INetworkStorage {
 
         @Override
         public int hashCode() {
-            return Objects.hash(item, tag);
+            return hash;
         }
     }
 }

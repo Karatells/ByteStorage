@@ -72,11 +72,14 @@ public class DriveScreen extends AbstractContainerScreen<DriveMenu> {
         // Відсік накопичувача: 2 рядки по 5 слотів
         GuiStyle.panel(graphics, x + 38, y + 17, 102, 41);
 
-        // Слоти меню: перші 10 — комірки накопичувача, решта — інвентар гравця
+        // Слоти меню: перші 10 — комірки накопичувача, слот покращення — ліворуч
         int cells = Math.min(10, menu.slots.size());
         for (int i = 0; i < cells; i++) {
             Slot slot = menu.slots.get(i);
             GuiStyle.menuSlot(graphics, x, y, slot, GuiStyle.SLOT_CARD);
+        }
+        if (DriveMenu.UPGRADE_SLOT < menu.slots.size()) {
+            GuiStyle.menuSlot(graphics, x, y, menu.slots.get(DriveMenu.UPGRADE_SLOT), GuiStyle.SLOT_CARD);
         }
 
         // Пріоритет вставки
@@ -85,7 +88,8 @@ public class DriveScreen extends AbstractContainerScreen<DriveMenu> {
 
         // Білий список
         GuiStyle.panel(graphics, x + 6, y + 60, 164, 34);
-        GuiStyle.label(graphics, "search", Component.translatable("gui.simple_bytestorage.drive.filter"), x + 10, y + 63);
+        String filterTitle = GuiStyle.clip(this.font, Component.translatable("gui.simple_bytestorage.drive.filter").getString(), 144);
+        GuiStyle.label(graphics, "search", Component.literal(filterTitle), x + 10, y + 63);
         for (int i = DriveMenu.FILTER_START; i < DriveMenu.FILTER_END; i++) {
             GuiStyle.menuSlot(graphics, x, y, menu.slots.get(i), GuiStyle.SLOT_POOL);
         }

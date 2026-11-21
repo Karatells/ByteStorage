@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "simple_bytestorage:io_bus"
+    },
+    {
+      "item": "simple_bytestorage:bytite_ingot"
+    },
+    {
+      "item": "minecraft:bucket"
+    }
+  ],
+  "result": {
+    "item": "simple_bytestorage:fluid_io_bus",
+    "count": 1
+  }
+}

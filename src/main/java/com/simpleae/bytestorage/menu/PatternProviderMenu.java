@@ -39,7 +39,7 @@ public class PatternProviderMenu extends AbstractContainerMenu {
         this.provider = provider;
 
         this.data = playerInventory.player.level().isClientSide
-                ? new SimpleContainerData(4)
+                ? new SimpleContainerData(5)
                 : new ContainerData() {
                     @Override
                     public int get(int index) {
@@ -47,7 +47,8 @@ public class PatternProviderMenu extends AbstractContainerMenu {
                             case 0 -> provider.getPendingCrafts();
                             case 1 -> provider.getMachineCount();
                             case 2 -> provider.isOnline() ? 1 : 0;
-                            default -> provider.getRecordState();
+                            case 3 -> provider.getRecordState();
+                            default -> provider.isBlockingMode() ? 1 : 0;
                         };
                     }
 
@@ -57,7 +58,7 @@ public class PatternProviderMenu extends AbstractContainerMenu {
 
                     @Override
                     public int getCount() {
-                        return 4;
+                        return 5;
                     }
                 };
         this.addDataSlots(this.data);
@@ -87,11 +88,21 @@ public class PatternProviderMenu extends AbstractContainerMenu {
         return data.get(3);
     }
 
+    public boolean isBlockingMode() {
+        return data.get(4) != 0;
+    }
+
     @Override
     public boolean clickMenuButton(Player player, int id) {
-        if (id == 0 && !player.level().isClientSide && provider != null) {
-            provider.toggleRecording();
-            return true;
+        if (!player.level().isClientSide && provider != null) {
+            if (id == 0) {
+                provider.toggleRecording();
+                return true;
+            }
+            if (id == 1) {
+                provider.toggleBlockingMode();
+                return true;
+            }
         }
         return false;
     }

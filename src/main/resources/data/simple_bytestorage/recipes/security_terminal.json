@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "simple_bytestorage:terminal"
+    },
+    {
+      "item": "simple_bytestorage:cyan_phosphor"
+    },
+    {
+      "item": "minecraft:iron_bars"
+    }
+  ],
+  "result": {
+    "item": "simple_bytestorage:security_terminal",
+    "count": 1
+  }
+}

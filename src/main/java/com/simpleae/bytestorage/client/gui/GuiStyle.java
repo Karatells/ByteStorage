@@ -105,7 +105,8 @@ public final class GuiStyle {
         }
         if (title != null) {
             Font font = Minecraft.getInstance().font;
-            g.drawString(font, title, titleX, y + 5, TEXT_TITLE, false);
+            int maxW = Math.max(20, (x + w - 28) - titleX);
+            g.drawString(font, clip(font, title.getString(), maxW), titleX, y + 5, TEXT_TITLE, false);
         }
         led(g, x + w - 24, y + 7, ledColor);
         // Крестик закрытия: краснеет при наведении
@@ -129,6 +130,21 @@ public final class GuiStyle {
         g.fill(x - 1, y - 1, x + 4, y + 4, halo);
         g.fill(x, y, x + 3, y + 3, color);
         g.fill(x, y, x + 1, y + 1, 0x80FFFFFF);
+    }
+
+    /** Обрезает строку по ширине с многоточием, если не помещается. */
+    public static String clip(Font font, String s, int maxW) {
+        if (s == null || maxW <= 0) return "";
+        if (font.width(s) <= maxW) return s;
+        int dots = font.width("…");
+        return font.plainSubstrByWidth(s, Math.max(0, maxW - dots)) + "…";
+    }
+
+    /** Компактный формат чисел для байтов (1.4M, 15.9k, 512). */
+    public static String compactNumber(long n) {
+        if (n >= 1_000_000L) return String.format(java.util.Locale.ROOT, "%.2fM", n / 1_000_000.0);
+        if (n >= 10_000L) return String.format(java.util.Locale.ROOT, "%.1fk", n / 1_000.0);
+        return java.text.NumberFormat.getInstance(java.util.Locale.US).format(n);
     }
 
     // --- Панелі ---

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "simple_bytestorage:circuit_bloom"
+    }
+  ],
+  "result": {
+    "item": "simple_bytestorage:cyan_phosphor",
+    "count": 2
+  }
+}

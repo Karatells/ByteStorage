@@ -26,6 +26,7 @@ public class GridNetwork implements IGrid {
     private final INetworkStorage storage;
     private final IPatternStorage patternStorage;
     private GridState state = GridState.OFFLINE;
+    private boolean ecoMode = false;
 
     public GridNetwork(NetworkControllerBlockEntity controller) {
         this.gridId = UUID.randomUUID();
@@ -51,6 +52,16 @@ public class GridNetwork implements IGrid {
     @Override
     public GridState getState() {
         return state;
+    }
+
+    @Override
+    public boolean isEcoMode() {
+        return ecoMode;
+    }
+
+    @Override
+    public void setEcoMode(boolean eco) {
+        this.ecoMode = eco;
     }
 
     @Override

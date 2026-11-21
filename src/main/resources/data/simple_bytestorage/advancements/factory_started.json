@@ -1,0 +1,14 @@
+{
+  "parent": "simple_bytestorage:storage_network",
+  "display": {
+    "icon": { "item": "simple_bytestorage:assembler" },
+    "title": { "translate": "advancements.simple_bytestorage.factory_started.title" },
+    "description": { "translate": "advancements.simple_bytestorage.factory_started.desc" }
+  },
+  "criteria": {
+    "assembler": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": { "items": [{ "items": ["simple_bytestorage:assembler", "simple_bytestorage:pattern_provider"] }] }
+    }
+  }
+}

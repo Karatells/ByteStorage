@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "simple_bytestorage:silicon_dust"
+    },
+    {
+      "item": "simple_bytestorage:bytite_ingot"
+    },
+    {
+      "item": "minecraft:redstone"
+    }
+  ],
+  "result": {
+    "item": "simple_bytestorage:logic_wafer",
+    "count": 1
+  }
+}

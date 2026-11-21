@@ -1,17 +1,29 @@
 {
   "replace": false,
   "values": [
+    "simple_bytestorage:bytite_ore",
+    "simple_bytestorage:deepslate_bytite_ore",
+    "simple_bytestorage:bytite_block",
+    "simple_bytestorage:silicate_crust",
+    "simple_bytestorage:quantum_cluster",
     "simple_bytestorage:controller",
-    "simple_bytestorage:capacitor",
     "simple_bytestorage:drive",
     "simple_bytestorage:terminal",
     "simple_bytestorage:crafting_terminal",
     "simple_bytestorage:assembler",
     "simple_bytestorage:pattern_terminal",
     "simple_bytestorage:pattern_encoding_terminal",
-    "simple_bytestorage:cable",
     "simple_bytestorage:pattern_provider",
     "simple_bytestorage:io_bus",
-    "simple_bytestorage:energy_port"
+    "simple_bytestorage:storage_bus",
+    "simple_bytestorage:energy_port",
+    "simple_bytestorage:capacitor",
+    "simple_bytestorage:cell_workbench",
+    "simple_bytestorage:quantum_relay",
+    "simple_bytestorage:crafting_coprocessor",
+    "simple_bytestorage:security_terminal",
+    "simple_bytestorage:archiver",
+    "simple_bytestorage:fluid_io_bus",
+    "simple_bytestorage:network_display"
   ]
 }

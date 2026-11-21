@@ -44,6 +44,8 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
     private IGrid grid;
     private String script = DEFAULT_SCRIPT;
     private boolean enabled = false;
+    private final java.util.Map<String, String> memoryStore = new java.util.LinkedHashMap<>();
+    private final int[] redstoneOut = new int[6];
     private int interval = 20;
     private String identifier = "";
     private String status = "";
@@ -88,6 +90,9 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
 
     @Override
     public void onGridStateChanged(GridState newState) {
+        if (!newState.isActive()) {
+            clearRedstone();
+        }
         setChanged();
     }
 
@@ -225,9 +230,10 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
         this.enabled = value;
         if (!value) {
             buttons.clear();
-        }
-        if (!value && status.isEmpty()) {
-            status = "stopped";
+            clearRedstone();
+            if (status.isEmpty()) {
+                status = "stopped";
+            }
         }
         setChanged();
     }
@@ -299,12 +305,62 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
 
     private void fail(String error) {
         enabled = false;
+        clearRedstone();
         status = "ERROR: " + error;
         log("ERROR: " + error);
         setChanged();
     }
 
+    private void clearRedstone() {
+        boolean changed = false;
+        for (int i = 0; i < redstoneOut.length; i++) {
+            if (redstoneOut[i] != 0) {
+                redstoneOut[i] = 0;
+                changed = true;
+            }
+        }
+        if (changed && level != null && !level.isClientSide) {
+            level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
+        }
+    }
+
     // --- Збереження ---
+
+    @Override
+    public java.util.Map<String, String> memoryStore() {
+        return memoryStore;
+    }
+
+    @Override
+    public void markStoreDirty() {
+        setChanged();
+    }
+
+    public int getOutputSignal(net.minecraft.core.Direction dir) {
+        return redstoneOut[dir.ordinal()];
+    }
+
+    @Override
+    public int getRedstone(net.minecraft.core.Direction dir) {
+        if (level == null || dir == null) {
+            return 0;
+        }
+        return level.getSignal(worldPosition.relative(dir), dir);
+    }
+
+    @Override
+    public void setRedstone(net.minecraft.core.Direction dir, int power) {
+        if (level == null || dir == null) {
+            return;
+        }
+        int clamped = Math.max(0, Math.min(15, power));
+        int idx = dir.ordinal();
+        if (redstoneOut[idx] != clamped) {
+            redstoneOut[idx] = clamped;
+            setChanged();
+            level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
+        }
+    }
 
     @Override
     protected void saveAdditional(CompoundTag tag) {
@@ -313,6 +369,11 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
         tag.putBoolean("Enabled", enabled);
         tag.putInt("Interval", interval);
         tag.putString("Id", identifier);
+        if (!memoryStore.isEmpty()) {
+            CompoundTag storeTag = new CompoundTag();
+            memoryStore.forEach(storeTag::putString);
+            tag.put("Store", storeTag);
+        }
     }
 
     @Override
@@ -324,6 +385,13 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
         enabled = tag.getBoolean("Enabled");
         identifier = sanitizeIdentifier(tag.getString("Id"));
         interval = tag.contains("Interval") ? tag.getInt("Interval") : 20;
+        memoryStore.clear();
+        if (tag.contains("Store", net.minecraft.nbt.Tag.TAG_COMPOUND)) {
+            CompoundTag storeTag = tag.getCompound("Store");
+            for (String k : storeTag.getAllKeys()) {
+                memoryStore.put(k, storeTag.getString(k));
+            }
+        }
         dirty = true;
         runtime = null;
         status = enabled ? "running" : "";

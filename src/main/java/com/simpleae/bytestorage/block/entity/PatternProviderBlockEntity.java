@@ -72,6 +72,7 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
     private IGrid grid;
     private int tickCounter = 0;
     private int machineCount = 0;
+    private boolean blockingMode = false;
 
     private final List<Job> jobs = new ArrayList<>();
     /** Очікувані результати (предмет × кількість), що ще не повернулися в мережу. */
@@ -680,7 +681,7 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
 
         for (Machine machine : machines) {
             IItemHandler handler = machine.insertHandler();
-            if (handler == null || !acceptsAll(handler, pattern.getInputs())) {
+            if (handler == null || (blockingMode && isMachineBusy(handler)) || !acceptsAll(handler, pattern.getInputs())) {
                 continue;
             }
             for (ItemStack input : pattern.getInputs()) {
@@ -708,6 +709,33 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
             return true;
         }
         waitReason = WAIT_NO_MACHINE;
+        return false;
+    }
+
+    public boolean isBlockingMode() {
+        return blockingMode;
+    }
+
+    public void toggleBlockingMode() {
+        blockingMode = !blockingMode;
+        setChanged();
+    }
+
+    private boolean isMachineBusy(IItemHandler handler) {
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            ItemStack inSlot = handler.getStackInSlot(slot);
+            if (inSlot.isEmpty()) continue;
+            boolean isExpectedOutput = false;
+            for (ItemStack exp : expected) {
+                if (ItemStack.isSameItemSameTags(inSlot, exp)) {
+                    isExpectedOutput = true;
+                    break;
+                }
+            }
+            if (!isExpectedOutput) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -784,11 +812,13 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
         tag.put("Jobs", jobList);
         tag.put("Expected", saveCounted(expected));
         tag.put("Overflow", saveCounted(overflow));
+        tag.putBoolean("Blocking", blockingMode);
     }
 
     @Override
     public void load(CompoundTag tag) {
         super.load(tag);
+        blockingMode = tag.getBoolean("Blocking");
         if (tag.contains("Patterns")) {
             inventory.deserializeNBT(tag.getCompound("Patterns"));
         }

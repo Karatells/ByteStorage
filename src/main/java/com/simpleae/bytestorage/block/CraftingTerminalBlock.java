@@ -61,7 +61,9 @@ public class CraftingTerminalBlock extends BaseEntityBlock {
         if (!level.isClientSide) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof CraftingTerminalBlockEntity craftingTerminal && player instanceof ServerPlayer serverPlayer) {
-                NetworkHooks.openScreen(serverPlayer, craftingTerminal, pos);
+                if (com.simpleae.bytestorage.block.entity.SecurityTerminalBlockEntity.canAccess(craftingTerminal.getGrid(), player)) {
+                    NetworkHooks.openScreen(serverPlayer, craftingTerminal, pos);
+                }
             }
         }
         return InteractionResult.sidedSuccess(level.isClientSide);

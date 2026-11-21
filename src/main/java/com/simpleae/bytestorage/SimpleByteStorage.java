@@ -287,6 +287,211 @@ public class SimpleByteStorage {
     public static final RegistryObject<MenuType<com.simpleae.bytestorage.menu.IoBusMenu>> IO_BUS_MENU =
             MENU_TYPES.register("io_bus", () -> IForgeMenuType.create(com.simpleae.bytestorage.menu.IoBusMenu::new));
 
+    // --- 7g. Шина зберігання (Storage Bus) ---
+    public static final RegistryObject<Block> STORAGE_BUS_BLOCK = BLOCKS.register("storage_bus",
+            () -> new com.simpleae.bytestorage.block.StorageBusBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .requiresCorrectToolForDrops()
+                    .strength(3.0F)
+                    .sound(SoundType.METAL)));
+
+    public static final RegistryObject<Item> STORAGE_BUS_BLOCK_ITEM = ITEMS.register("storage_bus",
+            () -> new BlockItem(STORAGE_BUS_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistryObject<BlockEntityType<com.simpleae.bytestorage.block.entity.StorageBusBlockEntity>> STORAGE_BUS_BLOCK_ENTITY =
+            BLOCK_ENTITIES.register("storage_bus",
+                    () -> BlockEntityType.Builder.of(com.simpleae.bytestorage.block.entity.StorageBusBlockEntity::new, STORAGE_BUS_BLOCK.get()).build(null));
+
+    public static final RegistryObject<MenuType<com.simpleae.bytestorage.menu.StorageBusMenu>> STORAGE_BUS_MENU =
+            MENU_TYPES.register("storage_bus", () -> IForgeMenuType.create(com.simpleae.bytestorage.menu.StorageBusMenu::new));
+
+    // --- 7h. Верстак ячеек (Cell Workbench) ---
+    public static final RegistryObject<Block> CELL_WORKBENCH_BLOCK = BLOCKS.register("cell_workbench",
+            () -> new com.simpleae.bytestorage.block.CellWorkbenchBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .requiresCorrectToolForDrops()
+                    .strength(3.0F)
+                    .sound(SoundType.METAL)));
+
+    public static final RegistryObject<Item> CELL_WORKBENCH_BLOCK_ITEM = ITEMS.register("cell_workbench",
+            () -> new BlockItem(CELL_WORKBENCH_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistryObject<BlockEntityType<com.simpleae.bytestorage.block.entity.CellWorkbenchBlockEntity>> CELL_WORKBENCH_BLOCK_ENTITY =
+            BLOCK_ENTITIES.register("cell_workbench",
+                    () -> BlockEntityType.Builder.of(com.simpleae.bytestorage.block.entity.CellWorkbenchBlockEntity::new, CELL_WORKBENCH_BLOCK.get()).build(null));
+
+    public static final RegistryObject<MenuType<com.simpleae.bytestorage.menu.CellWorkbenchMenu>> CELL_WORKBENCH_MENU =
+            MENU_TYPES.register("cell_workbench", () -> IForgeMenuType.create(com.simpleae.bytestorage.menu.CellWorkbenchMenu::new));
+
+    public static final RegistryObject<MenuType<com.simpleae.bytestorage.menu.ArchiverMenu>> ARCHIVER_MENU =
+            MENU_TYPES.register("archiver", () -> IForgeMenuType.create(com.simpleae.bytestorage.menu.ArchiverMenu::new));
+
+    public static final RegistryObject<MenuType<com.simpleae.bytestorage.menu.FluidIoBusMenu>> FLUID_IO_BUS_MENU =
+            MENU_TYPES.register("fluid_io_bus", () -> IForgeMenuType.create(com.simpleae.bytestorage.menu.FluidIoBusMenu::new));
+
+    public static final RegistryObject<MenuType<com.simpleae.bytestorage.menu.QuantumRelayMenu>> QUANTUM_RELAY_MENU =
+            MENU_TYPES.register("quantum_relay", () -> IForgeMenuType.create(com.simpleae.bytestorage.menu.QuantumRelayMenu::new));
+
+    public static final RegistryObject<MenuType<com.simpleae.bytestorage.menu.SecurityTerminalMenu>> SECURITY_TERMINAL_MENU =
+            MENU_TYPES.register("security_terminal", () -> IForgeMenuType.create(com.simpleae.bytestorage.menu.SecurityTerminalMenu::new));
+
+    public static final RegistryObject<MenuType<com.simpleae.bytestorage.menu.NetworkDisplayMenu>> NETWORK_DISPLAY_MENU =
+            MENU_TYPES.register("network_display", () -> IForgeMenuType.create(com.simpleae.bytestorage.menu.NetworkDisplayMenu::new));
+
+    // --- 7i. Квантовий ретранслятор (Quantum Relay) ---
+    public static final RegistryObject<Block> QUANTUM_RELAY_BLOCK = BLOCKS.register("quantum_relay",
+            () -> new com.simpleae.bytestorage.block.QuantumRelayBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .requiresCorrectToolForDrops()
+                    .strength(3.5F)
+                    .sound(SoundType.METAL)));
+
+    public static final RegistryObject<Item> QUANTUM_RELAY_BLOCK_ITEM = ITEMS.register("quantum_relay",
+            () -> new BlockItem(QUANTUM_RELAY_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistryObject<BlockEntityType<com.simpleae.bytestorage.block.entity.QuantumRelayBlockEntity>> QUANTUM_RELAY_BLOCK_ENTITY =
+            BLOCK_ENTITIES.register("quantum_relay",
+                    () -> BlockEntityType.Builder.of(com.simpleae.bytestorage.block.entity.QuantumRelayBlockEntity::new, QUANTUM_RELAY_BLOCK.get()).build(null));
+
+    // --- 7j. Сопроцесор крафту (Crafting Co-Processor) ---
+    public static final RegistryObject<Block> CRAFTING_COPROCESSOR_BLOCK = BLOCKS.register("crafting_coprocessor",
+            () -> new com.simpleae.bytestorage.block.CraftingCoprocessorBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .requiresCorrectToolForDrops()
+                    .strength(3.0F)
+                    .sound(SoundType.METAL)));
+
+    public static final RegistryObject<Item> CRAFTING_COPROCESSOR_BLOCK_ITEM = ITEMS.register("crafting_coprocessor",
+            () -> new BlockItem(CRAFTING_COPROCESSOR_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistryObject<BlockEntityType<com.simpleae.bytestorage.block.entity.CraftingCoprocessorBlockEntity>> CRAFTING_COPROCESSOR_BLOCK_ENTITY =
+            BLOCK_ENTITIES.register("crafting_coprocessor",
+                    () -> BlockEntityType.Builder.of(com.simpleae.bytestorage.block.entity.CraftingCoprocessorBlockEntity::new, CRAFTING_COPROCESSOR_BLOCK.get()).build(null));
+
+    // --- 7k. Термінал безпеки (Security Terminal) ---
+    public static final RegistryObject<Block> SECURITY_TERMINAL_BLOCK = BLOCKS.register("security_terminal",
+            () -> new com.simpleae.bytestorage.block.SecurityTerminalBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .requiresCorrectToolForDrops()
+                    .strength(3.0F)
+                    .sound(SoundType.METAL)));
+
+    public static final RegistryObject<Item> SECURITY_TERMINAL_BLOCK_ITEM = ITEMS.register("security_terminal",
+            () -> new BlockItem(SECURITY_TERMINAL_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistryObject<BlockEntityType<com.simpleae.bytestorage.block.entity.SecurityTerminalBlockEntity>> SECURITY_TERMINAL_BLOCK_ENTITY =
+            BLOCK_ENTITIES.register("security_terminal",
+                    () -> BlockEntityType.Builder.of(com.simpleae.bytestorage.block.entity.SecurityTerminalBlockEntity::new, SECURITY_TERMINAL_BLOCK.get()).build(null));
+
+    // --- 7l. Архіватор (Archiver) ---
+    public static final RegistryObject<Block> ARCHIVER_BLOCK = BLOCKS.register("archiver",
+            () -> new com.simpleae.bytestorage.block.ArchiverBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .requiresCorrectToolForDrops()
+                    .strength(3.0F)
+                    .sound(SoundType.METAL)));
+
+    public static final RegistryObject<Item> ARCHIVER_BLOCK_ITEM = ITEMS.register("archiver",
+            () -> new BlockItem(ARCHIVER_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistryObject<BlockEntityType<com.simpleae.bytestorage.block.entity.ArchiverBlockEntity>> ARCHIVER_BLOCK_ENTITY =
+            BLOCK_ENTITIES.register("archiver",
+                    () -> BlockEntityType.Builder.of(com.simpleae.bytestorage.block.entity.ArchiverBlockEntity::new, ARCHIVER_BLOCK.get()).build(null));
+
+    // --- 7m. Рідинна I/O-шина (Fluid I/O Bus) ---
+    public static final RegistryObject<Block> FLUID_IO_BUS_BLOCK = BLOCKS.register("fluid_io_bus",
+            () -> new com.simpleae.bytestorage.block.FluidIoBusBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .requiresCorrectToolForDrops()
+                    .strength(3.0F)
+                    .sound(SoundType.METAL)));
+
+    public static final RegistryObject<Item> FLUID_IO_BUS_BLOCK_ITEM = ITEMS.register("fluid_io_bus",
+            () -> new BlockItem(FLUID_IO_BUS_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistryObject<BlockEntityType<com.simpleae.bytestorage.block.entity.FluidIoBusBlockEntity>> FLUID_IO_BUS_BLOCK_ENTITY =
+            BLOCK_ENTITIES.register("fluid_io_bus",
+                    () -> BlockEntityType.Builder.of(com.simpleae.bytestorage.block.entity.FluidIoBusBlockEntity::new, FLUID_IO_BUS_BLOCK.get()).build(null));
+
+    // --- 7n. Інформаційний монітор мережі (Network Display) ---
+    public static final RegistryObject<Block> NETWORK_DISPLAY_BLOCK = BLOCKS.register("network_display",
+            () -> new com.simpleae.bytestorage.block.NetworkDisplayBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .requiresCorrectToolForDrops()
+                    .strength(3.0F)
+                    .sound(SoundType.METAL)));
+
+    public static final RegistryObject<Item> NETWORK_DISPLAY_BLOCK_ITEM = ITEMS.register("network_display",
+            () -> new BlockItem(NETWORK_DISPLAY_BLOCK.get(), new Item.Properties()));
+
+    // --- 7o. Руда Байтит та ресурси біому «Кремнієвий розлом» ---
+    public static final RegistryObject<Block> BYTITE_ORE_BLOCK = BLOCKS.register("bytite_ore",
+            () -> new net.minecraft.world.level.block.DropExperienceBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.STONE)
+                    .requiresCorrectToolForDrops()
+                    .strength(3.0F, 3.0F)
+                    .sound(SoundType.STONE), net.minecraft.util.valueproviders.UniformInt.of(1, 3)));
+
+    public static final RegistryObject<Item> BYTITE_ORE_BLOCK_ITEM = ITEMS.register("bytite_ore",
+            () -> new BlockItem(BYTITE_ORE_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistryObject<Block> DEEPSLATE_BYTITE_ORE_BLOCK = BLOCKS.register("deepslate_bytite_ore",
+            () -> new net.minecraft.world.level.block.DropExperienceBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.DEEPSLATE)
+                    .requiresCorrectToolForDrops()
+                    .strength(4.5F, 3.0F)
+                    .sound(SoundType.DEEPSLATE), net.minecraft.util.valueproviders.UniformInt.of(1, 3)));
+
+    public static final RegistryObject<Item> DEEPSLATE_BYTITE_ORE_BLOCK_ITEM = ITEMS.register("deepslate_bytite_ore",
+            () -> new BlockItem(DEEPSLATE_BYTITE_ORE_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistryObject<Block> BYTITE_BLOCK = BLOCKS.register("bytite_block",
+            () -> new Block(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .requiresCorrectToolForDrops()
+                    .strength(5.0F, 6.0F)
+                    .sound(SoundType.METAL)));
+
+    public static final RegistryObject<Item> BYTITE_BLOCK_ITEM = ITEMS.register("bytite_block",
+            () -> new BlockItem(BYTITE_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistryObject<Block> SILICATE_CRUST_BLOCK = BLOCKS.register("silicate_crust",
+            () -> new Block(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_BLACK)
+                    .requiresCorrectToolForDrops()
+                    .strength(2.0F, 3.0F)
+                    .sound(SoundType.BASALT)));
+
+    public static final RegistryObject<Item> SILICATE_CRUST_BLOCK_ITEM = ITEMS.register("silicate_crust",
+            () -> new BlockItem(SILICATE_CRUST_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistryObject<Block> QUANTUM_CLUSTER_BLOCK = BLOCKS.register("quantum_cluster",
+            () -> new Block(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_CYAN)
+                    .requiresCorrectToolForDrops()
+                    .noOcclusion()
+                    .lightLevel(s -> 7)
+                    .strength(1.5F)
+                    .sound(SoundType.AMETHYST_CLUSTER)));
+
+    public static final RegistryObject<Item> QUANTUM_CLUSTER_BLOCK_ITEM = ITEMS.register("quantum_cluster",
+            () -> new BlockItem(QUANTUM_CLUSTER_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistryObject<Block> CIRCUIT_BLOOM_BLOCK = BLOCKS.register("circuit_bloom",
+            () -> new Block(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_CYAN)
+                    .noCollission()
+                    .instabreak()
+                    .lightLevel(s -> 9)
+                    .sound(SoundType.GRASS)));
+
+    public static final RegistryObject<Item> CIRCUIT_BLOOM_BLOCK_ITEM = ITEMS.register("circuit_bloom",
+            () -> new BlockItem(CIRCUIT_BLOOM_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistryObject<BlockEntityType<com.simpleae.bytestorage.block.entity.NetworkDisplayBlockEntity>> NETWORK_DISPLAY_BLOCK_ENTITY =
+            BLOCK_ENTITIES.register("network_display",
+                    () -> BlockEntityType.Builder.of(com.simpleae.bytestorage.block.entity.NetworkDisplayBlockEntity::new, NETWORK_DISPLAY_BLOCK.get()).build(null));
+
     public static final RegistryObject<MenuType<com.simpleae.bytestorage.menu.ControllerMenu>> CONTROLLER_MENU =
             MENU_TYPES.register("controller", () -> IForgeMenuType.create(com.simpleae.bytestorage.menu.ControllerMenu::new));
 
@@ -297,6 +502,53 @@ public class SimpleByteStorage {
     // --- 8b. Карта прискорення (Speed Card) ---
     public static final RegistryObject<Item> SPEED_CARD = ITEMS.register("speed_card",
             () -> new com.simpleae.bytestorage.item.SpeedCardItem(new Item.Properties().stacksTo(16)));
+
+    // --- 8c. Карти накопичувача та сканер мережі ---
+    public static final RegistryObject<Item> VOID_CARD = ITEMS.register("void_card",
+            () -> new com.simpleae.bytestorage.item.VoidCardItem(new Item.Properties().stacksTo(16)));
+
+    public static final RegistryObject<Item> LOCK_CARD = ITEMS.register("lock_card",
+            () -> new com.simpleae.bytestorage.item.LockCardItem(new Item.Properties().stacksTo(16)));
+
+    public static final RegistryObject<Item> NETWORK_ANALYZER = ITEMS.register("network_analyzer",
+            () -> new com.simpleae.bytestorage.item.NetworkAnalyzerItem(new Item.Properties().stacksTo(1)));
+
+    public static final RegistryObject<Item> ENTANGLED_CRYSTAL = ITEMS.register("entangled_crystal",
+            () -> new com.simpleae.bytestorage.item.EntangledCrystalItem(new Item.Properties().stacksTo(16)));
+
+    public static final RegistryObject<Item> DATA_BLOB = ITEMS.register("data_blob",
+            () -> new com.simpleae.bytestorage.item.DataBlobItem(new Item.Properties().stacksTo(64)));
+
+    public static final RegistryObject<Item> FLUID_CELL_1K = ITEMS.register("fluid_cell_1k",
+            () -> new com.simpleae.bytestorage.item.FluidCellItem(CellTier.TIER_1K, new Item.Properties()));
+
+    public static final RegistryObject<Item> FLUID_CELL_4K = ITEMS.register("fluid_cell_4k",
+            () -> new com.simpleae.bytestorage.item.FluidCellItem(CellTier.TIER_4K, new Item.Properties()));
+
+    public static final RegistryObject<Item> FLUID_CELL_16K = ITEMS.register("fluid_cell_16k",
+            () -> new com.simpleae.bytestorage.item.FluidCellItem(CellTier.TIER_16K, new Item.Properties()));
+
+    public static final RegistryObject<Item> FLUID_CELL_64K = ITEMS.register("fluid_cell_64k",
+            () -> new com.simpleae.bytestorage.item.FluidCellItem(CellTier.TIER_64K, new Item.Properties()));
+
+    // --- 8d. Базові та біомні матеріали ---
+    public static final RegistryObject<Item> RAW_BYTITE = ITEMS.register("raw_bytite",
+            () -> new Item(new Item.Properties()));
+
+    public static final RegistryObject<Item> BYTITE_INGOT = ITEMS.register("bytite_ingot",
+            () -> new Item(new Item.Properties()));
+
+    public static final RegistryObject<Item> SILICON_DUST = ITEMS.register("silicon_dust",
+            () -> new Item(new Item.Properties()));
+
+    public static final RegistryObject<Item> LOGIC_WAFER = ITEMS.register("logic_wafer",
+            () -> new Item(new Item.Properties()));
+
+    public static final RegistryObject<Item> QUANTUM_QUARTZ = ITEMS.register("quantum_quartz",
+            () -> new Item(new Item.Properties()));
+
+    public static final RegistryObject<Item> CYAN_PHOSPHOR = ITEMS.register("cyan_phosphor",
+            () -> new Item(new Item.Properties()));
 
     // --- 8c. Бездротовий термінал ---
     public static final RegistryObject<Item> GUIDE_BOOK = ITEMS.register("guide_book",
@@ -342,6 +594,12 @@ public class SimpleByteStorage {
     public static final RegistryObject<Item> CELL_64K = ITEMS.register("cell_64k",
             () -> new ByteStorageCellItem(CellTier.TIER_64K, new Item.Properties()));
 
+    public static final RegistryObject<Item> CELL_256K = ITEMS.register("cell_256k",
+            () -> new ByteStorageCellItem(CellTier.TIER_256K, new Item.Properties()));
+
+    public static final RegistryObject<Item> CELL_1M = ITEMS.register("cell_1m",
+            () -> new ByteStorageCellItem(CellTier.TIER_1M, new Item.Properties()));
+
     // --- 6. Креативна вкладка ---
     public static final RegistryObject<CreativeModeTab> TAB = CREATIVE_MODE_TABS.register("simple_bytestorage_tab",
             () -> CreativeModeTab.builder()
@@ -358,10 +616,22 @@ public class SimpleByteStorage {
                         output.accept(CABLE_BLOCK.get());
                         output.accept(PATTERN_PROVIDER_BLOCK.get());
                         output.accept(IO_BUS_BLOCK.get());
+                        output.accept(STORAGE_BUS_BLOCK.get());
+                        output.accept(CELL_WORKBENCH_BLOCK.get());
+                        output.accept(QUANTUM_RELAY_BLOCK.get());
+                        output.accept(CRAFTING_COPROCESSOR_BLOCK.get());
+                        output.accept(SECURITY_TERMINAL_BLOCK.get());
+                        output.accept(ARCHIVER_BLOCK.get());
+                        output.accept(FLUID_IO_BUS_BLOCK.get());
+                        output.accept(NETWORK_DISPLAY_BLOCK.get());
                         output.accept(ENERGY_PORT_BLOCK.get());
                         output.accept(CAPACITOR_BLOCK.get());
                         output.accept(PATTERN_ITEM.get());
                         output.accept(SPEED_CARD.get());
+                        output.accept(VOID_CARD.get());
+                        output.accept(LOCK_CARD.get());
+                        output.accept(NETWORK_ANALYZER.get());
+                        output.accept(ENTANGLED_CRYSTAL.get());
                         output.accept(WIRELESS_TERMINAL.get());
                         output.accept(AUTO_TRANSFER_CARD.get());
                         output.accept(INSURANCE_CARD.get());
@@ -375,6 +645,24 @@ public class SimpleByteStorage {
                         output.accept(CELL_4K.get());
                         output.accept(CELL_16K.get());
                         output.accept(CELL_64K.get());
+                        output.accept(CELL_256K.get());
+                        output.accept(CELL_1M.get());
+                        output.accept(FLUID_CELL_1K.get());
+                        output.accept(FLUID_CELL_4K.get());
+                        output.accept(FLUID_CELL_16K.get());
+                        output.accept(FLUID_CELL_64K.get());
+                        output.accept(BYTITE_ORE_BLOCK.get());
+                        output.accept(DEEPSLATE_BYTITE_ORE_BLOCK.get());
+                        output.accept(BYTITE_BLOCK.get());
+                        output.accept(SILICATE_CRUST_BLOCK.get());
+                        output.accept(QUANTUM_CLUSTER_BLOCK.get());
+                        output.accept(CIRCUIT_BLOOM_BLOCK.get());
+                        output.accept(RAW_BYTITE.get());
+                        output.accept(BYTITE_INGOT.get());
+                        output.accept(SILICON_DUST.get());
+                        output.accept(LOGIC_WAFER.get());
+                        output.accept(QUANTUM_QUARTZ.get());
+                        output.accept(CYAN_PHOSPHOR.get());
                     })
                     .build());
 
@@ -411,8 +699,45 @@ public class SimpleByteStorage {
             MenuScreens.register(PATTERN_ENCODING_TERMINAL_MENU.get(), PatternEncodingTerminalScreen::new);
             MenuScreens.register(PATTERN_PROVIDER_MENU.get(), PatternProviderScreen::new);
             MenuScreens.register(IO_BUS_MENU.get(), com.simpleae.bytestorage.client.gui.IoBusScreen::new);
+            MenuScreens.register(STORAGE_BUS_MENU.get(), com.simpleae.bytestorage.client.gui.StorageBusScreen::new);
+            MenuScreens.register(CELL_WORKBENCH_MENU.get(), com.simpleae.bytestorage.client.gui.CellWorkbenchScreen::new);
+            MenuScreens.register(ARCHIVER_MENU.get(), com.simpleae.bytestorage.client.gui.ArchiverScreen::new);
+            MenuScreens.register(FLUID_IO_BUS_MENU.get(), com.simpleae.bytestorage.client.gui.FluidIoBusScreen::new);
+            MenuScreens.register(QUANTUM_RELAY_MENU.get(), com.simpleae.bytestorage.client.gui.QuantumRelayScreen::new);
+            MenuScreens.register(SECURITY_TERMINAL_MENU.get(), com.simpleae.bytestorage.client.gui.SecurityTerminalScreen::new);
+            MenuScreens.register(NETWORK_DISPLAY_MENU.get(), com.simpleae.bytestorage.client.gui.NetworkDisplayScreen::new);
             MenuScreens.register(WIRELESS_SETTINGS_MENU.get(), com.simpleae.bytestorage.client.gui.WirelessSettingsScreen::new);
             MenuScreens.register(CONTROLLER_MENU.get(), com.simpleae.bytestorage.client.gui.ControllerScreen::new);
         });
+    }
+
+    @net.minecraftforge.eventbus.api.SubscribeEvent
+    public void onBlockPlace(net.minecraftforge.event.level.BlockEvent.EntityPlaceEvent event) {
+        if (event.getLevel() instanceof net.minecraft.world.level.Level level && !level.isClientSide) {
+            notifyGridTopology(level, event.getPos());
+        }
+    }
+
+    @net.minecraftforge.eventbus.api.SubscribeEvent
+    public void onBlockBreak(net.minecraftforge.event.level.BlockEvent.BreakEvent event) {
+        if (event.getLevel() instanceof net.minecraft.world.level.Level level && !level.isClientSide) {
+            notifyGridTopology(level, event.getPos());
+        }
+    }
+
+    private static void notifyGridTopology(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos) {
+        for (net.minecraft.core.Direction dir : net.minecraft.core.Direction.values()) {
+            net.minecraft.core.BlockPos adj = pos.relative(dir);
+            if (!level.isLoaded(adj)) continue;
+            net.minecraft.world.level.block.entity.BlockEntity be = level.getBlockEntity(adj);
+            if (be instanceof com.simpleae.bytestorage.api.network.IGridNode node
+                    && node.getGrid() != null && node.getGrid().getController() != null) {
+                node.getGrid().getController().markTopologyDirty();
+            }
+        }
+        if (level.isLoaded(pos) && level.getBlockEntity(pos) instanceof com.simpleae.bytestorage.api.network.IGridNode self
+                && self.getGrid() != null && self.getGrid().getController() != null) {
+            self.getGrid().getController().markTopologyDirty();
+        }
     }
 }

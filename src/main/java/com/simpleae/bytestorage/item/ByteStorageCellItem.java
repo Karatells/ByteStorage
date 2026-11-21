@@ -58,6 +58,11 @@ public class ByteStorageCellItem extends Item implements IByteStorageCell {
         return new ByteCellInventory(stack, tier);
     }
 
+    @Override
+    public ICellInventory getCellInventory(ItemStack stack, boolean autoFlush) {
+        return new ByteCellInventory(stack, tier, autoFlush);
+    }
+
     // --- Відображення смужки заповненості диска (Durability / Item Bar) ---
 
     @Override
