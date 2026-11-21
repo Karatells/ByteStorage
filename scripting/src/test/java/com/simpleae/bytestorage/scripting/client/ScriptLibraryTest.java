@@ -29,6 +29,8 @@ class ScriptLibraryTest {
                       "name": "Demo Script",
                       "author": "Tester",
                       "description": "Test desc",
+                      "category": "energy",
+                      "icon": "minecraft:redstone",
                       "tags": ["energy"],
                       "minModVersion": "1.4.0",
                       "maxModVersion": "*",
@@ -49,6 +51,10 @@ class ScriptLibraryTest {
         List<ScriptLibraryIndex.Entry> list = ScriptLibraryIndex.parseIndex(json);
         assertEquals(1, list.size());
         assertEquals("demo", list.get(0).id());
+        assertEquals("energy", list.get(0).category());
+        assertEquals("minecraft:redstone", list.get(0).icon());
+        assertEquals(1, ScriptLibraryIndex.filterByCategory(list, "energy").size());
+        assertEquals(0, ScriptLibraryIndex.filterByCategory(list, "fluids").size());
         assertTrue(list.get(0).needsControl());
         assertEquals("abc123", list.get(0).sha256());
     }

@@ -17,11 +17,17 @@ import java.util.Locale;
  */
 public final class ScriptLibraryIndex {
 
+    public static final List<String> CATEGORIES = List.of(
+            "all", "storage", "transfer", "automation", "energy", "fluids", "display", "ui", "other"
+    );
+
     public record Entry(
             String id,
             String name,
             String author,
             String description,
+            String category,
+            String icon,
             List<String> tags,
             String minModVersion,
             String maxModVersion,
@@ -61,11 +67,17 @@ public final class ScriptLibraryIndex {
                     if (t.isJsonPrimitive()) tags.add(t.getAsString());
                 }
             }
+            String category = str(o, "category", "other").toLowerCase(Locale.ROOT);
+            if (!CATEGORIES.contains(category) || category.equals("all")) {
+                category = "other";
+            }
             out.add(new Entry(
                     id,
                     name,
                     str(o, "author", "unknown"),
                     str(o, "description", ""),
+                    category,
+                    str(o, "icon", "simple_bytestorage_scripting:logic_bus"),
                     List.copyOf(tags),
                     str(o, "minModVersion", "1.0.0"),
                     str(o, "maxModVersion", "*"),
@@ -75,6 +87,19 @@ public final class ScriptLibraryIndex {
                     str(o, "sha256", "").toLowerCase(Locale.ROOT),
                     o.has("size") && o.get("size").isJsonPrimitive() ? o.get("size").getAsInt() : 0
             ));
+        }
+        return out;
+    }
+
+    public static List<Entry> filterByCategory(List<Entry> entries, String category) {
+        if (entries == null || category == null || category.equals("all")) {
+            return entries == null ? List.of() : entries;
+        }
+        List<Entry> out = new ArrayList<>();
+        for (Entry e : entries) {
+            if (category.equals(e.category())) {
+                out.add(e);
+            }
         }
         return out;
     }

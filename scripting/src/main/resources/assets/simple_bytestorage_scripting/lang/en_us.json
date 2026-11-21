@@ -59,5 +59,14 @@
   "gui.simple_bytestorage_scripting.library.retry": "Click here to retry",
   "gui.simple_bytestorage_scripting.library.empty": "No scripts found in library.",
   "gui.simple_bytestorage_scripting.library.click_load": "Click to load into editor (does not auto-run)",
-  "gui.simple_bytestorage_scripting.library.incompatible": "Incompatible: requires mod version %s+"
+  "gui.simple_bytestorage_scripting.library.incompatible": "Incompatible: requires mod version %s+",
+  "gui.simple_bytestorage_scripting.cat.all": "All",
+  "gui.simple_bytestorage_scripting.cat.storage": "Storage",
+  "gui.simple_bytestorage_scripting.cat.transfer": "Transfer",
+  "gui.simple_bytestorage_scripting.cat.automation": "Automation",
+  "gui.simple_bytestorage_scripting.cat.energy": "Energy",
+  "gui.simple_bytestorage_scripting.cat.fluids": "Fluids",
+  "gui.simple_bytestorage_scripting.cat.display": "Display",
+  "gui.simple_bytestorage_scripting.cat.ui": "Panels",
+  "gui.simple_bytestorage_scripting.cat.other": "Other"
 }

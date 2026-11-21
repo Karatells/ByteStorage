@@ -59,5 +59,14 @@
   "gui.simple_bytestorage_scripting.library.retry": "Натисніть тут, щоб повторити",
   "gui.simple_bytestorage_scripting.library.empty": "У бібліотеці поки немає скриптів.",
   "gui.simple_bytestorage_scripting.library.click_load": "Клік — завантажити в редактор (без автозапуску)",
-  "gui.simple_bytestorage_scripting.library.incompatible": "Несумісно: потрібна версія мода %s+"
+  "gui.simple_bytestorage_scripting.library.incompatible": "Несумісно: потрібна версія мода %s+",
+  "gui.simple_bytestorage_scripting.cat.all": "Усі",
+  "gui.simple_bytestorage_scripting.cat.storage": "Зберігання",
+  "gui.simple_bytestorage_scripting.cat.transfer": "Переміщення",
+  "gui.simple_bytestorage_scripting.cat.automation": "Автоматизація",
+  "gui.simple_bytestorage_scripting.cat.energy": "Енергія",
+  "gui.simple_bytestorage_scripting.cat.fluids": "Рідини",
+  "gui.simple_bytestorage_scripting.cat.display": "Монітори",
+  "gui.simple_bytestorage_scripting.cat.ui": "Панелі",
+  "gui.simple_bytestorage_scripting.cat.other": "Інше"
 }

@@ -49,6 +49,7 @@ public class LogicTerminalScreen extends Screen {
     private int panelScroll = 0;
     private int panelContentHeight = 0;
     private int libraryScroll = 0;
+    private int libraryCatIdx = 0;
     private List<ScriptLibraryIndex.Entry> libraryEntries = null;
     private String libraryError = null;
     private boolean libraryLoading = false;
@@ -285,8 +286,26 @@ public class LogicTerminalScreen extends Screen {
         }
     }
 
-    private static final int LIB_ROW_H = 19;
-    private static final int LIB_ROWS = 5;
+    private static final int LIB_HEADER_H = 15;
+    private static final int LIB_ROW_H = 21;
+    private static final int LIB_ROWS = 4;
+
+    private String currentCategory() {
+        return ScriptLibraryIndex.CATEGORIES.get(libraryCatIdx % ScriptLibraryIndex.CATEGORIES.size());
+    }
+
+    private List<ScriptLibraryIndex.Entry> filteredLibrary() {
+        return ScriptLibraryIndex.filterByCategory(libraryEntries, currentCategory());
+    }
+
+    private static net.minecraft.world.item.ItemStack resolveIcon(String iconId) {
+        net.minecraft.resources.ResourceLocation rl = iconId == null ? null : net.minecraft.resources.ResourceLocation.tryParse(iconId);
+        net.minecraft.world.item.Item item = rl == null ? null : net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(rl);
+        if (item == null || item == net.minecraft.world.item.Items.AIR) {
+            item = com.simpleae.bytestorage.scripting.SimpleAeScripting.LOGIC_BUS_ITEM.get();
+        }
+        return new net.minecraft.world.item.ItemStack(item);
+    }
 
     private void drawLibrary(GuiGraphics g, int mouseX, int mouseY) {
         int rx = left + AREA_X;
@@ -314,9 +333,26 @@ public class LogicTerminalScreen extends Screen {
                     rx + 6, ry + 22, GuiStyle.ACCENT, false);
             return;
         }
-        if (libraryEntries == null || libraryEntries.isEmpty()) {
+
+        // Верхняя полоска: фильтр категории + кнопка обновления
+        List<ScriptLibraryIndex.Entry> visible = filteredLibrary();
+        String cat = currentCategory();
+        String catName = Component.translatable("gui.simple_bytestorage_scripting.cat." + cat).getString();
+        String catLabel = catName + " (" + visible.size() + ")";
+        boolean catHover = mouseX >= rx + 2 && mouseX < rx + AREA_W - 46 && mouseY >= ry + 2 && mouseY < ry + LIB_HEADER_H;
+        g.fill(rx + 2, ry + 2, rx + AREA_W - 46, ry + LIB_HEADER_H, catHover ? GuiStyle.ACCENT_FAINT : GuiStyle.PANEL_BG);
+        g.drawString(this.font, this.font.plainSubstrByWidth(catLabel, AREA_W - 56),
+                rx + 6, ry + 4, GuiStyle.ACCENT, false);
+
+        boolean refHover = mouseX >= rx + AREA_W - 44 && mouseX < rx + AREA_W - 2 && mouseY >= ry + 2 && mouseY < ry + LIB_HEADER_H;
+        g.fill(rx + AREA_W - 44, ry + 2, rx + AREA_W - 2, ry + LIB_HEADER_H, refHover ? GuiStyle.ACCENT_FAINT : GuiStyle.PANEL_BG);
+        String refTxt = Component.translatable("gui.simple_bytestorage_scripting.reload").getString();
+        g.drawString(this.font, this.font.plainSubstrByWidth(refTxt, 38),
+                rx + AREA_W - 41, ry + 4, GuiStyle.TEXT_LABEL, false);
+
+        if (visible.isEmpty()) {
             g.drawString(this.font, Component.translatable("gui.simple_bytestorage_scripting.library.empty"),
-                    rx + 6, ry + 8, GuiStyle.TEXT_MUTED, false);
+                    rx + 6, ry + LIB_HEADER_H + 6, GuiStyle.TEXT_MUTED, false);
             return;
         }
 
@@ -324,24 +360,26 @@ public class LogicTerminalScreen extends Screen {
         ScriptLibraryIndex.Entry hoveredEntry = null;
         for (int row = 0; row < LIB_ROWS; row++) {
             int idx = libraryScroll + row;
-            if (idx >= libraryEntries.size()) break;
-            ScriptLibraryIndex.Entry e = libraryEntries.get(idx);
-            int y = ry + 3 + row * LIB_ROW_H;
+            if (idx >= visible.size()) break;
+            ScriptLibraryIndex.Entry e = visible.get(idx);
+            int y = ry + LIB_HEADER_H + 2 + row * LIB_ROW_H;
             boolean compat = ScriptLibraryIndex.isCompatible(curVer, e.minModVersion(), e.maxModVersion());
             boolean hover = mouseX >= rx + 2 && mouseX < rx + AREA_W - 2 && mouseY >= y && mouseY < y + LIB_ROW_H - 1;
             if (hover) {
                 hoveredEntry = e;
                 g.fill(rx + 2, y, rx + AREA_W - 2, y + LIB_ROW_H - 1, GuiStyle.ACCENT_FAINT);
             }
+            g.renderItem(resolveIcon(e.icon()), rx + 4, y + 2);
             String badge = compat ? ("v" + e.minModVersion() + "+") : ("REQ " + e.minModVersion());
             int badgeW = this.font.width(badge);
-            g.drawString(this.font, this.font.plainSubstrByWidth(e.name(), AREA_W - badgeW - 16),
-                    rx + 5, y + 2, compat ? GuiStyle.TEXT_TITLE : GuiStyle.TEXT_MUTED, false);
+            g.drawString(this.font, this.font.plainSubstrByWidth(e.name(), AREA_W - badgeW - 34),
+                    rx + 23, y + 2, compat ? GuiStyle.TEXT_TITLE : GuiStyle.TEXT_MUTED, false);
             g.drawString(this.font, badge, rx + AREA_W - badgeW - 5, y + 2,
                     compat ? GuiStyle.TEXT_GOOD : GuiStyle.TEXT_BAD, false);
-            String sub = "by " + e.author() + (e.needsControl() ? " [CTRL]" : "") + (e.needsAlerts() ? " [ALERT]" : "");
-            g.drawString(this.font, this.font.plainSubstrByWidth(sub, AREA_W - 12),
-                    rx + 5, y + 10, GuiStyle.TEXT_MUTED, false);
+            String eCat = Component.translatable("gui.simple_bytestorage_scripting.cat." + e.category()).getString();
+            String sub = e.author() + " · " + eCat + (e.needsControl() ? " [CTRL]" : "") + (e.needsAlerts() ? " [ALERT]" : "");
+            g.drawString(this.font, this.font.plainSubstrByWidth(sub, AREA_W - 30),
+                    rx + 23, y + 11, GuiStyle.TEXT_MUTED, false);
         }
         if (libraryStatus != null) {
             g.drawString(this.font, this.font.plainSubstrByWidth(libraryStatus, AREA_W - 10),
@@ -373,11 +411,21 @@ public class LogicTerminalScreen extends Screen {
             loadOnlineLibrary(true);
             return true;
         }
-        if (libraryEntries == null || libraryLoading || !canAct()) return true;
-        int row = (int) ((mouseY - (ry + 3)) / LIB_ROW_H);
+        if (mouseY >= ry + 2 && mouseY < ry + LIB_HEADER_H) {
+            if (mouseX >= rx + AREA_W - 44) {
+                loadOnlineLibrary(true);
+            } else {
+                libraryCatIdx = (libraryCatIdx + 1) % ScriptLibraryIndex.CATEGORIES.size();
+                libraryScroll = 0;
+            }
+            return true;
+        }
+        List<ScriptLibraryIndex.Entry> visible = filteredLibrary();
+        if (visible.isEmpty() || libraryLoading || !canAct()) return true;
+        int row = (int) ((mouseY - (ry + LIB_HEADER_H + 2)) / LIB_ROW_H);
         int idx = libraryScroll + row;
-        if (row >= 0 && row < LIB_ROWS && idx >= 0 && idx < libraryEntries.size()) {
-            ScriptLibraryIndex.Entry e = libraryEntries.get(idx);
+        if (row >= 0 && row < LIB_ROWS && idx >= 0 && idx < visible.size()) {
+            ScriptLibraryIndex.Entry e = visible.get(idx);
             String curVer = OnlineScriptLibrary.currentModVersion();
             if (!ScriptLibraryIndex.isCompatible(curVer, e.minModVersion(), e.maxModVersion())) {
                 libraryStatus = "Requires mod " + e.minModVersion() + "+";
@@ -592,7 +640,7 @@ public class LogicTerminalScreen extends Screen {
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         if (libraryTab && libraryEntries != null && mouseX >= left + AREA_X && mouseX < left + AREA_X + AREA_W
                 && mouseY >= top + AREA_Y && mouseY < top + AREA_Y + AREA_H) {
-            int max = Math.max(0, libraryEntries.size() - LIB_ROWS);
+            int max = Math.max(0, filteredLibrary().size() - LIB_ROWS);
             libraryScroll = Math.max(0, Math.min(max, libraryScroll - (int) Math.signum(delta)));
             return true;
         }

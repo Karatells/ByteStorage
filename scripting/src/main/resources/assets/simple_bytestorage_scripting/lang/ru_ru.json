@@ -59,5 +59,14 @@
   "gui.simple_bytestorage_scripting.library.retry": "Нажмите здесь, чтобы повторить",
   "gui.simple_bytestorage_scripting.library.empty": "В библиотеке пока нет скриптов.",
   "gui.simple_bytestorage_scripting.library.click_load": "Клик — загрузить в редактор (без автозапуска)",
-  "gui.simple_bytestorage_scripting.library.incompatible": "Несовместимо: требуется версия мода %s+"
+  "gui.simple_bytestorage_scripting.library.incompatible": "Несовместимо: требуется версия мода %s+",
+  "gui.simple_bytestorage_scripting.cat.all": "Все",
+  "gui.simple_bytestorage_scripting.cat.storage": "Хранение",
+  "gui.simple_bytestorage_scripting.cat.transfer": "Перемещение",
+  "gui.simple_bytestorage_scripting.cat.automation": "Автоматизация",
+  "gui.simple_bytestorage_scripting.cat.energy": "Энергия",
+  "gui.simple_bytestorage_scripting.cat.fluids": "Жидкости",
+  "gui.simple_bytestorage_scripting.cat.display": "Мониторы",
+  "gui.simple_bytestorage_scripting.cat.ui": "Панели",
+  "gui.simple_bytestorage_scripting.cat.other": "Прочее"
 }
