@@ -45,5 +45,12 @@
   "gui.simple_bytestorage_scripting.tab.code": "Код",
   "gui.simple_bytestorage_scripting.tab.panel": "Панель",
   "gui.simple_bytestorage_scripting.panel.empty": "У этого скрипта нет панели. Вызывайте ui.text(), ui.bar(), ui.button() или ui.item() в tick(), чтобы нарисовать её.",
-  "gui.simple_bytestorage_scripting.panel.stopped": "Шина остановлена: кнопки отключены"
+  "gui.simple_bytestorage_scripting.panel.stopped": "Шина остановлена: кнопки отключены",
+  "item.simple_bytestorage_scripting.script_disk": "Диск скрипта",
+  "msg.simple_bytestorage_scripting.disk.copied": "Скрипт скопирован с Логической шины на диск",
+  "msg.simple_bytestorage_scripting.disk.applied": "Скрипт записан с диска в Логическую шину",
+  "msg.simple_bytestorage_scripting.disk.empty": "Диск пуст (Shift+ПКМ по Логической шине — скопировать)",
+  "tooltip.simple_bytestorage_scripting.disk.saved": "Записано строк: %s (шина: %s)",
+  "tooltip.simple_bytestorage_scripting.disk.use": "ПКМ по Логической шине — записать, Shift+ПКМ — скопировать",
+  "tooltip.simple_bytestorage_scripting.disk.empty": "Пустой — Shift+ПКМ по Логической шине, чтобы скопировать"
 }

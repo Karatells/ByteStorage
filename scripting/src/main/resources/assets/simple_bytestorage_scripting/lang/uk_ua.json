@@ -45,5 +45,12 @@
   "gui.simple_bytestorage_scripting.tab.code": "Код",
   "gui.simple_bytestorage_scripting.tab.panel": "Панель",
   "gui.simple_bytestorage_scripting.panel.empty": "У цього скрипта немає панелі. Викликайте ui.text(), ui.bar(), ui.button() або ui.item() у tick(), щоб намалювати її.",
-  "gui.simple_bytestorage_scripting.panel.stopped": "Шину зупинено: кнопки вимкнено"
+  "gui.simple_bytestorage_scripting.panel.stopped": "Шину зупинено: кнопки вимкнено",
+  "item.simple_bytestorage_scripting.script_disk": "Диск скрипта",
+  "msg.simple_bytestorage_scripting.disk.copied": "Скрипт скопійовано з Логічної шини на диск",
+  "msg.simple_bytestorage_scripting.disk.applied": "Скрипт записано з диска у Логічну шину",
+  "msg.simple_bytestorage_scripting.disk.empty": "Диск порожній (Shift+ПКМ по Логічній шині — скопіювати)",
+  "tooltip.simple_bytestorage_scripting.disk.saved": "Збережено рядків: %s (шина: %s)",
+  "tooltip.simple_bytestorage_scripting.disk.use": "ПКМ по Логічній шині — записати, Shift+ПКМ — скопіювати",
+  "tooltip.simple_bytestorage_scripting.disk.empty": "Порожній — Shift+ПКМ по Логічній шині, щоб скопіювати"
 }

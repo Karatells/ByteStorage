@@ -643,6 +643,52 @@ final class Api {
         });
         def(net, "usedBytes", (c, s, a) -> storage().getTotalUsedBytes());
         def(net, "freeBytes", (c, s, a) -> storage().getRemainingBytes());
+        def(net, "fluidCount", (c, s, a) -> {
+            budget.spendCall();
+            String id = str(a, 0);
+            if (id == null || bus.grid() == null) return 0;
+            long totalMb = 0;
+            for (com.simpleae.bytestorage.api.network.IGridNode node : bus.grid().getNodes()) {
+                if (!(node instanceof com.simpleae.bytestorage.block.entity.DriveBlockEntity drive)) continue;
+                IItemHandler inv = drive.getDriveInventory();
+                for (int i = 0; i < inv.getSlots(); i++) {
+                    ItemStack cell = inv.getStackInSlot(i);
+                    if (cell.getItem() instanceof com.simpleae.bytestorage.item.FluidCellItem) {
+                        for (net.minecraftforge.fluids.FluidStack fs : com.simpleae.bytestorage.item.FluidCellItem.getStoredFluids(cell)) {
+                            ResourceLocation key = ForgeRegistries.FLUIDS.getKey(fs.getFluid());
+                            if (key != null && key.toString().equals(id)) {
+                                totalMb += fs.getAmount();
+                            }
+                        }
+                    }
+                }
+            }
+            return (double) totalMb;
+        });
+        def(net, "fluids", (c, s, a) -> {
+            budget.spendCall();
+            java.util.Map<String, Long> totals = new java.util.LinkedHashMap<>();
+            if (bus.grid() != null) {
+                for (com.simpleae.bytestorage.api.network.IGridNode node : bus.grid().getNodes()) {
+                    if (!(node instanceof com.simpleae.bytestorage.block.entity.DriveBlockEntity drive)) continue;
+                    IItemHandler inv = drive.getDriveInventory();
+                    for (int i = 0; i < inv.getSlots(); i++) {
+                        ItemStack cell = inv.getStackInSlot(i);
+                        if (cell.getItem() instanceof com.simpleae.bytestorage.item.FluidCellItem) {
+                            for (net.minecraftforge.fluids.FluidStack fs : com.simpleae.bytestorage.item.FluidCellItem.getStoredFluids(cell)) {
+                                ResourceLocation key = ForgeRegistries.FLUIDS.getKey(fs.getFluid());
+                                if (key != null) {
+                                    totals.merge(key.toString(), (long) fs.getAmount(), Long::sum);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            java.util.List<Object> out = new java.util.ArrayList<>();
+            totals.forEach((k, v) -> out.add(obj(c, "id", k, "amount", (double) v)));
+            return c.newArray(scope, out.toArray());
+        });
         def(net, "craft", (c, s, a) -> {
             budget.spendCall();
             if (!ScriptingConfig.ALLOW_CRAFTING.get()) {

@@ -52,6 +52,8 @@ final class ApiCatalog {
         member("net", "count(id)", "How many items of this kind the network holds.");
         member("net", "craft(id, n)", "Order n crafts of an item.");
         member("net", "energy()", "Network energy: stored, capacity, balance.");
+        member("net", "fluidCount(id)", "Total millibuckets (mB) of a fluid stored in Fluid Cells.");
+        member("net", "fluids()", "All stored fluids as {id, amount} (mB).");
         member("net", "freeBytes()", "Free storage bytes.");
         member("net", "has(id, n)", "True if the network holds at least n of the item.");
         member("net", "list()", "All stored items as {id, count}.");

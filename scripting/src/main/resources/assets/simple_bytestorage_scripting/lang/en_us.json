@@ -45,5 +45,12 @@
   "gui.simple_bytestorage_scripting.tab.code": "Code",
   "gui.simple_bytestorage_scripting.tab.panel": "Panel",
   "gui.simple_bytestorage_scripting.panel.empty": "This script has no panel. Call ui.text(), ui.bar(), ui.button() or ui.item() in tick() to draw one.",
-  "gui.simple_bytestorage_scripting.panel.stopped": "Bus is stopped: buttons are disabled"
+  "gui.simple_bytestorage_scripting.panel.stopped": "Bus is stopped: buttons are disabled",
+  "item.simple_bytestorage_scripting.script_disk": "Script Disk",
+  "msg.simple_bytestorage_scripting.disk.copied": "Script copied from Logic Bus to Disk",
+  "msg.simple_bytestorage_scripting.disk.applied": "Script written from Disk to Logic Bus",
+  "msg.simple_bytestorage_scripting.disk.empty": "Disk is empty (Shift+RMB on a Logic Bus to copy)",
+  "tooltip.simple_bytestorage_scripting.disk.saved": "Stored script: %s lines (from %s)",
+  "tooltip.simple_bytestorage_scripting.disk.use": "RMB on Logic Bus to paste, Shift+RMB to copy",
+  "tooltip.simple_bytestorage_scripting.disk.empty": "Empty — Shift+RMB on a Logic Bus to copy its script"
 }

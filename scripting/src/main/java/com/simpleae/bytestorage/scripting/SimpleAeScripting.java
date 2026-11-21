@@ -68,6 +68,9 @@ public class SimpleAeScripting {
             BLOCK_ENTITIES.register("logic_terminal",
                     () -> BlockEntityType.Builder.of(LogicTerminalBlockEntity::new, LOGIC_TERMINAL_BLOCK.get()).build(null));
 
+    public static final RegistryObject<Item> SCRIPT_DISK = ITEMS.register("script_disk",
+            () -> new com.simpleae.bytestorage.scripting.item.ScriptDiskItem(new Item.Properties()));
+
     public static final RegistryObject<CreativeModeTab> TAB = TABS.register("simple_bytestorage_scripting_tab",
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.simple_bytestorage_scripting"))
@@ -75,6 +78,7 @@ public class SimpleAeScripting {
                     .displayItems((parameters, output) -> {
                         output.accept(LOGIC_BUS_ITEM.get());
                         output.accept(LOGIC_TERMINAL_ITEM.get());
+                        output.accept(SCRIPT_DISK.get());
                     })
                     .build());
 
