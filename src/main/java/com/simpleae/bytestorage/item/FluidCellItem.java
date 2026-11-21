@@ -59,7 +59,7 @@ public class FluidCellItem extends Item {
         return list;
     }
 
-    private static void saveFluids(ItemStack cell, List<FluidStack> fluids) {
+    public static void saveFluids(ItemStack cell, List<FluidStack> fluids) {
         ListTag lt = new ListTag();
         for (FluidStack fs : fluids) {
             if (!fs.isEmpty()) {

@@ -31,7 +31,8 @@ public class CellWorkbenchBlockEntity extends BlockEntity implements MenuProvide
     private final ItemStackHandler cellSlot = new ItemStackHandler(1) {
         @Override
         public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-            return stack.getItem() instanceof IByteStorageCell;
+            return stack.getItem() instanceof IByteStorageCell
+                    || stack.getItem() instanceof com.simpleae.bytestorage.item.FluidCellItem;
         }
 
         @Override
@@ -42,6 +43,24 @@ public class CellWorkbenchBlockEntity extends BlockEntity implements MenuProvide
         @Override
         protected void onContentsChanged(int slot) {
             loadFromCell();
+            setChanged();
+        }
+    };
+
+    private final ItemStackHandler targetCellSlot = new ItemStackHandler(1) {
+        @Override
+        public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+            return stack.getItem() instanceof IByteStorageCell
+                    || stack.getItem() instanceof com.simpleae.bytestorage.item.FluidCellItem;
+        }
+
+        @Override
+        public int getSlotLimit(int slot) {
+            return 1;
+        }
+
+        @Override
+        protected void onContentsChanged(int slot) {
             setChanged();
         }
     };
@@ -62,8 +81,75 @@ public class CellWorkbenchBlockEntity extends BlockEntity implements MenuProvide
         return cellSlot;
     }
 
+    public ItemStackHandler getTargetCellInventory() {
+        return targetCellSlot;
+    }
+
     public ItemStackHandler getFilterInventory() {
         return filter;
+    }
+
+    /** Переносит содержимое из исходной ячейки (слот 0) в целевую ячейку (слот 1) с учётом фильтров и ёмкости. */
+    public boolean migrateCells() {
+        ItemStack src = cellSlot.getStackInSlot(0);
+        ItemStack dst = targetCellSlot.getStackInSlot(0);
+        if (src.isEmpty() || dst.isEmpty()) {
+            return false;
+        }
+        boolean movedAny = false;
+        if (src.getItem() instanceof IByteStorageCell srcCell && dst.getItem() instanceof IByteStorageCell dstCell) {
+            com.simpleae.bytestorage.api.storage.ICellInventory srcInv = srcCell.getCellInventory(src);
+            com.simpleae.bytestorage.api.storage.ICellInventory dstInv = dstCell.getCellInventory(dst);
+            if (srcInv == null || dstInv == null) {
+                return false;
+            }
+            java.util.List<ItemStack> snapshot = new java.util.ArrayList<>(srcInv.getStoredItems());
+            for (ItemStack stack : snapshot) {
+                if (stack.isEmpty()) continue;
+                ItemStack simRem = dstInv.insertItem(stack.copy(), true);
+                int fits = stack.getCount() - simRem.getCount();
+                if (fits <= 0) continue;
+                ItemStack extracted = srcInv.extractItem(stack, fits, false);
+                if (!extracted.isEmpty()) {
+                    ItemStack rem = dstInv.insertItem(extracted, false);
+                    if (!rem.isEmpty()) {
+                        srcInv.insertItem(rem, false);
+                    }
+                    movedAny = true;
+                }
+            }
+            if (movedAny) {
+                srcInv.flush();
+                dstInv.flush();
+                setChanged();
+            }
+            return movedAny;
+        }
+        if (src.getItem() instanceof com.simpleae.bytestorage.item.FluidCellItem
+                && dst.getItem() instanceof com.simpleae.bytestorage.item.FluidCellItem dstFluid) {
+            java.util.List<net.minecraftforge.fluids.FluidStack> fluids =
+                    com.simpleae.bytestorage.item.FluidCellItem.getStoredFluids(src);
+            java.util.List<net.minecraftforge.fluids.FluidStack> remaining = new java.util.ArrayList<>();
+            for (net.minecraftforge.fluids.FluidStack fs : fluids) {
+                if (fs.isEmpty()) continue;
+                int inserted = dstFluid.insertFluid(dst, fs, false);
+                if (inserted > 0) {
+                    movedAny = true;
+                }
+                int left = fs.getAmount() - inserted;
+                if (left > 0) {
+                    net.minecraftforge.fluids.FluidStack copy = fs.copy();
+                    copy.setAmount(left);
+                    remaining.add(copy);
+                }
+            }
+            if (movedAny) {
+                com.simpleae.bytestorage.item.FluidCellItem.saveFluids(src, remaining);
+                setChanged();
+            }
+            return movedAny;
+        }
+        return false;
     }
 
     public boolean isBlacklistMode() {
@@ -152,6 +238,7 @@ public class CellWorkbenchBlockEntity extends BlockEntity implements MenuProvide
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.put("Cell", cellSlot.serializeNBT());
+        tag.put("TargetCell", targetCellSlot.serializeNBT());
         tag.put("Filter", filter.serializeNBT());
         tag.putBoolean("Blacklist", blacklistMode);
     }
@@ -161,6 +248,9 @@ public class CellWorkbenchBlockEntity extends BlockEntity implements MenuProvide
         super.load(tag);
         if (tag.contains("Cell")) {
             cellSlot.deserializeNBT(tag.getCompound("Cell"));
+        }
+        if (tag.contains("TargetCell")) {
+            targetCellSlot.deserializeNBT(tag.getCompound("TargetCell"));
         }
         if (tag.contains("Filter")) {
             filter.deserializeNBT(tag.getCompound("Filter"));

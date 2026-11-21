@@ -25,6 +25,7 @@ public final class LogicRuntime {
     private Function onLowStock;
     private Function onAlert;
     private Function onButton;
+    private Function onMessage;
     /** Номер последнего обработанного события журнала; -1 — ещё не определён (сеть не была доступна). */
     private long eventCursor = -1;
     private static final int MAX_EVENTS_PER_RUN = 10;
@@ -49,6 +50,7 @@ public final class LogicRuntime {
         onLowStock = null;
         onAlert = null;
         onButton = null;
+        onMessage = null;
         eventCursor = -1;
         Context cx = SandboxFactory.INSTANCE.enterContext();
         try {
@@ -66,9 +68,10 @@ public final class LogicRuntime {
             onLowStock = function("onLowStock");
             onAlert = function("onAlert");
             onButton = function("onButton");
+            onMessage = function("onMessage");
             api.finishRun();
             if (!compiled()) {
-                return "script must define function tick() or a handler (onCraft, onLowStock, onAlert, onButton)";
+                return "script must define function tick() or a handler (onCraft, onLowStock, onAlert, onButton, onMessage)";
             }
             return null;
         } catch (RhinoException e) {
@@ -89,7 +92,7 @@ public final class LogicRuntime {
     }
 
     private boolean compiled() {
-        return tickFn != null || onCraft != null || onLowStock != null || onAlert != null || onButton != null;
+        return tickFn != null || onCraft != null || onLowStock != null || onAlert != null || onButton != null || onMessage != null;
     }
 
     /** Передаёт скрипту новые события журнала (до {@link #MAX_EVENTS_PER_RUN} за запуск, остальные отбрасываются). */
@@ -130,6 +133,17 @@ public final class LogicRuntime {
         }
     }
 
+    /** Передаёт скрипту входящие сообщения от других шин (onMessage(fromId, text)). */
+    private void dispatchMessages(Context cx) {
+        java.util.List<BusContext.BusMessage> msgs = bus.takeMessages();
+        if (onMessage == null) {
+            return;
+        }
+        for (BusContext.BusMessage m : msgs) {
+            onMessage.call(cx, scope, scope, new Object[]{m.from(), m.text()});
+        }
+    }
+
     /** Один запуск: события, затем tick(). Повертає текст помилки або null. */
     public String tick() {
         if (!compiled()) {
@@ -141,6 +155,7 @@ public final class LogicRuntime {
             cx.putThreadLocal(SandboxFactory.BUDGET_KEY, budget);
             api.beginRun(budget);
             dispatchButtons(cx);
+            dispatchMessages(cx);
             dispatchEvents(cx);
             if (tickFn != null) {
                 tickFn.call(cx, scope, scope, new Object[0]);

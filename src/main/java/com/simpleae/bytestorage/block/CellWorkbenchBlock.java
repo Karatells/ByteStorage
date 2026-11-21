@@ -55,6 +55,10 @@ public class CellWorkbenchBlock extends BaseEntityBlock {
                 if (!cell.isEmpty()) {
                     Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, cell);
                 }
+                ItemStack target = wb.getTargetCellInventory().getStackInSlot(0);
+                if (!target.isEmpty()) {
+                    Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, target);
+                }
             }
         }
         super.onRemove(state, level, pos, newState, isMoving);

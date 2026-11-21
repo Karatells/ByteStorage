@@ -40,12 +40,14 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
             "");
 
     private static final int MAX_LOG = 16;
+    private static final int MAX_INBOX = 32;
 
     private IGrid grid;
     private String script = DEFAULT_SCRIPT;
     private boolean enabled = false;
     private final java.util.Map<String, String> memoryStore = new java.util.LinkedHashMap<>();
     private final int[] redstoneOut = new int[6];
+    private final Deque<BusMessage> inbox = new ArrayDeque<>();
     private int interval = 20;
     private String identifier = "";
     private String status = "";
@@ -230,6 +232,7 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
         this.enabled = value;
         if (!value) {
             buttons.clear();
+            inbox.clear();
             clearRedstone();
             if (status.isEmpty()) {
                 status = "stopped";
@@ -338,6 +341,27 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
 
     public int getOutputSignal(net.minecraft.core.Direction dir) {
         return redstoneOut[dir.ordinal()];
+    }
+
+    @Override
+    public void pushMessage(String from, String text) {
+        if (!enabled) return;
+        String cleanFrom = from == null ? "" : from;
+        String cleanText = text == null ? "" : (text.length() > 256 ? text.substring(0, 256) : text);
+        if (inbox.size() >= MAX_INBOX) {
+            inbox.removeFirst();
+        }
+        inbox.addLast(new BusMessage(cleanFrom, cleanText));
+    }
+
+    @Override
+    public List<BusMessage> takeMessages() {
+        if (inbox.isEmpty()) {
+            return List.of();
+        }
+        List<BusMessage> out = new ArrayList<>(inbox);
+        inbox.clear();
+        return out;
     }
 
     @Override

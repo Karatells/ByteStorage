@@ -14,7 +14,7 @@ import java.util.TreeSet;
 final class ApiCatalog {
 
     static final Set<String> GLOBALS = Set.of("net", "stock", "recipes", "journal", "store", "redstone", "display",
-            "side", "buses", "log", "time", "alert", "busId", "ui");
+            "bus", "side", "buses", "log", "time", "alert", "busId", "ui");
 
     private static final List<String> DIRECTIONS = List.of("down", "up", "north", "south", "west", "east");
     private static final List<String> STOCK_MODES = List.of("always", "night", "day", "energy");
@@ -31,6 +31,8 @@ final class ApiCatalog {
         global("store", "persistent NBT store", false, "Key-value store persisted in the Logic Bus NBT.");
         global("redstone", "redstone I/O (0..15)", false, "Read or emit analog redstone signals on bus sides.");
         global("display", "Network Display lines", false, "Write or clear text lines on connected Network Displays.");
+        global("bus", "inter-bus messaging", false, "Send messages to other Logic Buses on the same network.");
+        global("onMessage", "handler", false, "Optional. Called as onMessage(fromId, text) when another bus sends a message.");
         global("side", "side(name, id)", true, "Container next to this bus: \"up\", \"north\"... With an id it finds the first matching slot.");
         global("buses", "buses()", true, "List of Logic Buses on this network.");
         global("log", "log(text)", true, "Write a line to this bus's log (shown in the Logic Terminal).");
@@ -93,6 +95,8 @@ final class ApiCatalog {
 
         member("display", "clear()", "Clear all lines on connected Network Displays.");
         member("display", "set(line, text)", "Set a line (0..7) on connected Network Displays.");
+
+        member("bus", "send(targetId, text)", "Send a text message to all Logic Buses with targetId.");
 
         member("ep", "count(id)", "Items of this kind in the container.");
         member("ep", "list()", "Container contents as {slot, id, count}.");

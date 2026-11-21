@@ -43,6 +43,7 @@ public class LogicTerminalScreen extends Screen {
     private int listScroll = 0;
     private int tickCounter = 0;
     private boolean autoSelected = false;
+    private int templateIdx = 0;
     private boolean panelTab = false;
     private int panelScroll = 0;
     private int panelContentHeight = 0;
@@ -104,6 +105,12 @@ public class LogicTerminalScreen extends Screen {
         buttons.add(new UiButton(left + 338, by, 16, 16, () -> Component.literal("+"), UiButton.Icon.NONE,
                 () -> send(ScriptActionPacket.INTERVAL, currentInterval() + 10, ""))
                 .enabledWhen(this::canAct));
+        buttons.add(new UiButton(left + AREA_X + 146, top + 20, 96, 13,
+                () -> Component.literal("Template (" + (templateIdx + 1) + "/" + ScriptTemplates.ALL.size() + ")"),
+                UiButton.Icon.NONE,
+                this::applyNextTemplate)
+                .enabledWhen(this::canAct)
+                .tooltip(Component.literal("Insert ready-to-use JS script template into editor")));
 
         // Перший запит списку шин (при перебудові вікна стан і текст зберігаються)
         if (state == null) {
@@ -339,6 +346,13 @@ public class LogicTerminalScreen extends Screen {
             }
         }
         return true;
+    }
+
+    private void applyNextTemplate() {
+        ScriptTemplates.Template tpl = ScriptTemplates.ALL.get(templateIdx);
+        templateIdx = (templateIdx + 1) % ScriptTemplates.ALL.size();
+        setPanelTab(false);
+        this.editor.setValue(tpl.code());
     }
 
     private void openFullscreen() {

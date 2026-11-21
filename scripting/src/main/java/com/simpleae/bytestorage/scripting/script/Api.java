@@ -282,6 +282,26 @@ final class Api {
             }
             return Undefined.instance;
         });
+
+        Scriptable busApi = cx.newObject(scope);
+        ScriptableObject.putProperty(scope, "bus", busApi);
+        def(busApi, "send", (c, s, a) -> {
+            budget.spendCall();
+            String targetId = str(a, 0);
+            String msg = str(a, 1);
+            if (targetId == null || targetId.isEmpty() || msg == null) {
+                return 0;
+            }
+            String from = bus.identifier();
+            int sent = 0;
+            for (BusContext other : bus.busesWithId(targetId)) {
+                if (other != bus) {
+                    other.pushMessage(from, msg);
+                    sent++;
+                }
+            }
+            return sent;
+        });
     }
 
     // --- Керування мережею: журнал, черга, запас, рецепти, попередження ---

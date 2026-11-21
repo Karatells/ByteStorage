@@ -410,5 +410,6 @@
   "item.simple_bytestorage.logic_wafer": "Logic Wafer",
   "item.simple_bytestorage.quantum_quartz": "Quantum Quartz",
   "item.simple_bytestorage.cyan_phosphor": "Cyan Phosphor",
-  "biome.simple_bytestorage.silicon_rift": "Silicon Rift"
+  "biome.simple_bytestorage.silicon_rift": "Silicon Rift",
+  "gui.simple_bytestorage.workbench.migrate.tip": "Migrate stored items/fluids from left cell into right cell"
 }

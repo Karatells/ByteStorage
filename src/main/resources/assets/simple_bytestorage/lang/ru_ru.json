@@ -410,5 +410,6 @@
   "item.simple_bytestorage.logic_wafer": "Логическая пластина",
   "item.simple_bytestorage.quantum_quartz": "Квантовый кристалл",
   "item.simple_bytestorage.cyan_phosphor": "Циановый люминофор",
-  "biome.simple_bytestorage.silicon_rift": "Кремниевый разлом"
+  "biome.simple_bytestorage.silicon_rift": "Кремниевый разлом",
+  "gui.simple_bytestorage.workbench.migrate.tip": "Перенести предметы/жидкости из левой ячейки в правую"
 }

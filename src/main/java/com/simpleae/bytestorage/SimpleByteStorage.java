@@ -708,6 +708,9 @@ public class SimpleByteStorage {
             MenuScreens.register(NETWORK_DISPLAY_MENU.get(), com.simpleae.bytestorage.client.gui.NetworkDisplayScreen::new);
             MenuScreens.register(WIRELESS_SETTINGS_MENU.get(), com.simpleae.bytestorage.client.gui.WirelessSettingsScreen::new);
             MenuScreens.register(CONTROLLER_MENU.get(), com.simpleae.bytestorage.client.gui.ControllerScreen::new);
+            net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(
+                    NETWORK_DISPLAY_BLOCK_ENTITY.get(),
+                    com.simpleae.bytestorage.client.render.NetworkDisplayRenderer::new);
         });
     }
 

@@ -34,6 +34,17 @@ public interface BusContext {
     default void markStoreDirty() {
     }
 
+    /** Повідомлення від іншої Логічної шини через {@code bus.send(targetId, text)}. */
+    record BusMessage(String from, String text) {
+    }
+
+    default void pushMessage(String from, String text) {
+    }
+
+    default java.util.List<BusMessage> takeMessages() {
+        return java.util.List.of();
+    }
+
     default int getRedstone(net.minecraft.core.Direction dir) {
         return 0;
     }

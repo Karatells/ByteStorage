@@ -56,4 +56,18 @@ class SandboxTest {
         assertThrows(RhinoException.class,
                 () -> eval("Packages.java.lang.Runtime.getRuntime();", budget));
     }
+
+    @Test
+    void allScriptTemplatesCompileCleanly() {
+        for (var tpl : com.simpleae.bytestorage.scripting.client.ScriptTemplates.ALL) {
+            Context cx = SandboxFactory.INSTANCE.enterContext();
+            try {
+                cx.putThreadLocal(SandboxFactory.BUDGET_KEY, new Budget(50_000, 2_000, 256, 200));
+                assertNotNull(cx.compileString(tpl.code(), tpl.name(), 1, null), tpl.name());
+            } finally {
+                cx.removeThreadLocal(SandboxFactory.BUDGET_KEY);
+                Context.exit();
+            }
+        }
+    }
 }

@@ -113,13 +113,31 @@ public class TerminalExtras {
                     yield id != null && id.getNamespace().contains(t.text());
                 }
                 case TAG -> stack.getTags().anyMatch(k -> k.location().toString().contains(t.text()));
+                case TOOLTIP -> {
+                    net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+                    java.util.List<Component> lines = stack.getTooltipLines(mc.player, net.minecraft.world.item.TooltipFlag.Default.NORMAL);
+                    boolean hit = false;
+                    for (Component line : lines) {
+                        if (line.getString().toLowerCase(Locale.ROOT).contains(t.text())) {
+                            hit = true;
+                            break;
+                        }
+                    }
+                    yield hit;
+                }
                 case COUNT -> SearchSyntax.countMatches(t, r.count());
                 case FLAG -> switch (t.text()) {
                     case SearchSyntax.FLAG_CRAFTABLE -> isCraftable(stack);
                     case SearchSyntax.FLAG_STOCK -> inStock.contains(CraftingService.key(stack));
                     default -> isFavorite(stack);
                 };
-                case TEXT -> r.name().toLowerCase().contains(t.text());
+                case TEXT -> {
+                    if (r.name().toLowerCase(Locale.ROOT).contains(t.text())) {
+                        yield true;
+                    }
+                    net.minecraft.resources.ResourceLocation id = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(stack.getItem());
+                    yield id != null && id.getPath().contains(t.text());
+                }
                 default -> false;
             };
             if (!ok) {
