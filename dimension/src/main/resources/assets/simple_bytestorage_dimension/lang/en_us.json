@@ -94,5 +94,15 @@
   "block.simple_bytestorage_dimension.glow_grass": "Luminous Data Grass",
   "block.simple_bytestorage_dimension.digital_flower": "Digital Blossom",
   "block.simple_bytestorage_dimension.crystal_bush": "Crystal Cluster Bush",
-  "block.simple_bytestorage_dimension.plasma_stalk": "Plasma Stalk"
+  "block.simple_bytestorage_dimension.plasma_stalk": "Plasma Stalk",
+  "entity.simple_bytestorage_dimension.byte_sentinel": "Byte Sentinel",
+  "entity.simple_bytestorage_dimension.glitch_stalker": "Glitch Stalker",
+  "item.simple_bytestorage_dimension.byte_sentinel_spawn_egg": "Byte Sentinel Spawn Egg",
+  "item.simple_bytestorage_dimension.glitch_stalker_spawn_egg": "Glitch Stalker Spawn Egg",
+  "item.simple_bytestorage_dimension.phase_stabilizer": "Phase Stabilizer",
+  "tooltip.simple_bytestorage_dimension.phase_stabilizer": "Keep in your inventory to gain immunity to Desync in Corrupted Badlands and frost in Cryo-Cache Wastes.",
+  "advancement.simple_bytestorage_dimension.craft_phase_stabilizer.title": "Stable Ping",
+  "advancement.simple_bytestorage_dimension.craft_phase_stabilizer.desc": "Craft a Phase Stabilizer to block Desync and frost in the Silicon Plane.",
+  "advancement.simple_bytestorage_dimension.defeat_glitch_stalker.title": "Debugger",
+  "advancement.simple_bytestorage_dimension.defeat_glitch_stalker.desc": "Defeat a Glitch Stalker in the Silicon Plane."
 }

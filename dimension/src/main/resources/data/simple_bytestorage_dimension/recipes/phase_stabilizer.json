@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CFC",
+    "EPE",
+    "CFC"
+  ],
+  "key": {
+    "C": {
+      "item": "simple_bytestorage_dimension:cryo_silicate"
+    },
+    "F": {
+      "item": "simple_bytestorage_dimension:fluxite_dust"
+    },
+    "E": {
+      "item": "simple_bytestorage_dimension:entropy_shard"
+    },
+    "P": {
+      "item": "simple_bytestorage_dimension:busium_processor"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:phase_stabilizer",
+    "count": 1
+  }
+}

@@ -6,11 +6,23 @@ import com.simpleae.bytestorage.dimension.block.RiftGateCoreBlock;
 import com.simpleae.bytestorage.dimension.block.RiftPortalBlock;
 import com.simpleae.bytestorage.dimension.block.entity.RiftGateCoreBlockEntity;
 import com.simpleae.bytestorage.dimension.client.SiliconPlaneSkyEffects;
+import com.simpleae.bytestorage.dimension.client.renderer.ByteSentinelRenderer;
+import com.simpleae.bytestorage.dimension.client.renderer.GlitchStalkerRenderer;
+import com.simpleae.bytestorage.dimension.entity.ByteSentinelEntity;
+import com.simpleae.bytestorage.dimension.entity.GlitchStalkerEntity;
 import com.simpleae.bytestorage.dimension.fluid.CoolantFluidType;
+import com.simpleae.bytestorage.dimension.item.PhaseStabilizerItem;
 import com.simpleae.bytestorage.dimension.item.RiftCompassItem;
 import com.simpleae.bytestorage.dimension.item.RiftResonatorItem;
+import com.simpleae.bytestorage.dimension.world.SiliconEnvironmentHandler;
 import com.simpleae.bytestorage.dimension.world.SiliconPlaneDimension;
 import com.simpleae.bytestorage.dimension.world.feature.CyberStructureFeature;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.common.ForgeSpawnEggItem;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import com.simpleae.bytestorage.item.ByteStorageCellItem;
 import com.simpleae.bytestorage.item.EnergyCellItem;
 import com.simpleae.bytestorage.item.FluidCellItem;
@@ -78,9 +90,19 @@ public class SimpleAeDimension {
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MOD_ID);
     public static final DeferredRegister<Feature<?>> FEATURES =
             DeferredRegister.create(ForgeRegistries.FEATURES, MOD_ID);
+    public static final DeferredRegister<EntityType<?>> ENTITIES =
+            DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, MOD_ID);
 
     public static final RegistryObject<Feature<CyberStructureFeature.Config>> CYBER_STRUCTURE_FEATURE =
             FEATURES.register("cyber_structure", CyberStructureFeature::new);
+
+    public static final RegistryObject<EntityType<ByteSentinelEntity>> BYTE_SENTINEL =
+            ENTITIES.register("byte_sentinel", () -> EntityType.Builder.of(ByteSentinelEntity::new, MobCategory.MONSTER)
+                    .sized(0.85F, 1.3F).build("byte_sentinel"));
+
+    public static final RegistryObject<EntityType<GlitchStalkerEntity>> GLITCH_STALKER =
+            ENTITIES.register("glitch_stalker", () -> EntityType.Builder.of(GlitchStalkerEntity::new, MobCategory.MONSTER)
+                    .sized(0.65F, 2.2F).build("glitch_stalker"));
 
     // --- Жидкий хладагент (Liquid Coolant) ---
     public static final RegistryObject<FluidType> COOLANT_FLUID_TYPE = FLUID_TYPES.register("liquid_coolant",
@@ -310,6 +332,12 @@ public class SimpleAeDimension {
             () -> new RiftResonatorItem(new Item.Properties()));
     public static final RegistryObject<Item> RIFT_COMPASS = ITEMS.register("rift_compass",
             () -> new RiftCompassItem(new Item.Properties()));
+    public static final RegistryObject<Item> PHASE_STABILIZER = ITEMS.register("phase_stabilizer",
+            () -> new PhaseStabilizerItem(new Item.Properties()));
+    public static final RegistryObject<Item> BYTE_SENTINEL_SPAWN_EGG = ITEMS.register("byte_sentinel_spawn_egg",
+            () -> new ForgeSpawnEggItem(BYTE_SENTINEL, 0x1A2638, 0x2AE6F8, new Item.Properties()));
+    public static final RegistryObject<Item> GLITCH_STALKER_SPAWN_EGG = ITEMS.register("glitch_stalker_spawn_egg",
+            () -> new ForgeSpawnEggItem(GLITCH_STALKER, 0x241038, 0xC844FF, new Item.Properties()));
 
     // --- Высокоуровневые ячейки хранения (Тиры 2–4) ---
     public static final RegistryObject<Item> CELL_256K = ITEMS.register("cell_256k",
@@ -333,6 +361,9 @@ public class SimpleAeDimension {
                         output.accept(SILICON_BASALT_ITEM.get());
                         output.accept(RIFT_RESONATOR.get());
                         output.accept(RIFT_COMPASS.get());
+                        output.accept(PHASE_STABILIZER.get());
+                        output.accept(BYTE_SENTINEL_SPAWN_EGG.get());
+                        output.accept(GLITCH_STALKER_SPAWN_EGG.get());
                         output.accept(SILICON_SLATE_ITEM.get());
                         output.accept(CRYO_BASALT_ITEM.get());
                         output.accept(CORRUPTED_STONE_ITEM.get());
@@ -405,12 +436,32 @@ public class SimpleAeDimension {
         BLOCK_ENTITIES.register(modEventBus);
         TABS.register(modEventBus);
         FEATURES.register(modEventBus);
+        ENTITIES.register(modEventBus);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, DimensionConfig.SPEC);
+        modEventBus.addListener(this::registerEntityAttributes);
+        MinecraftForge.EVENT_BUS.register(new SiliconEnvironmentHandler());
 
         if (FMLEnvironment.dist == Dist.CLIENT) {
             modEventBus.addListener(this::clientSetup);
             modEventBus.addListener(this::registerDimensionEffects);
+            modEventBus.addListener(this::registerLayerDefinitions);
+            modEventBus.addListener(this::registerEntityRenderers);
         }
+    }
+
+    private void registerEntityAttributes(final EntityAttributeCreationEvent event) {
+        event.put(BYTE_SENTINEL.get(), ByteSentinelEntity.createAttributes().build());
+        event.put(GLITCH_STALKER.get(), GlitchStalkerEntity.createAttributes().build());
+    }
+
+    private void registerLayerDefinitions(final EntityRenderersEvent.RegisterLayerDefinitions event) {
+        event.registerLayerDefinition(ByteSentinelRenderer.LAYER, ByteSentinelRenderer.SentinelModel::createBodyLayer);
+        event.registerLayerDefinition(GlitchStalkerRenderer.LAYER, GlitchStalkerRenderer.StalkerModel::createBodyLayer);
+    }
+
+    private void registerEntityRenderers(final EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(BYTE_SENTINEL.get(), ByteSentinelRenderer::new);
+        event.registerEntityRenderer(GLITCH_STALKER.get(), GlitchStalkerRenderer::new);
     }
 
     private void clientSetup(final FMLClientSetupEvent event) {

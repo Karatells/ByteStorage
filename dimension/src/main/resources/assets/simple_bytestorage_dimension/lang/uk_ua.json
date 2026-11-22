@@ -94,5 +94,15 @@
   "block.simple_bytestorage_dimension.glow_grass": "Світлова трава",
   "block.simple_bytestorage_dimension.digital_flower": "Цифрова квітка",
   "block.simple_bytestorage_dimension.crystal_bush": "Кристальний кущ",
-  "block.simple_bytestorage_dimension.plasma_stalk": "Плазмове стебло"
+  "block.simple_bytestorage_dimension.plasma_stalk": "Плазмове стебло",
+  "entity.simple_bytestorage_dimension.byte_sentinel": "Байт-Вартовий",
+  "entity.simple_bytestorage_dimension.glitch_stalker": "Глітч-Сталкер",
+  "item.simple_bytestorage_dimension.byte_sentinel_spawn_egg": "Яйце виклику Байт-Вартового",
+  "item.simple_bytestorage_dimension.glitch_stalker_spawn_egg": "Яйце виклику Глітч-Сталкера",
+  "item.simple_bytestorage_dimension.phase_stabilizer": "Стабілізатор фази",
+  "tooltip.simple_bytestorage_dimension.phase_stabilizer": "Тримайте в інвентарі для імунітету до Десинхронізації у Битих Секторах та холоду в Кріо-Кеші.",
+  "advancement.simple_bytestorage_dimension.craft_phase_stabilizer.title": "Стабільний пінг",
+  "advancement.simple_bytestorage_dimension.craft_phase_stabilizer.desc": "Скрафти Стабілізатор фази для захисту від Десинхронізації та холоду.",
+  "advancement.simple_bytestorage_dimension.defeat_glitch_stalker.title": "Налагоджувач",
+  "advancement.simple_bytestorage_dimension.defeat_glitch_stalker.desc": "Знищ Глітч-Сталкера у Кремнієвому Плані."
 }

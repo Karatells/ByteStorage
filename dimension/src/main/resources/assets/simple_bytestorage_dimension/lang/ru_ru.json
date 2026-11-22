@@ -94,5 +94,15 @@
   "block.simple_bytestorage_dimension.glow_grass": "Светящаяся трава",
   "block.simple_bytestorage_dimension.digital_flower": "Цифровой цветок",
   "block.simple_bytestorage_dimension.crystal_bush": "Кристальный куст",
-  "block.simple_bytestorage_dimension.plasma_stalk": "Плазменный стебель"
+  "block.simple_bytestorage_dimension.plasma_stalk": "Плазменный стебель",
+  "entity.simple_bytestorage_dimension.byte_sentinel": "Байт-Страж",
+  "entity.simple_bytestorage_dimension.glitch_stalker": "Глитч-Сталкер",
+  "item.simple_bytestorage_dimension.byte_sentinel_spawn_egg": "Яйцо призыва Байт-Стража",
+  "item.simple_bytestorage_dimension.glitch_stalker_spawn_egg": "Яйцо призыва Глитч-Сталкера",
+  "item.simple_bytestorage_dimension.phase_stabilizer": "Стабилизатор фазы",
+  "tooltip.simple_bytestorage_dimension.phase_stabilizer": "Держите в инвентаре для иммунитета к Десинхронизации в Битых Секторах и холоду в Крио-Кэше.",
+  "advancement.simple_bytestorage_dimension.craft_phase_stabilizer.title": "Стабильный пинг",
+  "advancement.simple_bytestorage_dimension.craft_phase_stabilizer.desc": "Скрафти Стабилизатор фазы для защиты от Десинхронизации и холода.",
+  "advancement.simple_bytestorage_dimension.defeat_glitch_stalker.title": "Отладчик",
+  "advancement.simple_bytestorage_dimension.defeat_glitch_stalker.desc": "Устрани Глитч-Сталкера в Кремниевом Плане."
 }

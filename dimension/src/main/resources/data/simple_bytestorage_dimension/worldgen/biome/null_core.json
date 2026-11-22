@@ -17,7 +17,20 @@
     }
   },
   "spawners": {
-    "monster": [],
+    "monster": [
+      {
+        "type": "simple_bytestorage_dimension:byte_sentinel",
+        "weight": 40,
+        "minCount": 1,
+        "maxCount": 2
+      },
+      {
+        "type": "simple_bytestorage_dimension:glitch_stalker",
+        "weight": 50,
+        "minCount": 1,
+        "maxCount": 2
+      }
+    ],
     "creature": [],
     "ambient": [],
     "axolotls": [],

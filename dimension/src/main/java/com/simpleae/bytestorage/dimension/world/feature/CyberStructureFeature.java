@@ -4,8 +4,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.simpleae.bytestorage.dimension.SimpleAeDimension;
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
@@ -90,10 +93,11 @@ public class CyberStructureFeature extends Feature<CyberStructureFeature.Config>
                 }
             }
         }
-        // Шпиль и маяк на вершине
+        // Шпиль и маяк на вершине + сундук с лутом у подножия башни
         level.setBlock(base.above(height + 1), proc, 2);
         level.setBlock(base.above(height + 2), glow, 2);
         level.setBlock(base.above(height + 3), glass, 2);
+        placeLootChest(level, rng, base.offset(0, 1, 2), "chests/server_tower");
         return true;
     }
 
@@ -166,10 +170,11 @@ public class CyberStructureFeature extends Feature<CyberStructureFeature.Config>
                 }
             }
         }
-        // Небольшой монолит и водопад хладагента с края острова
+        // Небольшой монолит, сундук архива и водопад хладагента с края острова
         level.setBlock(center.above(1), proc, 2);
         level.setBlock(center.above(2), glow, 2);
         level.setBlock(center.offset(r, 0, 0), coolant, 2);
+        placeLootChest(level, rng, center.offset(0, 1, 1), "chests/cloud_archive");
         return true;
     }
 
@@ -189,7 +194,14 @@ public class CyberStructureFeature extends Feature<CyberStructureFeature.Config>
             level.setBlock(base.offset(dx, h + 1, 0), (dx == 0) ? glow : cond, 2);
         }
         level.setBlock(base.offset(0, h - 1, 0), glow, 2);
+        placeLootChest(level, rng, base.offset(0, 0, 0), "chests/registry_vault");
         return true;
+    }
+
+    private static void placeLootChest(WorldGenLevel level, RandomSource rng, BlockPos pos, String tablePath) {
+        level.setBlock(pos, Blocks.CHEST.defaultBlockState(), 2);
+        RandomizableContainerBlockEntity.setLootTable(
+                level, rng, pos, new ResourceLocation(SimpleAeDimension.MOD_ID, tablePath));
     }
 
     private boolean buildGlitchMonolith(WorldGenLevel level, BlockPos base, RandomSource rng) {
