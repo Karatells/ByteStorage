@@ -1,0 +1,23 @@
+{
+  "parent": "simple_bytestorage_dimension:root",
+  "display": {
+    "icon": {
+      "item": "simple_bytestorage_dimension:rift_resonator"
+    },
+    "title": {
+      "translate": "advancement.simple_bytestorage_dimension.open_rift_gate.title"
+    },
+    "description": {
+      "translate": "advancement.simple_bytestorage_dimension.open_rift_gate.desc"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "opened": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

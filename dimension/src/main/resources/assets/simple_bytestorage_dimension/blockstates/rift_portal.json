@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "simple_bytestorage_dimension:block/rift_portal_ns"
+    },
+    "axis=z": {
+      "model": "simple_bytestorage_dimension:block/rift_portal_ew"
+    }
+  }
+}

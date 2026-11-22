@@ -1,0 +1,26 @@
+{
+  "parent": "simple_bytestorage_dimension:open_rift_gate",
+  "display": {
+    "icon": {
+      "item": "simple_bytestorage_dimension:silicon_slate"
+    },
+    "title": {
+      "translate": "advancement.simple_bytestorage_dimension.enter_silicon_plane.title"
+    },
+    "description": {
+      "translate": "advancement.simple_bytestorage_dimension.enter_silicon_plane.desc"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "entered": {
+      "trigger": "minecraft:changed_dimension",
+      "conditions": {
+        "to": "simple_bytestorage_dimension:silicon_plane"
+      }
+    }
+  }
+}

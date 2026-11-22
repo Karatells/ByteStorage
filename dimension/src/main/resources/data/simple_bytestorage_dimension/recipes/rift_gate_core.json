@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BWB",
+    "ECE",
+    "BWB"
+  ],
+  "key": {
+    "B": {
+      "item": "simple_bytestorage_dimension:silicon_basalt"
+    },
+    "W": {
+      "item": "simple_bytestorage:logic_wafer"
+    },
+    "E": {
+      "item": "simple_bytestorage:bytite_ingot"
+    },
+    "C": {
+      "item": "simple_bytestorage:quantum_quartz"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:rift_gate_core",
+    "count": 1
+  }
+}

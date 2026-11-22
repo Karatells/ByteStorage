@@ -1,0 +1,48 @@
+{
+  "type": "simple_bytestorage_dimension:silicon_plane",
+  "generator": {
+    "type": "minecraft:noise",
+    "settings": "simple_bytestorage_dimension:silicon_plane",
+    "biome_source": {
+      "type": "minecraft:multi_noise",
+      "biomes": [
+        {
+          "biome": "simple_bytestorage_dimension:silicon_terraces",
+          "parameters": {
+            "temperature": 0.0,
+            "humidity": 0.0,
+            "continentalness": 0.2,
+            "erosion": 0.0,
+            "weirdness": 0.0,
+            "depth": 0.0,
+            "offset": 0.0
+          }
+        },
+        {
+          "biome": "simple_bytestorage_dimension:optic_spirewood",
+          "parameters": {
+            "temperature": -0.45,
+            "humidity": 0.45,
+            "continentalness": 0.35,
+            "erosion": 0.15,
+            "weirdness": 0.0,
+            "depth": 0.0,
+            "offset": 0.0
+          }
+        },
+        {
+          "biome": "simple_bytestorage_dimension:bus_canyons",
+          "parameters": {
+            "temperature": 0.45,
+            "humidity": -0.45,
+            "continentalness": -0.35,
+            "erosion": -0.35,
+            "weirdness": 0.0,
+            "depth": 0.0,
+            "offset": 0.0
+          }
+        }
+      ]
+    }
+  }
+}

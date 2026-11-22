@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "simple_bytestorage_dimension:silicon_basalt",
+    "simple_bytestorage_dimension:silicon_slate",
+    "simple_bytestorage_dimension:busium_ore",
+    "simple_bytestorage_dimension:optic_quartz_ore",
+    "simple_bytestorage_dimension:rift_gate_core"
+  ]
+}

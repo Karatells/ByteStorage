@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BSB",
+    "SQS",
+    "BSB"
+  ],
+  "key": {
+    "B": {
+      "item": "minecraft:basalt"
+    },
+    "S": {
+      "item": "simple_bytestorage:silicon_dust"
+    },
+    "Q": {
+      "item": "minecraft:quartz"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:silicon_basalt",
+    "count": 4
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " Q ",
+    "BWB",
+    " E "
+  ],
+  "key": {
+    "Q": {
+      "item": "simple_bytestorage:quantum_quartz"
+    },
+    "B": {
+      "item": "simple_bytestorage:bytite_ingot"
+    },
+    "W": {
+      "item": "simple_bytestorage:logic_wafer"
+    },
+    "E": {
+      "item": "minecraft:ender_pearl"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:rift_resonator",
+    "count": 1
+  }
+}

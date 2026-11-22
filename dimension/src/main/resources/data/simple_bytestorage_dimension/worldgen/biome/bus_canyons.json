@@ -1,0 +1,45 @@
+{
+  "has_precipitation": false,
+  "temperature": 0.8,
+  "downfall": 0.0,
+  "effects": {
+    "fog_color": 1117752,
+    "sky_color": 854326,
+    "water_color": 2162687,
+    "water_fog_color": 1117752,
+    "foliage_color": 2989240,
+    "grass_color": 2989240
+  },
+  "spawners": {
+    "monster": [],
+    "creature": [],
+    "ambient": [],
+    "axolotls": [],
+    "underground_water_creature": [],
+    "water_creature": [],
+    "water_ambient": [],
+    "misc": []
+  },
+  "spawn_costs": {},
+  "carvers": {
+    "air": [
+      "minecraft:canyon"
+    ]
+  },
+  "features": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      "simple_bytestorage_dimension:busium_ore_rich"
+    ],
+    [],
+    [],
+    [
+      "simple_bytestorage:quantum_cluster"
+    ]
+  ]
+}
