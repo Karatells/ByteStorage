@@ -1,0 +1,32 @@
+{
+  "parent": "simple_bytestorage_dimension:craft_cell_256k",
+  "display": {
+    "icon": {
+      "item": "simple_bytestorage_dimension:cell_1m"
+    },
+    "title": {
+      "translate": "advancement.simple_bytestorage_dimension.craft_cell_1m.title"
+    },
+    "description": {
+      "translate": "advancement.simple_bytestorage_dimension.craft_cell_1m.desc"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "has_1m": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "simple_bytestorage_dimension:cell_1m"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

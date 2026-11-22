@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Проверка целостности data-driven ресурсов измерения, рецептов, ачивок и локализаций.
+ * Проверка целостности data-driven ресурсов измерения (все 8 биомов), рецептов, ачивок и локализаций.
  */
 class DimensionResourcesTest {
 
@@ -30,7 +30,7 @@ class DimensionResourcesTest {
         assertTrue(Files.isDirectory(resRoot));
         try (Stream<Path> walk = Files.walk(resRoot)) {
             List<Path> jsonFiles = walk.filter(p -> p.toString().endsWith(".json")).toList();
-            assertTrue(jsonFiles.size() >= 30, "Expected at least 30 JSON files, got " + jsonFiles.size());
+            assertTrue(jsonFiles.size() >= 60, "Expected at least 60 JSON files, got " + jsonFiles.size());
             for (Path file : jsonFiles) {
                 String text = Files.readString(file, StandardCharsets.UTF_8);
                 JsonElement parsed = assertDoesNotThrow(() -> GSON.fromJson(text, JsonElement.class),
@@ -50,11 +50,12 @@ class DimensionResourcesTest {
         assertEquals(enKeys, ru.keySet(), "ru_ru keys must match en_us");
         assertEquals(enKeys, uk.keySet(), "uk_ua keys must match en_us");
         assertTrue(enKeys.contains("advancement.simple_bytestorage_dimension.wrong_biome_signal.title"));
-        assertTrue(enKeys.contains("item.simple_bytestorage_dimension.cell_256k"));
+        assertTrue(enKeys.contains("item.simple_bytestorage_dimension.cell_1m"));
+        assertTrue(enKeys.contains("biome.simple_bytestorage_dimension.null_core"));
     }
 
     @Test
-    void coreDimensionAndAdvancementFilesExist() {
+    void allEightBiomesAndAdvancementsExist() {
         String[] required = {
                 "data/simple_bytestorage_dimension/dimension_type/silicon_plane.json",
                 "data/simple_bytestorage_dimension/dimension/silicon_plane.json",
@@ -62,8 +63,15 @@ class DimensionResourcesTest {
                 "data/simple_bytestorage_dimension/worldgen/biome/silicon_terraces.json",
                 "data/simple_bytestorage_dimension/worldgen/biome/optic_spirewood.json",
                 "data/simple_bytestorage_dimension/worldgen/biome/bus_canyons.json",
+                "data/simple_bytestorage_dimension/worldgen/biome/cryo_cache.json",
+                "data/simple_bytestorage_dimension/worldgen/biome/capacitor_flats.json",
+                "data/simple_bytestorage_dimension/worldgen/biome/corrupted_badlands.json",
+                "data/simple_bytestorage_dimension/worldgen/biome/cloud_archive.json",
+                "data/simple_bytestorage_dimension/worldgen/biome/null_core.json",
                 "data/simple_bytestorage_dimension/advancements/wrong_biome_signal.json",
-                "data/simple_bytestorage_dimension/advancements/enter_silicon_plane.json"
+                "data/simple_bytestorage_dimension/advancements/enter_silicon_plane.json",
+                "data/simple_bytestorage_dimension/advancements/craft_cell_1m.json",
+                "data/simple_bytestorage_dimension/advancements/explore_all_biomes.json"
         };
         for (String rel : required) {
             assertNotNull(getClass().getClassLoader().getResource(rel), "Missing resource: " + rel);

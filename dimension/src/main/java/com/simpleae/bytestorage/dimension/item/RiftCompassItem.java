@@ -25,32 +25,43 @@ import java.util.List;
 /**
  * Компас Разлома:
  * - В Обычном мире ищет ближайший биом simple_bytestorage:silicon_rift (где можно открыть Врата Разлома).
- * - В Кремниевом Плане ищет ближайшие Магистральные Каньоны (bus_canyons) или Оптоволоконный Лес (Shift+ПКМ).
+ * - В Кремниевом Плане: Shift+ПКМ циклически переключает целевой биом (все 8 биомов), ПКМ ищет выбранный биом.
  */
 public class RiftCompassItem extends Item {
 
+    private static final String TAG_TARGET_IDX = "TargetBiomeIdx";
+
     public RiftCompassItem(Properties properties) {
         super(properties.stacksTo(1));
+    }
+
+    private static int getTargetIdx(ItemStack stack) {
+        int raw = stack.hasTag() ? stack.getTag().getInt(TAG_TARGET_IDX) : 1;
+        int size = SiliconPlaneDimension.ALL_BIOMES.size();
+        return ((raw % size) + size) % size;
     }
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (!level.isClientSide && level instanceof ServerLevel sl) {
-            ResourceKey<Biome> targetBiome;
-            String biomeLabelKey;
-            if (SiliconPlaneDimension.isSiliconPlane(sl)) {
-                if (player.isShiftKeyDown()) {
-                    targetBiome = SiliconPlaneDimension.BIOME_OPTIC_SPIREWOOD;
-                    biomeLabelKey = "biome.simple_bytestorage_dimension.optic_spirewood";
-                } else {
-                    targetBiome = SiliconPlaneDimension.BIOME_BUS_CANYONS;
-                    biomeLabelKey = "biome.simple_bytestorage_dimension.bus_canyons";
-                }
-            } else {
-                targetBiome = SiliconPlaneDimension.OVERWORLD_SILICON_RIFT;
-                biomeLabelKey = "biome.simple_bytestorage.silicon_rift";
+            if (SiliconPlaneDimension.isSiliconPlane(sl) && player.isShiftKeyDown()) {
+                int next = (getTargetIdx(stack) + 1) % SiliconPlaneDimension.ALL_BIOMES.size();
+                stack.getOrCreateTag().putInt(TAG_TARGET_IDX, next);
+                ResourceKey<Biome> selected = SiliconPlaneDimension.ALL_BIOMES.get(next);
+                player.displayClientMessage(Component.translatable(
+                        "msg.simple_bytestorage_dimension.compass.mode",
+                        Component.translatable(SiliconPlaneDimension.translationKey(selected))
+                ).withStyle(ChatFormatting.GOLD), true);
+                sl.playSound(null, player.blockPosition(), SoundEvents.UI_BUTTON_CLICK.value(),
+                        SoundSource.PLAYERS, 0.5F, 1.3F);
+                return InteractionResultHolder.sidedSuccess(stack, false);
             }
+
+            ResourceKey<Biome> targetBiome = SiliconPlaneDimension.isSiliconPlane(sl)
+                    ? SiliconPlaneDimension.ALL_BIOMES.get(getTargetIdx(stack))
+                    : SiliconPlaneDimension.OVERWORLD_SILICON_RIFT;
+            String biomeLabelKey = SiliconPlaneDimension.translationKey(targetBiome);
 
             Pair<BlockPos, Holder<Biome>> found = sl.findClosestBiome3d(
                     h -> h.is(targetBiome),
@@ -73,7 +84,7 @@ public class RiftCompassItem extends Item {
                         Component.translatable(biomeLabelKey)
                 ).withStyle(ChatFormatting.YELLOW), false);
             }
-            player.getCooldowns().addCooldown(this, 60);
+            player.getCooldowns().addCooldown(this, 40);
         }
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
     }
@@ -82,5 +93,10 @@ public class RiftCompassItem extends Item {
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.translatable("tooltip.simple_bytestorage_dimension.rift_compass")
                 .withStyle(ChatFormatting.GRAY));
+        ResourceKey<Biome> sel = SiliconPlaneDimension.ALL_BIOMES.get(getTargetIdx(stack));
+        tooltip.add(Component.translatable(
+                "msg.simple_bytestorage_dimension.compass.mode",
+                Component.translatable(SiliconPlaneDimension.translationKey(sel))
+        ).withStyle(ChatFormatting.AQUA));
     }
 }

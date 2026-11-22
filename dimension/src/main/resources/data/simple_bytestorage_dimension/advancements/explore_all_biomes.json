@@ -1,0 +1,148 @@
+{
+  "parent": "simple_bytestorage_dimension:enter_silicon_plane",
+  "display": {
+    "icon": {
+      "item": "simple_bytestorage_dimension:rift_compass"
+    },
+    "title": {
+      "translate": "advancement.simple_bytestorage_dimension.explore_all_biomes.title"
+    },
+    "description": {
+      "translate": "advancement.simple_bytestorage_dimension.explore_all_biomes.desc"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "silicon_terraces": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "biome": "simple_bytestorage_dimension:silicon_terraces"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "optic_spirewood": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "biome": "simple_bytestorage_dimension:optic_spirewood"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "cryo_cache": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "biome": "simple_bytestorage_dimension:cryo_cache"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "cloud_archive": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "biome": "simple_bytestorage_dimension:cloud_archive"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "bus_canyons": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "biome": "simple_bytestorage_dimension:bus_canyons"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "capacitor_flats": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "biome": "simple_bytestorage_dimension:capacitor_flats"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "corrupted_badlands": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "biome": "simple_bytestorage_dimension:corrupted_badlands"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "null_core": {
+      "trigger": "minecraft:location",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "location": {
+                "biome": "simple_bytestorage_dimension:null_core"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

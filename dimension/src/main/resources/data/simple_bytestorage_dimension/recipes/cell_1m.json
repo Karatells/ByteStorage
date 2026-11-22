@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "MQM",
+    "CKC",
+    "QQQ"
+  ],
+  "key": {
+    "M": {
+      "item": "simple_bytestorage_dimension:matrix_crystal"
+    },
+    "Q": {
+      "item": "simple_bytestorage_dimension:quantumite_ingot"
+    },
+    "C": {
+      "item": "simple_bytestorage_dimension:cell_256k"
+    },
+    "K": {
+      "item": "simple_bytestorage_dimension:quantum_core"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:cell_1m",
+    "count": 1
+  }
+}

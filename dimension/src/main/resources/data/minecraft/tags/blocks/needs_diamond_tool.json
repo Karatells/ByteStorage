@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "simple_bytestorage_dimension:registry_obsidian",
+    "simple_bytestorage_dimension:entropy_ore",
+    "simple_bytestorage_dimension:quantumite_ore",
+    "simple_bytestorage_dimension:matrix_ore"
+  ]
+}

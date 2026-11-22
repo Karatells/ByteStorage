@@ -7,25 +7,109 @@
       "type": "minecraft:multi_noise",
       "biomes": [
         {
-          "biome": "simple_bytestorage_dimension:optic_spirewood",
+          "biome": "simple_bytestorage_dimension:silicon_terraces",
           "parameters": {
-            "temperature": [-1.0, -0.12],
-            "humidity": [-1.0, 1.0],
-            "continentalness": [-1.0, 1.0],
-            "erosion": [-1.0, 1.0],
-            "weirdness": [-1.0, 1.0],
+            "temperature": [
+              -1.0,
+              -0.35
+            ],
+            "humidity": [
+              -1.0,
+              0.0
+            ],
+            "continentalness": [
+              -1.0,
+              1.0
+            ],
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ],
             "depth": 0.0,
             "offset": 0.0
           }
         },
         {
-          "biome": "simple_bytestorage_dimension:silicon_terraces",
+          "biome": "simple_bytestorage_dimension:optic_spirewood",
           "parameters": {
-            "temperature": [-0.12, 0.12],
-            "humidity": [-1.0, 1.0],
-            "continentalness": [-1.0, 1.0],
-            "erosion": [-1.0, 1.0],
-            "weirdness": [-1.0, 1.0],
+            "temperature": [
+              -1.0,
+              -0.35
+            ],
+            "humidity": [
+              0.0,
+              1.0
+            ],
+            "continentalness": [
+              -1.0,
+              1.0
+            ],
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ],
+            "depth": 0.0,
+            "offset": 0.0
+          }
+        },
+        {
+          "biome": "simple_bytestorage_dimension:cryo_cache",
+          "parameters": {
+            "temperature": [
+              -0.35,
+              0.0
+            ],
+            "humidity": [
+              -1.0,
+              0.0
+            ],
+            "continentalness": [
+              -1.0,
+              1.0
+            ],
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ],
+            "depth": 0.0,
+            "offset": 0.0
+          }
+        },
+        {
+          "biome": "simple_bytestorage_dimension:cloud_archive",
+          "parameters": {
+            "temperature": [
+              -0.35,
+              0.0
+            ],
+            "humidity": [
+              0.0,
+              1.0
+            ],
+            "continentalness": [
+              -1.0,
+              1.0
+            ],
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ],
             "depth": 0.0,
             "offset": 0.0
           }
@@ -33,11 +117,107 @@
         {
           "biome": "simple_bytestorage_dimension:bus_canyons",
           "parameters": {
-            "temperature": [0.12, 1.0],
-            "humidity": [-1.0, 1.0],
-            "continentalness": [-1.0, 1.0],
-            "erosion": [-1.0, 1.0],
-            "weirdness": [-1.0, 1.0],
+            "temperature": [
+              0.0,
+              0.35
+            ],
+            "humidity": [
+              -1.0,
+              0.0
+            ],
+            "continentalness": [
+              -1.0,
+              1.0
+            ],
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ],
+            "depth": 0.0,
+            "offset": 0.0
+          }
+        },
+        {
+          "biome": "simple_bytestorage_dimension:capacitor_flats",
+          "parameters": {
+            "temperature": [
+              0.0,
+              0.35
+            ],
+            "humidity": [
+              0.0,
+              1.0
+            ],
+            "continentalness": [
+              -1.0,
+              1.0
+            ],
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ],
+            "depth": 0.0,
+            "offset": 0.0
+          }
+        },
+        {
+          "biome": "simple_bytestorage_dimension:corrupted_badlands",
+          "parameters": {
+            "temperature": [
+              0.35,
+              1.0
+            ],
+            "humidity": [
+              -1.0,
+              0.0
+            ],
+            "continentalness": [
+              -1.0,
+              1.0
+            ],
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ],
+            "depth": 0.0,
+            "offset": 0.0
+          }
+        },
+        {
+          "biome": "simple_bytestorage_dimension:null_core",
+          "parameters": {
+            "temperature": [
+              0.35,
+              1.0
+            ],
+            "humidity": [
+              0.0,
+              1.0
+            ],
+            "continentalness": [
+              -1.0,
+              1.0
+            ],
+            "erosion": [
+              -1.0,
+              1.0
+            ],
+            "weirdness": [
+              -1.0,
+              1.0
+            ],
             "depth": 0.0,
             "offset": 0.0
           }

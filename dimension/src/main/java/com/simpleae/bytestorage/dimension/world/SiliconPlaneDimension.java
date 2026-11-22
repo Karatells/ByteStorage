@@ -9,8 +9,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
 
+import java.util.List;
+
 /**
- * Ключи измерения «Кремниевый План» (Silicon Plane) и его биомов.
+ * Ключи измерения «Кремниевый План» (Silicon Plane) и всех его 8 уникальных биомов.
  */
 public final class SiliconPlaneDimension {
 
@@ -27,13 +29,35 @@ public final class SiliconPlaneDimension {
     public static final ResourceKey<Biome> OVERWORLD_SILICON_RIFT =
             ResourceKey.create(Registries.BIOME, new ResourceLocation("simple_bytestorage", "silicon_rift"));
 
-    /** 3 стартовых биома Этапа 1 (MVP). */
-    public static final ResourceKey<Biome> BIOME_SILICON_TERRACES =
-            ResourceKey.create(Registries.BIOME, new ResourceLocation(SimpleAeDimension.MOD_ID, "silicon_terraces"));
-    public static final ResourceKey<Biome> BIOME_OPTIC_SPIREWOOD =
-            ResourceKey.create(Registries.BIOME, new ResourceLocation(SimpleAeDimension.MOD_ID, "optic_spirewood"));
-    public static final ResourceKey<Biome> BIOME_BUS_CANYONS =
-            ResourceKey.create(Registries.BIOME, new ResourceLocation(SimpleAeDimension.MOD_ID, "bus_canyons"));
+    /** 8 уникальных биомов Кремниевого Плана. */
+    public static final ResourceKey<Biome> BIOME_SILICON_TERRACES = biome("silicon_terraces");
+    public static final ResourceKey<Biome> BIOME_OPTIC_SPIREWOOD = biome("optic_spirewood");
+    public static final ResourceKey<Biome> BIOME_BUS_CANYONS = biome("bus_canyons");
+    public static final ResourceKey<Biome> BIOME_CRYO_CACHE = biome("cryo_cache");
+    public static final ResourceKey<Biome> BIOME_CAPACITOR_FLATS = biome("capacitor_flats");
+    public static final ResourceKey<Biome> BIOME_CORRUPTED_BADLANDS = biome("corrupted_badlands");
+    public static final ResourceKey<Biome> BIOME_CLOUD_ARCHIVE = biome("cloud_archive");
+    public static final ResourceKey<Biome> BIOME_NULL_CORE = biome("null_core");
+
+    public static final List<ResourceKey<Biome>> ALL_BIOMES = List.of(
+            BIOME_SILICON_TERRACES,
+            BIOME_OPTIC_SPIREWOOD,
+            BIOME_BUS_CANYONS,
+            BIOME_CRYO_CACHE,
+            BIOME_CAPACITOR_FLATS,
+            BIOME_CORRUPTED_BADLANDS,
+            BIOME_CLOUD_ARCHIVE,
+            BIOME_NULL_CORE
+    );
+
+    private static ResourceKey<Biome> biome(String path) {
+        return ResourceKey.create(Registries.BIOME, new ResourceLocation(SimpleAeDimension.MOD_ID, path));
+    }
+
+    public static String translationKey(ResourceKey<Biome> key) {
+        ResourceLocation id = key.location();
+        return "biome." + id.getNamespace() + "." + id.getPath();
+    }
 
     public static boolean isSiliconPlane(Level level) {
         return level.dimension().equals(SILICON_PLANE_LEVEL);

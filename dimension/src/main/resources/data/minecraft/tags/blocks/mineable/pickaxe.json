@@ -3,8 +3,17 @@
   "values": [
     "simple_bytestorage_dimension:silicon_basalt",
     "simple_bytestorage_dimension:silicon_slate",
+    "simple_bytestorage_dimension:cryo_basalt",
+    "simple_bytestorage_dimension:corrupted_stone",
+    "simple_bytestorage_dimension:archive_plate",
+    "simple_bytestorage_dimension:registry_obsidian",
     "simple_bytestorage_dimension:busium_ore",
     "simple_bytestorage_dimension:optic_quartz_ore",
+    "simple_bytestorage_dimension:cryo_silicate_ore",
+    "simple_bytestorage_dimension:fluxite_ore",
+    "simple_bytestorage_dimension:entropy_ore",
+    "simple_bytestorage_dimension:quantumite_ore",
+    "simple_bytestorage_dimension:matrix_ore",
     "simple_bytestorage_dimension:rift_gate_core"
   ]
 }

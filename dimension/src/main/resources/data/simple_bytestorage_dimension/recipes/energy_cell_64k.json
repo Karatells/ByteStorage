@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "FPF",
+    "ECE",
+    "FBF"
+  ],
+  "key": {
+    "F": {
+      "item": "simple_bytestorage_dimension:fluxite_dust"
+    },
+    "P": {
+      "item": "simple_bytestorage_dimension:busium_processor"
+    },
+    "E": {
+      "item": "simple_bytestorage:energy_cell_16k"
+    },
+    "C": {
+      "item": "simple_bytestorage_dimension:cryo_silicate"
+    },
+    "B": {
+      "item": "simple_bytestorage_dimension:busium_ingot"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:energy_cell_64k",
+    "count": 1
+  }
+}

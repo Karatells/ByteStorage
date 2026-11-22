@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CQC",
+    "FBF",
+    "CQC"
+  ],
+  "key": {
+    "C": {
+      "item": "simple_bytestorage_dimension:cryo_silicate"
+    },
+    "Q": {
+      "item": "simple_bytestorage_dimension:quantum_core"
+    },
+    "F": {
+      "item": "simple_bytestorage:fluid_cell_64k"
+    },
+    "B": {
+      "item": "simple_bytestorage_dimension:coolant_bucket"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:fluid_cell_256k",
+    "count": 1
+  }
+}
