@@ -1,0 +1,6 @@
+{
+  "type": "simple_bytestorage_dimension:cyber_structure",
+  "config": {
+    "kind": "registry_pylon"
+  }
+}

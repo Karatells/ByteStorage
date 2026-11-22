@@ -3,12 +3,18 @@
   "temperature": 0.2,
   "downfall": 0.2,
   "effects": {
-    "fog_color": 996166,
-    "sky_color": 727350,
-    "water_color": 3145727,
-    "water_fog_color": 996166,
-    "foliage_color": 4259839,
-    "grass_color": 2939090
+    "fog_color": 1589866,
+    "sky_color": 2776734,
+    "water_color": 3340031,
+    "water_fog_color": 1589866,
+    "foliage_color": 4389119,
+    "grass_color": 4389119,
+    "particle": {
+      "options": {
+        "type": "minecraft:glow"
+      },
+      "probability": 0.015
+    }
   },
   "spawners": {
     "monster": [],
@@ -37,8 +43,10 @@
     [],
     [],
     [
+      "simple_bytestorage:circuit_bloom",
       "simple_bytestorage_dimension:optic_spire_tree",
-      "simple_bytestorage:circuit_bloom"
+      "simple_bytestorage_dimension:patch_digital_flower",
+      "simple_bytestorage_dimension:patch_glow_grass"
     ]
   ]
 }

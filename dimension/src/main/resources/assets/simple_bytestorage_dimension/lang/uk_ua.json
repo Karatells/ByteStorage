@@ -80,5 +80,19 @@
   "advancement.simple_bytestorage_dimension.explore_all_biomes.title": "Картограф Кремнію",
   "advancement.simple_bytestorage_dimension.explore_all_biomes.desc": "Відвідай усі 8 унікальних біомів Кремнієвого Плану.",
   "guide.simple_bytestorage_dimension.endgame.title": "Вимір: 8 біомів і 1M",
-  "guide.simple_bytestorage_dimension.endgame.body": "§eУсі 8 біомів Кремнієвого Плану§r\nНатисни §bShift + ПКМ§r Компасом Розлому всередині виміру, щоб перемикати пошук між усіма 8 біомами: Кріо-Кеш, Поля Конденсаторів, Биті Сектори, Хмарний Архів та Серце Реєстру (для §c1M Байт-комірки§r)!"
+  "guide.simple_bytestorage_dimension.endgame.body": "§eУсі 8 біомів Кремнієвого Плану§r\nНатисни §bShift + ПКМ§r Компасом Розлому всередині виміру, щоб перемикати пошук між усіма 8 біомами: Кріо-Кеш, Поля Конденсаторів, Биті Сектори, Хмарний Архів та Серце Реєстру (для §c1M Байт-комірки§r)!",
+  "block.simple_bytestorage_dimension.void_log": "Пустотний кібер-стовбур",
+  "block.simple_bytestorage_dimension.void_leaves": "Пустотне кібер-листя",
+  "block.simple_bytestorage_dimension.cryo_log": "Кріо-кібер-стовбур",
+  "block.simple_bytestorage_dimension.cryo_leaves": "Кріо-кібер-листя",
+  "block.simple_bytestorage_dimension.server_rack": "Серверний блок",
+  "block.simple_bytestorage_dimension.processor_block": "Процесорний блок",
+  "block.simple_bytestorage_dimension.cyber_panel": "Техно-панель",
+  "block.simple_bytestorage_dimension.glow_cube": "Світловий енергоблок",
+  "block.simple_bytestorage_dimension.conductive_block": "Провідний блок",
+  "block.simple_bytestorage_dimension.cyber_glass": "Техно-скло",
+  "block.simple_bytestorage_dimension.glow_grass": "Світлова трава",
+  "block.simple_bytestorage_dimension.digital_flower": "Цифрова квітка",
+  "block.simple_bytestorage_dimension.crystal_bush": "Кристальний кущ",
+  "block.simple_bytestorage_dimension.plasma_stalk": "Плазмове стебло"
 }

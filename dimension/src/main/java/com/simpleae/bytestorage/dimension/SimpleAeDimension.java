@@ -1,6 +1,7 @@
 package com.simpleae.bytestorage.dimension;
 
 import com.simpleae.bytestorage.api.storage.CellTier;
+import com.simpleae.bytestorage.dimension.block.CyberPlantBlock;
 import com.simpleae.bytestorage.dimension.block.RiftGateCoreBlock;
 import com.simpleae.bytestorage.dimension.block.RiftPortalBlock;
 import com.simpleae.bytestorage.dimension.block.entity.RiftGateCoreBlockEntity;
@@ -9,6 +10,7 @@ import com.simpleae.bytestorage.dimension.fluid.CoolantFluidType;
 import com.simpleae.bytestorage.dimension.item.RiftCompassItem;
 import com.simpleae.bytestorage.dimension.item.RiftResonatorItem;
 import com.simpleae.bytestorage.dimension.world.SiliconPlaneDimension;
+import com.simpleae.bytestorage.dimension.world.feature.CyberStructureFeature;
 import com.simpleae.bytestorage.item.ByteStorageCellItem;
 import com.simpleae.bytestorage.item.EnergyCellItem;
 import com.simpleae.bytestorage.item.FluidCellItem;
@@ -25,11 +27,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DropExperienceBlock;
+import net.minecraft.world.level.block.GlassBlock;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.MapColor;
@@ -72,6 +76,11 @@ public class SimpleAeDimension {
             DeferredRegister.create(ForgeRegistries.FLUIDS, MOD_ID);
     public static final DeferredRegister<CreativeModeTab> TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MOD_ID);
+    public static final DeferredRegister<Feature<?>> FEATURES =
+            DeferredRegister.create(ForgeRegistries.FEATURES, MOD_ID);
+
+    public static final RegistryObject<Feature<CyberStructureFeature.Config>> CYBER_STRUCTURE_FEATURE =
+            FEATURES.register("cyber_structure", CyberStructureFeature::new);
 
     // --- Жидкий хладагент (Liquid Coolant) ---
     public static final RegistryObject<FluidType> COOLANT_FLUID_TYPE = FLUID_TYPES.register("liquid_coolant",
@@ -161,6 +170,91 @@ public class SimpleAeDimension {
                     .mapColor(MapColor.DIAMOND).strength(0.6F).lightLevel(s -> 10).sound(SoundType.AMETHYST)));
     public static final RegistryObject<Item> OPTIC_LEAVES_ITEM = blockItem("optic_leaves", OPTIC_LEAVES_BLOCK);
 
+    // --- Кибер-деревья (пустотное фиолетовое и светящееся крио) ---
+    public static final RegistryObject<Block> VOID_LOG_BLOCK = BLOCKS.register("void_log",
+            () -> new RotatedPillarBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_PURPLE).strength(2.6F).lightLevel(s -> 5).sound(SoundType.GLASS)));
+    public static final RegistryObject<Item> VOID_LOG_ITEM = blockItem("void_log", VOID_LOG_BLOCK);
+
+    public static final RegistryObject<Block> VOID_LEAVES_BLOCK = BLOCKS.register("void_leaves",
+            () -> new Block(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_MAGENTA).strength(0.6F).lightLevel(s -> 10).sound(SoundType.AMETHYST)));
+    public static final RegistryObject<Item> VOID_LEAVES_ITEM = blockItem("void_leaves", VOID_LEAVES_BLOCK);
+
+    public static final RegistryObject<Block> CRYO_LOG_BLOCK = BLOCKS.register("cryo_log",
+            () -> new RotatedPillarBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.ICE).strength(2.6F).lightLevel(s -> 6).sound(SoundType.GLASS)));
+    public static final RegistryObject<Item> CRYO_LOG_ITEM = blockItem("cryo_log", CRYO_LOG_BLOCK);
+
+    public static final RegistryObject<Block> CRYO_LEAVES_BLOCK = BLOCKS.register("cryo_leaves",
+            () -> new Block(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.SNOW).strength(0.6F).lightLevel(s -> 12).sound(SoundType.AMETHYST)));
+    public static final RegistryObject<Item> CRYO_LEAVES_ITEM = blockItem("cryo_leaves", CRYO_LEAVES_BLOCK);
+
+    // --- Архитектурные техно-блоки (для башен, руин, пилонов и строительства) ---
+    public static final RegistryObject<Block> SERVER_RACK_BLOCK = BLOCKS.register("server_rack",
+            () -> new Block(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL).requiresCorrectToolForDrops()
+                    .strength(3.5F, 8.0F).lightLevel(s -> 8).sound(SoundType.METAL)));
+    public static final RegistryObject<Item> SERVER_RACK_ITEM = blockItem("server_rack", SERVER_RACK_BLOCK);
+
+    public static final RegistryObject<Block> PROCESSOR_BLOCK = BLOCKS.register("processor_block",
+            () -> new Block(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL).requiresCorrectToolForDrops()
+                    .strength(3.8F, 9.0F).lightLevel(s -> 10).sound(SoundType.METAL)));
+    public static final RegistryObject<Item> PROCESSOR_BLOCK_ITEM = blockItem("processor_block", PROCESSOR_BLOCK);
+
+    public static final RegistryObject<Block> CYBER_PANEL_BLOCK = BLOCKS.register("cyber_panel",
+            () -> new Block(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL).requiresCorrectToolForDrops()
+                    .strength(3.2F, 8.0F).lightLevel(s -> 5).sound(SoundType.METAL)));
+    public static final RegistryObject<Item> CYBER_PANEL_ITEM = blockItem("cyber_panel", CYBER_PANEL_BLOCK);
+
+    public static final RegistryObject<Block> GLOW_CUBE_BLOCK = BLOCKS.register("glow_cube",
+            () -> new Block(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.DIAMOND)
+                    .strength(1.8F, 6.0F).lightLevel(s -> 15).sound(SoundType.AMETHYST)));
+    public static final RegistryObject<Item> GLOW_CUBE_ITEM = blockItem("glow_cube", GLOW_CUBE_BLOCK);
+
+    public static final RegistryObject<Block> CONDUCTIVE_BLOCK = BLOCKS.register("conductive_block",
+            () -> new Block(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_ORANGE).requiresCorrectToolForDrops()
+                    .strength(4.0F, 9.0F).lightLevel(s -> 10).sound(SoundType.METAL)));
+    public static final RegistryObject<Item> CONDUCTIVE_BLOCK_ITEM = blockItem("conductive_block", CONDUCTIVE_BLOCK);
+
+    public static final RegistryObject<Block> CYBER_GLASS_BLOCK = BLOCKS.register("cyber_glass",
+            () -> new GlassBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_CYAN).noOcclusion()
+                    .strength(1.2F).lightLevel(s -> 6).sound(SoundType.GLASS)
+                    .isValidSpawn((s, l, p, e) -> false).isRedstoneConductor((s, l, p) -> false)
+                    .isSuffocating((s, l, p) -> false).isViewBlocking((s, l, p) -> false)));
+    public static final RegistryObject<Item> CYBER_GLASS_ITEM = blockItem("cyber_glass", CYBER_GLASS_BLOCK);
+
+    // --- Светящаяся цифровая растительность ---
+    public static final RegistryObject<Block> GLOW_GRASS_BLOCK = BLOCKS.register("glow_grass",
+            () -> new CyberPlantBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_CYAN).noCollission().instabreak()
+                    .lightLevel(s -> 7).sound(SoundType.GRASS)));
+    public static final RegistryObject<Item> GLOW_GRASS_ITEM = blockItem("glow_grass", GLOW_GRASS_BLOCK);
+
+    public static final RegistryObject<Block> DIGITAL_FLOWER_BLOCK = BLOCKS.register("digital_flower",
+            () -> new CyberPlantBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_PURPLE).noCollission().instabreak()
+                    .lightLevel(s -> 9).sound(SoundType.AMETHYST)));
+    public static final RegistryObject<Item> DIGITAL_FLOWER_ITEM = blockItem("digital_flower", DIGITAL_FLOWER_BLOCK);
+
+    public static final RegistryObject<Block> CRYSTAL_BUSH_BLOCK = BLOCKS.register("crystal_bush",
+            () -> new CyberPlantBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.DIAMOND).noCollission().instabreak()
+                    .lightLevel(s -> 10).sound(SoundType.AMETHYST)));
+    public static final RegistryObject<Item> CRYSTAL_BUSH_ITEM = blockItem("crystal_bush", CRYSTAL_BUSH_BLOCK);
+
+    public static final RegistryObject<Block> PLASMA_STALK_BLOCK = BLOCKS.register("plasma_stalk",
+            () -> new CyberPlantBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_LIGHT_BLUE).noCollission().instabreak()
+                    .lightLevel(s -> 11).sound(SoundType.GLASS)));
+    public static final RegistryObject<Item> PLASMA_STALK_ITEM = blockItem("plasma_stalk", PLASMA_STALK_BLOCK);
+
     // --- 7 уникальных руд измерения ---
     public static final RegistryObject<Block> BUSIUM_ORE_BLOCK = oreBlock("busium_ore", 4.0F, 5, 2, 5);
     public static final RegistryObject<Item> BUSIUM_ORE_ITEM = blockItem("busium_ore", BUSIUM_ORE_BLOCK);
@@ -246,6 +340,20 @@ public class SimpleAeDimension {
                         output.accept(REGISTRY_OBSIDIAN_ITEM.get());
                         output.accept(OPTIC_LOG_ITEM.get());
                         output.accept(OPTIC_LEAVES_ITEM.get());
+                        output.accept(VOID_LOG_ITEM.get());
+                        output.accept(VOID_LEAVES_ITEM.get());
+                        output.accept(CRYO_LOG_ITEM.get());
+                        output.accept(CRYO_LEAVES_ITEM.get());
+                        output.accept(SERVER_RACK_ITEM.get());
+                        output.accept(PROCESSOR_BLOCK_ITEM.get());
+                        output.accept(CYBER_PANEL_ITEM.get());
+                        output.accept(GLOW_CUBE_ITEM.get());
+                        output.accept(CONDUCTIVE_BLOCK_ITEM.get());
+                        output.accept(CYBER_GLASS_ITEM.get());
+                        output.accept(GLOW_GRASS_ITEM.get());
+                        output.accept(DIGITAL_FLOWER_ITEM.get());
+                        output.accept(CRYSTAL_BUSH_ITEM.get());
+                        output.accept(PLASMA_STALK_ITEM.get());
                         output.accept(BUSIUM_ORE_ITEM.get());
                         output.accept(OPTIC_QUARTZ_ORE_ITEM.get());
                         output.accept(CRYO_SILICATE_ORE_ITEM.get());
@@ -296,6 +404,7 @@ public class SimpleAeDimension {
         ITEMS.register(modEventBus);
         BLOCK_ENTITIES.register(modEventBus);
         TABS.register(modEventBus);
+        FEATURES.register(modEventBus);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, DimensionConfig.SPEC);
 
         if (FMLEnvironment.dist == Dist.CLIENT) {

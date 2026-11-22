@@ -3,12 +3,18 @@
   "temperature": 0.7,
   "downfall": 0.0,
   "effects": {
-    "fog_color": 2827282,
-    "sky_color": 1972235,
-    "water_color": 3725552,
-    "water_fog_color": 2827282,
-    "foliage_color": 15774770,
-    "grass_color": 15774770
+    "fog_color": 4863002,
+    "sky_color": 7228452,
+    "water_color": 3598591,
+    "water_fog_color": 4863002,
+    "foliage_color": 16759356,
+    "grass_color": 16759356,
+    "particle": {
+      "options": {
+        "type": "minecraft:electric_spark"
+      },
+      "probability": 0.02
+    }
   },
   "spawners": {
     "monster": [],
@@ -32,13 +38,15 @@
     [],
     [],
     [
-      "simple_bytestorage_dimension:fluxite_ore_rich",
-      "simple_bytestorage_dimension:busium_ore_sparse"
+      "simple_bytestorage_dimension:busium_ore_sparse",
+      "simple_bytestorage_dimension:fluxite_ore_rich"
     ],
     [],
     [],
     [
-      "simple_bytestorage:quantum_cluster"
+      "simple_bytestorage_dimension:patch_crystal_bush",
+      "simple_bytestorage_dimension:patch_plasma_stalk",
+      "simple_bytestorage_dimension:struct_capacitor_pillar"
     ]
   ]
 }

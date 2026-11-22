@@ -1,5 +1,5 @@
 {
-  "sea_level": 48,
+  "sea_level": 58,
   "disable_mob_generation": false,
   "aquifers_enabled": false,
   "ore_veins_enabled": false,
@@ -102,9 +102,9 @@
               "type": "minecraft:add",
               "argument1": {
                 "type": "minecraft:y_clamped_gradient",
-                "from_y": 20,
-                "to_y": 128,
-                "from_value": 1.25,
+                "from_y": 16,
+                "to_y": 112,
+                "from_value": 1.15,
                 "to_value": -1.35
               },
               "argument2": {

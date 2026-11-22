@@ -3,12 +3,18 @@
   "temperature": 0.9,
   "downfall": 0.0,
   "effects": {
-    "fog_color": 2496011,
-    "sky_color": 1313285,
-    "water_color": 16758860,
-    "water_fog_color": 2496011,
-    "foliage_color": 16765530,
-    "grass_color": 16765530
+    "fog_color": 4333588,
+    "sky_color": 6828572,
+    "water_color": 16755260,
+    "water_fog_color": 4333588,
+    "foliage_color": 16766034,
+    "grass_color": 16766034,
+    "particle": {
+      "options": {
+        "type": "minecraft:enchant"
+      },
+      "probability": 0.025
+    }
   },
   "spawners": {
     "monster": [],
@@ -40,7 +46,10 @@
     [],
     [],
     [
-      "simple_bytestorage:quantum_cluster"
+      "simple_bytestorage:quantum_cluster",
+      "simple_bytestorage_dimension:patch_crystal_bush",
+      "simple_bytestorage_dimension:patch_plasma_stalk",
+      "simple_bytestorage_dimension:struct_registry_pylon"
     ]
   ]
 }

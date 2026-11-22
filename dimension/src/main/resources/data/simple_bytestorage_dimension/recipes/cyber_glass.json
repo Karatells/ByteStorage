@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GQG",
+    "QGQ",
+    "GQG"
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:glass"
+    },
+    "Q": {
+      "item": "simple_bytestorage_dimension:optic_quartz"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:cyber_glass",
+    "count": 8
+  }
+}

@@ -80,5 +80,19 @@
   "advancement.simple_bytestorage_dimension.explore_all_biomes.title": "Silicon Cartographer",
   "advancement.simple_bytestorage_dimension.explore_all_biomes.desc": "Visit all 8 unique biomes of the Silicon Plane.",
   "guide.simple_bytestorage_dimension.endgame.title": "Dimension: Deep Biomes & 1M",
-  "guide.simple_bytestorage_dimension.endgame.body": "§eAll 8 Biomes of the Silicon Plane§r\nUse §bShift + Right-click§r with the §bRift Compass§r inside the dimension to cycle between all 8 biomes:\n- §bCryo-Cache Wastes§r: Cryo-Silicate Ore.\n- §bCapacitor Flats§r: Fluxite Ore (64k Energy Byte Cell).\n- §bCorrupted Badlands§r: Entropy Ore & Quantum Clusters.\n- §bCloud Archive§r: Quantumite Ore (Quantum Core).\n- §bThe Null Core§r: Matrix Ore for the ultimate §c1M Byte Storage Cell§r!"
+  "guide.simple_bytestorage_dimension.endgame.body": "§eAll 8 Biomes of the Silicon Plane§r\nUse §bShift + Right-click§r with the §bRift Compass§r inside the dimension to cycle between all 8 biomes:\n- §bCryo-Cache Wastes§r: Cryo-Silicate Ore.\n- §bCapacitor Flats§r: Fluxite Ore (64k Energy Byte Cell).\n- §bCorrupted Badlands§r: Entropy Ore & Quantum Clusters.\n- §bCloud Archive§r: Quantumite Ore (Quantum Core).\n- §bThe Null Core§r: Matrix Ore for the ultimate §c1M Byte Storage Cell§r!",
+  "block.simple_bytestorage_dimension.void_log": "Void Cyber Log",
+  "block.simple_bytestorage_dimension.void_leaves": "Void Cyber Leaves",
+  "block.simple_bytestorage_dimension.cryo_log": "Cryo Cyber Log",
+  "block.simple_bytestorage_dimension.cryo_leaves": "Cryo Cyber Leaves",
+  "block.simple_bytestorage_dimension.server_rack": "Server Rack Block",
+  "block.simple_bytestorage_dimension.processor_block": "Processor Block",
+  "block.simple_bytestorage_dimension.cyber_panel": "Cyber Tech Panel",
+  "block.simple_bytestorage_dimension.glow_cube": "Luminous Byte Cube",
+  "block.simple_bytestorage_dimension.conductive_block": "Conductive Busium Block",
+  "block.simple_bytestorage_dimension.cyber_glass": "Cyber Tech Glass",
+  "block.simple_bytestorage_dimension.glow_grass": "Luminous Data Grass",
+  "block.simple_bytestorage_dimension.digital_flower": "Digital Blossom",
+  "block.simple_bytestorage_dimension.crystal_bush": "Crystal Cluster Bush",
+  "block.simple_bytestorage_dimension.plasma_stalk": "Plasma Stalk"
 }

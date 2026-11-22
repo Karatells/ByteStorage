@@ -5,17 +5,20 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Космически-сумеречная атмосфера измерения «Кремниевый План» (Silicon Plane) с бирюзовым отсветом горизонта.
+ * Сумеречно-киберпанковая атмосфера измерения «Кремниевый План» (Silicon Plane):
+ * использует SkyType.NORMAL с высокими облаками, чтобы каждый из 8 биомов
+ * отображал свой уникальный цвет неба и светящегося тумана.
  */
 public class SiliconPlaneSkyEffects extends DimensionSpecialEffects {
 
     public SiliconPlaneSkyEffects() {
-        super(192.0F, true, SkyType.END, false, false);
+        super(156.0F, true, SkyType.NORMAL, false, false);
     }
 
     @Override
     public Vec3 getBrightnessDependentFogColor(Vec3 biomeFogColor, float daylight) {
-        return biomeFogColor.multiply(0.85, 0.92, 1.0);
+        // Сохраняем насыщенный биомный цвет тумана даже в сумерках
+        return biomeFogColor.multiply(0.88, 0.94, 1.0);
     }
 
     @Override

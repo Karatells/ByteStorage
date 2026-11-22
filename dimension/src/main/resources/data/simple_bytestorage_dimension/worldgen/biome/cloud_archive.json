@@ -3,12 +3,18 @@
   "temperature": 0.1,
   "downfall": 0.1,
   "effects": {
-    "fog_color": 1391432,
-    "sky_color": 928568,
-    "water_color": 5439487,
-    "water_fog_color": 1391432,
-    "foliage_color": 7929840,
-    "grass_color": 7929840
+    "fog_color": 2382962,
+    "sky_color": 4099752,
+    "water_color": 6094847,
+    "water_fog_color": 2382962,
+    "foliage_color": 9240564,
+    "grass_color": 9240564,
+    "particle": {
+      "options": {
+        "type": "minecraft:end_rod"
+      },
+      "probability": 0.014
+    }
   },
   "spawners": {
     "monster": [],
@@ -32,14 +38,16 @@
     [],
     [],
     [
-      "simple_bytestorage_dimension:quantumite_ore_rich",
-      "simple_bytestorage_dimension:optic_quartz_ore_sparse"
+      "simple_bytestorage_dimension:optic_quartz_ore_sparse",
+      "simple_bytestorage_dimension:quantumite_ore_rich"
     ],
     [],
     [],
     [
-      "simple_bytestorage_dimension:optic_spire_tree",
-      "simple_bytestorage:circuit_bloom"
+      "simple_bytestorage_dimension:cryo_cyber_tree",
+      "simple_bytestorage_dimension:patch_glow_grass",
+      "simple_bytestorage_dimension:patch_plasma_stalk",
+      "simple_bytestorage_dimension:struct_floating_island"
     ]
   ]
 }

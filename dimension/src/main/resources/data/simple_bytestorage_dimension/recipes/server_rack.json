@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BBB",
+    "GQG",
+    "BBB"
+  ],
+  "key": {
+    "B": {
+      "item": "simple_bytestorage_dimension:silicon_basalt"
+    },
+    "G": {
+      "item": "minecraft:iron_bars"
+    },
+    "Q": {
+      "item": "simple_bytestorage_dimension:optic_quartz"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:server_rack",
+    "count": 4
+  }
+}

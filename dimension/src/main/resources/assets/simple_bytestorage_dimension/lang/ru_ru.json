@@ -80,5 +80,19 @@
   "advancement.simple_bytestorage_dimension.explore_all_biomes.title": "Картограф Кремния",
   "advancement.simple_bytestorage_dimension.explore_all_biomes.desc": "Посети все 8 уникальных биомов Кремниевого Плана.",
   "guide.simple_bytestorage_dimension.endgame.title": "Измерение: 8 биомов и 1M",
-  "guide.simple_bytestorage_dimension.endgame.body": "§eВсе 8 биомов Кремниевого Плана§r\nНажми §bShift + ПКМ§r Компасом Разлома внутри измерения, чтобы переключать поиск между всеми 8 биомами:\n- §bКрио-Кэш§r: Крио-силикат.\n- §bПоля Конденсаторов§r: Флюксит (64k Энергоячейка).\n- §bБитые Сектора§r: Осколки энтропии и Квантовые кластеры.\n- §bПарящий Архив§r: Квантиум (Квантовое ядро).\n- §bСердце Реестра§r: Матричные кристаллы для §c1M Байт-ячейки§r!"
+  "guide.simple_bytestorage_dimension.endgame.body": "§eВсе 8 биомов Кремниевого Плана§r\nНажми §bShift + ПКМ§r Компасом Разлома внутри измерения, чтобы переключать поиск между всеми 8 биомами:\n- §bКрио-Кэш§r: Крио-силикат.\n- §bПоля Конденсаторов§r: Флюксит (64k Энергоячейка).\n- §bБитые Сектора§r: Осколки энтропии и Квантовые кластеры.\n- §bПарящий Архив§r: Квантиум (Квантовое ядро).\n- §bСердце Реестра§r: Матричные кристаллы для §c1M Байт-ячейки§r!",
+  "block.simple_bytestorage_dimension.void_log": "Пустотный кибер-ствол",
+  "block.simple_bytestorage_dimension.void_leaves": "Пустотная кибер-листва",
+  "block.simple_bytestorage_dimension.cryo_log": "Крио-кибер-ствол",
+  "block.simple_bytestorage_dimension.cryo_leaves": "Крио-кибер-листва",
+  "block.simple_bytestorage_dimension.server_rack": "Серверный блок",
+  "block.simple_bytestorage_dimension.processor_block": "Процессорный блок",
+  "block.simple_bytestorage_dimension.cyber_panel": "Техно-панель",
+  "block.simple_bytestorage_dimension.glow_cube": "Светящийся энергоблок",
+  "block.simple_bytestorage_dimension.conductive_block": "Проводящий блок",
+  "block.simple_bytestorage_dimension.cyber_glass": "Техно-стекло",
+  "block.simple_bytestorage_dimension.glow_grass": "Светящаяся трава",
+  "block.simple_bytestorage_dimension.digital_flower": "Цифровой цветок",
+  "block.simple_bytestorage_dimension.crystal_bush": "Кристальный куст",
+  "block.simple_bytestorage_dimension.plasma_stalk": "Плазменный стебель"
 }
