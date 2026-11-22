@@ -54,7 +54,8 @@
       "simple_bytestorage_dimension:cryo_cyber_tree",
       "simple_bytestorage_dimension:patch_glow_grass",
       "simple_bytestorage_dimension:patch_plasma_stalk",
-      "simple_bytestorage_dimension:struct_floating_island"
+      "simple_bytestorage_dimension:struct_floating_island",
+      "simple_bytestorage_dimension:struct_updraft_column"
     ]
   ]
 }

@@ -47,7 +47,8 @@
       "simple_bytestorage:quantum_cluster",
       "simple_bytestorage_dimension:patch_crystal_bush",
       "simple_bytestorage_dimension:patch_glow_grass",
-      "simple_bytestorage_dimension:struct_server_tower"
+      "simple_bytestorage_dimension:struct_server_tower",
+      "simple_bytestorage_dimension:struct_updraft_column"
     ]
   ]
 }

@@ -53,6 +53,7 @@ public class CyberStructureFeature extends Feature<CyberStructureFeature.Config>
             case "floating_island" -> buildFloatingIsland(level, origin, rng);
             case "registry_pylon" -> buildRegistryPylon(level, origin, rng);
             case "glitch_monolith" -> buildGlitchMonolith(level, origin, rng);
+            case "updraft_column" -> buildUpdraftColumn(level, origin, rng);
             default -> false;
         };
     }
@@ -218,6 +219,19 @@ public class CyberStructureFeature extends Feature<CyberStructureFeature.Config>
             level.setBlock(cur.offset(ox, y, oz), corr, 2);
         }
         level.setBlock(cur.above(h), glow, 2);
+        return true;
+    }
+
+    private boolean buildUpdraftColumn(WorldGenLevel level, BlockPos base, RandomSource rng) {
+        BlockState proc = SimpleAeDimension.PROCESSOR_BLOCK.get().defaultBlockState();
+        BlockState updraft = SimpleAeDimension.MAGNETIC_UPDRAFT_BLOCK.get().defaultBlockState();
+        level.setBlock(base.below(), proc, 2);
+        int height = 28 + rng.nextInt(16);
+        for (int y = 0; y < height; y++) {
+            BlockPos p = base.above(y);
+            if (!level.getBlockState(p).isAir()) break;
+            level.setBlock(p, updraft, 2);
+        }
         return true;
     }
 }

@@ -2,6 +2,7 @@ package com.simpleae.bytestorage.dimension;
 
 import com.simpleae.bytestorage.api.storage.CellTier;
 import com.simpleae.bytestorage.dimension.block.CyberPlantBlock;
+import com.simpleae.bytestorage.dimension.block.MagneticUpdraftBlock;
 import com.simpleae.bytestorage.dimension.block.RiftGateCoreBlock;
 import com.simpleae.bytestorage.dimension.block.RiftPortalBlock;
 import com.simpleae.bytestorage.dimension.block.entity.RiftGateCoreBlockEntity;
@@ -276,6 +277,12 @@ public class SimpleAeDimension {
                     .mapColor(MapColor.COLOR_LIGHT_BLUE).noCollission().instabreak()
                     .lightLevel(s -> 11).sound(SoundType.GLASS)));
     public static final RegistryObject<Item> PLASMA_STALK_ITEM = blockItem("plasma_stalk", PLASMA_STALK_BLOCK);
+
+    public static final RegistryObject<Block> MAGNETIC_UPDRAFT_BLOCK = BLOCKS.register("magnetic_updraft",
+            () -> new MagneticUpdraftBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_CYAN).noCollission().replaceable()
+                    .strength(-1.0F).lightLevel(s -> 11).sound(SoundType.GLASS).noLootTable()));
+    public static final RegistryObject<Item> MAGNETIC_UPDRAFT_ITEM = blockItem("magnetic_updraft", MAGNETIC_UPDRAFT_BLOCK);
 
     // --- 7 уникальных руд измерения ---
     public static final RegistryObject<Block> BUSIUM_ORE_BLOCK = oreBlock("busium_ore", 4.0F, 5, 2, 5);

@@ -104,5 +104,6 @@
   "advancement.simple_bytestorage_dimension.craft_phase_stabilizer.title": "Стабільний пінг",
   "advancement.simple_bytestorage_dimension.craft_phase_stabilizer.desc": "Скрафти Стабілізатор фази для захисту від Десинхронізації та холоду.",
   "advancement.simple_bytestorage_dimension.defeat_glitch_stalker.title": "Налагоджувач",
-  "advancement.simple_bytestorage_dimension.defeat_glitch_stalker.desc": "Знищ Глітч-Сталкера у Кремнієвому Плані."
+  "advancement.simple_bytestorage_dimension.defeat_glitch_stalker.desc": "Знищ Глітч-Сталкера у Кремнієвому Плані.",
+  "block.simple_bytestorage_dimension.magnetic_updraft": "Магнітний потік"
 }

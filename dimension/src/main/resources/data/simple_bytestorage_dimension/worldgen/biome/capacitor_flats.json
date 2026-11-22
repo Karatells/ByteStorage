@@ -53,7 +53,8 @@
     [
       "simple_bytestorage_dimension:patch_crystal_bush",
       "simple_bytestorage_dimension:patch_plasma_stalk",
-      "simple_bytestorage_dimension:struct_capacitor_pillar"
+      "simple_bytestorage_dimension:struct_capacitor_pillar",
+      "simple_bytestorage_dimension:struct_updraft_column"
     ]
   ]
 }
