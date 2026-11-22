@@ -31,22 +31,28 @@ public class RiftTeleporter implements ITeleporter {
     @Override
     public Entity placeEntity(Entity entity, ServerLevel currentWorld, ServerLevel destWorld,
                               float yaw, Function<Boolean, Entity> repositionEntity) {
-        return repositionEntity.apply(false);
+        Entity moved = repositionEntity.apply(false);
+        if (moved != null) {
+            moved.setPortalCooldown();
+        }
+        return moved;
     }
 
     @Nullable
     @Override
     public PortalInfo getPortalInfo(Entity entity, ServerLevel destWorld,
                                     Function<ServerLevel, PortalInfo> defaultPortalInfo) {
-        BlockPos target = findExistingPortal(destWorld, originPos, 64);
-        if (target == null) {
-            target = buildReturnPortal(destWorld, originPos);
+        BlockPos portalBase = findExistingPortal(destWorld, originPos, 64);
+        if (portalBase == null) {
+            portalBase = buildReturnPortal(destWorld, originPos);
         }
+        // Высаживаем игрока на платформу ПЕРЕД порталом (+2 по Z), а не внутрь блока портала!
+        BlockPos safeStand = portalBase.offset(0, 0, 2);
         return new PortalInfo(
-                new Vec3(target.getX() + 0.5, target.getY() + 0.1, target.getZ() + 0.5),
+                new Vec3(safeStand.getX() + 0.5, safeStand.getY() + 0.1, safeStand.getZ() + 0.5),
                 Vec3.ZERO,
-                entity.getYRot(),
-                entity.getXRot()
+                180.0F,
+                0.0F
         );
     }
 
