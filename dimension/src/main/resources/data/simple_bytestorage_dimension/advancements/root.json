@@ -9,7 +9,7 @@
     "description": {
       "translate": "advancement.simple_bytestorage_dimension.root.desc"
     },
-    "background": "simple_bytestorage_dimension:textures/block/silicon_basalt.png",
+    "background": "simple_bytestorage_dimension:textures/block/silicon_basalt_side.png",
     "frame": "task",
     "show_toast": false,
     "announce_to_chat": false,

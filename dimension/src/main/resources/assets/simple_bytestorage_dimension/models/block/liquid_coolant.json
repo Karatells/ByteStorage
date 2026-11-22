@@ -1,5 +1,5 @@
 {
   "textures": {
-    "particle": "minecraft:block/water_still"
+    "particle": "simple_bytestorage_dimension:block/liquid_coolant_still"
   }
 }

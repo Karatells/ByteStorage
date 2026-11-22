@@ -1,6 +1,7 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "minecraft:block/cube_column",
   "textures": {
-    "all": "simple_bytestorage_dimension:block/silicon_basalt"
+    "end": "simple_bytestorage_dimension:block/silicon_basalt_top",
+    "side": "simple_bytestorage_dimension:block/silicon_basalt_side"
   }
 }

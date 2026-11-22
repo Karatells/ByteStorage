@@ -1,5 +1,6 @@
 package com.simpleae.bytestorage.dimension.fluid;
 
+import com.simpleae.bytestorage.dimension.SimpleAeDimension;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceLocation;
@@ -10,13 +11,16 @@ import org.joml.Vector3f;
 import java.util.function.Consumer;
 
 /**
- * Жидкий хладагент (Liquid Coolant) — светящаяся голубая техно-жидкость из Магистральных Каньонов.
+ * Жидкий хладагент (Liquid Coolant) — использует родные анимированные текстуры из обновлённого ассет-пака.
  */
 public class CoolantFluidType extends FluidType {
 
-    private static final ResourceLocation WATER_STILL = new ResourceLocation("minecraft", "block/water_still");
-    private static final ResourceLocation WATER_FLOW = new ResourceLocation("minecraft", "block/water_flow");
-    private static final ResourceLocation WATER_OVERLAY = new ResourceLocation("minecraft", "block/water_overlay");
+    private static final ResourceLocation STILL =
+            new ResourceLocation(SimpleAeDimension.MOD_ID, "block/liquid_coolant_still");
+    private static final ResourceLocation FLOW =
+            new ResourceLocation(SimpleAeDimension.MOD_ID, "block/liquid_coolant_flow");
+    private static final ResourceLocation OVERLAY =
+            new ResourceLocation("minecraft", "block/water_overlay");
 
     public CoolantFluidType(Properties properties) {
         super(properties);
@@ -27,28 +31,28 @@ public class CoolantFluidType extends FluidType {
         consumer.accept(new IClientFluidTypeExtensions() {
             @Override
             public ResourceLocation getStillTexture() {
-                return WATER_STILL;
+                return STILL;
             }
 
             @Override
             public ResourceLocation getFlowingTexture() {
-                return WATER_FLOW;
+                return FLOW;
             }
 
             @Override
             public ResourceLocation getOverlayTexture() {
-                return WATER_OVERLAY;
+                return OVERLAY;
             }
 
             @Override
             public int getTintColor() {
-                return 0xD820F0FF; // Яркий бирюзово-голубой хладагент
+                return 0xFFFFFFFF; // Используем родной цвет анимированной текстуры
             }
 
             @Override
             public Vector3f modifyFogColor(Camera camera, float partialTick, ClientLevel level,
                                            int renderDistance, float darkenWorldAmount, Vector3f fluidFogColor) {
-                return new Vector3f(0.08F, 0.72F, 0.85F);
+                return new Vector3f(0.10F, 0.78F, 0.90F);
             }
         });
     }
