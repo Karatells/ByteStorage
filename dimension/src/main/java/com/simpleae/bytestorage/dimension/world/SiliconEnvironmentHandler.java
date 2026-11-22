@@ -1,15 +1,20 @@
 package com.simpleae.bytestorage.dimension.world;
 
 import com.simpleae.bytestorage.dimension.SimpleAeDimension;
+import com.simpleae.bytestorage.dimension.item.CapacitorAccumulatorItem;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraftforge.event.TickEvent;
@@ -59,9 +64,45 @@ public class SiliconEnvironmentHandler {
             level.sendParticles(ParticleTypes.ELECTRIC_SPARK,
                     player.getX(), player.getY() + 0.8, player.getZ(),
                     6, 0.5, 0.5, 0.5, 0.04);
+            // Раз в ~18 секунд в Полях Конденсаторов бьёт разряд молнии; Аккумулятор перехватывает +50 000 FE!
+            if (time % 360 == 0) {
+                ItemStack acc = findAccumulator(player);
+                LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(level);
+                if (bolt != null) {
+                    if (!acc.isEmpty()) {
+                        bolt.moveTo(player.getX(), player.getY(), player.getZ());
+                        bolt.setVisualOnly(true);
+                        level.addFreshEntity(bolt);
+                        int added = CapacitorAccumulatorItem.addEnergy(acc, 50_000);
+                        if (added > 0) {
+                            player.displayClientMessage(Component.translatable(
+                                    "msg.simple_bytestorage_dimension.accumulator.captured",
+                                    added
+                            ).withStyle(ChatFormatting.GOLD), true);
+                        }
+                    } else {
+                        double lx = player.getX() + (level.random.nextDouble() - 0.5) * 16.0;
+                        double lz = player.getZ() + (level.random.nextDouble() - 0.5) * 16.0;
+                        bolt.moveTo(lx, player.getY(), lz);
+                        bolt.setVisualOnly(true);
+                        level.addFreshEntity(bolt);
+                    }
+                }
+            }
         } else if (biome.is(SiliconPlaneDimension.BIOME_CLOUD_ARCHIVE)) {
             player.addEffect(new MobEffectInstance(MobEffects.SLOW_FALLING, 60, 0, true, false));
         }
+    }
+
+    private static ItemStack findAccumulator(ServerPlayer player) {
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            ItemStack st = player.getInventory().getItem(i);
+            if (st.is(SimpleAeDimension.CAPACITOR_ACCUMULATOR.get())
+                    && CapacitorAccumulatorItem.getEnergy(st) < CapacitorAccumulatorItem.MAX_ENERGY) {
+                return st;
+            }
+        }
+        return ItemStack.EMPTY;
     }
 
     public static boolean hasPhaseStabilizer(ServerPlayer player) {

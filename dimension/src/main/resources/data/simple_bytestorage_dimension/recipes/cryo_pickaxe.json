@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CCC",
+    " P ",
+    " S "
+  ],
+  "key": {
+    "C": {
+      "item": "simple_bytestorage_dimension:cryo_silicate"
+    },
+    "P": {
+      "item": "simple_bytestorage_dimension:busium_pickaxe"
+    },
+    "S": {
+      "item": "simple_bytestorage_dimension:busium_ingot"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:cryo_pickaxe",
+    "count": 1
+  }
+}

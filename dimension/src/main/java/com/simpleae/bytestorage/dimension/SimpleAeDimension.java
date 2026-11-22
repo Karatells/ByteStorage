@@ -3,6 +3,7 @@ package com.simpleae.bytestorage.dimension;
 import com.simpleae.bytestorage.api.storage.CellTier;
 import com.simpleae.bytestorage.dimension.block.CyberPlantBlock;
 import com.simpleae.bytestorage.dimension.block.MagneticUpdraftBlock;
+import com.simpleae.bytestorage.dimension.block.ReturnBeaconBlock;
 import com.simpleae.bytestorage.dimension.block.RiftGateCoreBlock;
 import com.simpleae.bytestorage.dimension.block.RiftPortalBlock;
 import com.simpleae.bytestorage.dimension.block.entity.RiftGateCoreBlockEntity;
@@ -16,9 +17,13 @@ import com.simpleae.bytestorage.dimension.entity.CryoHarvesterEntity;
 import com.simpleae.bytestorage.dimension.entity.GlitchStalkerEntity;
 import com.simpleae.bytestorage.dimension.entity.RegistryWardenEntity;
 import com.simpleae.bytestorage.dimension.fluid.CoolantFluidType;
+import com.simpleae.bytestorage.dimension.item.ArchiveLoreItem;
+import com.simpleae.bytestorage.dimension.item.CapacitorAccumulatorItem;
 import com.simpleae.bytestorage.dimension.item.PhaseStabilizerItem;
 import com.simpleae.bytestorage.dimension.item.RiftCompassItem;
 import com.simpleae.bytestorage.dimension.item.RiftResonatorItem;
+import net.minecraft.world.item.PickaxeItem;
+import net.minecraft.world.item.Tiers;
 import com.simpleae.bytestorage.dimension.world.SiliconEnvironmentHandler;
 import com.simpleae.bytestorage.dimension.world.SiliconPlaneDimension;
 import com.simpleae.bytestorage.dimension.world.feature.CyberStructureFeature;
@@ -296,6 +301,12 @@ public class SimpleAeDimension {
                     .strength(-1.0F).lightLevel(s -> 11).sound(SoundType.GLASS).noLootTable()));
     public static final RegistryObject<Item> MAGNETIC_UPDRAFT_ITEM = blockItem("magnetic_updraft", MAGNETIC_UPDRAFT_BLOCK);
 
+    public static final RegistryObject<Block> RETURN_BEACON_BLOCK = BLOCKS.register("return_beacon",
+            () -> new ReturnBeaconBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL).requiresCorrectToolForDrops()
+                    .strength(4.5F, 12.0F).lightLevel(s -> 14).sound(SoundType.METAL)));
+    public static final RegistryObject<Item> RETURN_BEACON_ITEM = blockItem("return_beacon", RETURN_BEACON_BLOCK);
+
     // --- 7 уникальных руд измерения ---
     public static final RegistryObject<Block> BUSIUM_ORE_BLOCK = oreBlock("busium_ore", 4.0F, 5, 2, 5);
     public static final RegistryObject<Item> BUSIUM_ORE_ITEM = blockItem("busium_ore", BUSIUM_ORE_BLOCK);
@@ -353,6 +364,16 @@ public class SimpleAeDimension {
             () -> new RiftCompassItem(new Item.Properties()));
     public static final RegistryObject<Item> PHASE_STABILIZER = ITEMS.register("phase_stabilizer",
             () -> new PhaseStabilizerItem(new Item.Properties()));
+    public static final RegistryObject<Item> CAPACITOR_ACCUMULATOR = ITEMS.register("capacitor_accumulator",
+            () -> new CapacitorAccumulatorItem(new Item.Properties()));
+    public static final RegistryObject<Item> ARCHIVE_LORE_FRAGMENT = ITEMS.register("archive_lore_fragment",
+            () -> new ArchiveLoreItem(new Item.Properties()));
+    public static final RegistryObject<Item> BUSIUM_PICKAXE = ITEMS.register("busium_pickaxe",
+            () -> new PickaxeItem(Tiers.DIAMOND, 2, -2.6F, new Item.Properties().durability(1800)));
+    public static final RegistryObject<Item> CRYO_PICKAXE = ITEMS.register("cryo_pickaxe",
+            () -> new PickaxeItem(Tiers.NETHERITE, 3, -2.4F, new Item.Properties().durability(2600).fireResistant()));
+    public static final RegistryObject<Item> ENERGY_CELL_256K = ITEMS.register("energy_cell_256k",
+            () -> new EnergyCellItem(CellTier.TIER_256K, new Item.Properties()));
     public static final RegistryObject<Item> BYTE_SENTINEL_SPAWN_EGG = ITEMS.register("byte_sentinel_spawn_egg",
             () -> new ForgeSpawnEggItem(BYTE_SENTINEL, 0x1A2638, 0x2AE6F8, new Item.Properties()));
     public static final RegistryObject<Item> GLITCH_STALKER_SPAWN_EGG = ITEMS.register("glitch_stalker_spawn_egg",
@@ -381,10 +402,15 @@ public class SimpleAeDimension {
                     .icon(() -> new ItemStack(RIFT_GATE_CORE_ITEM.get()))
                     .displayItems((parameters, output) -> {
                         output.accept(RIFT_GATE_CORE_ITEM.get());
+                        output.accept(RETURN_BEACON_ITEM.get());
                         output.accept(SILICON_BASALT_ITEM.get());
                         output.accept(RIFT_RESONATOR.get());
                         output.accept(RIFT_COMPASS.get());
                         output.accept(PHASE_STABILIZER.get());
+                        output.accept(CAPACITOR_ACCUMULATOR.get());
+                        output.accept(BUSIUM_PICKAXE.get());
+                        output.accept(CRYO_PICKAXE.get());
+                        output.accept(ARCHIVE_LORE_FRAGMENT.get());
                         output.accept(BYTE_SENTINEL_SPAWN_EGG.get());
                         output.accept(GLITCH_STALKER_SPAWN_EGG.get());
                         output.accept(CRYO_HARVESTER_SPAWN_EGG.get());
@@ -433,6 +459,7 @@ public class SimpleAeDimension {
                         output.accept(CELL_1M.get());
                         output.accept(PORTABLE_CELL_64K.get());
                         output.accept(ENERGY_CELL_64K.get());
+                        output.accept(ENERGY_CELL_256K.get());
                         output.accept(FLUID_CELL_256K.get());
                     })
                     .build());

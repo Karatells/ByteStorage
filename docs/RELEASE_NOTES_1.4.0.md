@@ -19,3 +19,9 @@
 - **Inter-Bus Messaging**: `bus.send(targetId, text)` and `onMessage(fromId, text)` across the entire network (including Quantum Relays).
 - **Fluid API**: `net.fluidCount(id)` and `net.fluids()` for automating Fluid Byte Cells.
 - **Built-in Script Templates**: `Tpl (1/5)` button in the Logic Terminal with 5 ready-to-use scripts.
+
+## Dimension addon (`simple_bytestorage_dimension` — optional)
+- **The Silicon Plane (`silicon_plane`)**: optional 3-layer dimension (`Y = -64..256`) with custom aurora/matrix-grid/stars skybox (no vanilla clouds), 8 unique biomes, 7 ores, animated **Liquid Coolant**, 3 cyber trees, 4 glowing plants, 6 tech structures with loot chests, and **Magnetic Updraft** elevators.
+- **Rift Gate & `Silicon Rift` Requirement**: requires `100,000 FE` and only ignites inside `simple_bytestorage:silicon_rift` in the Overworld (with a funny hidden advancement **No Signal Here** if tried elsewhere).
+- **4 Custom 3D Mobs**: `Byte Sentinel`, `Glitch Stalker`, `Cryo Harvester`, and the `Registry Warden` mini-boss (with boss bar and guaranteed `Matrix Crystal` + `Quantum Core` drops).
+- **High-Tier Gear & Storage**: `256k` / `1M` Byte Cells, `64k` Portable Cell, `64k` / `256k` Energy Cells, `256k` Fluid Cell, `Return Beacon`, `Phase Stabilizer`, `Capacitor Accumulator` (captures lightning in Capacitor Flats), `Busium` / `Cryo` Pickaxes, and `Archive Lore Fragments`. See [Dimension-Addon.md](wiki/Dimension-Addon.md).

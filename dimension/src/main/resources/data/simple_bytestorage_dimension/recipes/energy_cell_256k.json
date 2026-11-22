@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "FQF",
+    "ECE",
+    "QQQ"
+  ],
+  "key": {
+    "F": {
+      "item": "simple_bytestorage_dimension:fluxite_dust"
+    },
+    "Q": {
+      "item": "simple_bytestorage_dimension:quantumite_ingot"
+    },
+    "E": {
+      "item": "simple_bytestorage_dimension:energy_cell_64k"
+    },
+    "C": {
+      "item": "simple_bytestorage_dimension:quantum_core"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:energy_cell_256k",
+    "count": 1
+  }
+}

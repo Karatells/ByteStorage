@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " F ",
+    "BPB",
+    " F "
+  ],
+  "key": {
+    "F": {
+      "item": "simple_bytestorage_dimension:fluxite_dust"
+    },
+    "B": {
+      "item": "simple_bytestorage_dimension:busium_ingot"
+    },
+    "P": {
+      "item": "simple_bytestorage_dimension:busium_processor"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:capacitor_accumulator",
+    "count": 1
+  }
+}
