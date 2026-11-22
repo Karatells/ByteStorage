@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "simple_bytestorage_dimension:optic_quartz_block"
+    }
+  ],
+  "result": {
+    "item": "simple_bytestorage_dimension:optic_quartz",
+    "count": 9
+  }
+}

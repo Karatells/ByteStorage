@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "simple_bytestorage_dimension:block/coolant_tank_node",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "simple_bytestorage_dimension:block/coolant_tank_node"
+    },
+    "axis=z": {
+      "model": "simple_bytestorage_dimension:block/coolant_tank_node",
+      "x": 90
+    }
+  }
+}

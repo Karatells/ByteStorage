@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BOB",
+    "CAC",
+    "BGB"
+  ],
+  "key": {
+    "B": {
+      "item": "simple_bytestorage_dimension:busium_ingot"
+    },
+    "O": {
+      "item": "simple_bytestorage_dimension:optic_processor"
+    },
+    "C": {
+      "item": "simple_bytestorage_dimension:cryo_core"
+    },
+    "A": {
+      "item": "simple_bytestorage:assembler"
+    },
+    "G": {
+      "item": "simple_bytestorage_dimension:fluxite_crystal"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:advanced_assembler",
+    "count": 1
+  }
+}

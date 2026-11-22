@@ -102,7 +102,19 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
     };
 
     public PatternProviderBlockEntity(BlockPos pos, BlockState state) {
-        super(SimpleByteStorage.PATTERN_PROVIDER_BLOCK_ENTITY.get(), pos, state);
+        this(SimpleByteStorage.PATTERN_PROVIDER_BLOCK_ENTITY.get(), pos, state);
+    }
+
+    protected PatternProviderBlockEntity(net.minecraft.world.level.block.entity.BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
+    }
+
+    protected int getCycleTicks() {
+        return CYCLE_TICKS;
+    }
+
+    protected int getPushesPerCycle() {
+        return PUSHES_PER_CYCLE;
     }
 
     // --- IGridNode ---
@@ -464,7 +476,8 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
             recordTick();
             return;
         }
-        if (++tickCounter % CYCLE_TICKS != 0) {
+        int cycleTicks = Math.max(1, getCycleTicks());
+        if (++tickCounter % cycleTicks != 0) {
             return;
         }
         List<Machine> machines = findMachines();
@@ -474,7 +487,7 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
             return;
         }
         // Шина заряжает соседние машины энергией сети (электропечь и т.п.)
-        com.simpleae.bytestorage.util.NetworkPower.feed(grid, level, worldPosition, CYCLE_TICKS);
+        com.simpleae.bytestorage.util.NetworkPower.feed(grid, level, worldPosition, cycleTicks);
         INetworkStorage storage = grid.getStorage();
 
         flushOverflow(storage);
@@ -492,7 +505,8 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
             waitReason = WAIT_NO_MACHINE;
             return;
         }
-        for (int i = 0; i < PUSHES_PER_CYCLE && !jobs.isEmpty(); i++) {
+        int pushes = Math.max(1, getPushesPerCycle());
+        for (int i = 0; i < pushes && !jobs.isEmpty(); i++) {
             if (!pushOne(storage, machines)) {
                 break;
             }

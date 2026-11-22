@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "QMQ",
+    "SCS",
+    "QBQ"
+  ],
+  "key": {
+    "Q": {
+      "item": "simple_bytestorage_dimension:quantumite_block"
+    },
+    "M": {
+      "item": "simple_bytestorage_dimension:matrix_block"
+    },
+    "S": {
+      "item": "simple_bytestorage_dimension:singularity_core"
+    },
+    "C": {
+      "item": "simple_bytestorage:capacitor"
+    },
+    "B": {
+      "item": "simple_bytestorage_dimension:quantum_core"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:singular_controller",
+    "count": 1
+  }
+}

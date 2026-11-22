@@ -152,7 +152,11 @@ public class AssemblerBlockEntity extends BlockEntity implements IGridNode, Menu
     };
 
     public AssemblerBlockEntity(BlockPos pos, BlockState state) {
-        super(SimpleByteStorage.ASSEMBLER_BLOCK_ENTITY.get(), pos, state);
+        this(SimpleByteStorage.ASSEMBLER_BLOCK_ENTITY.get(), pos, state);
+    }
+
+    protected AssemblerBlockEntity(net.minecraft.world.level.block.entity.BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
 
     // --- IGridNode ---
@@ -212,19 +216,31 @@ public class AssemblerBlockEntity extends BlockEntity implements IGridNode, Menu
     }
 
     public int getSpeedCards() {
-        int cards = 0;
+        int power = 0;
         for (int i = 0; i < UPGRADE_SLOTS; i++) {
-            if (!upgrades.getStackInSlot(i).isEmpty()) {
-                cards++;
+            ItemStack stack = upgrades.getStackInSlot(i);
+            if (!stack.isEmpty()) {
+                power += (stack.getItem() instanceof com.simpleae.bytestorage.item.SpeedCardItem card) ? card.getSpeedPower() : 1;
             }
         }
-        return cards;
+        return power;
     }
 
-    /** Тіків на один крафт: 40 / (1 + кількість карт + сопроцесори), не менше 4. */
+    /** Вбудований множник швидкості блока-асемблера (базовий = 1). */
+    protected int getSpeedMultiplier() {
+        return 1;
+    }
+
+    /** Мінімальна тривалість одного крафту в тіках. */
+    protected int getMinCraftTicks() {
+        return MIN_CRAFT_TICKS;
+    }
+
+    /** Тіків на один крафт: 40 / ((1 + кількість карт + сопроцесори) * множник), не менше getMinCraftTicks(). */
     public int getCraftTicks() {
-        int coprocessors = Math.min(8, CraftingCoprocessorBlockEntity.countOnGrid(grid));
-        return Math.max(MIN_CRAFT_TICKS, CRAFT_TICKS_PER_RECIPE / (1 + getSpeedCards() + coprocessors));
+        int coprocessors = Math.min(16, CraftingCoprocessorBlockEntity.countOnGrid(grid));
+        int divisor = Math.max(1, (1 + getSpeedCards() + coprocessors) * getSpeedMultiplier());
+        return Math.max(getMinCraftTicks(), CRAFT_TICKS_PER_RECIPE / divisor);
     }
 
     public java.util.List<ItemStack> getDroppedItems() {

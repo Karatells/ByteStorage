@@ -16,15 +16,23 @@ public class CraftingCoprocessorBlockEntity extends BlockEntity implements IGrid
     private IGrid grid;
 
     public CraftingCoprocessorBlockEntity(BlockPos pos, BlockState state) {
-        super(SimpleByteStorage.CRAFTING_COPROCESSOR_BLOCK_ENTITY.get(), pos, state);
+        this(SimpleByteStorage.CRAFTING_COPROCESSOR_BLOCK_ENTITY.get(), pos, state);
+    }
+
+    protected CraftingCoprocessorBlockEntity(net.minecraft.world.level.block.entity.BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
+    }
+
+    public int getCoprocessorPower() {
+        return 1;
     }
 
     public static int countOnGrid(@Nullable IGrid grid) {
         if (grid == null) return 0;
         int count = 0;
         for (IGridNode node : grid.getNodes()) {
-            if (node instanceof CraftingCoprocessorBlockEntity) {
-                count++;
+            if (node instanceof CraftingCoprocessorBlockEntity cp) {
+                count += cp.getCoprocessorPower();
             }
         }
         return count;

@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "OFO",
+    "CSC",
+    "OFO"
+  ],
+  "key": {
+    "O": {
+      "item": "simple_bytestorage_dimension:optic_processor"
+    },
+    "F": {
+      "item": "simple_bytestorage_dimension:fluxite_crystal"
+    },
+    "C": {
+      "item": "simple_bytestorage_dimension:cryo_core"
+    },
+    "S": {
+      "item": "simple_bytestorage:speed_card"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:speed_card_mk2",
+    "count": 1
+  }
+}

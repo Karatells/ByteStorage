@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GBG",
+    "GCG",
+    "GBG"
+  ],
+  "key": {
+    "G": {
+      "item": "simple_bytestorage_dimension:cyber_glass"
+    },
+    "B": {
+      "item": "simple_bytestorage_dimension:busium_ingot"
+    },
+    "C": {
+      "item": "simple_bytestorage_dimension:cryo_core"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:coolant_tank_node",
+    "count": 2
+  }
+}

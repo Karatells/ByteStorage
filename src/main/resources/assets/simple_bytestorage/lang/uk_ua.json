@@ -313,6 +313,8 @@
   "gui.simple_bytestorage.wireless.upgrade.magnet.desc": "Притягує випалі предмети до вас (не під час присідання). Враховує фільтр",
   "gui.simple_bytestorage.wireless.upgrade.crafting": "Карта віддаленого верстака",
   "gui.simple_bytestorage.wireless.upgrade.crafting.desc": "Термінал відкривається як Термінал крафту з сіткою 3x3",
+  "gui.simple_bytestorage.wireless.upgrade.interdimensional": "Міжвимірна карта",
+  "gui.simple_bytestorage.wireless.upgrade.interdimensional.desc": "Підключається до прив'язаної мережі між вимірами навіть у вивантажених чанках",
   "gui.simple_bytestorage.provider.blocking.on": "Блок: УВІМК",
   "gui.simple_bytestorage.provider.blocking.off": "Блок: ВИМК",
   "gui.simple_bytestorage.provider.blocking.tip": "Режим блокування: не подавати наступний крафт, доки в сусідній машині ще є інгредієнти.",

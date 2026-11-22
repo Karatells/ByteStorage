@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "QMQ",
+    "ECE",
+    "QOQ"
+  ],
+  "key": {
+    "Q": {
+      "item": "simple_bytestorage_dimension:quantumite_ingot"
+    },
+    "M": {
+      "item": "simple_bytestorage_dimension:matrix_crystal"
+    },
+    "E": {
+      "item": "minecraft:ender_pearl"
+    },
+    "C": {
+      "item": "simple_bytestorage_dimension:quantum_core"
+    },
+    "O": {
+      "item": "simple_bytestorage_dimension:optic_processor"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:interdimensional_wireless_card",
+    "count": 1
+  }
+}

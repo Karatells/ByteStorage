@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "simple_bytestorage_dimension:block/null_obsidian",
+    "side": "simple_bytestorage_dimension:block/null_pylon_side"
+  }
+}

@@ -17,6 +17,11 @@ public class SpeedCardItem extends Item {
         super(properties);
     }
 
+    /** Множник прискорення, що додається до Асемблера (базова карта = 1). */
+    public int getSpeedPower() {
+        return 1;
+    }
+
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
         super.appendHoverText(stack, level, tooltip, flag);

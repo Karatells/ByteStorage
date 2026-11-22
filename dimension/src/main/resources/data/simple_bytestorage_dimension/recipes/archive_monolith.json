@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "P",
+    "S",
+    "P"
+  ],
+  "key": {
+    "P": {
+      "item": "simple_bytestorage_dimension:archive_plate"
+    },
+    "S": {
+      "item": "simple_bytestorage_dimension:archive_stone"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:archive_monolith",
+    "count": 2
+  }
+}

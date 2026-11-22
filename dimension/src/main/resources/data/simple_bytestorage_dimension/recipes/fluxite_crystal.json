@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " F ",
+    "FQF",
+    " F "
+  ],
+  "key": {
+    "F": {
+      "item": "simple_bytestorage_dimension:fluxite_dust"
+    },
+    "Q": {
+      "item": "simple_bytestorage_dimension:optic_quartz"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:fluxite_crystal",
+    "count": 2
+  }
+}

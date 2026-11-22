@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CCC",
+    "CBC",
+    "CCC"
+  ],
+  "key": {
+    "C": {
+      "item": "simple_bytestorage_dimension:cryo_silicate"
+    },
+    "B": {
+      "item": "simple_bytestorage_dimension:coolant_bucket"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:cryo_core",
+    "count": 1
+  }
+}

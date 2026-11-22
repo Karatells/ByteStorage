@@ -2,11 +2,22 @@ package com.simpleae.bytestorage.dimension;
 
 import com.simpleae.bytestorage.api.storage.CellTier;
 import com.simpleae.bytestorage.dimension.block.CyberPlantBlock;
+import com.simpleae.bytestorage.dimension.block.InterdimensionalEnergyTransmitterBlock;
 import com.simpleae.bytestorage.dimension.block.MagneticUpdraftBlock;
+import com.simpleae.bytestorage.dimension.block.OpticSaplingBlock;
+import com.simpleae.bytestorage.dimension.block.PatternBusMk2Block;
+import com.simpleae.bytestorage.dimension.block.QuantumRelayBlock;
 import com.simpleae.bytestorage.dimension.block.ReturnBeaconBlock;
 import com.simpleae.bytestorage.dimension.block.RiftGateCoreBlock;
 import com.simpleae.bytestorage.dimension.block.RiftPortalBlock;
+import com.simpleae.bytestorage.dimension.block.SingularControllerBlock;
+import com.simpleae.bytestorage.dimension.block.TieredAssemblerBlock;
+import com.simpleae.bytestorage.dimension.block.entity.InterdimensionalEnergyTransmitterBlockEntity;
+import com.simpleae.bytestorage.dimension.block.entity.PatternBusMk2BlockEntity;
+import com.simpleae.bytestorage.dimension.block.entity.QuantumRelayBlockEntity;
 import com.simpleae.bytestorage.dimension.block.entity.RiftGateCoreBlockEntity;
+import com.simpleae.bytestorage.dimension.block.entity.SingularControllerBlockEntity;
+import com.simpleae.bytestorage.dimension.block.entity.TieredAssemblerBlockEntity;
 import com.simpleae.bytestorage.dimension.client.SiliconPlaneSkyEffects;
 import com.simpleae.bytestorage.dimension.client.renderer.ByteSentinelRenderer;
 import com.simpleae.bytestorage.dimension.client.renderer.CryoHarvesterRenderer;
@@ -19,9 +30,12 @@ import com.simpleae.bytestorage.dimension.entity.RegistryWardenEntity;
 import com.simpleae.bytestorage.dimension.fluid.CoolantFluidType;
 import com.simpleae.bytestorage.dimension.item.ArchiveLoreItem;
 import com.simpleae.bytestorage.dimension.item.CapacitorAccumulatorItem;
+import com.simpleae.bytestorage.dimension.item.FacadeScannerItem;
 import com.simpleae.bytestorage.dimension.item.PhaseStabilizerItem;
 import com.simpleae.bytestorage.dimension.item.RiftCompassItem;
 import com.simpleae.bytestorage.dimension.item.RiftResonatorItem;
+import com.simpleae.bytestorage.dimension.item.SpeedCardMk2Item;
+import com.simpleae.bytestorage.item.WirelessUpgradeItem;
 import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.Tiers;
 import com.simpleae.bytestorage.dimension.world.SiliconEnvironmentHandler;
@@ -395,6 +409,172 @@ public class SimpleAeDimension {
     public static final RegistryObject<Item> FLUID_CELL_256K = ITEMS.register("fluid_cell_256k",
             () -> new FluidCellItem(CellTier.TIER_256K, new Item.Properties()));
 
+    // --- Эндгейм сетевые машины и апгрейды ---
+    public static final RegistryObject<Block> ADVANCED_ASSEMBLER_BLOCK = BLOCKS.register("advanced_assembler",
+            () -> new TieredAssemblerBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL).requiresCorrectToolForDrops()
+                    .strength(4.5F, 12.0F).lightLevel(s -> 10).sound(SoundType.METAL), false));
+    public static final RegistryObject<Item> ADVANCED_ASSEMBLER_ITEM = blockItem("advanced_assembler", ADVANCED_ASSEMBLER_BLOCK);
+    public static final RegistryObject<BlockEntityType<TieredAssemblerBlockEntity>> ADVANCED_ASSEMBLER_ENTITY =
+            BLOCK_ENTITIES.register("advanced_assembler",
+                    () -> BlockEntityType.Builder.of(TieredAssemblerBlockEntity::createAdvanced, ADVANCED_ASSEMBLER_BLOCK.get()).build(null));
+
+    public static final RegistryObject<Block> SINGULAR_ASSEMBLER_BLOCK = BLOCKS.register("singular_assembler",
+            () -> new TieredAssemblerBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_PURPLE).requiresCorrectToolForDrops()
+                    .strength(6.0F, 24.0F).lightLevel(s -> 14).sound(SoundType.METAL), true));
+    public static final RegistryObject<Item> SINGULAR_ASSEMBLER_ITEM = blockItem("singular_assembler", SINGULAR_ASSEMBLER_BLOCK);
+    public static final RegistryObject<BlockEntityType<TieredAssemblerBlockEntity>> SINGULAR_ASSEMBLER_ENTITY =
+            BLOCK_ENTITIES.register("singular_assembler",
+                    () -> BlockEntityType.Builder.of(TieredAssemblerBlockEntity::createSingular, SINGULAR_ASSEMBLER_BLOCK.get()).build(null));
+
+    public static final RegistryObject<Block> PATTERN_BUS_MK2_BLOCK = BLOCKS.register("pattern_bus_mk2",
+            () -> new PatternBusMk2Block(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL).requiresCorrectToolForDrops()
+                    .strength(4.5F, 12.0F).lightLevel(s -> 9).sound(SoundType.METAL)));
+    public static final RegistryObject<Item> PATTERN_BUS_MK2_ITEM = blockItem("pattern_bus_mk2", PATTERN_BUS_MK2_BLOCK);
+    public static final RegistryObject<BlockEntityType<PatternBusMk2BlockEntity>> PATTERN_BUS_MK2_ENTITY =
+            BLOCK_ENTITIES.register("pattern_bus_mk2",
+                    () -> BlockEntityType.Builder.of(PatternBusMk2BlockEntity::new, PATTERN_BUS_MK2_BLOCK.get()).build(null));
+
+    public static final RegistryObject<Block> SINGULAR_CONTROLLER_BLOCK = BLOCKS.register("singular_controller",
+            () -> new SingularControllerBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_BLACK).requiresCorrectToolForDrops()
+                    .strength(8.0F, 50.0F).lightLevel(s -> 15).sound(SoundType.METAL)));
+    public static final RegistryObject<Item> SINGULAR_CONTROLLER_ITEM = blockItem("singular_controller", SINGULAR_CONTROLLER_BLOCK);
+    public static final RegistryObject<BlockEntityType<SingularControllerBlockEntity>> SINGULAR_CONTROLLER_ENTITY =
+            BLOCK_ENTITIES.register("singular_controller",
+                    () -> BlockEntityType.Builder.of(SingularControllerBlockEntity::new, SINGULAR_CONTROLLER_BLOCK.get()).build(null));
+
+    public static final RegistryObject<Block> ENERGY_TRANSMITTER_BLOCK = BLOCKS.register("interdimensional_energy_transmitter",
+            () -> new InterdimensionalEnergyTransmitterBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_CYAN).requiresCorrectToolForDrops()
+                    .strength(5.0F, 18.0F).lightLevel(s -> 12).sound(SoundType.METAL)));
+    public static final RegistryObject<Item> ENERGY_TRANSMITTER_ITEM = blockItem("interdimensional_energy_transmitter", ENERGY_TRANSMITTER_BLOCK);
+    public static final RegistryObject<BlockEntityType<InterdimensionalEnergyTransmitterBlockEntity>> ENERGY_TRANSMITTER_ENTITY =
+            BLOCK_ENTITIES.register("interdimensional_energy_transmitter",
+                    () -> BlockEntityType.Builder.of(InterdimensionalEnergyTransmitterBlockEntity::new, ENERGY_TRANSMITTER_BLOCK.get()).build(null));
+
+    public static final RegistryObject<Block> QUANTUM_RELAY_BLOCK = BLOCKS.register("quantum_relay",
+            () -> new QuantumRelayBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_PURPLE).requiresCorrectToolForDrops()
+                    .strength(4.5F, 12.0F).lightLevel(s -> 11).sound(SoundType.METAL)));
+    public static final RegistryObject<Item> QUANTUM_RELAY_ITEM = blockItem("quantum_relay", QUANTUM_RELAY_BLOCK);
+    public static final RegistryObject<BlockEntityType<QuantumRelayBlockEntity>> QUANTUM_RELAY_ENTITY =
+            BLOCK_ENTITIES.register("quantum_relay",
+                    () -> BlockEntityType.Builder.of(QuantumRelayBlockEntity::new, QUANTUM_RELAY_BLOCK.get()).build(null));
+
+    public static final RegistryObject<Item> SPEED_CARD_MK2 = ITEMS.register("speed_card_mk2",
+            () -> new SpeedCardMk2Item(new Item.Properties().stacksTo(16)));
+    public static final RegistryObject<Item> INTERDIMENSIONAL_WIRELESS_CARD = ITEMS.register("interdimensional_wireless_card",
+            () -> new WirelessUpgradeItem(WirelessUpgradeItem.Type.INTERDIMENSIONAL, new Item.Properties().stacksTo(1)));
+    public static final RegistryObject<Item> FACADE_SCANNER = ITEMS.register("facade_scanner",
+            () -> new FacadeScannerItem(new Item.Properties()));
+
+    // --- Компактные блоки ресурсов ---
+    public static final RegistryObject<Block> BUSIUM_BLOCK = BLOCKS.register("busium_block",
+            () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.METAL).requiresCorrectToolForDrops().strength(5.0F, 10.0F).sound(SoundType.METAL)));
+    public static final RegistryObject<Item> BUSIUM_BLOCK_ITEM = blockItem("busium_block", BUSIUM_BLOCK);
+
+    public static final RegistryObject<Block> OPTIC_QUARTZ_BLOCK = BLOCKS.register("optic_quartz_block",
+            () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.QUARTZ).requiresCorrectToolForDrops().strength(4.0F, 8.0F).lightLevel(s -> 7).sound(SoundType.AMETHYST)));
+    public static final RegistryObject<Item> OPTIC_QUARTZ_BLOCK_ITEM = blockItem("optic_quartz_block", OPTIC_QUARTZ_BLOCK);
+
+    public static final RegistryObject<Block> CRYO_SILICATE_BLOCK = BLOCKS.register("cryo_silicate_block",
+            () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.ICE).requiresCorrectToolForDrops().strength(4.5F, 8.0F).friction(0.9F).lightLevel(s -> 6).sound(SoundType.GLASS)));
+    public static final RegistryObject<Item> CRYO_SILICATE_BLOCK_ITEM = blockItem("cryo_silicate_block", CRYO_SILICATE_BLOCK);
+
+    public static final RegistryObject<Block> FLUXITE_BLOCK = BLOCKS.register("fluxite_block",
+            () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_ORANGE).requiresCorrectToolForDrops().strength(4.5F, 9.0F).lightLevel(s -> 11).sound(SoundType.METAL)));
+    public static final RegistryObject<Item> FLUXITE_BLOCK_ITEM = blockItem("fluxite_block", FLUXITE_BLOCK);
+
+    public static final RegistryObject<Block> QUANTUMITE_BLOCK = BLOCKS.register("quantumite_block",
+            () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_PURPLE).requiresCorrectToolForDrops().strength(7.0F, 24.0F).lightLevel(s -> 12).sound(SoundType.METAL)));
+    public static final RegistryObject<Item> QUANTUMITE_BLOCK_ITEM = blockItem("quantumite_block", QUANTUMITE_BLOCK);
+
+    public static final RegistryObject<Block> MATRIX_BLOCK = BLOCKS.register("matrix_block",
+            () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.GOLD).requiresCorrectToolForDrops().strength(8.0F, 40.0F).lightLevel(s -> 14).sound(SoundType.AMETHYST)));
+    public static final RegistryObject<Item> MATRIX_BLOCK_ITEM = blockItem("matrix_block", MATRIX_BLOCK);
+
+    // --- Декоративные, природные и архитектурные блоки измерения ---
+    public static final RegistryObject<Block> OPTIC_PLANKS_BLOCK = BLOCKS.register("optic_planks",
+            () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(2.2F, 4.0F).lightLevel(s -> 4).sound(SoundType.WOOD)));
+    public static final RegistryObject<Item> OPTIC_PLANKS_ITEM = blockItem("optic_planks", OPTIC_PLANKS_BLOCK);
+
+    public static final RegistryObject<Block> OPTIC_SAPLING_BLOCK = BLOCKS.register("optic_sapling",
+            () -> new OpticSaplingBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).noCollission().instabreak().lightLevel(s -> 8).sound(SoundType.GRASS)));
+    public static final RegistryObject<Item> OPTIC_SAPLING_ITEM = blockItem("optic_sapling", OPTIC_SAPLING_BLOCK);
+
+    public static final RegistryObject<Block> DENSE_CRYO_ICE_BLOCK = BLOCKS.register("dense_cryo_ice",
+            () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.ICE).requiresCorrectToolForDrops().strength(3.0F, 6.0F).friction(0.98F).lightLevel(s -> 5).sound(SoundType.GLASS)));
+    public static final RegistryObject<Item> DENSE_CRYO_ICE_ITEM = blockItem("dense_cryo_ice", DENSE_CRYO_ICE_BLOCK);
+
+    public static final RegistryObject<Block> CORRUPTED_VAULT_CASING_BLOCK = BLOCKS.register("corrupted_vault_casing",
+            () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_PURPLE).requiresCorrectToolForDrops().strength(6.0F, 40.0F).lightLevel(s -> 6).sound(SoundType.METAL)));
+    public static final RegistryObject<Item> CORRUPTED_VAULT_CASING_ITEM = blockItem("corrupted_vault_casing", CORRUPTED_VAULT_CASING_BLOCK);
+
+    public static final RegistryObject<Block> COOLANT_TANK_NODE_BLOCK = BLOCKS.register("coolant_tank_node",
+            () -> new RotatedPillarBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).requiresCorrectToolForDrops().strength(3.5F, 8.0F).lightLevel(s -> 9).sound(SoundType.GLASS)));
+    public static final RegistryObject<Item> COOLANT_TANK_NODE_ITEM = blockItem("coolant_tank_node", COOLANT_TANK_NODE_BLOCK);
+
+    public static final RegistryObject<Block> ARCHIVE_PILLAR_BLOCK = BLOCKS.register("archive_pillar",
+            () -> new RotatedPillarBlock(BlockBehaviour.Properties.of().mapColor(MapColor.QUARTZ).requiresCorrectToolForDrops().strength(4.0F, 10.0F).lightLevel(s -> 7).sound(SoundType.STONE)));
+    public static final RegistryObject<Item> ARCHIVE_PILLAR_ITEM = blockItem("archive_pillar", ARCHIVE_PILLAR_BLOCK);
+
+    public static final RegistryObject<Block> ARCHIVE_MONOLITH_BLOCK = BLOCKS.register("archive_monolith",
+            () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.QUARTZ).requiresCorrectToolForDrops().strength(4.5F, 12.0F).lightLevel(s -> 8).sound(SoundType.STONE)));
+    public static final RegistryObject<Item> ARCHIVE_MONOLITH_ITEM = blockItem("archive_monolith", ARCHIVE_MONOLITH_BLOCK);
+
+    public static final RegistryObject<Block> ARCHIVE_STONE_BLOCK = BLOCKS.register("archive_stone",
+            () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.QUARTZ).requiresCorrectToolForDrops().strength(3.5F, 9.0F).lightLevel(s -> 4).sound(SoundType.STONE)));
+    public static final RegistryObject<Item> ARCHIVE_STONE_ITEM = blockItem("archive_stone", ARCHIVE_STONE_BLOCK);
+
+    public static final RegistryObject<Block> CAPACITOR_PILLAR_BLOCK = BLOCKS.register("capacitor_pillar",
+            () -> new RotatedPillarBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_ORANGE).requiresCorrectToolForDrops().strength(4.0F, 10.0F).lightLevel(s -> 11).sound(SoundType.METAL)));
+    public static final RegistryObject<Item> CAPACITOR_PILLAR_ITEM = blockItem("capacitor_pillar", CAPACITOR_PILLAR_BLOCK);
+
+    public static final RegistryObject<Block> CAPACITOR_PLATE_BLOCK = BLOCKS.register("capacitor_plate",
+            () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_ORANGE).requiresCorrectToolForDrops().strength(3.5F, 9.0F).lightLevel(s -> 8).sound(SoundType.METAL)));
+    public static final RegistryObject<Item> CAPACITOR_PLATE_ITEM = blockItem("capacitor_plate", CAPACITOR_PLATE_BLOCK);
+
+    public static final RegistryObject<Block> CANYON_SLATE_BLOCK = BLOCKS.register("canyon_slate",
+            () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.TERRACOTTA_ORANGE).requiresCorrectToolForDrops().strength(3.0F, 6.0F).sound(SoundType.DEEPSLATE)));
+    public static final RegistryObject<Item> CANYON_SLATE_ITEM = blockItem("canyon_slate", CANYON_SLATE_BLOCK);
+
+    public static final RegistryObject<Block> SILICON_SLATE_BRICKS_BLOCK = BLOCKS.register("silicon_slate_bricks",
+            () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.DEEPSLATE).requiresCorrectToolForDrops().strength(3.2F, 7.0F).sound(SoundType.DEEPSLATE_BRICKS)));
+    public static final RegistryObject<Item> SILICON_SLATE_BRICKS_ITEM = blockItem("silicon_slate_bricks", SILICON_SLATE_BRICKS_BLOCK);
+
+    public static final RegistryObject<Block> NULL_OBSIDIAN_BLOCK = BLOCKS.register("null_obsidian",
+            () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLACK).requiresCorrectToolForDrops().strength(15.0F, 1200.0F).lightLevel(s -> 4).sound(SoundType.STONE)));
+    public static final RegistryObject<Item> NULL_OBSIDIAN_ITEM = blockItem("null_obsidian", NULL_OBSIDIAN_BLOCK);
+
+    public static final RegistryObject<Block> NULL_PYLON_BLOCK = BLOCKS.register("null_pylon",
+            () -> new RotatedPillarBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLACK).requiresCorrectToolForDrops().strength(8.0F, 600.0F).lightLevel(s -> 10).sound(SoundType.STONE)));
+    public static final RegistryObject<Item> NULL_PYLON_ITEM = blockItem("null_pylon", NULL_PYLON_BLOCK);
+
+    public static final RegistryObject<Block> ENTROPY_CLUSTER_BLOCK = BLOCKS.register("entropy_cluster",
+            () -> new CyberPlantBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_PURPLE).noCollission().strength(1.0F).lightLevel(s -> 11).sound(SoundType.AMETHYST)));
+    public static final RegistryObject<Item> ENTROPY_CLUSTER_ITEM = blockItem("entropy_cluster", ENTROPY_CLUSTER_BLOCK);
+
+    public static final RegistryObject<Block> QUANTUM_CLUSTER_BLOCK = BLOCKS.register("quantum_cluster",
+            () -> new CyberPlantBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).noCollission().strength(1.2F).lightLevel(s -> 13).sound(SoundType.AMETHYST)));
+    public static final RegistryObject<Item> QUANTUM_CLUSTER_ITEM = blockItem("quantum_cluster", QUANTUM_CLUSTER_BLOCK);
+
+    public static final RegistryObject<Block> SILICON_CRYSTAL_CLUSTER_BLOCK = BLOCKS.register("silicon_crystal_cluster",
+            () -> new CyberPlantBlock(BlockBehaviour.Properties.of().mapColor(MapColor.DIAMOND).noCollission().strength(0.8F).lightLevel(s -> 10).sound(SoundType.AMETHYST)));
+    public static final RegistryObject<Item> SILICON_CRYSTAL_CLUSTER_ITEM = blockItem("silicon_crystal_cluster", SILICON_CRYSTAL_CLUSTER_BLOCK);
+
+    // --- Дополнительные компоненты и материалы ---
+    public static final RegistryObject<Item> OPTIC_PROCESSOR = simpleItem("optic_processor");
+    public static final RegistryObject<Item> SINGULARITY_CORE = simpleItem("singularity_core");
+    public static final RegistryObject<Item> CRYO_CORE = simpleItem("cryo_core");
+    public static final RegistryObject<Item> SENTINEL_BATTERY = simpleItem("sentinel_battery");
+    public static final RegistryObject<Item> CHARGED_DUST = simpleItem("charged_dust");
+    public static final RegistryObject<Item> CORRUPTED_CELL = simpleItem("corrupted_cell");
+    public static final RegistryObject<Item> FLUXITE_CRYSTAL = simpleItem("fluxite_crystal");
+    public static final RegistryObject<Item> QUANTUMITE_SHARD = simpleItem("quantumite_shard");
+
     // --- Вкладка креатива ---
     public static final RegistryObject<CreativeModeTab> TAB = TABS.register("simple_bytestorage_dimension_tab",
             () -> CreativeModeTab.builder()
@@ -461,6 +641,46 @@ public class SimpleAeDimension {
                         output.accept(ENERGY_CELL_64K.get());
                         output.accept(ENERGY_CELL_256K.get());
                         output.accept(FLUID_CELL_256K.get());
+                        output.accept(ADVANCED_ASSEMBLER_ITEM.get());
+                        output.accept(SINGULAR_ASSEMBLER_ITEM.get());
+                        output.accept(PATTERN_BUS_MK2_ITEM.get());
+                        output.accept(SINGULAR_CONTROLLER_ITEM.get());
+                        output.accept(ENERGY_TRANSMITTER_ITEM.get());
+                        output.accept(QUANTUM_RELAY_ITEM.get());
+                        output.accept(SPEED_CARD_MK2.get());
+                        output.accept(INTERDIMENSIONAL_WIRELESS_CARD.get());
+                        output.accept(FACADE_SCANNER.get());
+                        output.accept(OPTIC_PROCESSOR.get());
+                        output.accept(SINGULARITY_CORE.get());
+                        output.accept(CRYO_CORE.get());
+                        output.accept(SENTINEL_BATTERY.get());
+                        output.accept(CHARGED_DUST.get());
+                        output.accept(CORRUPTED_CELL.get());
+                        output.accept(FLUXITE_CRYSTAL.get());
+                        output.accept(QUANTUMITE_SHARD.get());
+                        output.accept(BUSIUM_BLOCK_ITEM.get());
+                        output.accept(OPTIC_QUARTZ_BLOCK_ITEM.get());
+                        output.accept(CRYO_SILICATE_BLOCK_ITEM.get());
+                        output.accept(FLUXITE_BLOCK_ITEM.get());
+                        output.accept(QUANTUMITE_BLOCK_ITEM.get());
+                        output.accept(MATRIX_BLOCK_ITEM.get());
+                        output.accept(OPTIC_PLANKS_ITEM.get());
+                        output.accept(OPTIC_SAPLING_ITEM.get());
+                        output.accept(DENSE_CRYO_ICE_ITEM.get());
+                        output.accept(CORRUPTED_VAULT_CASING_ITEM.get());
+                        output.accept(COOLANT_TANK_NODE_ITEM.get());
+                        output.accept(ARCHIVE_PILLAR_ITEM.get());
+                        output.accept(ARCHIVE_MONOLITH_ITEM.get());
+                        output.accept(ARCHIVE_STONE_ITEM.get());
+                        output.accept(CAPACITOR_PILLAR_ITEM.get());
+                        output.accept(CAPACITOR_PLATE_ITEM.get());
+                        output.accept(CANYON_SLATE_ITEM.get());
+                        output.accept(SILICON_SLATE_BRICKS_ITEM.get());
+                        output.accept(NULL_OBSIDIAN_ITEM.get());
+                        output.accept(NULL_PYLON_ITEM.get());
+                        output.accept(ENTROPY_CLUSTER_ITEM.get());
+                        output.accept(QUANTUM_CLUSTER_ITEM.get());
+                        output.accept(SILICON_CRYSTAL_CLUSTER_ITEM.get());
                     })
                     .build());
 
@@ -561,7 +781,15 @@ public class SimpleAeDimension {
                                     "simple_bytestorage_dimension:quantum_core",
                                     "simple_bytestorage_dimension:cell_1m",
                                     "simple_bytestorage_dimension:energy_cell_64k",
-                                    "simple_bytestorage_dimension:fluid_cell_256k"
+                                    "simple_bytestorage_dimension:fluid_cell_256k",
+                                    "simple_bytestorage_dimension:advanced_assembler",
+                                    "simple_bytestorage_dimension:singular_assembler",
+                                    "simple_bytestorage_dimension:pattern_bus_mk2",
+                                    "simple_bytestorage_dimension:singular_controller",
+                                    "simple_bytestorage_dimension:interdimensional_energy_transmitter",
+                                    "simple_bytestorage_dimension:speed_card_mk2",
+                                    "simple_bytestorage_dimension:interdimensional_wireless_card",
+                                    "simple_bytestorage_dimension:facade_scanner"
                             )
                     ));
         });

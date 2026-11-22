@@ -19,7 +19,8 @@ public class WirelessUpgradeItem extends Item {
         TOOL("tool"),
         MACRO("macro"),
         MAGNET("magnet"),
-        CRAFTING("crafting");
+        CRAFTING("crafting"),
+        INTERDIMENSIONAL("interdimensional");
 
         private final String id;
 

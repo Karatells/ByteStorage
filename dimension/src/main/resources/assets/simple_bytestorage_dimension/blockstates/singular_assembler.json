@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "simple_bytestorage_dimension:block/singular_assembler"
+    },
+    "facing=south": {
+      "model": "simple_bytestorage_dimension:block/singular_assembler",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "simple_bytestorage_dimension:block/singular_assembler",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "simple_bytestorage_dimension:block/singular_assembler",
+      "y": 90
+    }
+  }
+}

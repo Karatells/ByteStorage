@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "simple_bytestorage_dimension:block/quantum_cluster"
+    }
+  }
+}

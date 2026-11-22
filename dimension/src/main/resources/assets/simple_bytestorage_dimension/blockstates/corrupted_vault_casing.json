@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "simple_bytestorage_dimension:block/corrupted_vault_casing"
+    }
+  }
+}

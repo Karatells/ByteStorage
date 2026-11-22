@@ -313,6 +313,8 @@
   "gui.simple_bytestorage.wireless.upgrade.magnet.desc": "Pulls dropped items toward you (not while sneaking). Respects the filter",
   "gui.simple_bytestorage.wireless.upgrade.crafting": "Remote Crafting Card",
   "gui.simple_bytestorage.wireless.upgrade.crafting.desc": "The terminal opens as a Crafting Terminal with a 3x3 grid",
+  "gui.simple_bytestorage.wireless.upgrade.interdimensional": "Interdimensional Card",
+  "gui.simple_bytestorage.wireless.upgrade.interdimensional.desc": "Reaches the bound network across dimensions even in unloaded chunks",
   "gui.simple_bytestorage.provider.blocking.on": "Block: ON",
   "gui.simple_bytestorage.provider.blocking.off": "Block: OFF",
   "gui.simple_bytestorage.provider.blocking.tip": "Blocking mode: do not push the next craft while the adjacent machine still contains ingredients.",

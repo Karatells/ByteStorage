@@ -162,7 +162,13 @@ public class WirelessTerminalItem extends Item {
                 new ResourceLocation(stack.getOrCreateTag().getString(TAG_DIM)));
         ServerLevel target = server.getLevel(dimension);
         BlockPos pos = boundPos(stack);
-        if (target == null || !target.isLoaded(pos)) return null;
+        if (target == null) return null;
+        if (!target.isLoaded(pos)) {
+            if (!WirelessConfig.hasUpgrade(stack, WirelessUpgradeItem.Type.INTERDIMENSIONAL)) {
+                return null;
+            }
+            target.getChunk(pos);
+        }
         return target.getBlockEntity(pos) instanceof NetworkControllerBlockEntity c ? c : null;
     }
 

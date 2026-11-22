@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "A",
+    "A"
+  ],
+  "key": {
+    "A": {
+      "item": "simple_bytestorage_dimension:archive_plate"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:archive_pillar",
+    "count": 2
+  }
+}

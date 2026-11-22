@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "simple_bytestorage_dimension:block/dense_cryo_ice"
+  }
+}

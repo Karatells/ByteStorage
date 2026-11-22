@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "QMQ",
+    "SAS",
+    "QOQ"
+  ],
+  "key": {
+    "Q": {
+      "item": "simple_bytestorage_dimension:quantumite_ingot"
+    },
+    "M": {
+      "item": "simple_bytestorage_dimension:matrix_crystal"
+    },
+    "S": {
+      "item": "simple_bytestorage_dimension:singularity_core"
+    },
+    "A": {
+      "item": "simple_bytestorage_dimension:advanced_assembler"
+    },
+    "O": {
+      "item": "simple_bytestorage_dimension:optic_processor"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:singular_assembler",
+    "count": 1
+  }
+}

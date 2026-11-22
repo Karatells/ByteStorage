@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "simple_bytestorage_dimension:matrix_block"
+    }
+  ],
+  "result": {
+    "item": "simple_bytestorage_dimension:matrix_crystal",
+    "count": 9
+  }
+}

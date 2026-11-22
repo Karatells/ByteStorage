@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " O ",
+    "BGB",
+    " F "
+  ],
+  "key": {
+    "O": {
+      "item": "simple_bytestorage_dimension:optic_processor"
+    },
+    "B": {
+      "item": "simple_bytestorage_dimension:busium_ingot"
+    },
+    "G": {
+      "item": "simple_bytestorage:cable_facade"
+    },
+    "F": {
+      "item": "simple_bytestorage_dimension:fluxite_crystal"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:facade_scanner",
+    "count": 1
+  }
+}

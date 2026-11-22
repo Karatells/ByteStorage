@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "N",
+    "M",
+    "N"
+  ],
+  "key": {
+    "N": {
+      "item": "simple_bytestorage_dimension:null_obsidian"
+    },
+    "M": {
+      "item": "simple_bytestorage_dimension:matrix_crystal"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:null_pylon",
+    "count": 2
+  }
+}
