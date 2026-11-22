@@ -105,5 +105,11 @@
   "advancement.simple_bytestorage_dimension.craft_phase_stabilizer.desc": "Скрафти Стабилизатор фазы для защиты от Десинхронизации и холода.",
   "advancement.simple_bytestorage_dimension.defeat_glitch_stalker.title": "Отладчик",
   "advancement.simple_bytestorage_dimension.defeat_glitch_stalker.desc": "Устрани Глитч-Сталкера в Кремниевом Плане.",
-  "block.simple_bytestorage_dimension.magnetic_updraft": "Магнитный поток"
+  "block.simple_bytestorage_dimension.magnetic_updraft": "Магнитный поток",
+  "entity.simple_bytestorage_dimension.cryo_harvester": "Крио-Сборщик",
+  "entity.simple_bytestorage_dimension.registry_warden": "Хранитель Реестра",
+  "item.simple_bytestorage_dimension.cryo_harvester_spawn_egg": "Яйцо призыва Крио-Сборщика",
+  "item.simple_bytestorage_dimension.registry_warden_spawn_egg": "Яйцо призыва Хранителя Реестра",
+  "advancement.simple_bytestorage_dimension.defeat_registry_warden.title": "Властелин Реестра",
+  "advancement.simple_bytestorage_dimension.defeat_registry_warden.desc": "Победи мини-босса Хранителя Реестра в Сердце Реестра."
 }

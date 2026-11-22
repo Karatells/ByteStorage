@@ -105,5 +105,11 @@
   "advancement.simple_bytestorage_dimension.craft_phase_stabilizer.desc": "Скрафти Стабілізатор фази для захисту від Десинхронізації та холоду.",
   "advancement.simple_bytestorage_dimension.defeat_glitch_stalker.title": "Налагоджувач",
   "advancement.simple_bytestorage_dimension.defeat_glitch_stalker.desc": "Знищ Глітч-Сталкера у Кремнієвому Плані.",
-  "block.simple_bytestorage_dimension.magnetic_updraft": "Магнітний потік"
+  "block.simple_bytestorage_dimension.magnetic_updraft": "Магнітний потік",
+  "entity.simple_bytestorage_dimension.cryo_harvester": "Кріо-Збирач",
+  "entity.simple_bytestorage_dimension.registry_warden": "Вартовий Реєстру",
+  "item.simple_bytestorage_dimension.cryo_harvester_spawn_egg": "Яйце виклику Кріо-Збирача",
+  "item.simple_bytestorage_dimension.registry_warden_spawn_egg": "Яйце виклику Вартового Реєстру",
+  "advancement.simple_bytestorage_dimension.defeat_registry_warden.title": "Володар Реєстру",
+  "advancement.simple_bytestorage_dimension.defeat_registry_warden.desc": "Переможи міні-боса Вартового Реєстру в Серці Реєстру."
 }

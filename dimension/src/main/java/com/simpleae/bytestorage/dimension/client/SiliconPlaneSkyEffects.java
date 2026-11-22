@@ -35,7 +35,13 @@ public class SiliconPlaneSkyEffects extends DimensionSpecialEffects {
             new ResourceLocation(SimpleAeDimension.MOD_ID, "textures/environment/silicon_aurora.png");
 
     public SiliconPlaneSkyEffects() {
-        super(196.0F, true, SkyType.NONE, false, false);
+        super(Float.NaN, false, SkyType.NONE, false, false);
+    }
+
+    @Override
+    public boolean renderClouds(ClientLevel level, int ticks, float partialTick, PoseStack poseStack,
+                                double camX, double camY, double camZ, Matrix4f projectionMatrix) {
+        return true; // Полностью отключаем ванильные облака Minecraft в измерении
     }
 
     @Override

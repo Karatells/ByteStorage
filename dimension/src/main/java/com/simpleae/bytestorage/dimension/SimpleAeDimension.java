@@ -8,9 +8,13 @@ import com.simpleae.bytestorage.dimension.block.RiftPortalBlock;
 import com.simpleae.bytestorage.dimension.block.entity.RiftGateCoreBlockEntity;
 import com.simpleae.bytestorage.dimension.client.SiliconPlaneSkyEffects;
 import com.simpleae.bytestorage.dimension.client.renderer.ByteSentinelRenderer;
+import com.simpleae.bytestorage.dimension.client.renderer.CryoHarvesterRenderer;
 import com.simpleae.bytestorage.dimension.client.renderer.GlitchStalkerRenderer;
+import com.simpleae.bytestorage.dimension.client.renderer.RegistryWardenRenderer;
 import com.simpleae.bytestorage.dimension.entity.ByteSentinelEntity;
+import com.simpleae.bytestorage.dimension.entity.CryoHarvesterEntity;
 import com.simpleae.bytestorage.dimension.entity.GlitchStalkerEntity;
+import com.simpleae.bytestorage.dimension.entity.RegistryWardenEntity;
 import com.simpleae.bytestorage.dimension.fluid.CoolantFluidType;
 import com.simpleae.bytestorage.dimension.item.PhaseStabilizerItem;
 import com.simpleae.bytestorage.dimension.item.RiftCompassItem;
@@ -104,6 +108,14 @@ public class SimpleAeDimension {
     public static final RegistryObject<EntityType<GlitchStalkerEntity>> GLITCH_STALKER =
             ENTITIES.register("glitch_stalker", () -> EntityType.Builder.of(GlitchStalkerEntity::new, MobCategory.MONSTER)
                     .sized(0.65F, 2.2F).build("glitch_stalker"));
+
+    public static final RegistryObject<EntityType<CryoHarvesterEntity>> CRYO_HARVESTER =
+            ENTITIES.register("cryo_harvester", () -> EntityType.Builder.of(CryoHarvesterEntity::new, MobCategory.CREATURE)
+                    .sized(1.15F, 2.1F).build("cryo_harvester"));
+
+    public static final RegistryObject<EntityType<RegistryWardenEntity>> REGISTRY_WARDEN =
+            ENTITIES.register("registry_warden", () -> EntityType.Builder.of(RegistryWardenEntity::new, MobCategory.MONSTER)
+                    .sized(1.3F, 2.7F).fireImmune().build("registry_warden"));
 
     // --- Жидкий хладагент (Liquid Coolant) ---
     public static final RegistryObject<FluidType> COOLANT_FLUID_TYPE = FLUID_TYPES.register("liquid_coolant",
@@ -345,6 +357,10 @@ public class SimpleAeDimension {
             () -> new ForgeSpawnEggItem(BYTE_SENTINEL, 0x1A2638, 0x2AE6F8, new Item.Properties()));
     public static final RegistryObject<Item> GLITCH_STALKER_SPAWN_EGG = ITEMS.register("glitch_stalker_spawn_egg",
             () -> new ForgeSpawnEggItem(GLITCH_STALKER, 0x241038, 0xC844FF, new Item.Properties()));
+    public static final RegistryObject<Item> CRYO_HARVESTER_SPAWN_EGG = ITEMS.register("cryo_harvester_spawn_egg",
+            () -> new ForgeSpawnEggItem(CRYO_HARVESTER, 0x2A4E6E, 0x8CEEFF, new Item.Properties()));
+    public static final RegistryObject<Item> REGISTRY_WARDEN_SPAWN_EGG = ITEMS.register("registry_warden_spawn_egg",
+            () -> new ForgeSpawnEggItem(REGISTRY_WARDEN, 0x1E1418, 0xFFD048, new Item.Properties()));
 
     // --- Высокоуровневые ячейки хранения (Тиры 2–4) ---
     public static final RegistryObject<Item> CELL_256K = ITEMS.register("cell_256k",
@@ -371,6 +387,8 @@ public class SimpleAeDimension {
                         output.accept(PHASE_STABILIZER.get());
                         output.accept(BYTE_SENTINEL_SPAWN_EGG.get());
                         output.accept(GLITCH_STALKER_SPAWN_EGG.get());
+                        output.accept(CRYO_HARVESTER_SPAWN_EGG.get());
+                        output.accept(REGISTRY_WARDEN_SPAWN_EGG.get());
                         output.accept(SILICON_SLATE_ITEM.get());
                         output.accept(CRYO_BASALT_ITEM.get());
                         output.accept(CORRUPTED_STONE_ITEM.get());
@@ -459,16 +477,22 @@ public class SimpleAeDimension {
     private void registerEntityAttributes(final EntityAttributeCreationEvent event) {
         event.put(BYTE_SENTINEL.get(), ByteSentinelEntity.createAttributes().build());
         event.put(GLITCH_STALKER.get(), GlitchStalkerEntity.createAttributes().build());
+        event.put(CRYO_HARVESTER.get(), CryoHarvesterEntity.createAttributes().build());
+        event.put(REGISTRY_WARDEN.get(), RegistryWardenEntity.createAttributes().build());
     }
 
     private void registerLayerDefinitions(final EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(ByteSentinelRenderer.LAYER, ByteSentinelRenderer.SentinelModel::createBodyLayer);
         event.registerLayerDefinition(GlitchStalkerRenderer.LAYER, GlitchStalkerRenderer.StalkerModel::createBodyLayer);
+        event.registerLayerDefinition(CryoHarvesterRenderer.LAYER, CryoHarvesterRenderer.HarvesterModel::createBodyLayer);
+        event.registerLayerDefinition(RegistryWardenRenderer.LAYER, RegistryWardenRenderer.WardenModel::createBodyLayer);
     }
 
     private void registerEntityRenderers(final EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(BYTE_SENTINEL.get(), ByteSentinelRenderer::new);
         event.registerEntityRenderer(GLITCH_STALKER.get(), GlitchStalkerRenderer::new);
+        event.registerEntityRenderer(CRYO_HARVESTER.get(), CryoHarvesterRenderer::new);
+        event.registerEntityRenderer(REGISTRY_WARDEN.get(), RegistryWardenRenderer::new);
     }
 
     private void clientSetup(final FMLClientSetupEvent event) {
