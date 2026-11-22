@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    "simple_bytestorage_dimension:optic_log",
+    "simple_bytestorage_dimension:stripped_optic_log",
+    "simple_bytestorage_dimension:optic_wood",
+    "simple_bytestorage_dimension:stripped_optic_wood",
+    "simple_bytestorage_dimension:optic_planks",
+    "simple_bytestorage_dimension:optic_stairs",
+    "simple_bytestorage_dimension:optic_slab",
+    "simple_bytestorage_dimension:optic_fence",
+    "simple_bytestorage_dimension:optic_fence_gate",
+    "simple_bytestorage_dimension:optic_door",
+    "simple_bytestorage_dimension:optic_trapdoor",
+    "simple_bytestorage_dimension:optic_pressure_plate",
+    "simple_bytestorage_dimension:optic_button",
+    "simple_bytestorage_dimension:optic_mosaic",
+    "simple_bytestorage_dimension:optic_mosaic_stairs",
+    "simple_bytestorage_dimension:optic_mosaic_slab",
+    "simple_bytestorage_dimension:optic_bookshelf",
+    "simple_bytestorage_dimension:chiseled_optic_bookshelf",
+    "simple_bytestorage_dimension:optic_ladder",
+    "simple_bytestorage_dimension:optic_crate",
+    "simple_bytestorage_dimension:optic_sign",
+    "simple_bytestorage_dimension:optic_wall_sign",
+    "simple_bytestorage_dimension:optic_hanging_sign",
+    "simple_bytestorage_dimension:optic_wall_hanging_sign"
+  ]
+}

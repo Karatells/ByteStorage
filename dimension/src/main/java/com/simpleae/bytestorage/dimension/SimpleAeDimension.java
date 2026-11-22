@@ -1,16 +1,20 @@
 package com.simpleae.bytestorage.dimension;
 
 import com.simpleae.bytestorage.api.storage.CellTier;
+import com.simpleae.bytestorage.dimension.block.ChiseledOpticBookshelfBlock;
 import com.simpleae.bytestorage.dimension.block.CyberPlantBlock;
 import com.simpleae.bytestorage.dimension.block.InterdimensionalEnergyTransmitterBlock;
 import com.simpleae.bytestorage.dimension.block.MagneticUpdraftBlock;
+import com.simpleae.bytestorage.dimension.block.OpticCrateBlock;
 import com.simpleae.bytestorage.dimension.block.OpticSaplingBlock;
+import com.simpleae.bytestorage.dimension.block.OpticSignBlocks;
 import com.simpleae.bytestorage.dimension.block.PatternBusMk2Block;
 import com.simpleae.bytestorage.dimension.block.QuantumRelayBlock;
 import com.simpleae.bytestorage.dimension.block.ReturnBeaconBlock;
 import com.simpleae.bytestorage.dimension.block.RiftGateCoreBlock;
 import com.simpleae.bytestorage.dimension.block.RiftPortalBlock;
 import com.simpleae.bytestorage.dimension.block.SingularControllerBlock;
+import com.simpleae.bytestorage.dimension.block.StrippablePillarBlock;
 import com.simpleae.bytestorage.dimension.block.TieredAssemblerBlock;
 import com.simpleae.bytestorage.dimension.block.entity.InterdimensionalEnergyTransmitterBlockEntity;
 import com.simpleae.bytestorage.dimension.block.entity.PatternBusMk2BlockEntity;
@@ -22,20 +26,42 @@ import com.simpleae.bytestorage.dimension.client.SiliconPlaneSkyEffects;
 import com.simpleae.bytestorage.dimension.client.renderer.ByteSentinelRenderer;
 import com.simpleae.bytestorage.dimension.client.renderer.CryoHarvesterRenderer;
 import com.simpleae.bytestorage.dimension.client.renderer.GlitchStalkerRenderer;
+import com.simpleae.bytestorage.dimension.client.renderer.OpticBoatRenderer;
 import com.simpleae.bytestorage.dimension.client.renderer.RegistryWardenRenderer;
 import com.simpleae.bytestorage.dimension.entity.ByteSentinelEntity;
 import com.simpleae.bytestorage.dimension.entity.CryoHarvesterEntity;
 import com.simpleae.bytestorage.dimension.entity.GlitchStalkerEntity;
+import com.simpleae.bytestorage.dimension.entity.OpticBoatEntities;
 import com.simpleae.bytestorage.dimension.entity.RegistryWardenEntity;
 import com.simpleae.bytestorage.dimension.fluid.CoolantFluidType;
 import com.simpleae.bytestorage.dimension.item.ArchiveLoreItem;
 import com.simpleae.bytestorage.dimension.item.CapacitorAccumulatorItem;
 import com.simpleae.bytestorage.dimension.item.FacadeScannerItem;
+import com.simpleae.bytestorage.dimension.item.OpticBoatItem;
 import com.simpleae.bytestorage.dimension.item.PhaseStabilizerItem;
 import com.simpleae.bytestorage.dimension.item.RiftCompassItem;
 import com.simpleae.bytestorage.dimension.item.RiftResonatorItem;
 import com.simpleae.bytestorage.dimension.item.SpeedCardMk2Item;
 import com.simpleae.bytestorage.item.WirelessUpgradeItem;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.blockentity.HangingSignRenderer;
+import net.minecraft.client.renderer.blockentity.SignRenderer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.HangingSignItem;
+import net.minecraft.world.item.SignItem;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.ButtonBlock;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.FenceBlock;
+import net.minecraft.world.level.block.FenceGateBlock;
+import net.minecraft.world.level.block.LadderBlock;
+import net.minecraft.world.level.block.PressurePlateBlock;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.StairBlock;
+import net.minecraft.world.level.block.TrapDoorBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockSetType;
+import net.minecraft.world.level.block.state.properties.WoodType;
 import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.Tiers;
 import com.simpleae.bytestorage.dimension.world.SiliconEnvironmentHandler;
@@ -132,6 +158,19 @@ public class SimpleAeDimension {
             ENTITIES.register("cryo_harvester", () -> EntityType.Builder.of(CryoHarvesterEntity::new, MobCategory.CREATURE)
                     .sized(1.15F, 2.1F).build("cryo_harvester"));
 
+    public static final BlockSetType OPTIC_BLOCK_SET_TYPE =
+            BlockSetType.register(new BlockSetType(MOD_ID + ":optic"));
+    public static final WoodType OPTIC_WOOD_TYPE =
+            WoodType.register(new WoodType(MOD_ID + ":optic", OPTIC_BLOCK_SET_TYPE));
+
+    public static final RegistryObject<EntityType<OpticBoatEntities.OpticBoat>> OPTIC_BOAT_ENTITY =
+            ENTITIES.register("optic_boat", () -> EntityType.Builder.<OpticBoatEntities.OpticBoat>of(OpticBoatEntities.OpticBoat::new, MobCategory.MISC)
+                    .sized(1.375F, 0.5625F).clientTrackingRange(10).build("optic_boat"));
+
+    public static final RegistryObject<EntityType<OpticBoatEntities.OpticChestBoat>> OPTIC_CHEST_BOAT_ENTITY =
+            ENTITIES.register("optic_chest_boat", () -> EntityType.Builder.<OpticBoatEntities.OpticChestBoat>of(OpticBoatEntities.OpticChestBoat::new, MobCategory.MISC)
+                    .sized(1.375F, 0.5625F).clientTrackingRange(10).build("optic_chest_boat"));
+
     public static final RegistryObject<EntityType<RegistryWardenEntity>> REGISTRY_WARDEN =
             ENTITIES.register("registry_warden", () -> EntityType.Builder.of(RegistryWardenEntity::new, MobCategory.MONSTER)
                     .sized(1.3F, 2.7F).fireImmune().build("registry_warden"));
@@ -215,8 +254,9 @@ public class SimpleAeDimension {
     public static final RegistryObject<Item> REGISTRY_OBSIDIAN_ITEM = blockItem("registry_obsidian", REGISTRY_OBSIDIAN_BLOCK);
 
     public static final RegistryObject<Block> OPTIC_LOG_BLOCK = BLOCKS.register("optic_log",
-            () -> new RotatedPillarBlock(BlockBehaviour.Properties.of()
-                    .mapColor(MapColor.COLOR_CYAN).strength(2.5F).lightLevel(s -> 4).sound(SoundType.GLASS)));
+            () -> new StrippablePillarBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_CYAN).strength(2.5F).lightLevel(s -> 4).sound(SoundType.GLASS),
+                    () -> SimpleAeDimension.STRIPPED_OPTIC_LOG_BLOCK.get()));
     public static final RegistryObject<Item> OPTIC_LOG_ITEM = blockItem("optic_log", OPTIC_LOG_BLOCK);
 
     public static final RegistryObject<Block> OPTIC_LEAVES_BLOCK = BLOCKS.register("optic_leaves",
@@ -501,6 +541,119 @@ public class SimpleAeDimension {
             () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(2.2F, 4.0F).lightLevel(s -> 4).sound(SoundType.WOOD)));
     public static final RegistryObject<Item> OPTIC_PLANKS_ITEM = blockItem("optic_planks", OPTIC_PLANKS_BLOCK);
 
+    // --- Полный декоративный набор из оптической древесины (Optic Wood Set) ---
+    public static final RegistryObject<Block> STRIPPED_OPTIC_LOG_BLOCK = BLOCKS.register("stripped_optic_log",
+            () -> new RotatedPillarBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(2.3F).lightLevel(s -> 4).sound(SoundType.WOOD)));
+    public static final RegistryObject<Item> STRIPPED_OPTIC_LOG_ITEM = blockItem("stripped_optic_log", STRIPPED_OPTIC_LOG_BLOCK);
+
+    public static final RegistryObject<Block> OPTIC_WOOD_BLOCK = BLOCKS.register("optic_wood",
+            () -> new StrippablePillarBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(2.5F).lightLevel(s -> 4).sound(SoundType.WOOD),
+                    () -> SimpleAeDimension.STRIPPED_OPTIC_WOOD_BLOCK.get()));
+    public static final RegistryObject<Item> OPTIC_WOOD_ITEM = blockItem("optic_wood", OPTIC_WOOD_BLOCK);
+
+    public static final RegistryObject<Block> STRIPPED_OPTIC_WOOD_BLOCK = BLOCKS.register("stripped_optic_wood",
+            () -> new RotatedPillarBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(2.3F).lightLevel(s -> 4).sound(SoundType.WOOD)));
+    public static final RegistryObject<Item> STRIPPED_OPTIC_WOOD_ITEM = blockItem("stripped_optic_wood", STRIPPED_OPTIC_WOOD_BLOCK);
+
+    public static final RegistryObject<Block> OPTIC_STAIRS_BLOCK = BLOCKS.register("optic_stairs",
+            () -> new StairBlock(() -> OPTIC_PLANKS_BLOCK.get().defaultBlockState(),
+                    BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(2.2F, 4.0F).lightLevel(s -> 4).sound(SoundType.WOOD)));
+    public static final RegistryObject<Item> OPTIC_STAIRS_ITEM = blockItem("optic_stairs", OPTIC_STAIRS_BLOCK);
+
+    public static final RegistryObject<Block> OPTIC_SLAB_BLOCK = BLOCKS.register("optic_slab",
+            () -> new SlabBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(2.2F, 4.0F).lightLevel(s -> 4).sound(SoundType.WOOD)));
+    public static final RegistryObject<Item> OPTIC_SLAB_ITEM = blockItem("optic_slab", OPTIC_SLAB_BLOCK);
+
+    public static final RegistryObject<Block> OPTIC_FENCE_BLOCK = BLOCKS.register("optic_fence",
+            () -> new FenceBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(2.2F, 4.0F).lightLevel(s -> 4).sound(SoundType.WOOD)));
+    public static final RegistryObject<Item> OPTIC_FENCE_ITEM = blockItem("optic_fence", OPTIC_FENCE_BLOCK);
+
+    public static final RegistryObject<Block> OPTIC_FENCE_GATE_BLOCK = BLOCKS.register("optic_fence_gate",
+            () -> new FenceGateBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(2.2F, 4.0F).lightLevel(s -> 4).sound(SoundType.WOOD), OPTIC_WOOD_TYPE));
+    public static final RegistryObject<Item> OPTIC_FENCE_GATE_ITEM = blockItem("optic_fence_gate", OPTIC_FENCE_GATE_BLOCK);
+
+    public static final RegistryObject<Block> OPTIC_DOOR_BLOCK = BLOCKS.register("optic_door",
+            () -> new DoorBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(3.0F).noOcclusion().lightLevel(s -> 4).sound(SoundType.WOOD), OPTIC_BLOCK_SET_TYPE));
+    public static final RegistryObject<Item> OPTIC_DOOR_ITEM = blockItem("optic_door", OPTIC_DOOR_BLOCK);
+
+    public static final RegistryObject<Block> OPTIC_TRAPDOOR_BLOCK = BLOCKS.register("optic_trapdoor",
+            () -> new TrapDoorBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(3.0F).noOcclusion().lightLevel(s -> 4).sound(SoundType.WOOD), OPTIC_BLOCK_SET_TYPE));
+    public static final RegistryObject<Item> OPTIC_TRAPDOOR_ITEM = blockItem("optic_trapdoor", OPTIC_TRAPDOOR_BLOCK);
+
+    public static final RegistryObject<Block> OPTIC_PRESSURE_PLATE_BLOCK = BLOCKS.register("optic_pressure_plate",
+            () -> new PressurePlateBlock(PressurePlateBlock.Sensitivity.EVERYTHING,
+                    BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).noCollission().strength(0.5F).lightLevel(s -> 4).sound(SoundType.WOOD), OPTIC_BLOCK_SET_TYPE));
+    public static final RegistryObject<Item> OPTIC_PRESSURE_PLATE_ITEM = blockItem("optic_pressure_plate", OPTIC_PRESSURE_PLATE_BLOCK);
+
+    public static final RegistryObject<Block> OPTIC_BUTTON_BLOCK = BLOCKS.register("optic_button",
+            () -> new ButtonBlock(BlockBehaviour.Properties.of().noCollission().strength(0.5F).lightLevel(s -> 4).sound(SoundType.WOOD), OPTIC_BLOCK_SET_TYPE, 30, true));
+    public static final RegistryObject<Item> OPTIC_BUTTON_ITEM = blockItem("optic_button", OPTIC_BUTTON_BLOCK);
+
+    public static final RegistryObject<Block> OPTIC_MOSAIC_BLOCK = BLOCKS.register("optic_mosaic",
+            () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(2.2F, 4.0F).lightLevel(s -> 5).sound(SoundType.WOOD)));
+    public static final RegistryObject<Item> OPTIC_MOSAIC_ITEM = blockItem("optic_mosaic", OPTIC_MOSAIC_BLOCK);
+
+    public static final RegistryObject<Block> OPTIC_MOSAIC_STAIRS_BLOCK = BLOCKS.register("optic_mosaic_stairs",
+            () -> new StairBlock(() -> OPTIC_MOSAIC_BLOCK.get().defaultBlockState(),
+                    BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(2.2F, 4.0F).lightLevel(s -> 5).sound(SoundType.WOOD)));
+    public static final RegistryObject<Item> OPTIC_MOSAIC_STAIRS_ITEM = blockItem("optic_mosaic_stairs", OPTIC_MOSAIC_STAIRS_BLOCK);
+
+    public static final RegistryObject<Block> OPTIC_MOSAIC_SLAB_BLOCK = BLOCKS.register("optic_mosaic_slab",
+            () -> new SlabBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(2.2F, 4.0F).lightLevel(s -> 5).sound(SoundType.WOOD)));
+    public static final RegistryObject<Item> OPTIC_MOSAIC_SLAB_ITEM = blockItem("optic_mosaic_slab", OPTIC_MOSAIC_SLAB_BLOCK);
+
+    public static final RegistryObject<Block> OPTIC_BOOKSHELF_BLOCK = BLOCKS.register("optic_bookshelf",
+            () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(1.8F).lightLevel(s -> 5).sound(SoundType.WOOD)) {
+                @Override
+                public float getEnchantPowerBonus(BlockState state, LevelReader level, BlockPos pos) {
+                    return 1.0F;
+                }
+            });
+    public static final RegistryObject<Item> OPTIC_BOOKSHELF_ITEM = blockItem("optic_bookshelf", OPTIC_BOOKSHELF_BLOCK);
+
+    public static final RegistryObject<Block> CHISELED_OPTIC_BOOKSHELF_BLOCK = BLOCKS.register("chiseled_optic_bookshelf",
+            () -> new ChiseledOpticBookshelfBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(1.8F).lightLevel(s -> 5).sound(SoundType.CHISELED_BOOKSHELF)));
+    public static final RegistryObject<Item> CHISELED_OPTIC_BOOKSHELF_ITEM = blockItem("chiseled_optic_bookshelf", CHISELED_OPTIC_BOOKSHELF_BLOCK);
+    public static final RegistryObject<BlockEntityType<ChiseledOpticBookshelfBlock.ChiseledOpticBookshelfBlockEntity>> CHISELED_OPTIC_BOOKSHELF_ENTITY =
+            BLOCK_ENTITIES.register("chiseled_optic_bookshelf",
+                    () -> BlockEntityType.Builder.of(ChiseledOpticBookshelfBlock.ChiseledOpticBookshelfBlockEntity::new, CHISELED_OPTIC_BOOKSHELF_BLOCK.get()).build(null));
+
+    public static final RegistryObject<Block> OPTIC_LADDER_BLOCK = BLOCKS.register("optic_ladder",
+            () -> new LadderBlock(BlockBehaviour.Properties.of().strength(0.4F).noOcclusion().lightLevel(s -> 4).sound(SoundType.LADDER)));
+    public static final RegistryObject<Item> OPTIC_LADDER_ITEM = blockItem("optic_ladder", OPTIC_LADDER_BLOCK);
+
+    public static final RegistryObject<Block> OPTIC_CRATE_BLOCK = BLOCKS.register("optic_crate",
+            () -> new OpticCrateBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(2.5F).lightLevel(s -> 4).sound(SoundType.WOOD)));
+    public static final RegistryObject<Item> OPTIC_CRATE_ITEM = blockItem("optic_crate", OPTIC_CRATE_BLOCK);
+    public static final RegistryObject<BlockEntityType<OpticCrateBlock.OpticCrateBlockEntity>> OPTIC_CRATE_ENTITY =
+            BLOCK_ENTITIES.register("optic_crate",
+                    () -> BlockEntityType.Builder.of(OpticCrateBlock.OpticCrateBlockEntity::new, OPTIC_CRATE_BLOCK.get()).build(null));
+
+    public static final RegistryObject<Block> OPTIC_SIGN_BLOCK = BLOCKS.register("optic_sign",
+            () -> new OpticSignBlocks.Standing(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).noCollission().strength(1.0F).lightLevel(s -> 4).sound(SoundType.WOOD), OPTIC_WOOD_TYPE));
+    public static final RegistryObject<Block> OPTIC_WALL_SIGN_BLOCK = BLOCKS.register("optic_wall_sign",
+            () -> new OpticSignBlocks.Wall(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).noCollission().strength(1.0F).lightLevel(s -> 4).sound(SoundType.WOOD).lootFrom(OPTIC_SIGN_BLOCK), OPTIC_WOOD_TYPE));
+    public static final RegistryObject<Item> OPTIC_SIGN_ITEM = ITEMS.register("optic_sign",
+            () -> new SignItem(new Item.Properties().stacksTo(16), OPTIC_SIGN_BLOCK.get(), OPTIC_WALL_SIGN_BLOCK.get()));
+    public static final RegistryObject<BlockEntityType<OpticSignBlocks.OpticSignBlockEntity>> OPTIC_SIGN_ENTITY =
+            BLOCK_ENTITIES.register("optic_sign",
+                    () -> BlockEntityType.Builder.of(OpticSignBlocks.OpticSignBlockEntity::new, OPTIC_SIGN_BLOCK.get(), OPTIC_WALL_SIGN_BLOCK.get()).build(null));
+
+    public static final RegistryObject<Block> OPTIC_HANGING_SIGN_BLOCK = BLOCKS.register("optic_hanging_sign",
+            () -> new OpticSignBlocks.CeilingHanging(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).noCollission().strength(1.0F).lightLevel(s -> 4).sound(SoundType.HANGING_SIGN), OPTIC_WOOD_TYPE));
+    public static final RegistryObject<Block> OPTIC_WALL_HANGING_SIGN_BLOCK = BLOCKS.register("optic_wall_hanging_sign",
+            () -> new OpticSignBlocks.WallHanging(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).noCollission().strength(1.0F).lightLevel(s -> 4).sound(SoundType.HANGING_SIGN).lootFrom(OPTIC_HANGING_SIGN_BLOCK), OPTIC_WOOD_TYPE));
+    public static final RegistryObject<Item> OPTIC_HANGING_SIGN_ITEM = ITEMS.register("optic_hanging_sign",
+            () -> new HangingSignItem(OPTIC_HANGING_SIGN_BLOCK.get(), OPTIC_WALL_HANGING_SIGN_BLOCK.get(), new Item.Properties().stacksTo(16)));
+    public static final RegistryObject<BlockEntityType<OpticSignBlocks.OpticHangingSignBlockEntity>> OPTIC_HANGING_SIGN_ENTITY =
+            BLOCK_ENTITIES.register("optic_hanging_sign",
+                    () -> BlockEntityType.Builder.of(OpticSignBlocks.OpticHangingSignBlockEntity::new, OPTIC_HANGING_SIGN_BLOCK.get(), OPTIC_WALL_HANGING_SIGN_BLOCK.get()).build(null));
+
+    public static final RegistryObject<Item> OPTIC_BOAT = ITEMS.register("optic_boat",
+            () -> new OpticBoatItem(false, new Item.Properties()));
+    public static final RegistryObject<Item> OPTIC_CHEST_BOAT = ITEMS.register("optic_chest_boat",
+            () -> new OpticBoatItem(true, new Item.Properties()));
+
     public static final RegistryObject<Block> OPTIC_SAPLING_BLOCK = BLOCKS.register("optic_sapling",
             () -> new OpticSaplingBlock(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).noCollission().instabreak().lightLevel(s -> 8).sound(SoundType.GRASS)));
     public static final RegistryObject<Item> OPTIC_SAPLING_ITEM = blockItem("optic_sapling", OPTIC_SAPLING_BLOCK);
@@ -665,6 +818,28 @@ public class SimpleAeDimension {
                         output.accept(QUANTUMITE_BLOCK_ITEM.get());
                         output.accept(MATRIX_BLOCK_ITEM.get());
                         output.accept(OPTIC_PLANKS_ITEM.get());
+                        output.accept(STRIPPED_OPTIC_LOG_ITEM.get());
+                        output.accept(OPTIC_WOOD_ITEM.get());
+                        output.accept(STRIPPED_OPTIC_WOOD_ITEM.get());
+                        output.accept(OPTIC_STAIRS_ITEM.get());
+                        output.accept(OPTIC_SLAB_ITEM.get());
+                        output.accept(OPTIC_FENCE_ITEM.get());
+                        output.accept(OPTIC_FENCE_GATE_ITEM.get());
+                        output.accept(OPTIC_DOOR_ITEM.get());
+                        output.accept(OPTIC_TRAPDOOR_ITEM.get());
+                        output.accept(OPTIC_PRESSURE_PLATE_ITEM.get());
+                        output.accept(OPTIC_BUTTON_ITEM.get());
+                        output.accept(OPTIC_MOSAIC_ITEM.get());
+                        output.accept(OPTIC_MOSAIC_STAIRS_ITEM.get());
+                        output.accept(OPTIC_MOSAIC_SLAB_ITEM.get());
+                        output.accept(OPTIC_BOOKSHELF_ITEM.get());
+                        output.accept(CHISELED_OPTIC_BOOKSHELF_ITEM.get());
+                        output.accept(OPTIC_LADDER_ITEM.get());
+                        output.accept(OPTIC_CRATE_ITEM.get());
+                        output.accept(OPTIC_SIGN_ITEM.get());
+                        output.accept(OPTIC_HANGING_SIGN_ITEM.get());
+                        output.accept(OPTIC_BOAT.get());
+                        output.accept(OPTIC_CHEST_BOAT.get());
                         output.accept(OPTIC_SAPLING_ITEM.get());
                         output.accept(DENSE_CRYO_ICE_ITEM.get());
                         output.accept(CORRUPTED_VAULT_CASING_ITEM.get());
@@ -740,10 +915,15 @@ public class SimpleAeDimension {
         event.registerEntityRenderer(GLITCH_STALKER.get(), GlitchStalkerRenderer::new);
         event.registerEntityRenderer(CRYO_HARVESTER.get(), CryoHarvesterRenderer::new);
         event.registerEntityRenderer(REGISTRY_WARDEN.get(), RegistryWardenRenderer::new);
+        event.registerEntityRenderer(OPTIC_BOAT_ENTITY.get(), ctx -> new OpticBoatRenderer(ctx, false));
+        event.registerEntityRenderer(OPTIC_CHEST_BOAT_ENTITY.get(), ctx -> new OpticBoatRenderer(ctx, true));
+        event.registerBlockEntityRenderer(OPTIC_SIGN_ENTITY.get(), SignRenderer::new);
+        event.registerBlockEntityRenderer(OPTIC_HANGING_SIGN_ENTITY.get(), HangingSignRenderer::new);
     }
 
     private void clientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
+            Sheets.addWoodType(OPTIC_WOOD_TYPE);
             com.simpleae.bytestorage.client.guide.GuideRegistry.register(
                     new com.simpleae.bytestorage.client.guide.GuideRegistry.Chapter(
                             "dimension_portal", 200,

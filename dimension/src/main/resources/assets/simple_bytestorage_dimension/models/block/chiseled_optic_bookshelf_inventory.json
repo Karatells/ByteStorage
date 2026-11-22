@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "simple_bytestorage_dimension:block/chiseled_optic_bookshelf_empty",
+    "side": "simple_bytestorage_dimension:block/chiseled_optic_bookshelf_side",
+    "top": "simple_bytestorage_dimension:block/chiseled_optic_bookshelf_top"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/pressure_plate_down",
+  "textures": {
+    "texture": "simple_bytestorage_dimension:block/optic_pressure_plate"
+  }
+}

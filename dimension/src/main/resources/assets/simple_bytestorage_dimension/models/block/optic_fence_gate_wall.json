@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/template_fence_gate_wall",
+  "textures": {
+    "texture": "simple_bytestorage_dimension:block/optic_fence_gate"
+  }
+}

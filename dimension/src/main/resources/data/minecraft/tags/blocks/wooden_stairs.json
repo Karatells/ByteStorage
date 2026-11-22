@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "simple_bytestorage_dimension:optic_stairs",
+    "simple_bytestorage_dimension:optic_mosaic_stairs"
+  ]
+}

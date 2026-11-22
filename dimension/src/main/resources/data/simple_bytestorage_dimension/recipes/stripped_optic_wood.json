@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "##",
+    "##"
+  ],
+  "key": {
+    "#": {
+      "item": "simple_bytestorage_dimension:stripped_optic_log"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:stripped_optic_wood",
+    "count": 3
+  }
+}

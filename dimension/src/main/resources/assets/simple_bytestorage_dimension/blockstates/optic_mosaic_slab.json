@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "simple_bytestorage_dimension:block/optic_mosaic_slab"
+    },
+    "type=double": {
+      "model": "simple_bytestorage_dimension:block/optic_mosaic"
+    },
+    "type=top": {
+      "model": "simple_bytestorage_dimension:block/optic_mosaic_slab_top"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "simple_bytestorage_dimension:optic_slab",
+    "simple_bytestorage_dimension:optic_mosaic_slab"
+  ]
+}
