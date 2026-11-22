@@ -436,5 +436,16 @@
   "gui.simple_bytestorage.terminal.tab.items": "Вещи",
   "gui.simple_bytestorage.terminal.tab.fluids": "Жидк.",
   "gui.simple_bytestorage.terminal.tab.tip": "Переключение между предметами и жидкостями из жидкостных ячеек",
-  "gui.simple_bytestorage.terminal.fluid.hint": "Клик пустым/полным ведром — налить или слить"
+  "gui.simple_bytestorage.terminal.fluid.hint": "Клик пустым/полным ведром — налить или слить",
+  "gui.simple_bytestorage.guide.search": "Поиск по главам...",
+  "gui.simple_bytestorage.guide.tab.guide": "Текст",
+  "gui.simple_bytestorage.guide.tab.crafts": "Крафты",
+  "gui.simple_bytestorage.guide.craft_table": "Верстак",
+  "gui.simple_bytestorage.guide.smelting": "Плавка",
+  "gui.simple_bytestorage.guide.no_results": "Подходящих глав не найдено.",
+  "gui.simple_bytestorage.guide.view_crafts": "Открыть рецепты крафта (%s) ->",
+  "guide.simple_bytestorage.interface.title": "Интерфейс и Порт. ячейки",
+  "guide.simple_bytestorage.interface.body": "§eСетевой интерфейс§r — универсальный мост для воронок, труб и механизмов:\n- Любые входящие предметы сразу уходят в хранилище сети.\n- 9 верхних слотов конфигурации автоматически поддерживают запас в 9 нижних слотах буфера.\n\n§eПортативные байт-ячейки (1k/4k/16k)§r:\n- Ручной терминал §bбез лимита типов§r! ПКМ открывает интерфейс, §bShift+ПКМ§r включает авто-подбор лута.\n- Совместимы с Дисководом и Верстаком ячеек.\n\n§eЭнергетические ячейки (1k/4k/16k)§r:\n- Хранят энергию прямо в Дисководе (§b1 байт = 1 000 FE§r) и балансируют заряд с Контроллером.",
+  "guide.simple_bytestorage.advanced.title": "Кванты, Монитор и Защита",
+  "guide.simple_bytestorage.advanced.body": "§eКвантовый ретранслятор§r + §bЗапутанный кристалл§r:\n- Shift+ПКМ по 2+ кристаллам связывает их; вставьте в два ретранслятора для связи баз и измерений.\n\n§eМонитор сети (3D)§r:\n- Выводит до 6 светящихся строк прямо на грани блока в мире! Поддерживает цвета (§b&a..&f§r) и бары (§b[bar:75:green]§r).\n\n§eФасад кабеля§r:\n- Shift+ПКМ по целому блоку — скопировать вид, ПКМ по кабелю — замаскировать.\n\n§eТерминал безопасности§r и §eSilicon Rift§r:\n- Ограничивает доступ к сети. Добывайте квантовые кластеры ради §dПовреждённых ячеек§r и восстанавливайте их в Верстаке ячеек!"
 }
