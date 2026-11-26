@@ -94,8 +94,9 @@ public class CraftingTerminalMenu extends AbstractContainerMenu implements IGrid
             @Override
             public void onTake(Player player, ItemStack stack) {
                 super.onTake(player, stack);
-                if (!stack.isEmpty()) {
-                    CraftingTerminalMenu.this.craftResult(player, stack);
+                if (!player.level().isClientSide) {
+                    CraftingTerminalMenu.this.updateCraftingResult(player.level());
+                    CraftingTerminalMenu.this.broadcastChanges();
                 }
             }
         });
@@ -374,6 +375,131 @@ public class CraftingTerminalMenu extends AbstractContainerMenu implements IGrid
         }
 
         broadcastChanges();
+    }
+
+    /**
+     * Заповнити крафтову сітку 3×3 з JEI («+» або Shift+«+»).
+     * Спочатку повертає старий вміст сітки в мережу/інвентар, а потім заповнює слоти
+     * з інвентаря гравця та віртуального сховища мережі.
+     */
+    public void fillFromJei(List<List<ItemStack>> slotCandidates, boolean maxTransfer, ServerPlayer serverPlayer) {
+        INetworkStorage storage = (terminalEntity != null && terminalEntity.getGrid() != null
+                && terminalEntity.getGrid().getState().isActive())
+                ? terminalEntity.getGrid().getStorage()
+                : null;
+
+        // 1. Повертаємо поточні предмети з крафтової сітки (у мережу або інвентар)
+        for (int i = 0; i < craftMatrix.getContainerSize(); i++) {
+            ItemStack existing = craftMatrix.getItem(i);
+            if (existing.isEmpty()) continue;
+            craftMatrix.setItem(i, ItemStack.EMPTY);
+            ItemStack rem = existing;
+            if (storage != null) {
+                rem = storage.insertItem(rem, false);
+            }
+            if (!rem.isEmpty() && !serverPlayer.getInventory().add(rem)) {
+                serverPlayer.drop(rem, false);
+            }
+        }
+
+        // 2. Визначаємо скільки циклів заповнювати: 1 або максимум (при Shift+«+»)
+        int maxSets = maxTransfer ? 64 : 1;
+        for (int set = 0; set < maxSets; set++) {
+            boolean anySlotNeeded = false;
+            boolean canFillSet = true;
+            ItemStack[] pulled = new ItemStack[9];
+
+            for (int slot = 0; slot < Math.min(9, slotCandidates.size()); slot++) {
+                List<ItemStack> cands = slotCandidates.get(slot);
+                if (cands == null || cands.isEmpty()) continue;
+                anySlotNeeded = true;
+
+                // Не перевищуємо maxStackSize предмета в слоті
+                ItemStack inSlot = craftMatrix.getItem(slot);
+                if (!inSlot.isEmpty() && inSlot.getCount() >= inSlot.getMaxStackSize()) {
+                    canFillSet = false;
+                    break;
+                }
+
+                ItemStack one = extractOneForJei(cands, inSlot, serverPlayer, storage);
+                if (one.isEmpty()) {
+                    canFillSet = false;
+                    break;
+                }
+                pulled[slot] = one;
+            }
+
+            if (!anySlotNeeded || !canFillSet) {
+                // Відкат неповного набору
+                for (int slot = 0; slot < 9; slot++) {
+                    if (pulled[slot] != null && !pulled[slot].isEmpty()) {
+                        ItemStack rem = pulled[slot];
+                        if (storage != null) rem = storage.insertItem(rem, false);
+                        if (!rem.isEmpty() && !serverPlayer.getInventory().add(rem)) {
+                            serverPlayer.drop(rem, false);
+                        }
+                    }
+                }
+                break;
+            }
+
+            for (int slot = 0; slot < 9; slot++) {
+                if (pulled[slot] == null || pulled[slot].isEmpty()) continue;
+                ItemStack inSlot = craftMatrix.getItem(slot);
+                if (inSlot.isEmpty()) {
+                    craftMatrix.setItem(slot, pulled[slot]);
+                } else {
+                    inSlot.grow(pulled[slot].getCount());
+                    craftMatrix.setItem(slot, inSlot);
+                }
+            }
+        }
+
+        updateCraftingResult(serverPlayer.level());
+        broadcastChanges();
+    }
+
+    private static ItemStack extractOneForJei(List<ItemStack> candidates, ItemStack currentInSlot,
+                                              ServerPlayer player, INetworkStorage storage) {
+        // Якщо в слоті вже є предмет (при maxTransfer), шукаємо саме такий самий
+        if (!currentInSlot.isEmpty()) {
+            ItemStack fromInv = extractFromPlayerInv(player, currentInSlot, true);
+            if (!fromInv.isEmpty()) return fromInv;
+            if (storage != null) {
+                ItemStack fromNet = storage.extractItem(currentInSlot, 1, false);
+                if (!fromNet.isEmpty()) return fromNet;
+            }
+            return ItemStack.EMPTY;
+        }
+
+        // 1. Спочатку з інвентаря гравця
+        for (ItemStack cand : candidates) {
+            if (cand.isEmpty()) continue;
+            ItemStack fromInv = extractFromPlayerInv(player, cand, cand.hasTag());
+            if (!fromInv.isEmpty()) return fromInv;
+        }
+        // 2. Потім з мережі зберігання
+        if (storage != null) {
+            for (ItemStack cand : candidates) {
+                if (cand.isEmpty()) continue;
+                ItemStack fromNet = storage.extractItem(cand, 1, false);
+                if (!fromNet.isEmpty()) return fromNet;
+            }
+        }
+        return ItemStack.EMPTY;
+    }
+
+    private static ItemStack extractFromPlayerInv(ServerPlayer player, ItemStack target, boolean matchTags) {
+        for (int i = 0; i < player.getInventory().items.size(); i++) {
+            ItemStack st = player.getInventory().items.get(i);
+            if (st.isEmpty() || !st.is(target.getItem())) continue;
+            if (matchTags && !ItemStack.isSameItemSameTags(st, target)) continue;
+            ItemStack one = st.copyWithCount(1);
+            st.shrink(1);
+            if (st.isEmpty()) player.getInventory().items.set(i, ItemStack.EMPTY);
+            return one;
+        }
+        return ItemStack.EMPTY;
     }
 
     /**

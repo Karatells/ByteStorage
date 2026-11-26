@@ -117,6 +117,12 @@ public class SimpleByteStoragePackets {
                 .consumerMainThread(EncoderFillPacket::handle)
                 .add();
 
+        CHANNEL.messageBuilder(CraftingTerminalJeiFillPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(CraftingTerminalJeiFillPacket::new)
+                .encoder(CraftingTerminalJeiFillPacket::encode)
+                .consumerMainThread(CraftingTerminalJeiFillPacket::handle)
+                .add();
+
         CHANNEL.messageBuilder(PatternOrderPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
                 .decoder(PatternOrderPacket::new)
                 .encoder(PatternOrderPacket::encode)
