@@ -72,5 +72,14 @@
   "gui.simple_bytestorage_scripting.cat.fluids": "Fluids",
   "gui.simple_bytestorage_scripting.cat.display": "Display",
   "gui.simple_bytestorage_scripting.cat.ui": "Panels",
-  "gui.simple_bytestorage_scripting.cat.other": "Other"
+  "gui.simple_bytestorage_scripting.cat.other": "Other",
+  "gui.simple_bytestorage_scripting.ide.buses": "Buses",
+  "gui.simple_bytestorage_scripting.ide.console": "Console",
+  "gui.simple_bytestorage_scripting.ide.tpl_tip": "Cycle built-in JS templates",
+  "gui.simple_bytestorage_scripting.ide.interval_tip": "Adjust execution interval (ticks)",
+  "gui.simple_bytestorage_scripting.ide.act.explorer": "Toggle Explorer (Buses & IDs)",
+  "gui.simple_bytestorage_scripting.ide.act.code": "Code Editor",
+  "gui.simple_bytestorage_scripting.ide.act.panel": "Live Panel (ui.*)",
+  "gui.simple_bytestorage_scripting.ide.act.scripts": "Community Scripts",
+  "gui.simple_bytestorage_scripting.ide.act.libs": "JS Libraries (include)"
 }

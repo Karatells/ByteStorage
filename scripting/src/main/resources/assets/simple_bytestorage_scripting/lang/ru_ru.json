@@ -72,5 +72,14 @@
   "gui.simple_bytestorage_scripting.cat.fluids": "Жидкости",
   "gui.simple_bytestorage_scripting.cat.display": "Мониторы",
   "gui.simple_bytestorage_scripting.cat.ui": "Панели",
-  "gui.simple_bytestorage_scripting.cat.other": "Прочее"
+  "gui.simple_bytestorage_scripting.cat.other": "Прочее",
+  "gui.simple_bytestorage_scripting.ide.buses": "Шины",
+  "gui.simple_bytestorage_scripting.ide.console": "Консоль",
+  "gui.simple_bytestorage_scripting.ide.tpl_tip": "Подставить встроенный шаблон JS",
+  "gui.simple_bytestorage_scripting.ide.interval_tip": "Изменить интервал запуска (тики)",
+  "gui.simple_bytestorage_scripting.ide.act.explorer": "Проводник (Шины и ID)",
+  "gui.simple_bytestorage_scripting.ide.act.code": "Редактор кода",
+  "gui.simple_bytestorage_scripting.ide.act.panel": "Интерактивная панель (ui.*)",
+  "gui.simple_bytestorage_scripting.ide.act.scripts": "Библиотека скриптов",
+  "gui.simple_bytestorage_scripting.ide.act.libs": "Библиотеки JS (include)"
 }

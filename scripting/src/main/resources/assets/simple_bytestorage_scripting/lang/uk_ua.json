@@ -72,5 +72,14 @@
   "gui.simple_bytestorage_scripting.cat.fluids": "Рідини",
   "gui.simple_bytestorage_scripting.cat.display": "Монітори",
   "gui.simple_bytestorage_scripting.cat.ui": "Панелі",
-  "gui.simple_bytestorage_scripting.cat.other": "Інше"
+  "gui.simple_bytestorage_scripting.cat.other": "Інше",
+  "gui.simple_bytestorage_scripting.ide.buses": "Шини",
+  "gui.simple_bytestorage_scripting.ide.console": "Консоль",
+  "gui.simple_bytestorage_scripting.ide.tpl_tip": "Підставити вбудований шаблон JS",
+  "gui.simple_bytestorage_scripting.ide.interval_tip": "Змінити інтервал запуску (тіки)",
+  "gui.simple_bytestorage_scripting.ide.act.explorer": "Провідник (Шини та ID)",
+  "gui.simple_bytestorage_scripting.ide.act.code": "Редактор коду",
+  "gui.simple_bytestorage_scripting.ide.act.panel": "Інтерактивна панель (ui.*)",
+  "gui.simple_bytestorage_scripting.ide.act.scripts": "Бібліотека скриптів",
+  "gui.simple_bytestorage_scripting.ide.act.libs": "Бібліотеки JS (include)"
 }
