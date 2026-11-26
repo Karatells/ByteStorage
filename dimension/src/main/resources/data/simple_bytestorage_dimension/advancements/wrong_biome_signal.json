@@ -1,0 +1,23 @@
+{
+  "parent": "simple_bytestorage_dimension:root",
+  "display": {
+    "icon": {
+      "item": "simple_bytestorage_dimension:rift_compass"
+    },
+    "title": {
+      "translate": "advancement.simple_bytestorage_dimension.wrong_biome_signal.title"
+    },
+    "description": {
+      "translate": "advancement.simple_bytestorage_dimension.wrong_biome_signal.desc"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": true
+  },
+  "criteria": {
+    "tried_wrong_biome": {
+      "trigger": "minecraft:impossible"
+    }
+  }
+}

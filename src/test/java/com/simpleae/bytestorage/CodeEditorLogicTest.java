@@ -155,7 +155,7 @@ class CodeEditorLogicTest {
         String t = "net.c";
         List<CompletionEngine.Suggestion> s = engine().suggest(t, t.length(), false);
         assertEquals(2, s.size());
-        assertEquals("count(", s.get(0).insert());
+        assertEquals("count($0)", s.get(0).insert());
         assertEquals(4, s.get(0).replaceFrom());
     }
 
@@ -179,5 +179,78 @@ class CodeEditorLogicTest {
     void noSuggestionsInComments() {
         String t = "// net.c";
         assertTrue(engine().suggest(t, t.length(), true).isEmpty());
+    }
+
+    private static CompletionEngine richEngine() {
+        return new CompletionEngine(List.of(
+                new CompletionEngine.Entry("", "side", "side(name, id)", true, "port"),
+                new CompletionEngine.Entry("", "net", "network", false),
+                new CompletionEngine.Entry("net", "list", "list()", true),
+                new CompletionEngine.Entry("net", "craft", "craft(id, n)", true, "order"),
+                new CompletionEngine.Entry("net", "setPriority", "setPriority(q, p)", true),
+                new CompletionEngine.Entry("ep", "push", "push(id, n)", true),
+                new CompletionEngine.Entry("event", "count", "count", false),
+                new CompletionEngine.Entry("event", "id", "id", false)),
+                Set.of("net", "side"),
+                (call, arg, prefix) -> call.equals("side") ? List.of("north", "south", "up")
+                        : List.of("minecraft:coal"));
+    }
+
+    @Test
+    void suggestsSnippetsAndLocalSymbols() {
+        String t = "var counter = 1;\nfunction helper(amount) {}\nco";
+        List<CompletionEngine.Suggestion> s = richEngine().suggest(t, t.length(), false);
+        assertTrue(s.stream().anyMatch(x -> x.label().equals("counter") && x.detail().equals("variable")));
+        List<CompletionEngine.Suggestion> t2 = richEngine().suggest("tic", 3, false);
+        assertEquals("snippet", t2.get(0).detail());
+        List<CompletionEngine.Suggestion> p = richEngine().suggest("function helper(amount) { am", 28, false);
+        assertTrue(p.stream().anyMatch(x -> x.label().equals("amount") && x.detail().equals("parameter")));
+    }
+
+    @Test
+    void handlerParameterGetsEventFields() {
+        String t = "function onCraft(e) {\n  var n = e.";
+        List<CompletionEngine.Suggestion> s = richEngine().suggest(t, t.length(), false);
+        assertEquals(2, s.size());
+    }
+
+    @Test
+    void sideVariableGetsPortMembers() {
+        String t = "var chest = side(\"up\");\nchest.pu";
+        List<CompletionEngine.Suggestion> s = richEngine().suggest(t, t.length(), false);
+        assertEquals("push", s.get(0).label());
+    }
+
+    @Test
+    void fuzzyMatchesLettersInOrder() {
+        List<CompletionEngine.Suggestion> s = richEngine().suggest("net.sp", 6, false);
+        assertEquals("setPriority", s.get(0).label());
+    }
+
+    @Test
+    void stringArgumentsAreContextAware() {
+        String t = "side(\"";
+        List<CompletionEngine.Suggestion> s = richEngine().suggest(t, t.length(), false);
+        assertEquals(3, s.size());
+        assertEquals("value", s.get(0).detail());
+        String t2 = "net.craft(\"co";
+        assertEquals("minecraft:coal", richEngine().suggest(t2, t2.length(), false).get(0).label());
+    }
+
+    @Test
+    void signatureHintTracksArgument() {
+        String t = "net.craft(\"minecraft:coal\", ";
+        CompletionEngine.Hint h = richEngine().signature(t, t.length());
+        assertEquals(1, h.active());
+        assertEquals(List.of("id", "n"), h.params());
+        assertTrue(richEngine().signature("net.craft(1);", 13) == null);
+    }
+
+    @Test
+    void snippetKeepsIndentAndPlacesCursor() {
+        TextBuffer b = buf("  ti");
+        b.replaceWithSnippet(2, 4, "function tick() {\n  $0\n}");
+        assertEquals("  function tick() {\n    \n  }", b.text());
+        assertEquals(b.text().indexOf("\n  }"), b.cursor());
     }
 }

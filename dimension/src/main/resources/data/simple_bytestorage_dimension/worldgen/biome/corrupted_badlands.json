@@ -1,0 +1,61 @@
+{
+  "has_precipitation": false,
+  "temperature": 0.6,
+  "downfall": 0.0,
+  "effects": {
+    "fog_color": 4069476,
+    "sky_color": 6169748,
+    "water_color": 12864767,
+    "water_fog_color": 4069476,
+    "foliage_color": 14179583,
+    "grass_color": 14179583,
+    "particle": {
+      "options": {
+        "type": "minecraft:portal"
+      },
+      "probability": 0.03
+    }
+  },
+  "spawners": {
+    "monster": [
+      {
+        "type": "simple_bytestorage_dimension:glitch_stalker",
+        "weight": 60,
+        "minCount": 1,
+        "maxCount": 2
+      }
+    ],
+    "creature": [],
+    "ambient": [],
+    "axolotls": [],
+    "underground_water_creature": [],
+    "water_creature": [],
+    "water_ambient": [],
+    "misc": []
+  },
+  "spawn_costs": {},
+  "carvers": {
+    "air": [
+      "minecraft:canyon"
+    ]
+  },
+  "features": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      "simple_bytestorage_dimension:entropy_ore_rich"
+    ],
+    [],
+    [],
+    [
+      "simple_bytestorage:quantum_cluster",
+      "simple_bytestorage_dimension:patch_digital_flower",
+      "simple_bytestorage_dimension:struct_glitch_monolith",
+      "simple_bytestorage_dimension:void_cyber_tree"
+    ]
+  ]
+}

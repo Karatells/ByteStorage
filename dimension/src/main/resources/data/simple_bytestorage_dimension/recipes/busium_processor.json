@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BQB",
+    "RWR",
+    "BQB"
+  ],
+  "key": {
+    "B": {
+      "item": "simple_bytestorage_dimension:busium_ingot"
+    },
+    "Q": {
+      "item": "simple_bytestorage_dimension:optic_quartz"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "W": {
+      "item": "simple_bytestorage:logic_wafer"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:busium_processor",
+    "count": 2
+  }
+}

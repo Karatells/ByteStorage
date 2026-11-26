@@ -10,9 +10,9 @@ import java.util.Locale;
  */
 public final class SearchSyntax {
 
-    public enum Kind { TEXT, MOD, TAG, COUNT, FLAG, INVALID }
+    public enum Kind { TEXT, MOD, TAG, TOOLTIP, COUNT, FLAG, INVALID }
 
-    /** @param op для COUNT: '>', '<' или '='; для остальных — 0. */
+    /** @param op для COUNT: '>', '<', '=', 'G' (>=), 'L' (<=); для остальных — 0. */
     public record Token(Kind kind, String text, char op, int number) {
     }
 
@@ -38,10 +38,19 @@ public final class SearchSyntax {
                 result.add(new Token(Kind.MOD, rest, (char) 0, 0));
             } else if (c == '#' && !rest.isEmpty()) {
                 result.add(new Token(Kind.TAG, rest, (char) 0, 0));
+            } else if (c == '%' && !rest.isEmpty()) {
+                result.add(new Token(Kind.TOOLTIP, rest, (char) 0, 0));
             } else if ((c == '>' || c == '<' || c == '=') && !rest.isEmpty()) {
-                try {
-                    result.add(new Token(Kind.COUNT, rest, c, Integer.parseInt(rest)));
-                } catch (NumberFormatException e) {
+                char op = c;
+                String numPart = rest;
+                if ((c == '>' || c == '<') && rest.startsWith("=")) {
+                    op = c == '>' ? 'G' : 'L';
+                    numPart = rest.substring(1);
+                }
+                Integer parsed = parseAmount(numPart);
+                if (parsed != null) {
+                    result.add(new Token(Kind.COUNT, numPart, op, parsed));
+                } else {
                     result.add(new Token(Kind.INVALID, raw, (char) 0, 0));
                 }
             } else if (c == '$' && !rest.isEmpty()) {
@@ -67,10 +76,40 @@ public final class SearchSyntax {
         return null;
     }
 
+    private static Integer parseAmount(String s) {
+        if (s == null || s.isEmpty()) {
+            return null;
+        }
+        long mult = 1;
+        char last = s.charAt(s.length() - 1);
+        String digits = s;
+        if (last == 'k') {
+            mult = 1_000L;
+            digits = s.substring(0, s.length() - 1);
+        } else if (last == 'm') {
+            mult = 1_000_000L;
+            digits = s.substring(0, s.length() - 1);
+        }
+        if (digits.isEmpty()) {
+            return null;
+        }
+        try {
+            long val = Long.parseLong(digits);
+            if (val < 0) return null;
+            long scaled = Math.multiplyExact(val, mult);
+            if (scaled > Integer.MAX_VALUE) return null;
+            return (int) scaled;
+        } catch (NumberFormatException | ArithmeticException e) {
+            return null;
+        }
+    }
+
     public static boolean countMatches(Token token, int count) {
         return switch (token.op()) {
             case '>' -> count > token.number();
             case '<' -> count < token.number();
+            case 'G' -> count >= token.number();
+            case 'L' -> count <= token.number();
             default -> count == token.number();
         };
     }

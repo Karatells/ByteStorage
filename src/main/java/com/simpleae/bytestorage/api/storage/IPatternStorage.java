@@ -63,6 +63,7 @@ public interface IPatternStorage {
         private final List<ItemStack> grid;
         private final List<ItemStack> inputs;
         private final boolean processing;
+        private final List<ItemStack> extras;
 
         public PatternData(String id, ItemStack output, List<ItemStack> grid) {
             this(id, output, grid, false);
@@ -73,7 +74,22 @@ public interface IPatternStorage {
          *                   предмети з кількостями, а не розкладка верстака.
          */
         public PatternData(String id, ItemStack output, List<ItemStack> grid, boolean processing) {
+            this(id, output, grid, processing, List.of());
+        }
+
+        /**
+         * @param extras побочные продукты на один крафт (процесные шаблоны): шина забирает их из машины вместе
+         *               с основным результатом, чтобы они не забивали машину. Планировщик их не учитывает.
+         */
+        public PatternData(String id, ItemStack output, List<ItemStack> grid, boolean processing, List<ItemStack> extras) {
             this.id = id;
+            List<ItemStack> extraCopy = new ArrayList<>();
+            for (ItemStack extra : extras) {
+                if (!extra.isEmpty()) {
+                    extraCopy.add(extra.copy());
+                }
+            }
+            this.extras = extraCopy;
             this.processing = processing;
             this.output = output.copy();
             this.grid = new ArrayList<>(GRID_SIZE);
@@ -98,6 +114,23 @@ public interface IPatternStorage {
 
         public static PatternData processing(ItemStack output, List<ItemStack> inputs) {
             return new PatternData(makeId(output, inputs, true), output, inputs, true);
+        }
+
+        public static PatternData processing(ItemStack output, List<ItemStack> inputs, List<ItemStack> extras) {
+            String id = makeId(output, inputs, true);
+            if (!extras.isEmpty()) {
+                StringBuilder sb = new StringBuilder(id);
+                for (ItemStack extra : extras) {
+                    sb.append('+').append(extra.getCount()).append(stackKey(extra));
+                }
+                id = id + "_" + String.format("%08x", sb.toString().hashCode());
+            }
+            return new PatternData(id, output, inputs, true, extras);
+        }
+
+        /** Побочные продукты одного крафта (может быть пусто). */
+        public List<ItemStack> getExtras() {
+            return extras;
         }
 
         /** Чи це шаблон для машини (кладеться в Шину Шаблонів), а не крафт верстака. */

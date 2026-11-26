@@ -1,0 +1,36 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+
+[[mods]]
+modId="simple_bytestorage_dimension"
+version="1.4.0"
+displayName="Simple Byte Storage: Silicon Plane"
+authors="Simple Byte Storage Team"
+description='''
+Необязательный аддон для Simple Byte Storage.
+Добавляет измерение «Кремниевый План» (Silicon Plane) с уникальными биомами,
+новыми рудами, Жидким хладагентом, Вратами Разлома (работающими только в биоме Silicon Rift)
+и высокоуровневыми тирами ячеек хранения (256k, Портативная 64k и др.).
+'''
+
+[[dependencies.simple_bytestorage_dimension]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.simple_bytestorage_dimension]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.simple_bytestorage_dimension]]
+    modId="simple_bytestorage"
+    mandatory=true
+    versionRange="[1.4.0,)"
+    ordering="AFTER"
+    side="BOTH"

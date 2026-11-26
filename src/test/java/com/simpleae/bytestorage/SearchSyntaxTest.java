@@ -84,4 +84,23 @@ class SearchSyntaxTest {
         assertEquals(Kind.FLAG, t.get(3).kind());
         assertEquals(Kind.TEXT, t.get(4).kind());
     }
+
+    @Test
+    void tooltipAndSuffixCountsAndGteLte() {
+        Token tip = SearchSyntax.parse("%sharpness").get(0);
+        assertEquals(Kind.TOOLTIP, tip.kind());
+        assertEquals("sharpness", tip.text());
+
+        Token gte = SearchSyntax.parse(">=10k").get(0);
+        assertEquals(Kind.COUNT, gte.kind());
+        assertEquals(10_000, gte.number());
+        assertTrue(SearchSyntax.countMatches(gte, 10_000));
+        assertFalse(SearchSyntax.countMatches(gte, 9_999));
+
+        Token lte = SearchSyntax.parse("<=2m").get(0);
+        assertEquals(Kind.COUNT, lte.kind());
+        assertEquals(2_000_000, lte.number());
+        assertTrue(SearchSyntax.countMatches(lte, 2_000_000));
+        assertFalse(SearchSyntax.countMatches(lte, 2_000_001));
+    }
 }

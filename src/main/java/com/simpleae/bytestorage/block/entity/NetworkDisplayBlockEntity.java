@@ -45,12 +45,31 @@ public class NetworkDisplayBlockEntity extends BlockEntity implements IGridNode,
         if (!clean.equals(lines[index])) {
             lines[index] = clean;
             setChanged();
+            syncToClient();
         }
     }
 
     public void clearLines() {
         Arrays.fill(lines, "");
         setChanged();
+        syncToClient();
+    }
+
+    private void syncToClient() {
+        if (level != null && !level.isClientSide) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    @Override
+    public CompoundTag getUpdateTag() {
+        return saveWithoutMetadata();
+    }
+
+    @Nullable
+    @Override
+    public net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener> getUpdatePacket() {
+        return net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket.create(this);
     }
 
     @Override

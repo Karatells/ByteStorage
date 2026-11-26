@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "simple_bytestorage_dimension:raw_busium"
+  },
+  "result": "simple_bytestorage_dimension:busium_ingot",
+  "experience": 1.0,
+  "cookingtime": 200
+}

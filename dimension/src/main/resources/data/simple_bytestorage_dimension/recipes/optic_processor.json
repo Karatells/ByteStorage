@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "OQO",
+    "BPB",
+    "OQO"
+  ],
+  "key": {
+    "O": {
+      "item": "simple_bytestorage_dimension:optic_quartz"
+    },
+    "Q": {
+      "item": "minecraft:quartz"
+    },
+    "B": {
+      "item": "simple_bytestorage_dimension:busium_ingot"
+    },
+    "P": {
+      "item": "simple_bytestorage_dimension:busium_processor"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:optic_processor",
+    "count": 2
+  }
+}

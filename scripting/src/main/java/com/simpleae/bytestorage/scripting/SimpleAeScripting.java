@@ -68,6 +68,9 @@ public class SimpleAeScripting {
             BLOCK_ENTITIES.register("logic_terminal",
                     () -> BlockEntityType.Builder.of(LogicTerminalBlockEntity::new, LOGIC_TERMINAL_BLOCK.get()).build(null));
 
+    public static final RegistryObject<Item> SCRIPT_DISK = ITEMS.register("script_disk",
+            () -> new com.simpleae.bytestorage.scripting.item.ScriptDiskItem(new Item.Properties()));
+
     public static final RegistryObject<CreativeModeTab> TAB = TABS.register("simple_bytestorage_scripting_tab",
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.simple_bytestorage_scripting"))
@@ -75,6 +78,7 @@ public class SimpleAeScripting {
                     .displayItems((parameters, output) -> {
                         output.accept(LOGIC_BUS_ITEM.get());
                         output.accept(LOGIC_TERMINAL_ITEM.get());
+                        output.accept(SCRIPT_DISK.get());
                     })
                     .build());
 
@@ -95,12 +99,26 @@ public class SimpleAeScripting {
     private void clientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
             String[] ids = {"intro", "api", "examples", "admin"};
+            String[] icons = {
+                    "simple_bytestorage_scripting:logic_terminal",
+                    "simple_bytestorage_scripting:logic_bus",
+                    "simple_bytestorage_scripting:script_disk",
+                    "minecraft:command_block"
+            };
+            java.util.List<String> scriptingRecipes = java.util.List.of(
+                    "simple_bytestorage_scripting:logic_bus",
+                    "simple_bytestorage_scripting:logic_terminal",
+                    "simple_bytestorage_scripting:script_disk"
+            );
             int order = 100;
-            for (String id : ids) {
+            for (int i = 0; i < ids.length; i++) {
+                String id = ids[i];
                 com.simpleae.bytestorage.client.guide.GuideRegistry.register(
                         new com.simpleae.bytestorage.client.guide.GuideRegistry.Chapter("scripting_" + id, order += 10,
                                 "guide.simple_bytestorage_scripting." + id + ".title",
-                                "guide.simple_bytestorage_scripting." + id + ".body"));
+                                "guide.simple_bytestorage_scripting." + id + ".body",
+                                icons[i],
+                                i == 0 ? scriptingRecipes : java.util.List.of()));
             }
         });
     }

@@ -7,6 +7,7 @@ import com.simpleae.bytestorage.scripting.ScriptingConfig;
 import com.simpleae.bytestorage.scripting.SimpleAeScripting;
 import com.simpleae.bytestorage.scripting.script.BusContext;
 import com.simpleae.bytestorage.scripting.script.LogicRuntime;
+import com.simpleae.bytestorage.scripting.script.UiElement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
@@ -39,12 +40,14 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
             "");
 
     private static final int MAX_LOG = 16;
+    private static final int MAX_INBOX = 32;
 
     private IGrid grid;
     private String script = DEFAULT_SCRIPT;
     private boolean enabled = false;
     private final java.util.Map<String, String> memoryStore = new java.util.LinkedHashMap<>();
     private final int[] redstoneOut = new int[6];
+    private final Deque<BusMessage> inbox = new ArrayDeque<>();
     private int interval = 20;
     private String identifier = "";
     private String status = "";
@@ -52,6 +55,8 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
     private boolean dirty = true;
     private LogicRuntime runtime;
     private final Deque<String> log = new ArrayDeque<>();
+    private List<UiElement> panel = List.of();
+    private final Deque<String> buttons = new ArrayDeque<>();
 
     public LogicBusBlockEntity(BlockPos pos, BlockState state) {
         super(SimpleAeScripting.LOGIC_BUS_ENTITY.get(), pos, state);
@@ -139,6 +144,29 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
         }
     }
 
+    @Override
+    public void setPanel(List<UiElement> elements) {
+        this.panel = List.copyOf(elements);
+    }
+
+    @Override
+    public List<String> takeButtons() {
+        List<String> taken = new ArrayList<>(buttons);
+        buttons.clear();
+        return taken;
+    }
+
+    /** Нажатие кнопки панели в терминале: скрипт получит его при следующем запуске (onButton). */
+    public void pressButton(String id) {
+        if (enabled && buttons.size() < 8 && !id.isEmpty()) {
+            buttons.addLast(id.length() > UiElement.MAX_ID ? id.substring(0, UiElement.MAX_ID) : id);
+        }
+    }
+
+    public List<UiElement> getPanel() {
+        return panel;
+    }
+
     // --- Стан для терміналу ---
 
     public String getScript() {
@@ -191,6 +219,8 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
         this.dirty = true;
         this.enabled = false;
         this.status = "saved";
+        this.panel = List.of();
+        this.buttons.clear();
         setChanged();
     }
 
@@ -201,6 +231,8 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
         }
         this.enabled = value;
         if (!value) {
+            buttons.clear();
+            inbox.clear();
             clearRedstone();
             if (status.isEmpty()) {
                 status = "stopped";
@@ -309,6 +341,27 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
 
     public int getOutputSignal(net.minecraft.core.Direction dir) {
         return redstoneOut[dir.ordinal()];
+    }
+
+    @Override
+    public void pushMessage(String from, String text) {
+        if (!enabled) return;
+        String cleanFrom = from == null ? "" : from;
+        String cleanText = text == null ? "" : (text.length() > 256 ? text.substring(0, 256) : text);
+        if (inbox.size() >= MAX_INBOX) {
+            inbox.removeFirst();
+        }
+        inbox.addLast(new BusMessage(cleanFrom, cleanText));
+    }
+
+    @Override
+    public List<BusMessage> takeMessages() {
+        if (inbox.isEmpty()) {
+            return List.of();
+        }
+        List<BusMessage> out = new ArrayList<>(inbox);
+        inbox.clear();
+        return out;
     }
 
     @Override

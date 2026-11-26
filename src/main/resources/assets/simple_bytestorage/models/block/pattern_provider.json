@@ -1,6 +1,12 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "minecraft:block/cube",
   "textures": {
-    "all": "simple_bytestorage:block/pattern_provider"
+    "particle": "simple_bytestorage:block/pattern_provider",
+    "north": "simple_bytestorage:block/pattern_provider",
+    "south": "simple_bytestorage:block/pattern_provider",
+    "east": "simple_bytestorage:block/pattern_provider",
+    "west": "simple_bytestorage:block/pattern_provider",
+    "up": "simple_bytestorage:block/machine_top",
+    "down": "simple_bytestorage:block/machine_bottom"
   }
 }

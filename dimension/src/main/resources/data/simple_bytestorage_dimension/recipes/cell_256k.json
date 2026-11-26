@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "QPQ",
+    "CKC",
+    "BBB"
+  ],
+  "key": {
+    "Q": {
+      "item": "simple_bytestorage_dimension:optic_quartz"
+    },
+    "P": {
+      "item": "simple_bytestorage_dimension:busium_processor"
+    },
+    "C": {
+      "item": "simple_bytestorage:cell_64k"
+    },
+    "K": {
+      "item": "simple_bytestorage_dimension:coolant_bucket"
+    },
+    "B": {
+      "item": "simple_bytestorage_dimension:busium_ingot"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:cell_256k",
+    "count": 1
+  }
+}

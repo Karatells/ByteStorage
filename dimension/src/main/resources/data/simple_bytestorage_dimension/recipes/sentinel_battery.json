@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " B ",
+    "BFB",
+    " C "
+  ],
+  "key": {
+    "B": {
+      "item": "simple_bytestorage_dimension:busium_ingot"
+    },
+    "F": {
+      "item": "simple_bytestorage_dimension:fluxite_crystal"
+    },
+    "C": {
+      "item": "simple_bytestorage_dimension:charged_dust"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:sentinel_battery",
+    "count": 1
+  }
+}

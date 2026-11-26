@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "simple_bytestorage_dimension:block/pattern_bus_mk2"
+    },
+    "facing=south": {
+      "model": "simple_bytestorage_dimension:block/pattern_bus_mk2",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "simple_bytestorage_dimension:block/pattern_bus_mk2",
+      "y": 270
+    },
+    "facing=east": {
+      "model": "simple_bytestorage_dimension:block/pattern_bus_mk2",
+      "y": 90
+    }
+  }
+}

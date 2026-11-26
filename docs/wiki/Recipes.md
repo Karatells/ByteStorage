@@ -32,6 +32,8 @@
 | Insurance Card | Shapeless: Speed Card + totem of undying + ender pearl + diamond |
 | Tool Card | Shapeless: Speed Card + iron pickaxe + redstone + diamond |
 | Macro Card | Shapeless: Speed Card + repeater + ender pearl + redstone |
+| Magnet Card | Shapeless: Speed Card + iron ingot + lapis lazuli + ender pearl |
+| Remote Crafting Card | Shapeless: Speed Card + crafting table + ender pearl + redstone |
 | Auto-Transfer Card | Shaped: `RER / DCD / RGR` (R redstone, E ender pearl, D diamond, C Speed Card, G gold ingot) |
 
 ## Autocrafting

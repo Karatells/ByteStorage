@@ -41,6 +41,26 @@ public class CableBlock extends BaseEntityBlock {
         PROPERTIES.put(Direction.DOWN, BlockStateProperties.DOWN);
     }
 
+    /** Штекер: ставится, когда кабель подключён к блоку-устройству (а не к другому кабелю). */
+    public static final Map<Direction, BooleanProperty> PLUGS = new EnumMap<>(Direction.class);
+
+    static {
+        for (Direction direction : Direction.values()) {
+            PLUGS.put(direction, BooleanProperty.create("plug_" + direction.getName()));
+        }
+    }
+
+    private static final Map<Direction, VoxelShape> PLUG_SHAPES = new EnumMap<>(Direction.class);
+
+    static {
+        PLUG_SHAPES.put(Direction.NORTH, Block.box(3, 3, 0, 13, 13, 3));
+        PLUG_SHAPES.put(Direction.SOUTH, Block.box(3, 3, 13, 13, 13, 16));
+        PLUG_SHAPES.put(Direction.WEST, Block.box(0, 3, 3, 3, 13, 13));
+        PLUG_SHAPES.put(Direction.EAST, Block.box(13, 3, 3, 16, 13, 13));
+        PLUG_SHAPES.put(Direction.DOWN, Block.box(3, 0, 3, 13, 3, 13));
+        PLUG_SHAPES.put(Direction.UP, Block.box(3, 13, 3, 13, 16, 13));
+    }
+
     private static final VoxelShape CORE = Block.box(5, 5, 5, 11, 11, 11);
     private static final Map<Direction, VoxelShape> ARMS = new EnumMap<>(Direction.class);
 
@@ -59,12 +79,18 @@ public class CableBlock extends BaseEntityBlock {
         for (BooleanProperty property : PROPERTIES.values()) {
             state = state.setValue(property, false);
         }
+        for (BooleanProperty property : PLUGS.values()) {
+            state = state.setValue(property, false);
+        }
         this.registerDefaultState(state);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         for (BooleanProperty property : PROPERTIES.values()) {
+            builder.add(property);
+        }
+        for (BooleanProperty property : PLUGS.values()) {
             builder.add(property);
         }
     }
@@ -76,7 +102,11 @@ public class CableBlock extends BaseEntityBlock {
 
     private BlockState withConnections(LevelReader level, BlockPos pos, BlockState state) {
         for (Map.Entry<Direction, BooleanProperty> entry : PROPERTIES.entrySet()) {
-            state = state.setValue(entry.getValue(), connectsTo(level, pos, entry.getKey()));
+            Direction direction = entry.getKey();
+            boolean connected = connectsTo(level, pos, direction);
+            state = state.setValue(entry.getValue(), connected);
+            state = state.setValue(PLUGS.get(direction), connected
+                    && !(level.getBlockState(pos.relative(direction)).getBlock() instanceof CableBlock));
         }
         return state;
     }
@@ -90,7 +120,9 @@ public class CableBlock extends BaseEntityBlock {
     @Override
     public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
                                   LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
-        return state.setValue(PROPERTIES.get(direction), connectsTo(level, pos, direction));
+        boolean connected = connectsTo(level, pos, direction);
+        return state.setValue(PROPERTIES.get(direction), connected)
+                .setValue(PLUGS.get(direction), connected && !(neighborState.getBlock() instanceof CableBlock));
     }
 
     @Override
@@ -99,6 +131,9 @@ public class CableBlock extends BaseEntityBlock {
         for (Map.Entry<Direction, BooleanProperty> entry : PROPERTIES.entrySet()) {
             if (state.getValue(entry.getValue())) {
                 shape = Shapes.or(shape, ARMS.get(entry.getKey()));
+                if (state.getValue(PLUGS.get(entry.getKey()))) {
+                    shape = Shapes.or(shape, PLUG_SHAPES.get(entry.getKey()));
+                }
             }
         }
         return shape;
@@ -113,5 +148,37 @@ public class CableBlock extends BaseEntityBlock {
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new CableBlockEntity(pos, state);
+    }
+
+    @Override
+    public net.minecraft.world.InteractionResult use(BlockState state, net.minecraft.world.level.Level level, BlockPos pos,
+                                                     net.minecraft.world.entity.player.Player player,
+                                                     net.minecraft.world.InteractionHand hand,
+                                                     net.minecraft.world.phys.BlockHitResult hit) {
+        if (player.isShiftKeyDown() && player.getItemInHand(hand).isEmpty()
+                && level.getBlockEntity(pos) instanceof CableBlockEntity cable && cable.getFacade() != null) {
+            if (!level.isClientSide) {
+                net.minecraft.world.item.ItemStack drop = new net.minecraft.world.item.ItemStack(
+                        com.simpleae.bytestorage.SimpleByteStorage.CABLE_FACADE.get());
+                com.simpleae.bytestorage.item.CableFacadeItem.setSavedState(drop, cable.getFacade());
+                cable.setFacade(null);
+                if (!player.getInventory().add(drop)) {
+                    net.minecraft.world.Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, drop);
+                }
+            }
+            return net.minecraft.world.InteractionResult.sidedSuccess(level.isClientSide);
+        }
+        return super.use(state, level, pos, player, hand, hit);
+    }
+
+    @Override
+    public void onRemove(BlockState state, net.minecraft.world.level.Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+        if (!state.is(newState.getBlock()) && level.getBlockEntity(pos) instanceof CableBlockEntity cable && cable.getFacade() != null) {
+            net.minecraft.world.item.ItemStack drop = new net.minecraft.world.item.ItemStack(
+                    com.simpleae.bytestorage.SimpleByteStorage.CABLE_FACADE.get());
+            com.simpleae.bytestorage.item.CableFacadeItem.setSavedState(drop, cable.getFacade());
+            net.minecraft.world.Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, drop);
+        }
+        super.onRemove(state, level, pos, newState, isMoving);
     }
 }

@@ -1,0 +1,32 @@
+{
+  "parent": "simple_bytestorage_dimension:enter_silicon_plane",
+  "display": {
+    "icon": {
+      "item": "simple_bytestorage_dimension:cell_256k"
+    },
+    "title": {
+      "translate": "advancement.simple_bytestorage_dimension.craft_cell_256k.title"
+    },
+    "description": {
+      "translate": "advancement.simple_bytestorage_dimension.craft_cell_256k.desc"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "has_256k": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "simple_bytestorage_dimension:cell_256k"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

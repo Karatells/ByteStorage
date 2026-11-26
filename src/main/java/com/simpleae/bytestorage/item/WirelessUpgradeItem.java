@@ -17,7 +17,10 @@ public class WirelessUpgradeItem extends Item {
         AUTO_TRANSFER("auto_transfer"),
         INSURANCE("insurance"),
         TOOL("tool"),
-        MACRO("macro");
+        MACRO("macro"),
+        MAGNET("magnet"),
+        CRAFTING("crafting"),
+        INTERDIMENSIONAL("interdimensional");
 
         private final String id;
 

@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CQC",
+    "EPE",
+    "CQC"
+  ],
+  "key": {
+    "C": {
+      "item": "simple_bytestorage_dimension:cryo_silicate"
+    },
+    "Q": {
+      "item": "simple_bytestorage_dimension:quantumite_ingot"
+    },
+    "E": {
+      "item": "simple_bytestorage_dimension:entropy_shard"
+    },
+    "P": {
+      "item": "simple_bytestorage_dimension:busium_processor"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:quantum_core",
+    "count": 1
+  }
+}

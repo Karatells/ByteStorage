@@ -29,6 +29,8 @@ public class TerminalScreen extends AbstractContainerScreen<TerminalMenu> {
 
     private EditBox searchBox;
     private UiButton depositButton;
+    private UiButton fluidsButton;
+    private boolean fluidTab = false;
     private int scrollOffset = 0;
     private final TerminalExtras extras = new TerminalExtras();
 
@@ -58,6 +60,16 @@ public class TerminalScreen extends AbstractContainerScreen<TerminalMenu> {
                     new TerminalActionPacket(new ItemStack(Items.AIR, flag), TerminalActionPacket.ACTION_DEPOSIT_ALL));
         });
         this.depositButton.tooltip(Component.translatable("gui.simple_bytestorage.terminal.deposit"));
+
+        this.fluidsButton = new UiButton(this.leftPos + this.imageWidth + 2, this.topPos + 92, 40, 14,
+                () -> Component.translatable(this.fluidTab
+                        ? "gui.simple_bytestorage.terminal.tab.fluids"
+                        : "gui.simple_bytestorage.terminal.tab.items"),
+                UiButton.Icon.NONE, () -> {
+            this.fluidTab = !this.fluidTab;
+            this.scrollOffset = 0;
+        });
+        this.fluidsButton.tooltip(Component.translatable("gui.simple_bytestorage.terminal.tab.tip"));
     }
 
     @Override
@@ -65,8 +77,10 @@ public class TerminalScreen extends AbstractContainerScreen<TerminalMenu> {
         this.renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
         this.depositButton.render(graphics, this.font, mouseX, mouseY);
+        this.fluidsButton.render(graphics, this.font, mouseX, mouseY);
         this.renderTooltip(graphics, mouseX, mouseY);
         this.depositButton.renderTooltip(graphics, this.font, mouseX, mouseY);
+        this.fluidsButton.renderTooltip(graphics, this.font, mouseX, mouseY);
         this.renderPoolTooltip(graphics, mouseX, mouseY);
         this.extras.renderSort(graphics, this.font, this.leftPos, this.topPos, this.imageWidth, mouseX, mouseY);
         this.extras.renderDialog(graphics, this.font, this.width, this.height, mouseX, mouseY);
@@ -82,7 +96,8 @@ public class TerminalScreen extends AbstractContainerScreen<TerminalMenu> {
         float fill = max > 0 ? (float) used / max : 0.0F;
         int led = max <= 0 ? GuiStyle.LED_BAD : (fill >= 0.95F ? GuiStyle.LED_WARN : GuiStyle.LED_GOOD);
 
-        GuiStyle.window(graphics, x, y, imageWidth, imageHeight, this.title, led, "monitor");
+        Component clippedTitle = Component.literal(GuiStyle.clip(this.font, this.title.getString(), 60));
+        GuiStyle.window(graphics, x, y, imageWidth, imageHeight, clippedTitle, led, "monitor");
 
         // Поле пошуку (текст малює EditBox без власної рамки)
         GuiStyle.display(graphics, x + 82, y + 4, 80, 11);
@@ -118,7 +133,41 @@ public class TerminalScreen extends AbstractContainerScreen<TerminalMenu> {
 
         GuiStyle.playerSlots(graphics, x, y, menu.slots, 0);
 
-        renderPoolItems(graphics, mouseX, mouseY, filtered);
+        if (fluidTab) {
+            renderFluidPool(graphics, mouseX, mouseY);
+        } else {
+            renderPoolItems(graphics, mouseX, mouseY, filtered);
+        }
+    }
+
+    private void renderFluidPool(GuiGraphics graphics, int mouseX, int mouseY) {
+        List<net.minecraftforge.fluids.FluidStack> fluids = menu.getClientFluids();
+        int start = scrollOffset * ITEMS_PER_ROW;
+        for (int i = 0; i < VISIBLE_ROWS * ITEMS_PER_ROW; i++) {
+            int col = i % ITEMS_PER_ROW;
+            int row = i / ITEMS_PER_ROW;
+            int slotX = this.leftPos + POOL_X + col * 18;
+            int slotY = this.topPos + POOL_Y + row * 18;
+            if (start + i < fluids.size()) {
+                net.minecraftforge.fluids.FluidStack fs = fluids.get(start + i);
+                ItemStack icon = new ItemStack(fs.getFluid().getBucket());
+                if (icon.isEmpty()) icon = new ItemStack(Items.WATER_BUCKET);
+                graphics.renderItem(icon, slotX + 1, slotY + 1);
+                String amt = fs.getAmount() >= 1000
+                        ? String.format(Locale.ROOT, "%.1fB", fs.getAmount() / 1000.0)
+                        : fs.getAmount() + "m";
+                graphics.pose().pushPose();
+                graphics.pose().translate(0, 0, 200);
+                graphics.pose().scale(0.5F, 0.5F, 1.0F);
+                int tx = (int) ((slotX + 17) * 2) - this.font.width(amt);
+                int ty = (int) ((slotY + 13) * 2);
+                graphics.drawString(this.font, amt, tx, ty, GuiStyle.ACCENT, true);
+                graphics.pose().popPose();
+            }
+            if (mouseX >= slotX && mouseX < slotX + 18 && mouseY >= slotY && mouseY < slotY + 18) {
+                graphics.fill(slotX + 1, slotY + 1, slotX + 17, slotY + 17, 0x80FFFFFF);
+            }
+        }
     }
 
     @Override
@@ -152,6 +201,24 @@ public class TerminalScreen extends AbstractContainerScreen<TerminalMenu> {
     }
 
     private void renderPoolTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
+        if (this.fluidTab) {
+            List<net.minecraftforge.fluids.FluidStack> fluids = menu.getClientFluids();
+            int start = scrollOffset * ITEMS_PER_ROW;
+            for (int i = 0; i < VISIBLE_ROWS * ITEMS_PER_ROW && start + i < fluids.size(); i++) {
+                int slotX = this.leftPos + POOL_X + (i % ITEMS_PER_ROW) * 18;
+                int slotY = this.topPos + POOL_Y + (i / ITEMS_PER_ROW) * 18;
+                if (mouseX >= slotX && mouseX < slotX + 18 && mouseY >= slotY && mouseY < slotY + 18) {
+                    net.minecraftforge.fluids.FluidStack fs = fluids.get(start + i);
+                    graphics.renderComponentTooltip(this.font, List.of(
+                            fs.getDisplayName(),
+                            Component.literal(FORMAT.format(fs.getAmount()) + " mB").withStyle(ChatFormatting.AQUA),
+                            Component.translatable("gui.simple_bytestorage.terminal.fluid.hint").withStyle(ChatFormatting.GRAY)
+                    ), mouseX, mouseY);
+                    return;
+                }
+            }
+            return;
+        }
         ItemStack stack = stackAt(mouseX, mouseY);
         if (stack.isEmpty() || extras.isDialogOpen()) {
             return;
@@ -216,7 +283,21 @@ public class TerminalScreen extends AbstractContainerScreen<TerminalMenu> {
             return true;
         }
 
-        if (this.depositButton.mouseClicked(mouseX, mouseY, button)) {
+        if (this.depositButton.mouseClicked(mouseX, mouseY, button)
+                || this.fluidsButton.mouseClicked(mouseX, mouseY, button)) {
+            return true;
+        }
+        if (this.fluidTab && mouseX >= this.leftPos + POOL_X && mouseX < this.leftPos + POOL_X + ITEMS_PER_ROW * 18
+                && mouseY >= this.topPos + POOL_Y && mouseY < this.topPos + POOL_Y + VISIBLE_ROWS * 18) {
+            int col = (int) ((mouseX - (this.leftPos + POOL_X)) / 18);
+            int row = (int) ((mouseY - (this.topPos + POOL_Y)) / 18);
+            int idx = scrollOffset * ITEMS_PER_ROW + row * ITEMS_PER_ROW + col;
+            List<net.minecraftforge.fluids.FluidStack> fluids = menu.getClientFluids();
+            net.minecraft.resources.ResourceLocation id = idx >= 0 && idx < fluids.size()
+                    ? net.minecraftforge.registries.ForgeRegistries.FLUIDS.getKey(fluids.get(idx).getFluid())
+                    : null;
+            SimpleByteStoragePackets.sendToServer(
+                    new com.simpleae.bytestorage.network.packet.FluidTerminalActionPacket(id));
             return true;
         }
 

@@ -52,7 +52,7 @@ public final class NetworkControl {
     }
 
     private static final String[] ASSEMBLER_WAIT = {"none", "no_card", "resources", "card_busy", "card_small", "network_off", "storage_full"};
-    private static final String[] BUS_WAIT = {"none", "resources", "no_machine"};
+    private static final String[] BUS_WAIT = {"none", "resources", "no_machine", "no_fuel"};
 
     /** Все Асемблеры и Шины шаблонов сети с их состоянием. */
     public static List<MachineInfo> machines(IGrid grid) {

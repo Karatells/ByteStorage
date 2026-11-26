@@ -1,6 +1,7 @@
 package com.simpleae.bytestorage.scripting.net;
 
 import com.simpleae.bytestorage.scripting.client.ClientHooks;
+import com.simpleae.bytestorage.scripting.script.UiElement;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.api.distmarker.Dist;
@@ -30,10 +31,14 @@ public class ScriptStatePacket {
     public final boolean withScript;
     public final String script;
     public final List<String> log;
+    public final List<UiElement> panel;
+    public final boolean allowOnlineLibrary;
+    public final String onlineLibraryUrl;
 
     public ScriptStatePacket(boolean modEnabled, boolean online, boolean canEdit, int minInterval, int maxLength,
                              List<BusInfo> buses, @Nullable BlockPos selected, boolean withScript,
-                             String script, List<String> log) {
+                             String script, List<String> log, List<UiElement> panel,
+                             boolean allowOnlineLibrary, String onlineLibraryUrl) {
         this.modEnabled = modEnabled;
         this.online = online;
         this.canEdit = canEdit;
@@ -44,6 +49,9 @@ public class ScriptStatePacket {
         this.withScript = withScript;
         this.script = script;
         this.log = log;
+        this.panel = panel;
+        this.allowOnlineLibrary = allowOnlineLibrary;
+        this.onlineLibraryUrl = onlineLibraryUrl == null ? "" : onlineLibraryUrl;
     }
 
     public ScriptStatePacket(FriendlyByteBuf buf) {
@@ -65,6 +73,14 @@ public class ScriptStatePacket {
         for (int i = 0; i < logCount; i++) {
             log.add(buf.readUtf(300));
         }
+        int panelCount = Math.min(buf.readVarInt(), UiElement.MAX_ELEMENTS);
+        this.panel = new ArrayList<>();
+        for (int i = 0; i < panelCount; i++) {
+            panel.add(new UiElement(buf.readVarInt(), buf.readUtf(UiElement.MAX_TEXT * 4), buf.readUtf(UiElement.MAX_ID * 4),
+                    buf.readInt(), buf.readInt(), buf.readInt()));
+        }
+        this.allowOnlineLibrary = buf.readBoolean();
+        this.onlineLibraryUrl = buf.readUtf(256);
     }
 
     public void encode(FriendlyByteBuf buf) {
@@ -91,6 +107,17 @@ public class ScriptStatePacket {
         for (String line : log) {
             buf.writeUtf(line, 300);
         }
+        buf.writeVarInt(panel.size());
+        for (UiElement e : panel) {
+            buf.writeVarInt(e.kind());
+            buf.writeUtf(e.text(), UiElement.MAX_TEXT * 4);
+            buf.writeUtf(e.id(), UiElement.MAX_ID * 4);
+            buf.writeInt(e.color());
+            buf.writeInt(e.value());
+            buf.writeInt(e.max());
+        }
+        buf.writeBoolean(allowOnlineLibrary);
+        buf.writeUtf(onlineLibraryUrl, 256);
     }
 
     public void handle(Supplier<NetworkEvent.Context> ctxSupplier) {

@@ -1,7 +1,7 @@
 name: Release
 
 # Реліз створюється ТІЛЬКИ вручну: Actions -> Release -> Run workflow (обери гілку), або пуш тегу vX.Y.Z.y
-# Збирає обидва jar і публікує GitHub Release з нотатками з docs/RELEASE_NOTES_<версія>.md (або автогенерованими)
+# Збирає всі три jar (основний мод + аддони Scripting і Dimension) і публікує GitHub Release з нотатками з docs/RELEASE_NOTES_<версія>.md (або автогенерованими)
 on:
   push:
     tags: ['v*']
@@ -42,9 +42,10 @@ jobs:
         run: |
           core=$(grep -oP "^version\s*=\s*'\K[^']+" build.gradle)
           addon=$(grep -oP "^version\s*=\s*'\K[^']+" scripting/build.gradle)
+          dim=$(grep -oP "^version\s*=\s*'\K[^']+" dimension/build.gradle)
           if [ "$GITHUB_REF_TYPE" = "tag" ]; then tag="${GITHUB_REF_NAME#v}"; else tag="$core"; fi
-          echo "tag=$tag core=$core addon=$addon"
-          [ "$tag" = "$core" ] && [ "$tag" = "$addon" ] || { echo "Tag and build.gradle versions differ"; exit 1; }
+          echo "tag=$tag core=$core addon=$addon dim=$dim"
+          [ "$tag" = "$core" ] && [ "$tag" = "$addon" ] && [ "$tag" = "$dim" ] || { echo "Tag and build.gradle versions differ"; exit 1; }
           echo "VERSION=$tag" >> "$GITHUB_ENV"
 
       - name: Build
@@ -55,6 +56,7 @@ jobs:
           mkdir -p dist
           cp build/reobfJar/output.jar "dist/simple_bytestorage-${VERSION}.jar"
           cp scripting/build/reobfJar/output.jar "dist/simple_bytestorage_scripting-${VERSION}.jar"
+          cp dimension/build/reobfJar/output.jar "dist/simple_bytestorage_dimension-${VERSION}.jar"
           ls -la dist
 
       - name: Release notes

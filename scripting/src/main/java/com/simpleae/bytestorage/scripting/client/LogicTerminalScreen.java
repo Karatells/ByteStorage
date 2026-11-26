@@ -4,12 +4,16 @@ import com.simpleae.bytestorage.client.gui.GuiStyle;
 import com.simpleae.bytestorage.client.gui.UiButton;
 import com.simpleae.bytestorage.scripting.net.ScriptActionPacket;
 import com.simpleae.bytestorage.scripting.net.ScriptStatePacket;
+import com.simpleae.bytestorage.scripting.script.UiElement;
 import com.simpleae.bytestorage.scripting.net.ScriptingPackets;
 import net.minecraft.client.gui.GuiGraphics;
 import com.simpleae.bytestorage.client.gui.CodeEditor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +43,25 @@ public class LogicTerminalScreen extends Screen {
     private int listScroll = 0;
     private int tickCounter = 0;
     private boolean autoSelected = false;
+    private int templateIdx = 0;
+    private boolean panelTab = false;
+    private boolean libraryTab = false;
+    private int panelScroll = 0;
+    private int panelContentHeight = 0;
+    private int libraryScroll = 0;
+    private int libraryCatIdx = 0;
+    private List<ScriptLibraryIndex.Entry> libraryEntries = null;
+    private String libraryError = null;
+    private boolean libraryLoading = false;
+    private String libraryStatus = null;
+
+    private static final int AREA_X = 112;
+    private static final int AREA_Y = 34;
+    private static final int AREA_W = 242;
+    private static final int AREA_H = 104;
+
+    private record Cell(int x, int y, int w, int h, UiElement element) {
+    }
 
     public LogicTerminalScreen(BlockPos terminal) {
         super(Component.translatable("block.simple_bytestorage_scripting.logic_terminal"));
@@ -51,41 +74,55 @@ public class LogicTerminalScreen extends Screen {
         this.top = (this.height - H) / 2;
 
         String previous = this.editor != null ? this.editor.getValue() : "";
-        this.editor = new CodeEditor(this.font, left + 112, top + 20, 242, 118);
+        this.editor = new CodeEditor(this.font, left + AREA_X, top + AREA_Y, AREA_W, AREA_H);
         this.editor.setCompletion(ApiCatalog.engine(), ApiCatalog.GLOBALS);
         this.editor.setMaxLength(state == null ? 8000 : Math.min(state.maxLength, 30000));
         this.editor.setValue(previous);
         this.addRenderableWidget(this.editor);
         this.setInitialFocus(this.editor);
+        this.editor.visible = !panelTab && !libraryTab;
+        this.editor.active = !panelTab && !libraryTab;
 
         buttons.clear();
         int by = top + 142;
-        buttons.add(new UiButton(left + 112, by, 52, 16,
+        buttons.add(new UiButton(left + 112, by, 44, 16,
                 () -> Component.translatable("gui.simple_bytestorage_scripting.save"), UiButton.Icon.NONE,
                 () -> send(ScriptActionPacket.SAVE, 0, clampedText()))
                 .enabledWhen(this::canAct).primary()
                 .tooltip(Component.translatable("gui.simple_bytestorage_scripting.save.tip")));
-        buttons.add(new UiButton(left + 168, by, 62, 16,
+        buttons.add(new UiButton(left + 160, by, 54, 16,
                 () -> Component.translatable(isRunning()
                         ? "gui.simple_bytestorage_scripting.stop" : "gui.simple_bytestorage_scripting.run"),
                 UiButton.Icon.NONE,
                 () -> send(ScriptActionPacket.ENABLE, isRunning() ? 0 : 1, ""))
                 .enabledWhen(this::canAct)
                 .tooltip(Component.translatable("gui.simple_bytestorage_scripting.run.tip")));
-        buttons.add(new UiButton(left + 234, by, 52, 16,
+        buttons.add(new UiButton(left + 218, by, 44, 16,
                 () -> Component.translatable("gui.simple_bytestorage_scripting.reload"), UiButton.Icon.NONE,
                 () -> send(ScriptActionPacket.LIST, 0, ""))
                 .enabledWhen(() -> selected != null)
                 .tooltip(Component.translatable("gui.simple_bytestorage_scripting.reload.tip")));
+        buttons.add(new UiButton(left + 266, by, 22, 16, () -> Component.empty(), UiButton.Icon.NONE,
+                this::openFullscreen)
+                .icon("arrows")
+                .tooltip(Component.translatable("gui.simple_bytestorage_scripting.fullscreen.tip")));
         buttons.add(new UiButton(left + 292, by, 16, 16, () -> Component.literal("-"), UiButton.Icon.NONE,
                 () -> send(ScriptActionPacket.INTERVAL, Math.max(1, currentInterval() - 10), ""))
                 .enabledWhen(this::canAct));
         buttons.add(new UiButton(left + 338, by, 16, 16, () -> Component.literal("+"), UiButton.Icon.NONE,
                 () -> send(ScriptActionPacket.INTERVAL, currentInterval() + 10, ""))
                 .enabledWhen(this::canAct));
+        buttons.add(new UiButton(left + AREA_X + 162, top + 20, 80, 13,
+                () -> Component.literal("Tpl (" + (templateIdx + 1) + "/" + ScriptTemplates.ALL.size() + ")"),
+                UiButton.Icon.NONE,
+                this::applyNextTemplate)
+                .enabledWhen(this::canAct)
+                .tooltip(Component.literal("Insert built-in JS script template into editor")));
 
-        // Перший запит списку шин
-        ScriptingPackets.CHANNEL.sendToServer(new ScriptActionPacket(terminal, ScriptActionPacket.LIST, null, 0, ""));
+        // Перший запит списку шин (при перебудові вікна стан і текст зберігаються)
+        if (state == null) {
+            ScriptingPackets.CHANNEL.sendToServer(new ScriptActionPacket(terminal, ScriptActionPacket.LIST, null, 0, ""));
+        }
     }
 
     // --- Стан ---
@@ -149,6 +186,388 @@ public class LogicTerminalScreen extends Screen {
         return text.length() > max ? text.substring(0, max) : text;
     }
 
+    private void setPanelTab(boolean panel) {
+        selectTab(panel ? 1 : 0);
+    }
+
+    /** 0 = Code, 1 = Panel, 2 = Online Library. */
+    private void selectTab(int tab) {
+        this.panelTab = (tab == 1);
+        this.libraryTab = (tab == 2);
+        boolean code = (tab == 0);
+        this.editor.visible = code;
+        this.editor.active = code;
+        if (!code) {
+            this.editor.setFocused(false);
+            this.setFocused(null);
+        } else {
+            this.setInitialFocus(this.editor);
+        }
+        if (this.libraryTab && state != null && state.allowOnlineLibrary
+                && libraryEntries == null && !libraryLoading) {
+            loadOnlineLibrary(false);
+        }
+    }
+
+    private void loadOnlineLibrary(boolean force) {
+        if (state == null || !state.allowOnlineLibrary) return;
+        this.libraryLoading = true;
+        this.libraryError = null;
+        this.libraryStatus = null;
+        OnlineScriptLibrary.fetchIndex(state.onlineLibraryUrl, force,
+                entries -> {
+                    this.libraryLoading = false;
+                    this.libraryEntries = entries;
+                },
+                err -> {
+                    this.libraryLoading = false;
+                    this.libraryError = err;
+                });
+    }
+
+    private List<UiElement> panelElements() {
+        return state == null ? List.of() : state.panel;
+    }
+
+    /** Раскладка панели скрипта: текст/полосы/предметы — по строке, кнопки идут в ряд и переносятся. */
+    private List<Cell> layoutPanel() {
+        List<Cell> cells = new ArrayList<>();
+        int width = AREA_W - 8;
+        int y = 0;
+        int bx = 0;
+        boolean inRow = false;
+        for (UiElement e : panelElements()) {
+            if (e.kind() == UiElement.BUTTON) {
+                int w = Math.max(30, this.font.width(e.text()) + 12);
+                if (!inRow || bx + w > width) {
+                    if (inRow) {
+                        y += 19;
+                    }
+                    bx = 0;
+                    inRow = true;
+                }
+                cells.add(new Cell(bx, y, w, 16, e));
+                bx += w + 4;
+                continue;
+            }
+            if (inRow) {
+                y += 19;
+                inRow = false;
+                bx = 0;
+            }
+            int h = e.kind() == UiElement.ITEM ? 18 : (e.kind() == UiElement.BAR ? 13 : 11);
+            cells.add(new Cell(0, y, width, h, e));
+            y += h + 2;
+        }
+        panelContentHeight = y + (inRow ? 19 : 0);
+        return cells;
+    }
+
+    private static final int[] TAB_X = {0, 52, 104};
+    private static final int[] TAB_W = {50, 50, 54};
+
+    private void drawTabs(GuiGraphics g, int mouseX, int mouseY) {
+        String[] labels = {
+                Component.translatable("gui.simple_bytestorage_scripting.tab.code").getString(),
+                Component.translatable("gui.simple_bytestorage_scripting.tab.panel").getString()
+                        + (panelElements().isEmpty() ? "" : "(" + panelElements().size() + ")"),
+                Component.translatable("gui.simple_bytestorage_scripting.tab.library").getString()};
+        int current = libraryTab ? 2 : (panelTab ? 1 : 0);
+        for (int i = 0; i < 3; i++) {
+            int tx = left + AREA_X + TAB_X[i];
+            int tw = TAB_W[i];
+            int ty = top + 20;
+            boolean active = (i == current);
+            boolean hover = mouseX >= tx && mouseX < tx + tw && mouseY >= ty && mouseY < ty + 13;
+            g.fill(tx, ty, tx + tw, ty + 13, active ? GuiStyle.ACCENT_DIM : (hover ? GuiStyle.ACCENT_FAINT : GuiStyle.PANEL_BG));
+            g.fill(tx, ty + 12, tx + tw, ty + 13, active ? GuiStyle.ACCENT : GuiStyle.PANEL_EDGE_LIGHT);
+            g.drawString(this.font, this.font.plainSubstrByWidth(labels[i], tw - 6), tx + 3, ty + 3,
+                    active ? GuiStyle.TEXT_TITLE : GuiStyle.TEXT_LABEL, false);
+        }
+    }
+
+    private static final int LIB_HEADER_H = 15;
+    private static final int LIB_ROW_H = 21;
+    private static final int LIB_ROWS = 4;
+
+    private String currentCategory() {
+        return ScriptLibraryIndex.CATEGORIES.get(libraryCatIdx % ScriptLibraryIndex.CATEGORIES.size());
+    }
+
+    private List<ScriptLibraryIndex.Entry> filteredLibrary() {
+        return ScriptLibraryIndex.filterByCategory(libraryEntries, currentCategory());
+    }
+
+    private static net.minecraft.world.item.ItemStack resolveIcon(String iconId) {
+        net.minecraft.resources.ResourceLocation rl = iconId == null ? null : net.minecraft.resources.ResourceLocation.tryParse(iconId);
+        net.minecraft.world.item.Item item = rl == null ? null : net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(rl);
+        if (item == null || item == net.minecraft.world.item.Items.AIR) {
+            item = com.simpleae.bytestorage.scripting.SimpleAeScripting.LOGIC_BUS_ITEM.get();
+        }
+        return new net.minecraft.world.item.ItemStack(item);
+    }
+
+    private void drawLibrary(GuiGraphics g, int mouseX, int mouseY) {
+        int rx = left + AREA_X;
+        int ry = top + AREA_Y;
+        GuiStyle.display(g, rx, ry, AREA_W, AREA_H);
+
+        if (state == null || !state.allowOnlineLibrary) {
+            int y = ry + 8;
+            for (net.minecraft.util.FormattedCharSequence line : this.font.split(
+                    Component.translatable("gui.simple_bytestorage_scripting.library.disabled"), AREA_W - 12)) {
+                g.drawString(this.font, line, rx + 6, y, GuiStyle.TEXT_WARN, false);
+                y += 10;
+            }
+            return;
+        }
+        if (libraryLoading) {
+            g.drawString(this.font, Component.translatable("gui.simple_bytestorage_scripting.library.loading"),
+                    rx + 6, ry + 8, GuiStyle.TEXT_MUTED, false);
+            return;
+        }
+        if (libraryError != null) {
+            g.drawString(this.font, this.font.plainSubstrByWidth(libraryError, AREA_W - 12),
+                    rx + 6, ry + 8, GuiStyle.TEXT_BAD, false);
+            g.drawString(this.font, Component.translatable("gui.simple_bytestorage_scripting.library.retry"),
+                    rx + 6, ry + 22, GuiStyle.ACCENT, false);
+            return;
+        }
+
+        // Верхняя полоска: фильтр категории + кнопка обновления
+        List<ScriptLibraryIndex.Entry> visible = filteredLibrary();
+        String cat = currentCategory();
+        String catName = Component.translatable("gui.simple_bytestorage_scripting.cat." + cat).getString();
+        String catLabel = catName + " (" + visible.size() + ")";
+        boolean catHover = mouseX >= rx + 2 && mouseX < rx + AREA_W - 46 && mouseY >= ry + 2 && mouseY < ry + LIB_HEADER_H;
+        g.fill(rx + 2, ry + 2, rx + AREA_W - 46, ry + LIB_HEADER_H, catHover ? GuiStyle.ACCENT_FAINT : GuiStyle.PANEL_BG);
+        g.drawString(this.font, this.font.plainSubstrByWidth(catLabel, AREA_W - 56),
+                rx + 6, ry + 4, GuiStyle.ACCENT, false);
+
+        boolean refHover = mouseX >= rx + AREA_W - 44 && mouseX < rx + AREA_W - 2 && mouseY >= ry + 2 && mouseY < ry + LIB_HEADER_H;
+        g.fill(rx + AREA_W - 44, ry + 2, rx + AREA_W - 2, ry + LIB_HEADER_H, refHover ? GuiStyle.ACCENT_FAINT : GuiStyle.PANEL_BG);
+        String refTxt = Component.translatable("gui.simple_bytestorage_scripting.reload").getString();
+        g.drawString(this.font, this.font.plainSubstrByWidth(refTxt, 38),
+                rx + AREA_W - 41, ry + 4, GuiStyle.TEXT_LABEL, false);
+
+        if (visible.isEmpty()) {
+            g.drawString(this.font, Component.translatable("gui.simple_bytestorage_scripting.library.empty"),
+                    rx + 6, ry + LIB_HEADER_H + 6, GuiStyle.TEXT_MUTED, false);
+            return;
+        }
+
+        String curVer = OnlineScriptLibrary.currentModVersion();
+        ScriptLibraryIndex.Entry hoveredEntry = null;
+        for (int row = 0; row < LIB_ROWS; row++) {
+            int idx = libraryScroll + row;
+            if (idx >= visible.size()) break;
+            ScriptLibraryIndex.Entry e = visible.get(idx);
+            int y = ry + LIB_HEADER_H + 2 + row * LIB_ROW_H;
+            boolean compat = ScriptLibraryIndex.isCompatible(curVer, e.minModVersion(), e.maxModVersion());
+            boolean hover = mouseX >= rx + 2 && mouseX < rx + AREA_W - 2 && mouseY >= y && mouseY < y + LIB_ROW_H - 1;
+            if (hover) {
+                hoveredEntry = e;
+                g.fill(rx + 2, y, rx + AREA_W - 2, y + LIB_ROW_H - 1, GuiStyle.ACCENT_FAINT);
+            }
+            g.renderItem(resolveIcon(e.icon()), rx + 4, y + 2);
+            String badge = compat ? ("v" + e.minModVersion() + "+") : ("REQ " + e.minModVersion());
+            int badgeW = this.font.width(badge);
+            g.drawString(this.font, this.font.plainSubstrByWidth(e.name(), AREA_W - badgeW - 34),
+                    rx + 23, y + 2, compat ? GuiStyle.TEXT_TITLE : GuiStyle.TEXT_MUTED, false);
+            g.drawString(this.font, badge, rx + AREA_W - badgeW - 5, y + 2,
+                    compat ? GuiStyle.TEXT_GOOD : GuiStyle.TEXT_BAD, false);
+            String eCat = Component.translatable("gui.simple_bytestorage_scripting.cat." + e.category()).getString();
+            String sub = e.author() + " · " + eCat + (e.needsControl() ? " [CTRL]" : "") + (e.needsAlerts() ? " [ALERT]" : "");
+            g.drawString(this.font, this.font.plainSubstrByWidth(sub, AREA_W - 30),
+                    rx + 23, y + 11, GuiStyle.TEXT_MUTED, false);
+        }
+        if (libraryStatus != null) {
+            g.drawString(this.font, this.font.plainSubstrByWidth(libraryStatus, AREA_W - 10),
+                    rx + 5, ry + AREA_H - 10, GuiStyle.ACCENT, false);
+        }
+        if (hoveredEntry != null) {
+            List<Component> tip = new ArrayList<>();
+            tip.add(Component.literal(hoveredEntry.name()).withStyle(net.minecraft.ChatFormatting.AQUA));
+            if (!hoveredEntry.description().isEmpty()) {
+                tip.add(Component.literal(hoveredEntry.description()).withStyle(net.minecraft.ChatFormatting.GRAY));
+            }
+            boolean compat = ScriptLibraryIndex.isCompatible(curVer, hoveredEntry.minModVersion(), hoveredEntry.maxModVersion());
+            tip.add(Component.translatable(compat
+                    ? "gui.simple_bytestorage_scripting.library.click_load"
+                    : "gui.simple_bytestorage_scripting.library.incompatible", hoveredEntry.minModVersion())
+                    .withStyle(compat ? net.minecraft.ChatFormatting.GREEN : net.minecraft.ChatFormatting.RED));
+            g.renderComponentTooltip(this.font, tip, mouseX, mouseY);
+        }
+    }
+
+    private boolean clickLibrary(double mouseX, double mouseY) {
+        int rx = left + AREA_X;
+        int ry = top + AREA_Y;
+        if (mouseX < rx || mouseX >= rx + AREA_W || mouseY < ry || mouseY >= ry + AREA_H) {
+            return false;
+        }
+        if (state == null || !state.allowOnlineLibrary) return true;
+        if (libraryError != null) {
+            loadOnlineLibrary(true);
+            return true;
+        }
+        if (mouseY >= ry + 2 && mouseY < ry + LIB_HEADER_H) {
+            if (mouseX >= rx + AREA_W - 44) {
+                loadOnlineLibrary(true);
+            } else {
+                libraryCatIdx = (libraryCatIdx + 1) % ScriptLibraryIndex.CATEGORIES.size();
+                libraryScroll = 0;
+            }
+            return true;
+        }
+        List<ScriptLibraryIndex.Entry> visible = filteredLibrary();
+        if (visible.isEmpty() || libraryLoading || !canAct()) return true;
+        int row = (int) ((mouseY - (ry + LIB_HEADER_H + 2)) / LIB_ROW_H);
+        int idx = libraryScroll + row;
+        if (row >= 0 && row < LIB_ROWS && idx >= 0 && idx < visible.size()) {
+            ScriptLibraryIndex.Entry e = visible.get(idx);
+            String curVer = OnlineScriptLibrary.currentModVersion();
+            if (!ScriptLibraryIndex.isCompatible(curVer, e.minModVersion(), e.maxModVersion())) {
+                libraryStatus = "Requires mod " + e.minModVersion() + "+";
+                return true;
+            }
+            libraryStatus = "Downloading " + e.id() + "...";
+            OnlineScriptLibrary.fetchScript(state.onlineLibraryUrl, e,
+                    code -> {
+                        this.libraryStatus = null;
+                        this.editor.setValue(code);
+                        selectTab(0);
+                    },
+                    err -> this.libraryStatus = err);
+        }
+        return true;
+    }
+
+    private void drawPanel(GuiGraphics g, int mouseX, int mouseY) {
+        int rx = left + AREA_X;
+        int ry = top + AREA_Y;
+        GuiStyle.display(g, rx, ry, AREA_W, AREA_H);
+        List<Cell> cells = layoutPanel();
+        if (cells.isEmpty()) {
+            int y = ry + 6;
+            for (net.minecraft.util.FormattedCharSequence line : this.font.split(
+                    Component.translatable("gui.simple_bytestorage_scripting.panel.empty"), AREA_W - 12)) {
+                g.drawString(this.font, line, rx + 6, y, GuiStyle.TEXT_MUTED, false);
+                y += 10;
+            }
+            return;
+        }
+        panelScroll = Math.max(0, Math.min(panelScroll, Math.max(0, panelContentHeight - (AREA_H - 8))));
+        boolean live = canAct() && isRunning();
+        g.enableScissor(rx + 1, ry + 1, rx + AREA_W - 1, ry + AREA_H - 1);
+        for (Cell cell : cells) {
+            int x = rx + 4 + cell.x();
+            int y = ry + 4 + cell.y() - panelScroll;
+            if (y + cell.h() < ry || y > ry + AREA_H) {
+                continue;
+            }
+            UiElement e = cell.element();
+            int color = e.color() == 0 ? 0 : 0xFF000000 | e.color();
+            switch (e.kind()) {
+                case UiElement.TEXT -> g.drawString(this.font, this.font.plainSubstrByWidth(e.text(), cell.w()), x, y + 1,
+                        color == 0 ? GuiStyle.TEXT_TITLE : color, false);
+                case UiElement.BAR -> {
+                    int labelW = 96;
+                    g.drawString(this.font, this.font.plainSubstrByWidth(e.text(), labelW - 4), x, y + 2, GuiStyle.TEXT_LABEL, false);
+                    int bx = x + labelW;
+                    int bw = cell.w() - labelW;
+                    g.fill(bx, y, bx + bw, y + 11, GuiStyle.PANEL_EDGE_DARK);
+                    g.fill(bx + 1, y + 1, bx + bw - 1, y + 10, GuiStyle.PANEL_BG);
+                    float fraction = Math.max(0f, Math.min(1f, e.value() / (float) e.max()));
+                    int fill = (int) ((bw - 2) * fraction);
+                    g.fill(bx + 1, y + 1, bx + 1 + fill, y + 10, color == 0 ? GuiStyle.ACCENT_DIM : color);
+                    String value = e.value() + "/" + e.max();
+                    g.drawString(this.font, value, bx + (bw - this.font.width(value)) / 2, y + 2, GuiStyle.TEXT_TITLE, true);
+                }
+                case UiElement.ITEM -> {
+                    ResourceLocation id = ResourceLocation.tryParse(e.id());
+                    var item = id == null ? null : ForgeRegistries.ITEMS.getValue(id);
+                    if (item != null && id != null && ForgeRegistries.ITEMS.containsKey(id)) {
+                        g.renderItem(new ItemStack(item), x, y);
+                    }
+                    g.drawString(this.font, this.font.plainSubstrByWidth(e.text(), cell.w() - 22), x + 20, y + 5,
+                            color == 0 ? GuiStyle.TEXT_TITLE : color, false);
+                }
+                case UiElement.BUTTON -> {
+                    boolean hover = live && mouseX >= x && mouseX < x + cell.w() && mouseY >= y && mouseY < y + cell.h()
+                            && mouseY >= ry && mouseY < ry + AREA_H;
+                    g.fill(x, y, x + cell.w(), y + cell.h(), GuiStyle.PANEL_EDGE_DARK);
+                    g.fill(x + 1, y + 1, x + cell.w() - 1, y + cell.h() - 1,
+                            hover ? GuiStyle.ACCENT_DIM : GuiStyle.WINDOW_BG);
+                    g.fill(x + 1, y + 1, x + cell.w() - 1, y + 2, GuiStyle.BEVEL_LIGHT);
+                    int tc = !live ? GuiStyle.TEXT_MUTED : (color == 0 ? GuiStyle.TEXT_TITLE : color);
+                    g.drawString(this.font, this.font.plainSubstrByWidth(e.text(), cell.w() - 6),
+                            x + (cell.w() - Math.min(cell.w() - 6, this.font.width(e.text()))) / 2, y + 4, tc, false);
+                }
+                default -> {
+                }
+            }
+        }
+        g.disableScissor();
+        if (panelContentHeight > AREA_H - 8) {
+            int trackH = AREA_H - 4;
+            int thumbH = Math.max(8, trackH * (AREA_H - 8) / panelContentHeight);
+            int thumbY = ry + 2 + (trackH - thumbH) * panelScroll / Math.max(1, panelContentHeight - (AREA_H - 8));
+            g.fill(rx + AREA_W - 4, ry + 2, rx + AREA_W - 2, ry + AREA_H - 2, 0xFF101822);
+            g.fill(rx + AREA_W - 4, thumbY, rx + AREA_W - 2, thumbY + thumbH, GuiStyle.ACCENT_DIM);
+        }
+        if (!live) {
+            g.drawString(this.font, this.font.plainSubstrByWidth(
+                    Component.translatable("gui.simple_bytestorage_scripting.panel.stopped").getString(), AREA_W - 8),
+                    rx + 4, ry + AREA_H - 11, GuiStyle.TEXT_WARN, false);
+        }
+    }
+
+    private boolean clickPanel(double mouseX, double mouseY) {
+        int rx = left + AREA_X;
+        int ry = top + AREA_Y;
+        if (mouseX < rx || mouseX >= rx + AREA_W || mouseY < ry || mouseY >= ry + AREA_H) {
+            return false;
+        }
+        if (canAct() && isRunning()) {
+            for (Cell cell : layoutPanel()) {
+                if (cell.element().kind() != UiElement.BUTTON) {
+                    continue;
+                }
+                int x = rx + 4 + cell.x();
+                int y = ry + 4 + cell.y() - panelScroll;
+                if (mouseX >= x && mouseX < x + cell.w() && mouseY >= y && mouseY < y + cell.h()) {
+                    send(ScriptActionPacket.UI_BUTTON, 0, cell.element().id());
+                    break;
+                }
+            }
+        }
+        return true;
+    }
+
+    private void applyNextTemplate() {
+        ScriptTemplates.Template tpl = ScriptTemplates.ALL.get(templateIdx);
+        templateIdx = (templateIdx + 1) % ScriptTemplates.ALL.size();
+        setPanelTab(false);
+        this.editor.setValue(tpl.code());
+    }
+
+    private void openFullscreen() {
+        int max = state == null ? 8000 : Math.min(state.maxLength, 30000);
+        this.minecraft.setScreen(new ScriptEditorScreen(this, editor.getValue(), max, canAct()));
+    }
+
+    /** Збереження з повноекранного редактора. */
+    void saveFromFullscreen(String text) {
+        editor.setValue(text);
+        send(ScriptActionPacket.SAVE, 0, clampedText());
+    }
+
+    /** Повернення з повноекранного редактора: текст переходить у мале поле. */
+    void restoreFromFullscreen(String text) {
+        editor.setValue(text);
+    }
+
     private void send(int action, int intArg, String text) {
         ScriptingPackets.CHANNEL.sendToServer(new ScriptActionPacket(terminal, action, selected, intArg, text));
     }
@@ -167,6 +586,21 @@ public class LogicTerminalScreen extends Screen {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         for (UiButton b : buttons) {
             if (b.mouseClicked(mouseX, mouseY, button)) {
+                return true;
+            }
+        }
+        if (button == 0) {
+            for (int i = 0; i < 3; i++) {
+                int tx = left + AREA_X + TAB_X[i];
+                if (mouseX >= tx && mouseX < tx + TAB_W[i] && mouseY >= top + 20 && mouseY < top + 33) {
+                    selectTab(i);
+                    return true;
+                }
+            }
+            if (panelTab && clickPanel(mouseX, mouseY)) {
+                return true;
+            }
+            if (libraryTab && clickLibrary(mouseX, mouseY)) {
                 return true;
             }
         }
@@ -204,6 +638,18 @@ public class LogicTerminalScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        if (libraryTab && libraryEntries != null && mouseX >= left + AREA_X && mouseX < left + AREA_X + AREA_W
+                && mouseY >= top + AREA_Y && mouseY < top + AREA_Y + AREA_H) {
+            int max = Math.max(0, filteredLibrary().size() - LIB_ROWS);
+            libraryScroll = Math.max(0, Math.min(max, libraryScroll - (int) Math.signum(delta)));
+            return true;
+        }
+        if (panelTab && mouseX >= left + AREA_X && mouseX < left + AREA_X + AREA_W
+                && mouseY >= top + AREA_Y && mouseY < top + AREA_Y + AREA_H) {
+            int max = Math.max(0, panelContentHeight - (AREA_H - 8));
+            panelScroll = Math.max(0, Math.min(max, panelScroll - (int) Math.signum(delta) * 12));
+            return true;
+        }
         if (state != null && mouseX >= left + ID_X) {
             int max = Math.max(0, idCounts().size() - ID_ROWS);
             idScroll = Math.max(0, Math.min(max, idScroll - (int) Math.signum(delta)));
@@ -220,6 +666,10 @@ public class LogicTerminalScreen extends Screen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         // Редактор первым получает клавиши (ESC закрывает подсказки, а не окно)
+        if (!panelTab && hasControlDown() && keyCode == org.lwjgl.glfw.GLFW.GLFW_KEY_E) {
+            openFullscreen();
+            return true;
+        }
         if (this.editor.isFocused() && this.editor.keyPressed(keyCode, scanCode, modifiers)) {
             return true;
         }
@@ -274,6 +724,12 @@ public class LogicTerminalScreen extends Screen {
         // Лог / статус
         GuiStyle.display(g, left + 112, top + 162, 242, 64);
         super.render(g, mouseX, mouseY, partialTick);
+        drawTabs(g, mouseX, mouseY);
+        if (panelTab) {
+            drawPanel(g, mouseX, mouseY);
+        } else if (libraryTab) {
+            drawLibrary(g, mouseX, mouseY);
+        }
         drawStatus(g);
 
         for (UiButton b : buttons) {

@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "simple_bytestorage_dimension:block/rift_gate_core_front",
+    "north": "simple_bytestorage_dimension:block/rift_gate_core_front",
+    "south": "simple_bytestorage_dimension:block/rift_gate_core_front",
+    "east": "simple_bytestorage_dimension:block/rift_gate_core_side",
+    "west": "simple_bytestorage_dimension:block/rift_gate_core_side",
+    "up": "simple_bytestorage_dimension:block/rift_gate_core_top",
+    "down": "simple_bytestorage_dimension:block/rift_gate_core_top"
+  }
+}

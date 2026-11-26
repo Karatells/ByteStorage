@@ -20,9 +20,11 @@ public class CellWorkbenchMenu extends AbstractContainerMenu {
 
     public static final int BUTTON_BLACKLIST = 0;
     public static final int BUTTON_CLEAR = 1;
+    public static final int BUTTON_MIGRATE = 2;
 
     public static final int CELL_SLOT = 0;
-    public static final int FILTER_START = 1;
+    public static final int TARGET_SLOT = 1;
+    public static final int FILTER_START = 2;
     public static final int FILTER_END = FILTER_START + CellWorkbenchBlockEntity.FILTER_SLOTS;
     public static final int PLAYER_START = FILTER_END;
     public static final int PLAYER_END = PLAYER_START + 36;
@@ -59,7 +61,8 @@ public class CellWorkbenchMenu extends AbstractContainerMenu {
                 };
         this.addDataSlots(this.data);
 
-        this.addSlot(new SlotItemHandler(wb.getCellInventory(), 0, 12, 24));
+        this.addSlot(new SlotItemHandler(wb.getCellInventory(), 0, 10, 24));
+        this.addSlot(new SlotItemHandler(wb.getTargetCellInventory(), 0, 56, 24));
         for (int i = 0; i < CellWorkbenchBlockEntity.FILTER_SLOTS; i++) {
             this.addSlot(new SlotItemHandler(wb.getFilterInventory(), i, 8 + i * 18, 52) {
                 @Override
@@ -116,8 +119,12 @@ public class CellWorkbenchMenu extends AbstractContainerMenu {
                 wb.clearFilter();
                 return true;
             }
+            if (id == BUTTON_MIGRATE) {
+                wb.migrateCells();
+                return true;
+            }
         }
-        return id == BUTTON_BLACKLIST || id == BUTTON_CLEAR;
+        return id == BUTTON_BLACKLIST || id == BUTTON_CLEAR || id == BUTTON_MIGRATE;
     }
 
     @Override
@@ -128,11 +135,11 @@ public class CellWorkbenchMenu extends AbstractContainerMenu {
         }
         ItemStack stack = slot.getItem();
         ItemStack original = stack.copy();
-        if (index == CELL_SLOT) {
+        if (index == CELL_SLOT || index == TARGET_SLOT) {
             if (!this.moveItemStackTo(stack, PLAYER_START, PLAYER_END, true)) {
                 return ItemStack.EMPTY;
             }
-        } else if (!this.moveItemStackTo(stack, CELL_SLOT, CELL_SLOT + 1, false)) {
+        } else if (!this.moveItemStackTo(stack, CELL_SLOT, TARGET_SLOT + 1, false)) {
             return ItemStack.EMPTY;
         }
         if (stack.isEmpty()) {

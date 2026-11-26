@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "IRI",
+    "IWI",
+    "III"
+  ],
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "W": {
+      "item": "simple_bytestorage:logic_wafer"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_scripting:script_disk",
+    "count": 1
+  }
+}

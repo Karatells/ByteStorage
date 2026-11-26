@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "QGQ",
+    "BPB",
+    "BBB"
+  ],
+  "key": {
+    "Q": {
+      "item": "simple_bytestorage_dimension:optic_quartz"
+    },
+    "G": {
+      "item": "simple_bytestorage_dimension:glow_cube"
+    },
+    "B": {
+      "item": "simple_bytestorage_dimension:silicon_basalt"
+    },
+    "P": {
+      "item": "simple_bytestorage_dimension:busium_processor"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:return_beacon",
+    "count": 1
+  }
+}

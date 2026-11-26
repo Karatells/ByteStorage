@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "simple_bytestorage_dimension:fluxite_dust"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:fluxite_block",
+    "count": 1
+  }
+}

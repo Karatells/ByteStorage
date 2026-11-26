@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/button",
+  "textures": {
+    "texture": "simple_bytestorage_dimension:block/optic_button"
+  }
+}

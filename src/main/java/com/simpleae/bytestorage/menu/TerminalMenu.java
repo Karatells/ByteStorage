@@ -44,6 +44,7 @@ public class TerminalMenu extends AbstractContainerMenu implements IGridMenu {
     private int clientTotalCapacity = 0;
     private int clientTotalUsed = 0;
     private List<ItemStack> clientVirtualPool = new ArrayList<>();
+    private List<net.minecraftforge.fluids.FluidStack> clientFluids = new ArrayList<>();
 
     private int lastCapacity = -1;
     private int lastUsed = -1;
@@ -60,7 +61,11 @@ public class TerminalMenu extends AbstractContainerMenu implements IGridMenu {
 
     /** @param wireless true — відкрито бездротовим терміналом: відстань до блока не обмежена. */
     public TerminalMenu(int containerId, Inventory playerInventory, IGridNode terminalEntity, boolean wireless) {
-        super(SimpleByteStorage.TERMINAL_MENU.get(), containerId);
+        this(SimpleByteStorage.TERMINAL_MENU.get(), containerId, playerInventory, terminalEntity, wireless);
+    }
+
+    public TerminalMenu(net.minecraft.world.inventory.MenuType<?> menuType, int containerId, Inventory playerInventory, IGridNode terminalEntity, boolean wireless) {
+        super(menuType, containerId);
         this.wireless = wireless;
         this.terminalEntity = terminalEntity;
         this.player = playerInventory.player;
@@ -81,6 +86,9 @@ public class TerminalMenu extends AbstractContainerMenu implements IGridMenu {
     @Override
     public boolean stillValid(Player player) {
         if (terminalEntity == null) return false;
+        if (terminalEntity instanceof com.simpleae.bytestorage.item.PortableByteCellItem.PortableCellNode portable) {
+            return portable.isValid(player);
+        }
         if (wireless) {
             net.minecraft.world.level.Level lvl = this.terminalEntity.getNodeLevel();
             return lvl != null && lvl.getBlockEntity(this.terminalEntity.getNodePos()) == this.terminalEntity;
@@ -95,7 +103,8 @@ public class TerminalMenu extends AbstractContainerMenu implements IGridMenu {
     @Override
     public void broadcastChanges() {
         super.broadcastChanges();
-        if (player instanceof ServerPlayer craftSyncPlayer && (craftSyncTimer++ % 40 == 0)) {
+        boolean isPortable = terminalEntity instanceof com.simpleae.bytestorage.item.PortableByteCellItem.PortableCellNode;
+        if (!isPortable && player instanceof ServerPlayer craftSyncPlayer && (craftSyncTimer++ % 40 == 0)) {
             sendCraftables(craftSyncPlayer);
         }
 
@@ -115,9 +124,12 @@ public class TerminalMenu extends AbstractContainerMenu implements IGridMenu {
                             new SyncTerminalDataPacket(currentCap, currentUsed, storage.getAllItems()),
                             serverPlayer
                     );
-                    if (serverPlayer.tickCount % 20 == 0) {
+                    if (!isPortable && serverPlayer.tickCount % 20 == 0) {
                         SimpleByteStoragePackets.sendToPlayer(new com.simpleae.bytestorage.network.packet.TerminalAvailabilityPacket(
                                 com.simpleae.bytestorage.util.TerminalAvailability.compute(grid)), serverPlayer);
+                        SimpleByteStoragePackets.sendToPlayer(
+                                new com.simpleae.bytestorage.network.packet.SyncFluidsPacket(collectGridFluids(grid)),
+                                serverPlayer);
                     }
                 }
             }
@@ -261,6 +273,132 @@ public class TerminalMenu extends AbstractContainerMenu implements IGridMenu {
         this.clientTotalCapacity = capacity;
         this.clientTotalUsed = used;
         this.clientVirtualPool = new ArrayList<>(items);
+    }
+
+    public void updateClientFluids(List<net.minecraftforge.fluids.FluidStack> fluids) {
+        this.clientFluids = new ArrayList<>(fluids);
+    }
+
+    public List<net.minecraftforge.fluids.FluidStack> getClientFluids() {
+        return Collections.unmodifiableList(clientFluids);
+    }
+
+    private static List<net.minecraftforge.fluids.FluidStack> collectGridFluids(IGrid grid) {
+        java.util.Map<net.minecraft.world.level.material.Fluid, net.minecraftforge.fluids.FluidStack> merged = new java.util.LinkedHashMap<>();
+        for (IGridNode node : grid.getNodes()) {
+            if (!(node instanceof com.simpleae.bytestorage.block.entity.DriveBlockEntity drive)) continue;
+            net.minecraftforge.items.IItemHandler inv = drive.getDriveInventory();
+            for (int i = 0; i < inv.getSlots(); i++) {
+                ItemStack cell = inv.getStackInSlot(i);
+                if (cell.getItem() instanceof com.simpleae.bytestorage.item.FluidCellItem) {
+                    for (net.minecraftforge.fluids.FluidStack fs : com.simpleae.bytestorage.item.FluidCellItem.getStoredFluids(cell)) {
+                        if (fs.isEmpty()) continue;
+                        net.minecraftforge.fluids.FluidStack existing = merged.get(fs.getFluid());
+                        if (existing == null) {
+                            merged.put(fs.getFluid(), fs.copy());
+                        } else {
+                            existing.grow(fs.getAmount());
+                        }
+                    }
+                }
+            }
+        }
+        return new ArrayList<>(merged.values());
+    }
+
+    /** Налить жидкость в пустое ведро (1000 mB) или слить полное ведро в FluidCellItem сети. */
+    public void handleFluidAction(@org.jetbrains.annotations.Nullable net.minecraft.resources.ResourceLocation fluidId, ServerPlayer serverPlayer) {
+        if (terminalEntity == null || terminalEntity.getGrid() == null || !terminalEntity.getGrid().getState().isActive()) {
+            return;
+        }
+        IGrid grid = terminalEntity.getGrid();
+        ItemStack carried = getCarried();
+        if (carried.isEmpty()) return;
+
+        // 1. Слив полного ведра в сеть
+        if (carried.getItem() instanceof net.minecraft.world.item.BucketItem bucket
+                && bucket.getFluid() != net.minecraft.world.level.material.Fluids.EMPTY) {
+            net.minecraftforge.fluids.FluidStack toInsert = new net.minecraftforge.fluids.FluidStack(bucket.getFluid(), 1000);
+            int remaining = 1000;
+            for (IGridNode node : grid.getNodes()) {
+                if (!(node instanceof com.simpleae.bytestorage.block.entity.DriveBlockEntity drive) || drive.isLocked()) continue;
+                net.minecraftforge.items.IItemHandler inv = drive.getDriveInventory();
+                for (int i = 0; i < inv.getSlots() && remaining > 0; i++) {
+                    ItemStack cell = inv.getStackInSlot(i);
+                    if (cell.getItem() instanceof com.simpleae.bytestorage.item.FluidCellItem fc) {
+                        int fit = fc.insertFluid(cell, new net.minecraftforge.fluids.FluidStack(bucket.getFluid(), remaining), true);
+                        if (fit == remaining) {
+                            fc.insertFluid(cell, toInsert, false);
+                            drive.setChanged();
+                            remaining = 0;
+                        }
+                    }
+                }
+            }
+            if (remaining == 0) {
+                setCarried(new ItemStack(net.minecraft.world.item.Items.BUCKET));
+                SimpleByteStoragePackets.sendToPlayer(
+                        new com.simpleae.bytestorage.network.packet.SyncFluidsPacket(collectGridFluids(grid)), serverPlayer);
+            }
+            return;
+        }
+
+        // 2. Налив жидкости в пустое ведро
+        if (carried.is(net.minecraft.world.item.Items.BUCKET) && fluidId != null) {
+            net.minecraft.world.level.material.Fluid target = net.minecraftforge.registries.ForgeRegistries.FLUIDS.getValue(fluidId);
+            if (target == null || target == net.minecraft.world.level.material.Fluids.EMPTY) return;
+            ItemStack filledBucket = new ItemStack(target.getBucket());
+            if (filledBucket.isEmpty()) return;
+
+            // Проверяем, есть ли 1000 mB нужной жидкости в сети
+            int avail = 0;
+            for (net.minecraftforge.fluids.FluidStack fs : collectGridFluids(grid)) {
+                if (fs.getFluid() == target) {
+                    avail = fs.getAmount();
+                    break;
+                }
+            }
+            if (avail < 1000) return;
+
+            int need = 1000;
+            for (IGridNode node : grid.getNodes()) {
+                if (!(node instanceof com.simpleae.bytestorage.block.entity.DriveBlockEntity drive)) continue;
+                net.minecraftforge.items.IItemHandler inv = drive.getDriveInventory();
+                for (int i = 0; i < inv.getSlots() && need > 0; i++) {
+                    ItemStack cell = inv.getStackInSlot(i);
+                    if (cell.getItem() instanceof com.simpleae.bytestorage.item.FluidCellItem) {
+                        List<net.minecraftforge.fluids.FluidStack> list = com.simpleae.bytestorage.item.FluidCellItem.getStoredFluids(cell);
+                        boolean changed = false;
+                        for (int j = 0; j < list.size() && need > 0; j++) {
+                            net.minecraftforge.fluids.FluidStack fs = list.get(j);
+                            if (fs.getFluid() == target && !fs.isEmpty()) {
+                                int take = Math.min(need, fs.getAmount());
+                                fs.shrink(take);
+                                need -= take;
+                                if (fs.isEmpty()) list.remove(j--);
+                                changed = true;
+                            }
+                        }
+                        if (changed) {
+                            com.simpleae.bytestorage.item.FluidCellItem.saveFluids(cell, list);
+                            drive.setChanged();
+                        }
+                    }
+                }
+            }
+            if (need == 0) {
+                if (carried.getCount() == 1) {
+                    setCarried(filledBucket);
+                } else {
+                    carried.shrink(1);
+                    if (!serverPlayer.getInventory().add(filledBucket)) {
+                        serverPlayer.drop(filledBucket, false);
+                    }
+                }
+                SimpleByteStoragePackets.sendToPlayer(
+                        new com.simpleae.bytestorage.network.packet.SyncFluidsPacket(collectGridFluids(grid)), serverPlayer);
+            }
+        }
     }
 
     public int getClientTotalCapacity() {

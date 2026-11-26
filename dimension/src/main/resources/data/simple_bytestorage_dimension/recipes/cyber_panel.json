@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SS",
+    "QQ"
+  ],
+  "key": {
+    "S": {
+      "item": "simple_bytestorage_dimension:silicon_slate"
+    },
+    "Q": {
+      "item": "simple_bytestorage_dimension:optic_quartz"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:cyber_panel",
+    "count": 4
+  }
+}

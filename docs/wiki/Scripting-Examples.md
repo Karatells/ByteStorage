@@ -432,3 +432,33 @@ function tick() {
   else if (e.percent > 80 && mode !== "always") stock.setMode("always");
 }
 ```
+
+## 28. A control panel (ui, onButton)
+
+Shows how much iron the network holds and lets you switch a stock rule on and off with a button.
+
+```js
+var wanted = true;
+
+function onButton(id) {
+  if (id === "toggle") {
+    wanted = !wanted;
+    if (wanted) {
+      stock.set("minecraft:iron_ingot", 256);
+    } else {
+      stock.clear("minecraft:iron_ingot");
+    }
+  }
+}
+
+function tick() {
+  var iron = net.count("minecraft:iron_ingot");
+  ui.item("minecraft:iron_ingot", "Iron: " + iron);
+  ui.bar("Target 256", Math.min(iron, 256), 256, iron >= 256 ? "green" : "yellow");
+  ui.text(wanted ? "Rule is ON" : "Rule is OFF", wanted ? "green" : "gray");
+  ui.button("toggle", wanted ? "Turn off" : "Turn on");
+}
+```
+
+Open the Logic Terminal, pick the bus, press **Run** and switch to the **Panel** tab.
+

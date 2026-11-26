@@ -20,12 +20,29 @@ public interface BusContext {
     /** Усі Логічні шини цієї мережі з таким ідентифікатором (у стабільному порядку за позицією). */
     java.util.List<BusContext> busesWithId(String id);
 
+    /** Заменяет панель, нарисованную скриптом (показывается в Логическом терминале). */
+    void setPanel(java.util.List<UiElement> elements);
+
+    /** Забирает нажатые на панели кнопки (идентификаторы) с прошлого запуска. */
+    java.util.List<String> takeButtons();
+
     /** Персистентне сховище ключ-значення шини (зберігається в NBT). */
     default java.util.Map<String, String> memoryStore() {
         return null;
     }
 
     default void markStoreDirty() {
+    }
+
+    /** Повідомлення від іншої Логічної шини через {@code bus.send(targetId, text)}. */
+    record BusMessage(String from, String text) {
+    }
+
+    default void pushMessage(String from, String text) {
+    }
+
+    default java.util.List<BusMessage> takeMessages() {
+        return java.util.List.of();
     }
 
     default int getRedstone(net.minecraft.core.Direction dir) {

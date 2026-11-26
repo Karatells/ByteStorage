@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "simple_bytestorage_dimension:block/capacitor_pillar_top",
+    "side": "simple_bytestorage_dimension:block/capacitor_pillar_side"
+  }
+}

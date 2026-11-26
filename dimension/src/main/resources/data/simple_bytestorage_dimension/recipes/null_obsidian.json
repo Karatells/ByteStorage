@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "RO",
+    "OR"
+  ],
+  "key": {
+    "R": {
+      "item": "simple_bytestorage_dimension:registry_obsidian"
+    },
+    "O": {
+      "item": "minecraft:obsidian"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:null_obsidian",
+    "count": 4
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "has_precipitation": false,
+  "temperature": 0.8,
+  "downfall": 0.0,
+  "effects": {
+    "fog_color": 1848396,
+    "sky_color": 2639979,
+    "water_color": 2290943,
+    "water_fog_color": 1848396,
+    "foliage_color": 16098354,
+    "grass_color": 16098354,
+    "particle": {
+      "options": {
+        "type": "minecraft:electric_spark"
+      },
+      "probability": 0.012
+    }
+  },
+  "spawners": {
+    "monster": [
+      {
+        "type": "simple_bytestorage_dimension:byte_sentinel",
+        "weight": 40,
+        "minCount": 1,
+        "maxCount": 2
+      }
+    ],
+    "creature": [],
+    "ambient": [],
+    "axolotls": [],
+    "underground_water_creature": [],
+    "water_creature": [],
+    "water_ambient": [],
+    "misc": []
+  },
+  "spawn_costs": {},
+  "carvers": {
+    "air": [
+      "minecraft:canyon"
+    ]
+  },
+  "features": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      "simple_bytestorage_dimension:busium_ore_rich"
+    ],
+    [],
+    [],
+    [
+      "simple_bytestorage:quantum_cluster",
+      "simple_bytestorage_dimension:patch_crystal_bush",
+      "simple_bytestorage_dimension:patch_plasma_stalk",
+      "simple_bytestorage_dimension:struct_server_tower"
+    ]
+  ]
+}

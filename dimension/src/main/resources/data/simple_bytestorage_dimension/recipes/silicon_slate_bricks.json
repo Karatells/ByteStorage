@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SS",
+    "SS"
+  ],
+  "key": {
+    "S": {
+      "item": "simple_bytestorage_dimension:silicon_slate"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:silicon_slate_bricks",
+    "count": 4
+  }
+}

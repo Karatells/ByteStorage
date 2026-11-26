@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "QSQ",
+    "TCT",
+    "QBQ"
+  ],
+  "key": {
+    "Q": {
+      "item": "simple_bytestorage_dimension:quantumite_ingot"
+    },
+    "S": {
+      "item": "simple_bytestorage_dimension:sentinel_battery"
+    },
+    "T": {
+      "item": "simple_bytestorage_dimension:fluxite_block"
+    },
+    "C": {
+      "item": "simple_bytestorage_dimension:singularity_core"
+    },
+    "B": {
+      "item": "simple_bytestorage_dimension:capacitor_plate"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:interdimensional_energy_transmitter",
+    "count": 1
+  }
+}

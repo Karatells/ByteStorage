@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DBD",
+    "B B",
+    "DBD"
+  ],
+  "key": {
+    "D": {
+      "item": "simple_bytestorage_dimension:charged_dust"
+    },
+    "B": {
+      "item": "simple_bytestorage_dimension:busium_ingot"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:capacitor_plate",
+    "count": 4
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BOB",
+    "FPF",
+    "BGB"
+  ],
+  "key": {
+    "B": {
+      "item": "simple_bytestorage_dimension:busium_ingot"
+    },
+    "O": {
+      "item": "simple_bytestorage_dimension:optic_processor"
+    },
+    "F": {
+      "item": "simple_bytestorage_dimension:fluxite_crystal"
+    },
+    "P": {
+      "item": "simple_bytestorage:pattern_provider"
+    },
+    "G": {
+      "item": "simple_bytestorage_dimension:busium_processor"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:pattern_bus_mk2",
+    "count": 1
+  }
+}

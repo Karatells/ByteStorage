@@ -57,6 +57,59 @@
         "model": "simple_bytestorage:block/cable_arm",
         "x": 90
       }
+    },
+    {
+      "when": {
+        "plug_north": "true"
+      },
+      "apply": {
+        "model": "simple_bytestorage:block/cable_plug"
+      }
+    },
+    {
+      "when": {
+        "plug_east": "true"
+      },
+      "apply": {
+        "model": "simple_bytestorage:block/cable_plug",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "plug_south": "true"
+      },
+      "apply": {
+        "model": "simple_bytestorage:block/cable_plug",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "plug_west": "true"
+      },
+      "apply": {
+        "model": "simple_bytestorage:block/cable_plug",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "plug_up": "true"
+      },
+      "apply": {
+        "model": "simple_bytestorage:block/cable_plug",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "plug_down": "true"
+      },
+      "apply": {
+        "model": "simple_bytestorage:block/cable_plug",
+        "x": 90
+      }
     }
   ]
 }

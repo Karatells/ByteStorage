@@ -162,7 +162,13 @@ public class WirelessTerminalItem extends Item {
                 new ResourceLocation(stack.getOrCreateTag().getString(TAG_DIM)));
         ServerLevel target = server.getLevel(dimension);
         BlockPos pos = boundPos(stack);
-        if (target == null || !target.isLoaded(pos)) return null;
+        if (target == null) return null;
+        if (!target.isLoaded(pos)) {
+            if (!WirelessConfig.hasUpgrade(stack, WirelessUpgradeItem.Type.INTERDIMENSIONAL)) {
+                return null;
+            }
+            target.getChunk(pos);
+        }
         return target.getBlockEntity(pos) instanceof NetworkControllerBlockEntity c ? c : null;
     }
 
@@ -204,6 +210,16 @@ public class WirelessTerminalItem extends Item {
             return InteractionResultHolder.fail(stack);
         }
         setEnergy(stack, getEnergy(stack) - COST_PER_OPEN);
+        if (WirelessConfig.hasUpgrade(stack, WirelessUpgradeItem.Type.CRAFTING)) {
+            NetworkHooks.openScreen(serverPlayer,
+                    new SimpleMenuProvider((id, inventory, p) -> new com.simpleae.bytestorage.menu.CraftingTerminalMenu(id, inventory, controller, true),
+                            Component.translatable("block.simple_bytestorage.crafting_terminal")),
+                    buf -> {
+                        buf.writeBlockPos(pos);
+                        buf.writeBoolean(true);
+                    });
+            return InteractionResultHolder.consume(stack);
+        }
         NetworkHooks.openScreen(serverPlayer,
                 new SimpleMenuProvider((id, inventory, p) -> new TerminalMenu(id, inventory, controller, true),
                         Component.translatable("block.simple_bytestorage.terminal")),

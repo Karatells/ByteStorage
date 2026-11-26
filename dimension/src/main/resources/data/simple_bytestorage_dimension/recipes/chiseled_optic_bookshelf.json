@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "SSS",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "simple_bytestorage_dimension:optic_planks"
+    },
+    "S": {
+      "item": "simple_bytestorage_dimension:optic_slab"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:chiseled_optic_bookshelf",
+    "count": 1
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "display": {
+    "icon": {
+      "item": "simple_bytestorage_dimension:rift_gate_core"
+    },
+    "title": {
+      "translate": "advancement.simple_bytestorage_dimension.root.title"
+    },
+    "description": {
+      "translate": "advancement.simple_bytestorage_dimension.root.desc"
+    },
+    "background": "simple_bytestorage_dimension:textures/block/silicon_basalt_side.png",
+    "frame": "task",
+    "show_toast": false,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "has_core": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "simple_bytestorage_dimension:rift_gate_core",
+              "simple_bytestorage_dimension:silicon_basalt",
+              "simple_bytestorage_dimension:rift_compass"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

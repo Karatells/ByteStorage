@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " O ",
+    "QMQ",
+    " O "
+  ],
+  "key": {
+    "O": {
+      "item": "simple_bytestorage_dimension:optic_processor"
+    },
+    "Q": {
+      "item": "simple_bytestorage_dimension:quantumite_ingot"
+    },
+    "M": {
+      "item": "simple_bytestorage_dimension:matrix_crystal"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:quantum_relay",
+    "count": 2
+  }
+}

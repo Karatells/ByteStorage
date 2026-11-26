@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "simple_bytestorage_dimension:item/corrupted_cell"
+  }
+}

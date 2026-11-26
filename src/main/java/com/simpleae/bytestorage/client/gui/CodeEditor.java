@@ -84,6 +84,22 @@ public class CodeEditor extends AbstractWidget {
         buf.setMaxLength(max);
     }
 
+    public int cursorLine() {
+        return buf.lineOf(buf.cursor()) + 1;
+    }
+
+    public int cursorColumn() {
+        return buf.columnOf(buf.cursor()) + 1;
+    }
+
+    public int length() {
+        return buf.length();
+    }
+
+    public int maxLength() {
+        return buf.maxLength();
+    }
+
     public boolean isPopupOpen() {
         return !suggestions.isEmpty();
     }
@@ -190,6 +206,7 @@ public class CodeEditor extends AbstractWidget {
             g.renderOutline(x - 1, y - 1, width + 2, height + 2, GuiStyle.ACCENT_DIM);
         }
         renderPopup(g, lines);
+        renderSignatureHint(g, lines);
     }
 
     private void drawSelection(GuiGraphics g, String lineText, int line, int tx, int ly) {
@@ -209,33 +226,67 @@ public class CodeEditor extends AbstractWidget {
         g.fill(x1, ly - 1, Math.max(x2, x1 + 1), ly + LINE_H - 1, 0x8800A8C0);
     }
 
-    private void renderPopup(GuiGraphics g, List<String> lines) {
-        if (suggestions.isEmpty() || !isFocused()) {
-            return;
+    /** Геометрия окна подсказок: {x, y, ширина, высота списка}; null — окно не показывается. */
+    private int[] popupGeometry() {
+        if (suggestions.isEmpty()) {
+            return null;
         }
         int cursorLine = buf.lineOf(buf.cursor()) - scrollLine;
         if (cursorLine < 0 || cursorLine >= visibleLines()) {
-            return;
+            return null;
         }
-        String lineText = lines.get(buf.lineOf(buf.cursor()));
-        int from = suggestions.get(0).replaceFrom();
-        int fromCol = Math.max(0, Math.min(from - buf.lineStart(buf.lineOf(buf.cursor())), lineText.length()));
+        int lineIndex = buf.lineOf(buf.cursor());
+        String lineText = buf.lineText(lineIndex);
+        int fromCol = Math.max(0, Math.min(suggestions.get(0).replaceFrom() - buf.lineStart(lineIndex), lineText.length()));
         int px = textLeft() - scrollX + font.width(lineText.substring(0, fromCol));
-        int rows = Math.min(POPUP_ROWS, suggestions.size());
-        int w = 60;
+        int w = 80;
         for (CompletionEngine.Suggestion s : suggestions) {
             w = Math.max(w, font.width(s.label()) + font.width(s.detail()) + 22);
         }
-        w = Math.min(w, 230);
-        int py = getY() + 3 + (cursorLine + 1) * LINE_H;
+        w = Math.min(w, 240);
+        int rows = Math.min(POPUP_ROWS, suggestions.size());
         int h = rows * 10 + 4;
-        if (py + h > Minecraft.getInstance().getWindow().getGuiScaledHeight()) {
-            py = getY() + 3 + cursorLine * LINE_H - h;
+        int total = h + docHeight(w);
+        int py = getY() + 3 + (cursorLine + 1) * LINE_H;
+        if (py + total > Minecraft.getInstance().getWindow().getGuiScaledHeight()) {
+            py = getY() + 3 + cursorLine * LINE_H - total;
         }
         px = Math.max(2, Math.min(px, Minecraft.getInstance().getWindow().getGuiScaledWidth() - w - 2));
+        return new int[]{px, py, w, h};
+    }
+
+    private List<net.minecraft.util.FormattedCharSequence> docLines(int w) {
+        if (suggestions.isEmpty() || selectedSuggestion >= suggestions.size()) {
+            return List.of();
+        }
+        String doc = suggestions.get(selectedSuggestion).doc();
+        if (doc == null || doc.isEmpty()) {
+            return List.of();
+        }
+        List<net.minecraft.util.FormattedCharSequence> all = font.split(Component.literal(doc), w - 8);
+        return all.size() > 3 ? all.subList(0, 3) : all;
+    }
+
+    private int docHeight(int w) {
+        int n = docLines(w).size();
+        return n == 0 ? 0 : n * 9 + 5;
+    }
+
+    private void renderPopup(GuiGraphics g, List<String> lines) {
+        int[] geo = isFocused() ? popupGeometry() : null;
+        if (geo == null) {
+            return;
+        }
+        int px = geo[0];
+        int py = geo[1];
+        int w = geo[2];
+        int h = geo[3];
+        int rows = Math.min(POPUP_ROWS, suggestions.size());
+        List<net.minecraft.util.FormattedCharSequence> doc = docLines(w);
+        int docH = docHeight(w);
         g.pose().pushPose();
         g.pose().translate(0, 0, 400);
-        g.fill(px - 1, py - 1, px + w + 1, py + h + 1, GuiStyle.PANEL_EDGE_DARK);
+        g.fill(px - 1, py - 1, px + w + 1, py + h + docH + 1, GuiStyle.PANEL_EDGE_DARK);
         g.fill(px, py, px + w, py + h, 0xFF16202C);
         for (int i = 0; i < rows; i++) {
             int index = suggestionScroll + i;
@@ -247,12 +298,73 @@ public class CodeEditor extends AbstractWidget {
             if (index == selectedSuggestion) {
                 g.fill(px + 1, ry - 1, px + w - 1, ry + 9, GuiStyle.ACCENT_DIM);
             }
-            g.drawString(font, font.plainSubstrByWidth(s.label(), w - 8), px + 4, ry, GuiStyle.TEXT_TITLE, false);
+            int labelColor = switch (s.detail()) {
+                case "keyword" -> COLORS.get(JsLexer.Kind.KEYWORD);
+                case "snippet" -> COLORS.get(JsLexer.Kind.FUNCTION);
+                case "item", "value" -> COLORS.get(JsLexer.Kind.STRING);
+                default -> GuiStyle.TEXT_TITLE;
+            };
+            g.drawString(font, font.plainSubstrByWidth(s.label(), w - 8), px + 4, ry, labelColor, false);
             int dw = font.width(s.detail());
-            if (px + 8 + font.width(s.label()) + dw < px + w - 2) {
+            if (8 + font.width(s.label()) + dw < w - 2) {
                 g.drawString(font, s.detail(), px + w - 4 - dw, ry, GuiStyle.TEXT_MUTED, false);
             }
         }
+        if (suggestions.size() > POPUP_ROWS) {
+            String more = (selectedSuggestion + 1) + "/" + suggestions.size();
+            g.drawString(font, more, px + w - 2 - font.width(more), py + h - 9, GuiStyle.TEXT_MUTED, false);
+        }
+        if (docH > 0) {
+            g.fill(px, py + h, px + w, py + h + docH, 0xFF101822);
+            int dy = py + h + 3;
+            for (net.minecraft.util.FormattedCharSequence line : doc) {
+                g.drawString(font, line, px + 4, dy, GuiStyle.TEXT_LABEL, false);
+                dy += 9;
+            }
+        }
+        g.pose().popPose();
+    }
+
+    private void renderSignatureHint(GuiGraphics g, List<String> lines) {
+        if (engine == null || !isFocused() || !suggestions.isEmpty()) {
+            return;
+        }
+        CompletionEngine.Hint hint = engine.signature(buf.text(), buf.cursor());
+        if (hint == null) {
+            return;
+        }
+        int cursorLine = buf.lineOf(buf.cursor()) - scrollLine;
+        if (cursorLine < 0 || cursorLine >= visibleLines()) {
+            return;
+        }
+        String name = hint.name() + "(";
+        int total = font.width(name) + font.width(")");
+        for (int i = 0; i < hint.params().size(); i++) {
+            total += font.width(hint.params().get(i)) + (i > 0 ? font.width(", ") : 0);
+        }
+        int w = total + 8;
+        int px = Math.max(getX() + 2, Math.min(textLeft(), getX() + width - w - 2));
+        int py = getY() + 3 + cursorLine * LINE_H - 12;
+        if (py < getY() + 1) {
+            py = getY() + 3 + (cursorLine + 1) * LINE_H + 1;
+        }
+        g.pose().pushPose();
+        g.pose().translate(0, 0, 300);
+        g.fill(px - 1, py - 1, px + w + 1, py + 11, GuiStyle.PANEL_EDGE_DARK);
+        g.fill(px, py, px + w, py + 10, 0xFF16202C);
+        int x = px + 4;
+        g.drawString(font, name, x, py + 1, GuiStyle.TEXT_LABEL, false);
+        x += font.width(name);
+        for (int i = 0; i < hint.params().size(); i++) {
+            if (i > 0) {
+                g.drawString(font, ", ", x, py + 1, GuiStyle.TEXT_MUTED, false);
+                x += font.width(", ");
+            }
+            String param = hint.params().get(i);
+            g.drawString(font, param, x, py + 1, i == hint.active() ? GuiStyle.ACCENT : GuiStyle.TEXT_TITLE, false);
+            x += font.width(param);
+        }
+        g.drawString(font, ")", x, py + 1, GuiStyle.TEXT_LABEL, false);
         g.pose().popPose();
     }
 
@@ -285,7 +397,7 @@ public class CodeEditor extends AbstractWidget {
 
     private void acceptSuggestion() {
         CompletionEngine.Suggestion s = suggestions.get(selectedSuggestion);
-        buf.replaceRange(s.replaceFrom(), buf.cursor(), s.insert());
+        buf.replaceWithSnippet(s.replaceFrom(), buf.cursor(), s.insert());
         closePopup();
         afterEdit(false);
     }
@@ -508,27 +620,18 @@ public class CodeEditor extends AbstractWidget {
     }
 
     private boolean clickPopup(double mouseX, double mouseY) {
-        // Клик по строке подсказки принимает её (границы совпадают с renderPopup)
-        int cursorLine = buf.lineOf(buf.cursor()) - scrollLine;
-        String lineText = buf.lineText(buf.lineOf(buf.cursor()));
-        int fromCol = Math.max(0, Math.min(suggestions.get(0).replaceFrom() - buf.lineStart(buf.lineOf(buf.cursor())), lineText.length()));
-        int px = textLeft() - scrollX + font.width(lineText.substring(0, fromCol));
-        int w = 60;
-        for (CompletionEngine.Suggestion s : suggestions) {
-            w = Math.max(w, font.width(s.label()) + font.width(s.detail()) + 22);
+        int[] geo = popupGeometry();
+        if (geo == null) {
+            return false;
         }
-        w = Math.min(w, 230);
-        int rows = Math.min(POPUP_ROWS, suggestions.size());
-        int py = getY() + 3 + (cursorLine + 1) * LINE_H;
-        int h = rows * 10 + 4;
-        if (py + h > Minecraft.getInstance().getWindow().getGuiScaledHeight()) {
-            py = getY() + 3 + cursorLine * LINE_H - h;
-        }
-        px = Math.max(2, Math.min(px, Minecraft.getInstance().getWindow().getGuiScaledWidth() - w - 2));
-        if (mouseX >= px && mouseX < px + w && mouseY >= py && mouseY < py + h) {
+        int px = geo[0];
+        int py = geo[1];
+        int w = geo[2];
+        int h = geo[3];
+        if (mouseX >= px && mouseX < px + w && mouseY >= py && mouseY < py + h + docHeight(w)) {
             int row = (int) ((mouseY - py - 2) / 10);
             int index = suggestionScroll + row;
-            if (row >= 0 && index < suggestions.size()) {
+            if (mouseY < py + h && row >= 0 && index < suggestions.size()) {
                 selectedSuggestion = index;
                 acceptSuggestion();
             }

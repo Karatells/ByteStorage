@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "simple_bytestorage_dimension:busium_ingot"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:busium_block",
+    "count": 1
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CC",
+    "CC"
+  ],
+  "key": {
+    "C": {
+      "item": "simple_bytestorage_dimension:cryo_basalt"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:dense_cryo_ice",
+    "count": 4
+  }
+}

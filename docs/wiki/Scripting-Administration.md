@@ -11,6 +11,8 @@
 | `allowCrafting` | `true` | | Allows `net.craft`. |
 | `allowControl` | `true` | | Allows scripts to change Controller settings: order priority/pause/cancel (`net.setPriority`, `net.pause`, `net.resume`, `net.cancel`), stock rules (`stock.set/clear`) and recipe settings (`recipes.*` changes). Reading is always allowed. |
 | `allowAlerts` | `true` | | Allows `alert(text)` (chat warnings to owners of bound Wireless Terminals). |
+| `allowOnlineLibrary` | `true` | | Allows the **Library** tab in the Logic Terminal to fetch community scripts over HTTPS. Set `false` on servers where admins want to disable all online script fetching (synced to clients). |
+| `onlineLibraryUrl` | `https://raw.githubusercontent.com/Karatells/sbs-scripts/main` | HTTPS URL | Base HTTPS URL of the script repository containing `index.json`. |
 | `maxScriptLength` | `8000` | 100 – 30000 | Characters per script. |
 | `minInterval` | `10` | 1 – 1200 | Minimum ticks between runs. |
 | `maxInstructionsPerRun` | `50000` | 1000 – 5,000,000 | JS instruction budget per run. |

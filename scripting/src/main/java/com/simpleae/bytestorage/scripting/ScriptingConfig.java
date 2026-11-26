@@ -15,6 +15,8 @@ public final class ScriptingConfig {
     public static final ForgeConfigSpec.BooleanValue ALLOW_CRAFTING;
     public static final ForgeConfigSpec.BooleanValue ALLOW_CONTROL;
     public static final ForgeConfigSpec.BooleanValue ALLOW_ALERTS;
+    public static final ForgeConfigSpec.BooleanValue ALLOW_ONLINE_LIBRARY;
+    public static final ForgeConfigSpec.ConfigValue<String> ONLINE_LIBRARY_URL;
     public static final ForgeConfigSpec.IntValue MAX_SCRIPT_LENGTH;
     public static final ForgeConfigSpec.IntValue MIN_INTERVAL;
     public static final ForgeConfigSpec.IntValue MAX_INSTRUCTIONS;
@@ -37,6 +39,11 @@ public final class ScriptingConfig {
                 .define("allowControl", true);
         ALLOW_ALERTS = b.comment("Дозволити скриптам надсилати попередження в чат власникам бездротових терміналів мережі (alert).")
                 .define("allowAlerts", true);
+        ALLOW_ONLINE_LIBRARY = b.comment("Дозволити вкладку онлайн-бібліотеки скриптів у Логічному терміналі.",
+                        "Поставте false на сервері, якщо хочете повністю заборонити завантаження скриптів з інтернету.")
+                .define("allowOnlineLibrary", true);
+        ONLINE_LIBRARY_URL = b.comment("Базовий HTTPS URL репозиторію онлайн-бібліотеки скриптів (де лежить index.json).")
+                .define("onlineLibraryUrl", "https://raw.githubusercontent.com/Karatells/sbs-scripts/main");
         MAX_SCRIPT_LENGTH = b.comment("Максимальна довжина скрипта в символах.")
                 .defineInRange("maxScriptLength", 8000, 100, 30000);
         MIN_INTERVAL = b.comment("Мінімальний інтервал між запусками tick() у тіках.")

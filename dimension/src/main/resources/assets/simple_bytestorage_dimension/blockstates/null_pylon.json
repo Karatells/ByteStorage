@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "axis=x": {
+      "model": "simple_bytestorage_dimension:block/null_pylon",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y": {
+      "model": "simple_bytestorage_dimension:block/null_pylon"
+    },
+    "axis=z": {
+      "model": "simple_bytestorage_dimension:block/null_pylon",
+      "x": 90
+    }
+  }
+}

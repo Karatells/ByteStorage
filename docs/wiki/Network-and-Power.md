@@ -37,13 +37,27 @@ Every device draws a small amount of FE per tick from the network.
 | Logic Bus *(addon)* | 4 while running, 1 otherwise |
 | Logic Terminal *(addon)* | 2 |
 
-## Cable
+## Cable & Cable Facades
 
 Cables carry the network over distance and cost no energy. Crafting 1 recipe gives 4 cables. Devices that touch each other connect without a cable.
 
-## Re-scan timing
+- **Cable Facade (`cable_facade`)**: disguise any Network Cable as a full solid building block:
+  1. **Shift + Right-click** any solid block with a Cable Facade to copy its appearance.
+  2. **Right-click** a Network Cable to apply the facade (renders the copied block directly over the cable).
+  3. **Shift + Right-click** a disguised cable with an empty hand (or break the cable) to recover the facade.
 
-The network re-scans every 20 ticks. After placing or breaking a block, give it up to a second to join or leave the network.
+## Topology Updates
+
+Placing or breaking a network block immediately triggers a topology refresh on adjacent Controllers (with a periodic fallback scan as a safeguard).
+
+## Network Display (3D In-World Monitor)
+The **Network Display (`network_display`)** renders up to 6 lines of glowing text and progress bars **directly on its front face in the world** (no need to open the GUI):
+- Supports leading color codes: `&a` (green), `&b` (cyan), `&c` (red), `&d` (purple), `&e` (yellow), `&f` (white), `&6` (orange), `&7` (gray), `&9` (blue).
+- Supports inline progress bars: `[bar:75]` or `[bar:75:green]` (0–100%, colors: `green`, `cyan`, `red`, `yellow`, `orange`, `blue`, `purple`, `white`, `gray`).
+- Updated automatically by Logic Bus scripts via `display.set(line, text)`.
+
+## Network Interface
+See [I/O Bus & Network Interface](IO-Bus#network-interface) — bridges external pipes, hoppers, and machines into the network (2 FE/t idle).
 
 ## Energy Interface
 A network block (recipe: Cable + Redstone + Gold Ingot, shapeless) with no GUI. Connect it to the network with cables and place it **next to a machine with an energy buffer**; every few ticks it charges the neighbouring machines with energy from the Controller's buffer (up to 1,000 FE/t per interface, only what the machine accepts). Network blocks next to it are not charged. It costs 1 FE/t of idle energy. The Controller always keeps a reserve (about 40 ticks of the network's own consumption, at least 500 FE) so that powering machines cannot turn the network offline. The Pattern Bus charges its own adjacent machines the same way.

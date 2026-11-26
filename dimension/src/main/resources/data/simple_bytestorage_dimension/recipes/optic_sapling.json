@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " L ",
+    "LSL",
+    " O "
+  ],
+  "key": {
+    "L": {
+      "item": "simple_bytestorage_dimension:optic_leaves"
+    },
+    "S": {
+      "item": "minecraft:oak_sapling"
+    },
+    "O": {
+      "item": "simple_bytestorage_dimension:optic_quartz"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:optic_sapling",
+    "count": 2
+  }
+}

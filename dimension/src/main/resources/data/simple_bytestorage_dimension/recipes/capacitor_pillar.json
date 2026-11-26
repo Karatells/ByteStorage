@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "P",
+    "F",
+    "P"
+  ],
+  "key": {
+    "P": {
+      "item": "simple_bytestorage_dimension:capacitor_plate"
+    },
+    "F": {
+      "item": "simple_bytestorage_dimension:fluxite_crystal"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:capacitor_pillar",
+    "count": 2
+  }
+}

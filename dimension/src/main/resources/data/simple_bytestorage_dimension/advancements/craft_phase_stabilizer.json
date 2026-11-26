@@ -1,0 +1,32 @@
+{
+  "parent": "simple_bytestorage_dimension:enter_silicon_plane",
+  "display": {
+    "icon": {
+      "item": "simple_bytestorage_dimension:phase_stabilizer"
+    },
+    "title": {
+      "translate": "advancement.simple_bytestorage_dimension.craft_phase_stabilizer.title"
+    },
+    "description": {
+      "translate": "advancement.simple_bytestorage_dimension.craft_phase_stabilizer.desc"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "has_stab": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "simple_bytestorage_dimension:phase_stabilizer"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

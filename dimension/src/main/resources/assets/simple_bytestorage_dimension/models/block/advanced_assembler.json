@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "simple_bytestorage_dimension:block/advanced_assembler_core",
+    "side": "simple_bytestorage_dimension:block/advanced_assembler_side",
+    "top": "simple_bytestorage_dimension:block/advanced_assembler_side"
+  }
+}

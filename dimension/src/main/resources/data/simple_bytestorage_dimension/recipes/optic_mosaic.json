@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#",
+    "#"
+  ],
+  "key": {
+    "#": {
+      "item": "simple_bytestorage_dimension:optic_slab"
+    }
+  },
+  "result": {
+    "item": "simple_bytestorage_dimension:optic_mosaic",
+    "count": 1
+  }
+}

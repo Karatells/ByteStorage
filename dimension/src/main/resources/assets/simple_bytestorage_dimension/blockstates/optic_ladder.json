@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "simple_bytestorage_dimension:block/optic_ladder"
+    },
+    "facing=east": {
+      "model": "simple_bytestorage_dimension:block/optic_ladder",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "simple_bytestorage_dimension:block/optic_ladder",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "simple_bytestorage_dimension:block/optic_ladder",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "has_precipitation": false,
+  "temperature": -0.5,
+  "downfall": 0.0,
+  "effects": {
+    "fog_color": 2776706,
+    "sky_color": 4753845,
+    "water_color": 6484735,
+    "water_fog_color": 2776706,
+    "foliage_color": 9237759,
+    "grass_color": 9237759,
+    "particle": {
+      "options": {
+        "type": "minecraft:snowflake"
+      },
+      "probability": 0.025
+    }
+  },
+  "spawners": {
+    "monster": [],
+    "creature": [
+      {
+        "type": "simple_bytestorage_dimension:cryo_harvester",
+        "weight": 25,
+        "minCount": 1,
+        "maxCount": 2
+      }
+    ],
+    "ambient": [],
+    "axolotls": [],
+    "underground_water_creature": [],
+    "water_creature": [],
+    "water_ambient": [],
+    "misc": []
+  },
+  "spawn_costs": {},
+  "carvers": {
+    "air": []
+  },
+  "features": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      "simple_bytestorage_dimension:cryo_silicate_ore_rich"
+    ],
+    [],
+    [],
+    [
+      "simple_bytestorage_dimension:cryo_cyber_tree",
+      "simple_bytestorage_dimension:patch_crystal_bush",
+      "simple_bytestorage_dimension:patch_glow_grass",
+      "simple_bytestorage_dimension:struct_cryo_spire"
+    ]
+  ]
+}

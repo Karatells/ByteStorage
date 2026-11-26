@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/fence_side",
+  "textures": {
+    "texture": "simple_bytestorage_dimension:block/optic_fence"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BHB",
+    "IWI",
+    "BCB"
+  ],
+  "key": {
+    "B": { "item": "simple_bytestorage:bytite_ingot" },
+    "H": { "item": "minecraft:hopper" },
+    "I": { "item": "simple_bytestorage:io_bus" },
+    "W": { "item": "simple_bytestorage:logic_wafer" },
+    "C": { "item": "minecraft:chest" }
+  },
+  "result": {
+    "item": "simple_bytestorage:network_interface",
+    "count": 1
+  }
+}

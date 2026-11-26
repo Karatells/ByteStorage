@@ -75,7 +75,8 @@ public class DriveBlockEntity extends BlockEntity implements IDriveHost, MenuPro
         @Override
         public boolean isItemValid(int slot, @NotNull ItemStack stack) {
             return stack.getItem() instanceof IByteStorageCell
-                    || stack.getItem() instanceof com.simpleae.bytestorage.item.FluidCellItem;
+                    || stack.getItem() instanceof com.simpleae.bytestorage.item.FluidCellItem
+                    || stack.getItem() instanceof com.simpleae.bytestorage.item.EnergyCellItem;
         }
 
         @Override

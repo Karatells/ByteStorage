@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/template_chiseled_bookshelf_slot_bottom_right",
+  "textures": {
+    "texture": "simple_bytestorage_dimension:block/chiseled_optic_bookshelf_empty"
+  }
+}

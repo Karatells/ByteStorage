@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/door_top_left_open",
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "bottom": "simple_bytestorage_dimension:block/optic_door_bottom",
+    "top": "simple_bytestorage_dimension:block/optic_door_top"
+  }
+}

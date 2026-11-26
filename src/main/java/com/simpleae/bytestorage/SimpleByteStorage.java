@@ -338,6 +338,24 @@ public class SimpleByteStorage {
     public static final RegistryObject<MenuType<com.simpleae.bytestorage.menu.NetworkDisplayMenu>> NETWORK_DISPLAY_MENU =
             MENU_TYPES.register("network_display", () -> IForgeMenuType.create(com.simpleae.bytestorage.menu.NetworkDisplayMenu::new));
 
+    // --- 7o. Мережевий інтерфейс (Network Interface) ---
+    public static final RegistryObject<Block> NETWORK_INTERFACE_BLOCK = BLOCKS.register("network_interface",
+            () -> new com.simpleae.bytestorage.block.NetworkInterfaceBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.METAL)
+                    .requiresCorrectToolForDrops()
+                    .strength(3.0F)
+                    .sound(SoundType.METAL)));
+
+    public static final RegistryObject<Item> NETWORK_INTERFACE_BLOCK_ITEM = ITEMS.register("network_interface",
+            () -> new BlockItem(NETWORK_INTERFACE_BLOCK.get(), new Item.Properties()));
+
+    public static final RegistryObject<BlockEntityType<com.simpleae.bytestorage.block.entity.NetworkInterfaceBlockEntity>> NETWORK_INTERFACE_BLOCK_ENTITY =
+            BLOCK_ENTITIES.register("network_interface",
+                    () -> BlockEntityType.Builder.of(com.simpleae.bytestorage.block.entity.NetworkInterfaceBlockEntity::new, NETWORK_INTERFACE_BLOCK.get()).build(null));
+
+    public static final RegistryObject<MenuType<com.simpleae.bytestorage.menu.NetworkInterfaceMenu>> NETWORK_INTERFACE_MENU =
+            MENU_TYPES.register("network_interface", () -> IForgeMenuType.create(com.simpleae.bytestorage.menu.NetworkInterfaceMenu::new));
+
     // --- 7i. Квантовий ретранслятор (Quantum Relay) ---
     public static final RegistryObject<Block> QUANTUM_RELAY_BLOCK = BLOCKS.register("quantum_relay",
             () -> new com.simpleae.bytestorage.block.QuantumRelayBlock(BlockBehaviour.Properties.of()
@@ -569,6 +587,12 @@ public class SimpleByteStorage {
     public static final RegistryObject<Item> MACRO_CARD = ITEMS.register("macro_card",
             () -> new com.simpleae.bytestorage.item.WirelessUpgradeItem(com.simpleae.bytestorage.item.WirelessUpgradeItem.Type.MACRO, new Item.Properties().stacksTo(1)));
 
+    public static final RegistryObject<Item> MAGNET_CARD = ITEMS.register("magnet_card",
+            () -> new com.simpleae.bytestorage.item.WirelessUpgradeItem(com.simpleae.bytestorage.item.WirelessUpgradeItem.Type.MAGNET, new Item.Properties().stacksTo(1)));
+
+    public static final RegistryObject<Item> CRAFTING_CARD = ITEMS.register("crafting_card",
+            () -> new com.simpleae.bytestorage.item.WirelessUpgradeItem(com.simpleae.bytestorage.item.WirelessUpgradeItem.Type.CRAFTING, new Item.Properties().stacksTo(1)));
+
     public static final RegistryObject<Item> RECIPE_LIBRARY = ITEMS.register("recipe_library",
             () -> new com.simpleae.bytestorage.item.RecipeLibraryItem(new Item.Properties().stacksTo(1)));
 
@@ -594,6 +618,36 @@ public class SimpleByteStorage {
     public static final RegistryObject<Item> CELL_1M = ITEMS.register("cell_1m",
             () -> new ByteStorageCellItem(CellTier.TIER_1M, new Item.Properties()));
 
+    // --- 9b. Портативні байт-ячейки (Portable Byte Cells: 1k, 4k, 16k) ---
+    public static final RegistryObject<Item> PORTABLE_CELL_1K = ITEMS.register("portable_cell_1k",
+            () -> new com.simpleae.bytestorage.item.PortableByteCellItem(CellTier.TIER_1K, new Item.Properties()));
+
+    public static final RegistryObject<Item> PORTABLE_CELL_4K = ITEMS.register("portable_cell_4k",
+            () -> new com.simpleae.bytestorage.item.PortableByteCellItem(CellTier.TIER_4K, new Item.Properties()));
+
+    public static final RegistryObject<Item> PORTABLE_CELL_16K = ITEMS.register("portable_cell_16k",
+            () -> new com.simpleae.bytestorage.item.PortableByteCellItem(CellTier.TIER_16K, new Item.Properties()));
+
+    // --- 9c. Енергетичні ячейки, пошкоджена ячейка та фасад кабелю ---
+    public static final RegistryObject<Item> ENERGY_CELL_1K = ITEMS.register("energy_cell_1k",
+            () -> new com.simpleae.bytestorage.item.EnergyCellItem(CellTier.TIER_1K, new Item.Properties()));
+
+    public static final RegistryObject<Item> ENERGY_CELL_4K = ITEMS.register("energy_cell_4k",
+            () -> new com.simpleae.bytestorage.item.EnergyCellItem(CellTier.TIER_4K, new Item.Properties()));
+
+    public static final RegistryObject<Item> ENERGY_CELL_16K = ITEMS.register("energy_cell_16k",
+            () -> new com.simpleae.bytestorage.item.EnergyCellItem(CellTier.TIER_16K, new Item.Properties()));
+
+    public static final RegistryObject<Item> CORRUPTED_CELL = ITEMS.register("corrupted_cell",
+            () -> new com.simpleae.bytestorage.item.CorruptedCellItem(new Item.Properties()));
+
+    public static final RegistryObject<Item> CABLE_FACADE = ITEMS.register("cable_facade",
+            () -> new com.simpleae.bytestorage.item.CableFacadeItem(new Item.Properties()));
+
+    public static final RegistryObject<MenuType<TerminalMenu>> PORTABLE_CELL_MENU =
+            MENU_TYPES.register("portable_cell", () -> IForgeMenuType.create(
+                    (id, inv, buf) -> new TerminalMenu(SimpleByteStorage.PORTABLE_CELL_MENU.get(), id, inv, null, true)));
+
     // --- 6. Креативна вкладка ---
     public static final RegistryObject<CreativeModeTab> TAB = CREATIVE_MODE_TABS.register("simple_bytestorage_tab",
             () -> CreativeModeTab.builder()
@@ -618,6 +672,7 @@ public class SimpleByteStorage {
                         output.accept(ARCHIVER_BLOCK.get());
                         output.accept(FLUID_IO_BUS_BLOCK.get());
                         output.accept(NETWORK_DISPLAY_BLOCK.get());
+                        output.accept(NETWORK_INTERFACE_BLOCK.get());
                         output.accept(ENERGY_PORT_BLOCK.get());
                         output.accept(CAPACITOR_BLOCK.get());
                         output.accept(PATTERN_ITEM.get());
@@ -631,6 +686,8 @@ public class SimpleByteStorage {
                         output.accept(INSURANCE_CARD.get());
                         output.accept(TOOL_CARD.get());
                         output.accept(MACRO_CARD.get());
+                        output.accept(MAGNET_CARD.get());
+                        output.accept(CRAFTING_CARD.get());
                         output.accept(RECIPE_LIBRARY.get());
                         output.accept(GUIDE_BOOK.get());
                         output.accept(CELL_1K.get());
@@ -639,6 +696,14 @@ public class SimpleByteStorage {
                         output.accept(CELL_64K.get());
                         output.accept(CELL_256K.get());
                         output.accept(CELL_1M.get());
+                        output.accept(PORTABLE_CELL_1K.get());
+                        output.accept(PORTABLE_CELL_4K.get());
+                        output.accept(PORTABLE_CELL_16K.get());
+                        output.accept(ENERGY_CELL_1K.get());
+                        output.accept(ENERGY_CELL_4K.get());
+                        output.accept(ENERGY_CELL_16K.get());
+                        output.accept(CORRUPTED_CELL.get());
+                        output.accept(CABLE_FACADE.get());
                         output.accept(FLUID_CELL_1K.get());
                         output.accept(FLUID_CELL_4K.get());
                         output.accept(FLUID_CELL_16K.get());
@@ -684,6 +749,7 @@ public class SimpleByteStorage {
         event.enqueueWork(() -> {
             com.simpleae.bytestorage.client.guide.GuideRegistry.registerBuiltin();
             MenuScreens.register(TERMINAL_MENU.get(), TerminalScreen::new);
+            MenuScreens.register(PORTABLE_CELL_MENU.get(), TerminalScreen::new);
             MenuScreens.register(CRAFTING_TERMINAL_MENU.get(), CraftingTerminalScreen::new);
             MenuScreens.register(DRIVE_MENU.get(), DriveScreen::new);
             MenuScreens.register(ASSEMBLER_MENU.get(), AssemblerScreen::new);
@@ -698,9 +764,34 @@ public class SimpleByteStorage {
             MenuScreens.register(QUANTUM_RELAY_MENU.get(), com.simpleae.bytestorage.client.gui.QuantumRelayScreen::new);
             MenuScreens.register(SECURITY_TERMINAL_MENU.get(), com.simpleae.bytestorage.client.gui.SecurityTerminalScreen::new);
             MenuScreens.register(NETWORK_DISPLAY_MENU.get(), com.simpleae.bytestorage.client.gui.NetworkDisplayScreen::new);
+            MenuScreens.register(NETWORK_INTERFACE_MENU.get(), com.simpleae.bytestorage.client.gui.NetworkInterfaceScreen::new);
             MenuScreens.register(WIRELESS_SETTINGS_MENU.get(), com.simpleae.bytestorage.client.gui.WirelessSettingsScreen::new);
             MenuScreens.register(CONTROLLER_MENU.get(), com.simpleae.bytestorage.client.gui.ControllerScreen::new);
+            net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(
+                    NETWORK_DISPLAY_BLOCK_ENTITY.get(),
+                    com.simpleae.bytestorage.client.render.NetworkDisplayRenderer::new);
+            net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(
+                    CABLE_BLOCK_ENTITY.get(),
+                    com.simpleae.bytestorage.client.render.CableFacadeRenderer::new);
         });
+    }
+
+    @net.minecraftforge.eventbus.api.SubscribeEvent
+    public void onItemPickup(net.minecraftforge.event.entity.player.EntityItemPickupEvent event) {
+        net.minecraft.world.entity.player.Player player = event.getEntity();
+        if (player.level().isClientSide) return;
+        net.minecraft.world.entity.item.ItemEntity entity = event.getItem();
+        ItemStack stack = entity.getItem();
+        if (stack.isEmpty()) return;
+        ItemStack rest = com.simpleae.bytestorage.item.PortableByteCellItem.tryAutoPickup(player, stack);
+        if (rest.getCount() != stack.getCount()) {
+            if (rest.isEmpty()) {
+                entity.discard();
+                event.setCanceled(true);
+            } else {
+                entity.setItem(rest);
+            }
+        }
     }
 
     @net.minecraftforge.eventbus.api.SubscribeEvent

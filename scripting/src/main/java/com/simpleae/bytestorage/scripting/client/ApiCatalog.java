@@ -14,70 +14,125 @@ import java.util.TreeSet;
 final class ApiCatalog {
 
     static final Set<String> GLOBALS = Set.of("net", "stock", "recipes", "journal", "store", "redstone", "display",
-            "side", "buses", "log", "time", "alert", "busId");
+            "bus", "side", "buses", "log", "time", "alert", "busId", "ui");
+
+    private static final List<String> DIRECTIONS = List.of("down", "up", "north", "south", "west", "east");
+    private static final List<String> STOCK_MODES = List.of("always", "night", "day", "energy");
+    private static final Set<String> TEXT_CALLS = Set.of("log", "alert", "journal.write", "journal.warn");
 
     private static final List<Entry> ENTRIES = new ArrayList<>();
     private static List<String> itemIds;
 
     static {
-        global("net", "network API", false);
-        global("stock", "stock targets", false);
-        global("recipes", "recipe rules", false);
-        global("journal", "network journal", false);
-        global("store", "persistent NBT key-value store", false);
-        global("redstone", "redstone I/O (0..15)", false);
-        global("display", "Network Display text lines", false);
-        global("side", "side(name) → endpoint", true);
-        global("buses", "buses() → list", true);
-        global("log", "log(text)", true);
-        global("time", "time() → game tick", true);
-        global("alert", "alert(text)", true);
-        global("busId", "this bus id", false);
-        global("tick", "handler: every run", true);
-        global("onCraft", "handler: craft finished", true);
-        global("onLowStock", "handler: stock low", true);
-        global("onAlert", "handler: alert raised", true);
+        global("net", "network API", false, "Read the network and order crafts.");
+        global("stock", "stock targets", false, "Stock rules: keep an item at a target amount.");
+        global("recipes", "recipe rules", false, "Block or prefer recipes, skip unpacking.");
+        global("journal", "network journal", false, "Write to or read the Controller's Journal tab.");
+        global("store", "persistent NBT store", false, "Key-value store persisted in the Logic Bus NBT.");
+        global("redstone", "redstone I/O (0..15)", false, "Read or emit analog redstone signals on bus sides.");
+        global("display", "Network Display lines", false, "Write or clear text lines on connected Network Displays.");
+        global("bus", "inter-bus messaging", false, "Send messages to other Logic Buses on the same network.");
+        global("onMessage", "handler", false, "Optional. Called as onMessage(fromId, text) when another bus sends a message.");
+        global("side", "side(name, id)", true, "Container next to this bus: \"up\", \"north\"... With an id it finds the first matching slot.");
+        global("buses", "buses()", true, "List of Logic Buses on this network.");
+        global("log", "log(text)", true, "Write a line to this bus's log (shown in the Logic Terminal).");
+        global("time", "time()", true, "Current game tick.");
+        global("alert", "alert(text)", true, "Raise an alert: journal entry and chat warning (needs allowAlerts).");
+        global("busId", "this bus id", false, "The identifier assigned to this bus.");
+        global("ui", "panel API", false, "Draw a panel with text, bars, buttons and items in the Logic Terminal's Panel tab.");
+        global("onButton", "handler", false, "Optional. Called with the id of a panel button the player pressed.");
+        global("tick", "handler", false, "Optional. Called every run of the bus.");
+        global("onCraft", "handler", false, "Optional. Called when a craft finishes; e has type, id, count, text.");
+        global("onLowStock", "handler", false, "Optional. Called when a stock rule fails; e has type, id, count, text.");
+        global("onAlert", "handler", false, "Optional. Called when the network raises an alert; e has type, id, count, text.");
 
-        for (String m : new String[]{
-                "available(id)", "canCraft(id,n)", "cancel(q)", "count(id)", "craft(id,n)", "energy()",
-                "freeBytes()", "has(id,n)", "list()", "machines()", "pause(q)", "plan(id,n)", "queue()",
-                "reserved(id)", "resume(q)", "setPriority(q,p)", "stats()", "totalReserved()", "usedBytes()", "why(id)"}) {
-            member("net", m);
-        }
-        for (String m : new String[]{"clear(id)", "list()", "mode()", "set(id,n)", "setMode(m)"}) {
-            member("stock", m);
-        }
-        for (String m : new String[]{"blacklist()", "block(id)", "prefer(id)", "preferred()", "skipUnpacking(b)",
-                "unblock(id)", "unprefer(id)"}) {
-            member("recipes", m);
-        }
-        for (String m : new String[]{"read(n)", "warn(text)", "write(text)"}) {
-            member("journal", m);
-        }
-        for (String m : new String[]{"clear()", "get(key)", "remove(key)", "set(key,val)"}) {
-            member("store", m);
-        }
-        for (String m : new String[]{"get(dir)", "set(dir,power)"}) {
-            member("redstone", m);
-        }
-        for (String m : new String[]{"clear()", "set(line,text)"}) {
-            member("display", m);
-        }
-        for (String m : new String[]{"count(id)", "list()", "move(from,to,n)", "pull(id,n)", "push(id,n)", "slots()"}) {
-            member("ep", m);
-        }
+        member("net", "available(id)", "Items of this kind not reserved by orders.");
+        member("net", "canCraft(id, n)", "True if n items can be crafted now. Orders nothing.");
+        member("net", "cancel(q)", "Cancel an order from net.queue() (needs allowControl).");
+        member("net", "count(id)", "How many items of this kind the network holds.");
+        member("net", "craft(id, n)", "Order n crafts of an item.");
+        member("net", "energy()", "Network energy: stored, capacity, balance.");
+        member("net", "fluidCount(id)", "Total millibuckets (mB) of a fluid stored in Fluid Cells.");
+        member("net", "fluids()", "All stored fluids as {id, amount} (mB).");
+        member("net", "freeBytes()", "Free storage bytes.");
+        member("net", "has(id, n)", "True if the network holds at least n of the item.");
+        member("net", "list()", "All stored items as {id, count}.");
+        member("net", "machines()", "Assemblers and Pattern Buses with busy / pending / wait / output.");
+        member("net", "pause(q)", "Pause an order (needs allowControl).");
+        member("net", "plan(id, n)", "Dry-run an order: what would be crafted and what is missing.");
+        member("net", "queue()", "Current craft orders.");
+        member("net", "reserved(id)", "Amount reserved for running orders.");
+        member("net", "resume(q)", "Resume a paused order (needs allowControl).");
+        member("net", "setPriority(q, p)", "Change an order's priority (needs allowControl).");
+        member("net", "stats()", "Network statistics: stored items, orders, energy.");
+        member("net", "totalReserved()", "Total items reserved by all orders.");
+        member("net", "usedBytes()", "Used storage bytes.");
+        member("net", "why(id)", "Why an item cannot be crafted: reason code, missing item and count.");
+
+        member("stock", "clear(id)", "Remove the stock rule for an item.");
+        member("stock", "list()", "All stock rules with their state.");
+        member("stock", "mode()", "Current stock schedule: always, night, day or energy.");
+        member("stock", "set(id, n)", "Keep n of an item in stock.");
+        member("stock", "setMode(m)", "Set the schedule: \"always\", \"night\", \"day\" or \"energy\".");
+
+        member("recipes", "blacklist()", "Blocked recipe outputs.");
+        member("recipes", "block(id)", "Never craft this item.");
+        member("recipes", "prefer(id)", "Prefer the recipe for this item.");
+        member("recipes", "preferred()", "Preferred recipe outputs.");
+        member("recipes", "skipUnpacking(b)", "Do not unpack storage blocks when crafting.");
+        member("recipes", "unblock(id)", "Allow crafting this item again.");
+        member("recipes", "unprefer(id)", "Remove the preference for this item.");
+
+        member("journal", "read(n)", "The last n journal entries.");
+        member("journal", "warn(text)", "Write a warning entry (limited per run).");
+        member("journal", "write(text)", "Write an entry (limited per run).");
+
+        member("store", "clear()", "Remove all keys from this bus's persistent store.");
+        member("store", "get(key)", "Read a string value from this bus's NBT store (or null).");
+        member("store", "remove(key)", "Delete a key from this bus's NBT store.");
+        member("store", "set(key, val)", "Save a key-value pair to this bus's NBT store.");
+
+        member("redstone", "get(dir)", "Read incoming redstone power (0..15) on a side.");
+        member("redstone", "set(dir, power)", "Emit analog redstone power (0..15) on a side.");
+
+        member("display", "clear()", "Clear all lines on connected Network Displays.");
+        member("display", "set(line, text)", "Set a line (0..7) on connected Network Displays.");
+
+        member("bus", "send(targetId, text)", "Send a text message to all Logic Buses with targetId.");
+
+        member("ep", "count(id)", "Items of this kind in the container.");
+        member("ep", "list()", "Container contents as {slot, id, count}.");
+        member("ep", "move(from, to, n)", "Move items between slots.");
+        member("ep", "pull(id, n)", "Take items from the container into the network.");
+        member("ep", "push(id, n)", "Put items from the network into the container.");
+        member("ep", "slots()", "Number of slots.");
+
+        member("ui", "text(text, color)", "A line of text. Color: \"green\", \"red\", \"yellow\", \"cyan\", \"gray\", \"white\" or 0xRRGGBB.");
+        member("ui", "bar(label, value, max, color)", "A progress bar with a label and value/max.");
+        member("ui", "button(id, text, color)", "A button. A press calls onButton(id) on the next run (bus must be running).");
+        member("ui", "item(id, text, color)", "An item icon with text next to it.");
+        member("ui", "clear()", "Start an empty panel.");
+
+        field("event", "type", "order, crafted, started, stock_order, stock_failed, cancelled, stuck, script...");
+        field("event", "id", "Item id of the event.");
+        field("event", "count", "Amount.");
+        field("event", "text", "Event text.");
     }
 
     private ApiCatalog() {
     }
 
-    private static void global(String name, String detail, boolean call) {
-        ENTRIES.add(new Entry("", name, detail, call));
+    private static void global(String name, String detail, boolean call, String doc) {
+        ENTRIES.add(new Entry("", name, detail, call, doc));
     }
 
-    private static void member(String qualifier, String signature) {
+    private static void member(String qualifier, String signature, String doc) {
         int paren = signature.indexOf('(');
-        ENTRIES.add(new Entry(qualifier, signature.substring(0, paren), signature, true));
+        ENTRIES.add(new Entry(qualifier, signature.substring(0, paren), signature, true, doc));
+    }
+
+    private static void field(String qualifier, String name, String doc) {
+        ENTRIES.add(new Entry(qualifier, name, "property", false, doc));
     }
 
     private static synchronized List<String> allItemIds() {
@@ -102,7 +157,31 @@ final class ApiCatalog {
         return result;
     }
 
+    private static List<String> matchValues(List<String> values, String prefix) {
+        String p = prefix.toLowerCase(Locale.ROOT);
+        List<String> result = new ArrayList<>();
+        for (String v : values) {
+            if (v.startsWith(p)) {
+                result.add(v);
+            }
+        }
+        return result;
+    }
+
+    private static List<String> complete(String call, int argIndex, String prefix) {
+        if (call.equals("side") && argIndex == 0) {
+            return matchValues(DIRECTIONS, prefix);
+        }
+        if (call.equals("stock.setMode")) {
+            return matchValues(STOCK_MODES, prefix);
+        }
+        if (TEXT_CALLS.contains(call) || (argIndex >= 1 && !call.equals("side"))) {
+            return List.of();
+        }
+        return matchItems(prefix);
+    }
+
     static CompletionEngine engine() {
-        return new CompletionEngine(ENTRIES, GLOBALS, ApiCatalog::matchItems);
+        return new CompletionEngine(ENTRIES, GLOBALS, ApiCatalog::complete);
     }
 }

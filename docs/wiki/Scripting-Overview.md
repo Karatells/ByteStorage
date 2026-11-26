@@ -7,12 +7,13 @@
 
 The addon bundles **Rhino** (a JavaScript engine for Java). Rhino is *only* inside the addon jar; the core mod never contains it.
 
-## Blocks
+## Blocks & Items
 
-| Block | Role |
+| Block / Item | Role |
 |---|---|
-| **Logic Bus** | Runs one JavaScript script. Sees its six neighbouring inventories and the network. Has its own GUI (right-click) where its identifier is set. |
-| **Logic Terminal** | Opens the script editor for every Logic Bus connected to the same network. |
+| **Logic Bus** | Runs one JavaScript script. Sees its six neighbouring inventories, redstone sides, and the network. Has its own GUI (right-click) where its identifier is set. |
+| **Logic Terminal** | Opens the script editor, custom **Panel** tab, built-in **Templates**, and **Online Script Library** for every Logic Bus connected to the same network. |
+| **Script Disk (`script_disk`)** | Portable copy/paste disk for scripts. **Shift + Right-click** a Logic Bus to copy its script and interval; **Right-click** another Logic Bus to write them (respects Security Terminal permissions). |
 
 Both are normal network nodes: they must connect to an online controller (touching or via cables).
 
@@ -75,11 +76,17 @@ function tick() {
 }
 ```
 
-- A script **must define `function tick()`**, otherwise the bus reports an error.
-- **Global variables persist** between runs, but are reset when the script is saved, the world reloads, or the bus is restarted (the top level runs again).
+- A script **must define `function tick()` or at least one event handler** (`onCraft`, `onLowStock`, `onAlert`, `onButton`, `onMessage`), otherwise the bus reports an error.
+- **Global variables persist** between runs, but are reset when the script is saved, the world reloads, or the bus is restarted (the top level runs again). Use `store.set(key, val)` for data that must survive world reloads.
 - The default interval is 20 ticks (1 s). The server enforces a minimum (default 10 ticks); max 1,200.
 - A bus runs only while it is **enabled**, its network is **online**, and scripting is **enabled** in the config.
-- Any error, or exceeding a limit, **stops the bus**, sets the status to `ERROR: <reason>` and writes it to the log.
+- Any error, stopping the bus, or losing grid power **stops the bus and resets any `redstone.set()` outputs back to `0`**.
+
+## Built-in Templates & Online Script Library
+
+In the **Logic Terminal** header next to the **`Code`** and **`Panel`** tabs:
+- **`Library` tab**: browse, filter by category, and download moderated community scripts directly from GitHub (`Karatells/sbs-scripts`) with SHA-256 verification — see [Online Script Library](Scripting-Library).
+- **`Tpl (1/5)` button**: cycles through 5 built-in starter templates (*Display Dashboard*, *Auto-Pull Chest*, *Redstone Energy Guard*, *Inter-Bus Messenger*, *Control Panel UI*) and loads them into the editor.
 
 ## Status values
 
@@ -106,6 +113,10 @@ The Logic Terminal editor highlights JavaScript syntax and has autocomplete.
 | Tab / Shift+Tab | indent / unindent (works on a selection) |
 | Ctrl+/ | comment or uncomment lines |
 | Ctrl+Z / Ctrl+Y | undo / redo |
+| Ctrl+E | open / close the full-screen editor |
+| Ctrl+S | save (full-screen editor) |
 | Ctrl+A, C, X, V | select all, copy, cut, paste |
 
 Suggestions cover `net`, `stock`, `recipes`, `journal`, the global functions and, inside quotes, item ids. Brackets and quotes close automatically.
+
+Autocomplete also offers code snippets (`tick`, `onCraft`, `for`, `if`...), your own variables and functions, the fields of a handler's event parameter, and context-aware values inside quotes (sides for `side("`, schedules for `stock.setMode("`, item ids elsewhere). While you type call arguments a signature hint shows the current parameter.

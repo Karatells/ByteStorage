@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "simple_bytestorage_dimension:item/cryo_pickaxe"
+  }
+}

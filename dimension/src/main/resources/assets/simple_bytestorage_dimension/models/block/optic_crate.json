@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "bottom": "simple_bytestorage_dimension:block/optic_crate_top",
+    "side": "simple_bytestorage_dimension:block/optic_crate_side",
+    "top": "simple_bytestorage_dimension:block/optic_crate_top"
+  }
+}

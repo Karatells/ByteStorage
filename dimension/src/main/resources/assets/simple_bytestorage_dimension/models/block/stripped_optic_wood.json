@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "simple_bytestorage_dimension:block/stripped_optic_log_side",
+    "side": "simple_bytestorage_dimension:block/stripped_optic_log_side"
+  }
+}

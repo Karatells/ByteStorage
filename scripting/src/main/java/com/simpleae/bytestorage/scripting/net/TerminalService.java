@@ -58,6 +58,7 @@ final class TerminalService {
                 case ScriptActionPacket.SAVE -> selected.setScript(text);
                 case ScriptActionPacket.ENABLE -> selected.setEnabled(intArg != 0);
                 case ScriptActionPacket.INTERVAL -> selected.setInterval(intArg);
+                case ScriptActionPacket.UI_BUTTON -> selected.pressButton(text.length() > 40 ? text.substring(0, 40) : text);
                 default -> {
                 }
             }
@@ -76,7 +77,10 @@ final class TerminalService {
                 selected == null ? null : selected.getBlockPos(),
                 withScript,
                 withScript ? selected.getScript() : "",
-                selected == null ? List.of() : selected.getLog());
+                selected == null ? List.of() : selected.getLog(),
+                selected == null ? List.of() : selected.getPanel(),
+                ScriptingConfig.ALLOW_ONLINE_LIBRARY.get(),
+                ScriptingConfig.ONLINE_LIBRARY_URL.get());
         ScriptingPackets.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), reply);
     }
 }

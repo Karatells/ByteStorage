@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "simple_bytestorage_dimension:optic_planks"
+    }
+  ],
+  "result": {
+    "item": "simple_bytestorage_dimension:optic_button",
+    "count": 1
+  }
+}

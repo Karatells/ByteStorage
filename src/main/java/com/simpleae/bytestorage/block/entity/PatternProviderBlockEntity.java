@@ -19,6 +19,11 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.block.AbstractFurnaceBlock;
+import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -49,6 +54,10 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
     public static final int MAX_IN_FLIGHT = 256;
     private static final int CYCLE_TICKS = 10;
     private static final int PUSHES_PER_CYCLE = 16;
+    /** Сколько побочных продуктов запоминает запись шаблона. */
+    private static final int MAX_EXTRAS = 3;
+    private static final ItemStack[] FUELS = {new ItemStack(Items.CHARCOAL), new ItemStack(Items.COAL),
+            new ItemStack(Items.DRIED_KELP_BLOCK)};
 
     private static final class Job {
         final String patternId;
@@ -93,7 +102,19 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
     };
 
     public PatternProviderBlockEntity(BlockPos pos, BlockState state) {
-        super(SimpleByteStorage.PATTERN_PROVIDER_BLOCK_ENTITY.get(), pos, state);
+        this(SimpleByteStorage.PATTERN_PROVIDER_BLOCK_ENTITY.get(), pos, state);
+    }
+
+    protected PatternProviderBlockEntity(net.minecraft.world.level.block.entity.BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
+    }
+
+    protected int getCycleTicks() {
+        return CYCLE_TICKS;
+    }
+
+    protected int getPushesPerCycle() {
+        return PUSHES_PER_CYCLE;
     }
 
     // --- IGridNode ---
@@ -250,6 +271,7 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
     public static final int WAIT_NONE = 0;
     public static final int WAIT_RESOURCES = 1;   // в сети не хватает ингредиентов
     public static final int WAIT_NO_MACHINE = 2;  // нет машины, которая принимает ингредиенты
+    public static final int WAIT_NO_FUEL = 3;     // печи нужно топливо, а в сети его нет
 
     private int waitReason = WAIT_NONE;
 
@@ -398,29 +420,29 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
     }
 
     private void finishRecording(java.util.Map<String, Integer> cur) {
-        java.util.Map<String, Integer> consumed = new java.util.LinkedHashMap<>();
-        String outKey = null;
-        int outCount = 0;
-        for (java.util.Map.Entry<String, Integer> e : recStart.entrySet()) {
-            int now = cur.getOrDefault(e.getKey(), 0);
-            if (now < e.getValue()) {
-                consumed.put(e.getKey(), e.getValue() - now);
-            }
-        }
-        for (java.util.Map.Entry<String, Integer> e : cur.entrySet()) {
-            int gain = e.getValue() - recStart.getOrDefault(e.getKey(), 0);
-            if (gain > outCount && !consumed.containsKey(e.getKey())) {
-                outCount = gain;
-                outKey = e.getKey();
-            }
-        }
-        if (outKey == null || consumed.isEmpty() || consumed.size() > PatternData.GRID_SIZE) {
+        com.simpleae.bytestorage.util.RecordingAnalysis.Result analysis =
+                com.simpleae.bytestorage.util.RecordingAnalysis.analyze(recStart, cur);
+        if (!analysis.valid(PatternData.GRID_SIZE)) {
             recState = REC_FAILED;
             return;
         }
-        ItemStack output = recSample.get(outKey).copyWithCount(outCount);
+        java.util.Map.Entry<String, Integer> main = analysis.gains().get(0);
+        ItemStack mainSample = recSample.get(main.getKey());
+        if (mainSample == null) {
+            recState = REC_FAILED;
+            return;
+        }
+        ItemStack output = mainSample.copyWithCount(main.getValue());
+        List<ItemStack> extras = new ArrayList<>();
+        for (int i = 1; i < analysis.gains().size() && extras.size() < MAX_EXTRAS; i++) {
+            java.util.Map.Entry<String, Integer> gain = analysis.gains().get(i);
+            ItemStack sample = recSample.get(gain.getKey());
+            if (sample != null) {
+                extras.add(sample.copyWithCount(gain.getValue()));
+            }
+        }
         List<ItemStack> inputs = new ArrayList<>();
-        for (java.util.Map.Entry<String, Integer> e : consumed.entrySet()) {
+        for (java.util.Map.Entry<String, Integer> e : analysis.consumed().entrySet()) {
             ItemStack sample = recSample.get(e.getKey());
             if (sample == null) {
                 recState = REC_FAILED;
@@ -440,7 +462,7 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
             return;
         }
         ItemStack pattern = new ItemStack(SimpleByteStorage.PATTERN_ITEM.get());
-        ((PatternItem) pattern.getItem()).program(pattern, PatternData.processing(output, inputs));
+        ((PatternItem) pattern.getItem()).program(pattern, PatternData.processing(output, inputs, extras));
         inventory.setStackInSlot(free, pattern);
         setChanged();
         recState = REC_SAVED;
@@ -454,7 +476,8 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
             recordTick();
             return;
         }
-        if (++tickCounter % CYCLE_TICKS != 0) {
+        int cycleTicks = Math.max(1, getCycleTicks());
+        if (++tickCounter % cycleTicks != 0) {
             return;
         }
         List<Machine> machines = findMachines();
@@ -464,25 +487,81 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
             return;
         }
         // Шина заряжает соседние машины энергией сети (электропечь и т.п.)
-        com.simpleae.bytestorage.util.NetworkPower.feed(grid, level, worldPosition, CYCLE_TICKS);
+        com.simpleae.bytestorage.util.NetworkPower.feed(grid, level, worldPosition, cycleTicks);
         INetworkStorage storage = grid.getStorage();
 
         flushOverflow(storage);
         collectOutputs(storage, machines);
 
+        boolean fuelMissing = refuelFurnaces(storage, machines);
         waitReason = WAIT_NONE;
         if (jobs.isEmpty()) {
+            if (fuelMissing && !expected.isEmpty()) {
+                waitReason = WAIT_NO_FUEL;
+            }
             return;
         }
         if (machines.isEmpty()) {
             waitReason = WAIT_NO_MACHINE;
             return;
         }
-        for (int i = 0; i < PUSHES_PER_CYCLE && !jobs.isEmpty(); i++) {
+        int pushes = Math.max(1, getPushesPerCycle());
+        for (int i = 0; i < pushes && !jobs.isEmpty(); i++) {
             if (!pushOne(storage, machines)) {
                 break;
             }
         }
+        if (waitReason == WAIT_NONE && fuelMissing) {
+            waitReason = WAIT_NO_FUEL;
+        }
+    }
+
+    /**
+     * Автоподача топлива: если рядом печь (обычная, плавильная, коптильня) без топлива, а работа есть,
+     * шина берёт из сети древесный уголь, уголь или блок сушёных водорослей. Печи с топливом не трогает.
+     *
+     * @return true, если печи нужно топливо, а взять его негде
+     */
+    private boolean refuelFurnaces(INetworkStorage storage, List<Machine> machines) {
+        if (jobs.isEmpty() && expected.isEmpty()) {
+            return false;
+        }
+        boolean missing = false;
+        for (Machine machine : machines) {
+            if (!(machine.be() instanceof AbstractFurnaceBlockEntity furnace)) {
+                continue;
+            }
+            BlockState furnaceState = level.getBlockState(furnace.getBlockPos());
+            if (furnaceState.hasProperty(AbstractFurnaceBlock.LIT) && furnaceState.getValue(AbstractFurnaceBlock.LIT)) {
+                continue;
+            }
+            if (!furnace.getItem(1).isEmpty() || (furnace.getItem(0).isEmpty() && jobs.isEmpty())) {
+                continue;
+            }
+            int crafts = Math.max(1, Math.min(64, getPendingCrafts() + expectedTotal()));
+            boolean fueled = false;
+            for (ItemStack fuel : FUELS) {
+                int burn = ForgeHooks.getBurnTime(fuel, RecipeType.SMELTING);
+                if (burn <= 0) {
+                    continue;
+                }
+                int want = Math.max(1, Math.min(8, (int) Math.ceil(crafts * 200.0 / burn)));
+                ItemStack available = storage.extractForCrafting(fuel, want, true);
+                if (available.isEmpty()) {
+                    continue;
+                }
+                ItemStack taken = storage.extractForCrafting(fuel, available.getCount(), false);
+                if (!taken.isEmpty()) {
+                    furnace.setItem(1, taken);
+                    fueled = true;
+                    break;
+                }
+            }
+            if (!fueled) {
+                missing = true;
+            }
+        }
+        return missing;
     }
 
     /** Сусідні блоки з інвентарем, які не є нодами мережі. */
@@ -630,6 +709,9 @@ public class PatternProviderBlockEntity extends BlockEntity implements IGridNode
                 }
             }
             addTo(expected, pattern.getOutput());
+            for (ItemStack extra : pattern.getExtras()) {
+                addTo(expected, extra);
+            }
             com.simpleae.bytestorage.util.NetworkJournal.log(grid, com.simpleae.bytestorage.util.JournalLog.STARTED,
                     pattern.getOutput(), pattern.getOutput().getCount());
             job.left--;

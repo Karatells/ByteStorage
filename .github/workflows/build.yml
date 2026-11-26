@@ -31,7 +31,7 @@ jobs:
       - name: Collect jars
         run: |
           mkdir -p dist
-          for f in build/libs/*.jar scripting/build/libs/*.jar; do
+          for f in build/libs/*.jar scripting/build/libs/*.jar dimension/build/libs/*.jar; do
             [ -f "$f" ] || continue
             case "$f" in
               *-sources.jar|*-javadoc.jar) continue ;;
@@ -45,6 +45,10 @@ jobs:
           if [ -f scripting/build/reobfJar/output.jar ]; then
             ver=$(grep -oP "^version\s*=\s*'\K[^']+" scripting/build.gradle)
             cp scripting/build/reobfJar/output.jar "dist/simple_bytestorage_scripting-${ver}.jar"
+          fi
+          if [ -f dimension/build/reobfJar/output.jar ]; then
+            ver=$(grep -oP "^version\s*=\s*'\K[^']+" dimension/build.gradle)
+            cp dimension/build/reobfJar/output.jar "dist/simple_bytestorage_dimension-${ver}.jar"
           fi
           ls -la dist
 
@@ -61,6 +65,13 @@ jobs:
         with:
           name: simple_bytestorage_scripting-addon-jar
           path: dist/simple_bytestorage_scripting-*[0-9].jar
+          if-no-files-found: warn
+
+      - name: Upload dimension addon jar (optional Silicon Plane addon)
+        uses: actions/upload-artifact@v4
+        with:
+          name: simple_bytestorage_dimension-addon-jar
+          path: dist/simple_bytestorage_dimension-*[0-9].jar
           if-no-files-found: warn
 
       - name: Upload dev jars

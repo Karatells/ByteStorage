@@ -2,7 +2,63 @@
 
 All notable changes to the **Simple Byte Storage** mod will be documented in this file.
 
+## [1.4.0]
+
+Major feature release for the main mod, the Scripting addon, and the brand-new optional **Silicon Plane** Dimension addon (`simple_bytestorage_dimension`). Full notes: `docs/RELEASE_NOTES_1.4.0.md`.
+
+### Added — Main mod (`simple_bytestorage`)
+- **Network Interface (`network_interface`)**: bidirectional hopper/pipe/machine bridge with 9 ghost stock slots.
+- **Portable Byte Cells (`portable_cell_1k` / `4k` / `16k`)**: handheld no-type-limit cells with Terminal GUI and `Shift + Right-click` Auto-Pickup.
+- **Energy Byte Cells (`energy_cell_1k` / `4k` / `16k`)**: store Forge Energy inside Drives at **1 byte = 1,000 FE**.
+- **Corrupted Byte Cell (`corrupted_cell`)** & **Cell Workbench Migration** (`->` button between item/fluid cells).
+- **Cable Facades (`cable_facade`)** & **3D In-World Network Display Renderer**.
+- **Terminal Fluids Tab (`Items / Fluids`)** & **Smart Terminal Search** (`%tooltip`, `>=`, `<=`, `k`/`m` suffixes).
+- **Redesigned Guide Book (`GuideScreen`)**: 3D icons, chapter search, and live `RecipeManager` crafting/smelting recipe cards.
+- **Core API hooks for addons**: `SpeedCardItem.getSpeedPower()`, `WirelessUpgradeItem.Type.INTERDIMENSIONAL`, extensible `AssemblerBlockEntity`, `CraftingCoprocessorBlockEntity`, and `PatternProviderBlockEntity`.
+
+### Added — Scripting addon (`simple_bytestorage_scripting`)
+- **Online Script Library (`Library` tab)** with categories, icons, version checks, and SHA-256 verification.
+- **Script Disk (`script_disk`)**, inter-bus messaging (`bus.send` / `onMessage`), Fluid API (`net.fluidCount` / `net.fluids`), and 5 built-in templates.
+
+### Added — Dimension addon (`simple_bytestorage_dimension` — new optional addon)
+- **The Silicon Plane (`silicon_plane`)**: 3-layer dimension (`Y = -64..256`), custom stars/matrix-grid/aurora skybox (no vanilla clouds), 8 unique biomes, 7 ores, animated **Liquid Coolant**, 3 cyber trees, 4 glowing plants, 6 procedural tech structures with loot chests, and **Magnetic Updraft** elevators.
+- **Rift Gate Portal**: `4×5..12×12` `silicon_basalt` frame + `rift_gate_core` (100,000 FE), ignites strictly in `simple_bytestorage:silicon_rift` in the Overworld (with hidden advancement **No Signal Here** elsewhere).
+- **4 Custom 3D Mobs**: `Byte Sentinel`, `Glitch Stalker`, `Cryo Harvester`, and `Registry Warden` mini-boss (Boss Bar + guaranteed `Matrix Crystal` & `Quantum Core` drops).
+- **Endgame Network Machines & Upgrades**: `Advanced Assembler` (×2), `Singular Assembler` (×4), `Pattern Bus Mk2`, `Singular Controller` (10M FE + 4 coprocessors), `Interdimensional Energy Transmitter` (16 cross-dimension FE channels), `Quantum Relay`, `Speed Card Mk2` (×3), `Interdimensional Wireless Card`, and `Facade Scanner` (paints up to 32 connected cables).
+- **High-Tier Storage & Gear**: `256k` / `1M` Byte Cells, `64k` Portable Cell, `64k` / `256k` Energy Cells, `256k` Fluid Cell, `Return Beacon`, `Phase Stabilizer`, `Capacitor Accumulator`, `Busium` / `Cryo` Pickaxes, `Archive Lore Fragments`, and 6 compact resource blocks (`9 ↔ 1`).
+- **Complete Optic Wood Set**: 22 decorative/functional wood blocks (logs, stripped logs, planks, stairs, slabs, fence, gate, door, trapdoor, pressure plate, button, mosaic, bookshelf, chiseled bookshelf, ladder, 27-slot crate, signs, hanging signs, sapling) plus `Optic Boat` and `Optic Chest Boat`.
+
 ## [Unreleased]
+
+### Changed — 1.2.2.39
+- **Texture overhaul**: new casing, top, bottom and drive-side textures (bevels, rivets, vents, seams); the bus, pattern provider, energy port and capacitor blocks now have proper tops and bottoms instead of the same picture on all six faces.
+- **Animated glow**: terminal, crafting/pattern terminal, assembler, drive, bus, energy port, capacitor and controller fronts gently pulse; the conflict controller blinks. The cable has a light pulse running along the wire and a breathing hub; new Pattern item and cable icons.
+- `tools/generate_textures.py` regenerates the generated textures from `tools/textures_src` (needs Pillow).
+
+### Fixed — 1.2.2.38
+- Build fix for the Magnet Card (`setDeltaMovement`).
+
+### Changed — 1.2.2.38
+- **Favorites and saved searches are stored on the server** with your player data instead of in files in `config/`: they follow you between computers and survive death. On the first join the old local files are uploaded and removed. Limits: 500 favorites, 3 searches of 64 characters. The network protocol is now **11** (client and server must run the same version). New unit tests `UserPrefsTest`.
+
+### Added — 1.2.2.37
+- **Magnet Card** (Wireless Terminal upgrade): pulls dropped items within 6 blocks toward you, not while sneaking; respects the terminal's filter; 1 FE per item per pulse. Together with the Auto-Transfer Card the items go straight into the network.
+- **Remote Crafting Card** (Wireless Terminal upgrade): right-clicking the terminal opens a Crafting Terminal (3×3 grid, ingredients from the network) instead of the plain Terminal, from any distance. Both cards have recipes, textures, translations and are in the creative tab.
+
+### Added — 1.2.2.36
+- **Pattern Bus: byproducts (multi-output recording)**. When recording a recipe the largest gain is still the main result, but up to three other products are now saved as byproducts. The bus collects them from the machine with the main result and returns them to the network, so crushers and similar machines no longer clog on secondary outputs. The pattern tooltip lists them ("Also yields"). Old patterns keep working. New unit tests `RecordingAnalysisTest`.
+- **Pattern Bus: automatic fuel for furnaces**. A furnace, blast furnace or smoker next to the bus that has no fuel gets charcoal, coal or dried kelp blocks from the network when there is work to do. Without fuel the bus waits with a new reason "no fuel" (stuck warning, `net.machines()` reports `no_fuel`).
+
+### Added — 1.2.2.35
+- **Script panels** (Scripting addon): a script can draw its own control panel with `ui.text`, `ui.bar`, `ui.button` and `ui.item`. The Logic Terminal got **Code / Panel** tabs; the Panel tab shows what the selected bus drew, with scrolling. Pressing a button calls the optional `onButton(id)` handler on the bus's next run (works while the bus is running and for players who may edit scripts). Autocomplete knows `ui`, `onButton` and the new snippet. Wiki: `Scripting-API` (new `ui` section), example 28.
+
+### Added — 1.2.2.34
+- **Full-screen script editor**: a button next to Save in the Logic Terminal (or **Ctrl+E**) opens the editor over the whole screen with a status line (line, column, length); **Ctrl+S** saves, Ctrl+E or Esc goes back. The text carries over in both directions. The Logic Terminal no longer reloads the script from the server when its window is rebuilt, so unsaved edits survive a window resize.
+- **Smarter autocomplete**: short descriptions for every API function; a **signature hint** while you type call arguments (the current argument is highlighted); **code snippets** (`tick`, `onCraft`, `onLowStock`, `onAlert`, `for`, `if`, `ifelse`, `while`, `each`) that insert a ready template; **your own variables, functions and parameters** are suggested too; handler parameters (`e`) complete `type`, `id`, `count`, `text`; variables assigned from `side(...)` complete container methods; **fuzzy matching** (`sp` finds `setPriority`); inside quotes the list depends on the call — sides for `side("`, schedules for `stock.setMode("`, item ids elsewhere. Accepting a method puts the cursor between the parentheses.
+- Unit tests for snippets, local symbols, fuzzy matching, string context and signature hints.
+
+### Changed — 1.2.2.33
+- **Cable redrawn**: new steel-and-cyan texture (hub with a glowing core, thinner wire with light bands). Where a cable connects to a **block** (terminal, drive, bus, controller…) it now ends in a **plug**: a flange with a glowing cyan rim and a collar, so connections are easy to tell from cable-to-cable links. The plug is part of the cable's hitbox. New item icon.
 
 ## [1.3.1]
 

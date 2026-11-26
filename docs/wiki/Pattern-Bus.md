@@ -31,3 +31,8 @@ If several providers hold the same pattern, orders are balanced to the one with 
 - **Mind the face.** Many machines expose different slots on different faces. A vanilla furnace takes input from the **top**, outputs from the bottom, and accepts only fuel from the sides, so put the Pattern Bus on top of a furnace.
 - Make sure the machine is able to receive all inputs; a full machine slows the queue.
 - The queue and its state are visible in the bus's GUI and in the Pattern Terminal's Queue tab.
+
+## Automatic fuel for furnaces
+
+If a furnace, blast furnace or smoker stands next to the bus, has no fuel and is not burning, and the bus has work (queued crafts or results still to collect), the bus takes **charcoal, then coal, then dried kelp blocks** from the network and puts enough into the fuel slot for the queued crafts (up to 8 items). A furnace that already has fuel is never touched. If the network has none of these fuels, the bus waits with the reason "no fuel"; after the usual delay a stuck warning is sent and the machine shows in `net.machines()` with `wait: "no_fuel"`.
+
