@@ -27,16 +27,54 @@ public class CraftingTerminalScreen extends AbstractContainerScreen<CraftingTerm
     private static final int POOL_X = 7;
     private static final int POOL_Y = 76;
 
+    // Бокова ліва панель пулу мережі (5×10 = 50 слотів)
+    private static final int SIDE_COLS = 5;
+    private static final int SIDE_ROWS = 10;
+    public static final int SIDE_PANEL_W = 114;
+    private static final int SIDE_GAP = 4;
+    private static boolean sidePool = false;
+
     private EditBox searchBox;
     private UiButton depositButton;
+    private UiButton layoutButton;
     private int scrollOffset = 0;
     private final TerminalExtras extras = new TerminalExtras();
 
     public CraftingTerminalScreen(CraftingTerminalMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 195;
-        this.imageHeight = 222;
+        this.imageHeight = 228;
         this.inventoryLabelY = 138;
+    }
+
+    public boolean isSidePool() {
+        return sidePool;
+    }
+
+    public void toggleSidePool() {
+        sidePool = !sidePool;
+        scrollOffset = 0;
+        updateLayoutTooltip();
+    }
+
+    public int getSidePanelX() {
+        return this.leftPos - SIDE_PANEL_W - SIDE_GAP;
+    }
+
+    private int poolCols() {
+        return sidePool ? SIDE_COLS : ITEMS_PER_ROW;
+    }
+
+    private int poolRows() {
+        return sidePool ? SIDE_ROWS : VISIBLE_ROWS;
+    }
+
+    private int poolOriginX() {
+        return sidePool ? (getSidePanelX() + 6) : (this.leftPos + POOL_X);
+    }
+
+    private int poolOriginY() {
+        return sidePool ? (this.topPos + 20) : (this.topPos + POOL_Y);
     }
 
     @Override
@@ -51,7 +89,11 @@ public class CraftingTerminalScreen extends AbstractContainerScreen<CraftingTerm
         this.addRenderableWidget(this.searchBox);
         this.extras.bindSearch(() -> this.searchBox.getValue(), q -> this.searchBox.setValue(q));
 
-        this.depositButton = new UiButton(this.leftPos + 166, this.topPos + 46, 16, 16,
+        this.layoutButton = new UiButton(this.leftPos + 150, this.topPos + 46, 16, 16,
+                () -> Component.literal(sidePool ? "v" : "<"), UiButton.Icon.NONE, this::toggleSidePool);
+        updateLayoutTooltip();
+
+        this.depositButton = new UiButton(this.leftPos + 170, this.topPos + 46, 16, 16,
                 () -> Component.empty(), UiButton.Icon.DOWN, () -> {
             int flag = hasShiftDown() ? 1 : 0;
             SimpleByteStoragePackets.sendToServer(
@@ -60,12 +102,22 @@ public class CraftingTerminalScreen extends AbstractContainerScreen<CraftingTerm
         this.depositButton.tooltip(Component.translatable("gui.simple_bytestorage.terminal.deposit"));
     }
 
+    private void updateLayoutTooltip() {
+        if (this.layoutButton != null) {
+            this.layoutButton.tooltip(Component.translatable(sidePool
+                    ? "gui.simple_bytestorage.terminal.layout_bottom"
+                    : "gui.simple_bytestorage.terminal.layout_side"));
+        }
+    }
+
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(graphics);
         super.render(graphics, mouseX, mouseY, partialTick);
+        this.layoutButton.render(graphics, this.font, mouseX, mouseY);
         this.depositButton.render(graphics, this.font, mouseX, mouseY);
         this.renderTooltip(graphics, mouseX, mouseY);
+        this.layoutButton.renderTooltip(graphics, this.font, mouseX, mouseY);
         this.depositButton.renderTooltip(graphics, this.font, mouseX, mouseY);
         this.renderPoolTooltip(graphics, mouseX, mouseY);
         this.extras.renderSort(graphics, this.font, this.leftPos, this.topPos, this.imageWidth, mouseX, mouseY);
@@ -98,18 +150,45 @@ public class CraftingTerminalScreen extends AbstractContainerScreen<CraftingTerm
         }
         GuiStyle.playerSlots(graphics, x, y, menu.slots, 10);
 
-        // Пул предметів
-        GuiStyle.display(graphics, x + POOL_X - 1, y + POOL_Y - 1, 164, 56);
-        for (int row = 0; row < VISIBLE_ROWS; row++) {
-            for (int col = 0; col < ITEMS_PER_ROW; col++) {
-                GuiStyle.slot(graphics, x + POOL_X + col * 18, y + POOL_Y + row * 18, GuiStyle.SLOT_POOL);
-            }
-        }
         List<ItemStack> filtered = getFilteredItems();
-        int maxRows = (filtered.size() + ITEMS_PER_ROW - 1) / ITEMS_PER_ROW;
-        scrollOffset = Math.max(0, Math.min(scrollOffset, Math.max(0, maxRows - VISIBLE_ROWS)));
-        GuiStyle.scrollbar(graphics, x + 172, y + POOL_Y - 1, 10, 56,
-                scrollOffset, Math.max(0, maxRows - VISIBLE_ROWS), VISIBLE_ROWS, maxRows);
+        int cols = poolCols();
+        int rows = poolRows();
+        int px = poolOriginX();
+        int py = poolOriginY();
+        int maxRows = (filtered.size() + cols - 1) / cols;
+        scrollOffset = Math.max(0, Math.min(scrollOffset, Math.max(0, maxRows - rows)));
+
+        if (sidePool) {
+            // Ліва бокова панель зі списком предметів мережі (5×10)
+            int sx = getSidePanelX();
+            GuiStyle.window(graphics, sx, y, SIDE_PANEL_W, imageHeight,
+                    Component.translatable("gui.simple_bytestorage.terminal.side_pool_title"), led, "drive");
+            GuiStyle.display(graphics, px - 1, py - 1, cols * 18 + 2, rows * 18 + 2);
+            for (int row = 0; row < rows; row++) {
+                for (int col = 0; col < cols; col++) {
+                    GuiStyle.slot(graphics, px + col * 18, py + row * 18, GuiStyle.SLOT_POOL);
+                }
+            }
+            GuiStyle.scrollbar(graphics, px + cols * 18 + 3, py - 1, 10, rows * 18 + 2,
+                    scrollOffset, Math.max(0, maxRows - rows), rows, maxRows);
+            GuiStyle.meter(graphics, sx + 6, y + imageHeight - 12, SIDE_PANEL_W - 12, 4, fill);
+
+            // Компактна інформаційна панель у центральному вікні замість нижньої сітки
+            GuiStyle.panel(graphics, x + POOL_X - 1, y + POOL_Y + 6, 181, 42);
+            Component movedMsg = Component.translatable("gui.simple_bytestorage.terminal.side_pool_active");
+            int mw = this.font.width(movedMsg);
+            graphics.drawString(this.font, movedMsg, x + POOL_X + (179 - mw) / 2, y + POOL_Y + 23, GuiStyle.TEXT_MUTED, false);
+        } else {
+            // Звичайний пул предметів під крафтовою сіткою (9×3)
+            GuiStyle.display(graphics, px - 1, py - 1, 164, 56);
+            for (int row = 0; row < rows; row++) {
+                for (int col = 0; col < cols; col++) {
+                    GuiStyle.slot(graphics, px + col * 18, py + row * 18, GuiStyle.SLOT_POOL);
+                }
+            }
+            GuiStyle.scrollbar(graphics, x + 172, y + POOL_Y - 1, 10, 56,
+                    scrollOffset, Math.max(0, maxRows - rows), rows, maxRows);
+        }
 
         // Пам'ять
         GuiStyle.meter(graphics, x + 8, y + 132, 179, 4, fill);
@@ -136,10 +215,14 @@ public class CraftingTerminalScreen extends AbstractContainerScreen<CraftingTerm
     }
 
     private void renderPoolItems(GuiGraphics graphics, int mouseX, int mouseY, List<ItemStack> filtered) {
-        int start = scrollOffset * ITEMS_PER_ROW;
-        for (int i = 0; i < ITEMS_PER_ROW * VISIBLE_ROWS; i++) {
-            int itemX = this.leftPos + POOL_X + 1 + (i % ITEMS_PER_ROW) * 18;
-            int itemY = this.topPos + POOL_Y + 1 + (i / ITEMS_PER_ROW) * 18;
+        int cols = poolCols();
+        int rows = poolRows();
+        int px = poolOriginX();
+        int py = poolOriginY();
+        int start = scrollOffset * cols;
+        for (int i = 0; i < cols * rows; i++) {
+            int itemX = px + 1 + (i % cols) * 18;
+            int itemY = py + 1 + (i / cols) * 18;
 
             if (mouseX >= itemX && mouseX < itemX + 16 && mouseY >= itemY && mouseY < itemY + 16) {
                 graphics.fill(itemX - 1, itemY - 1, itemX + 17, itemY + 17, GuiStyle.ACCENT_FAINT);
@@ -192,13 +275,17 @@ public class CraftingTerminalScreen extends AbstractContainerScreen<CraftingTerm
 
     private ItemStack stackAt(double mouseX, double mouseY) {
         List<ItemStack> filtered = getFilteredItems();
-        int start = scrollOffset * ITEMS_PER_ROW;
-        for (int i = 0; i < ITEMS_PER_ROW * VISIBLE_ROWS; i++) {
+        int cols = poolCols();
+        int rows = poolRows();
+        int px = poolOriginX();
+        int py = poolOriginY();
+        int start = scrollOffset * cols;
+        for (int i = 0; i < cols * rows; i++) {
             if (start + i >= filtered.size()) {
                 break;
             }
-            int itemX = this.leftPos + POOL_X + 1 + (i % ITEMS_PER_ROW) * 18;
-            int itemY = this.topPos + POOL_Y + 1 + (i / ITEMS_PER_ROW) * 18;
+            int itemX = px + 1 + (i % cols) * 18;
+            int itemY = py + 1 + (i / cols) * 18;
             if (mouseX >= itemX && mouseX < itemX + 16 && mouseY >= itemY && mouseY < itemY + 16) {
                 return filtered.get(start + i);
             }
@@ -221,12 +308,17 @@ public class CraftingTerminalScreen extends AbstractContainerScreen<CraftingTerm
             return true;
         }
 
+        if (this.layoutButton.mouseClicked(mouseX, mouseY, button)) {
+            return true;
+        }
         if (this.depositButton.mouseClicked(mouseX, mouseY, button)) {
             return true;
         }
 
-        boolean inPool = mouseX >= leftPos + POOL_X && mouseX < leftPos + POOL_X + 18 * ITEMS_PER_ROW
-                && mouseY >= topPos + POOL_Y && mouseY < topPos + POOL_Y + 18 * VISIBLE_ROWS;
+        int px = poolOriginX();
+        int py = poolOriginY();
+        boolean inPool = mouseX >= px && mouseX < px + 18 * poolCols()
+                && mouseY >= py && mouseY < py + 18 * poolRows();
         if (inPool) {
             if (!menu.getCarried().isEmpty()) {
                 if (button == 0) {
@@ -293,8 +385,8 @@ public class CraftingTerminalScreen extends AbstractContainerScreen<CraftingTerm
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
-        int maxRows = (getFilteredItems().size() + ITEMS_PER_ROW - 1) / ITEMS_PER_ROW;
-        int maxScroll = Math.max(0, maxRows - VISIBLE_ROWS);
+        int maxRows = (getFilteredItems().size() + poolCols() - 1) / poolCols();
+        int maxScroll = Math.max(0, maxRows - poolRows());
         if (delta < 0) {
             scrollOffset = Math.min(scrollOffset + 1, maxScroll);
         } else if (delta > 0) {

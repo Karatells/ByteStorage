@@ -197,10 +197,22 @@ public final class GuiStyle {
         slot(g, leftPos + slot.x - 1, topPos + slot.y - 1, tint, accent);
     }
 
-    /** Рамки слотів інвентаря та хотбара гравця (з індексу {@code from} до кінця списку). */
+    /** Рамки слотів інвентаря та хотбара гравця (з індексу {@code from} до кінця списку) з лінією розділення хотбара. */
     public static void playerSlots(GuiGraphics g, int leftPos, int topPos, List<Slot> slots, int from) {
         for (int i = from; i < slots.size(); i++) {
             menuSlot(g, leftPos, topPos, slots.get(i), SLOT_PLAYER);
+        }
+        if (slots.size() >= from + 36) {
+            Slot firstInv = slots.get(from);
+            Slot lastInv = slots.get(from + 26);
+            Slot firstHot = slots.get(from + 27);
+            int gap = firstHot.y - (lastInv.y + 18);
+            if (gap >= 2) {
+                int lineY = topPos + lastInv.y + 17 + gap / 2;
+                int x1 = leftPos + firstInv.x - 1;
+                int x2 = x1 + 9 * 18;
+                g.fill(x1, lineY, x2, lineY + 1, 0xFF2D465A);
+            }
         }
     }
 

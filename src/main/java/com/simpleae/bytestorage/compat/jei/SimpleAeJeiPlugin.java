@@ -30,7 +30,13 @@ public class SimpleAeJeiPlugin implements IModPlugin {
         registration.addGuiContainerHandler(CraftingTerminalScreen.class, new IGuiContainerHandler<>() {
             @Override
             public List<Rect2i> getGuiExtraAreas(CraftingTerminalScreen screen) {
-                return List.of(new Rect2i(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop(), 48, 100));
+                Rect2i rightSort = new Rect2i(screen.getGuiLeft() + screen.getXSize(), screen.getGuiTop(), 48, 100);
+                if (screen.isSidePool()) {
+                    Rect2i leftPool = new Rect2i(screen.getSidePanelX() - 2, screen.getGuiTop(),
+                            CraftingTerminalScreen.SIDE_PANEL_W + 6, screen.getYSize());
+                    return List.of(rightSort, leftPool);
+                }
+                return List.of(rightSort);
             }
         });
         registration.addGuiContainerHandler(TerminalScreen.class, new IGuiContainerHandler<>() {

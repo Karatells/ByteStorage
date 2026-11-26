@@ -115,9 +115,9 @@ public class CraftingTerminalMenu extends AbstractContainerMenu implements IGrid
             }
         }
 
-        // Слоти 37-45: Хотбар гравця
+        // Слоти 37-45: Хотбар гравця (4px відступ від основного інвентаря)
         for (int col = 0; col < 9; col++) {
-            this.addSlot(new Slot(playerInventory, col, 8 + col * 18, 202));
+            this.addSlot(new Slot(playerInventory, col, 8 + col * 18, 206));
         }
     }
 
