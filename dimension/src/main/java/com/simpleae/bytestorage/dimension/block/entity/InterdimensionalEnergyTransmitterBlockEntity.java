@@ -142,9 +142,9 @@ public class InterdimensionalEnergyTransmitterBlockEntity extends BlockEntity {
             return;
         }
 
-        // 1. Межпространственное выравнивание энергии по каналу
+        // 1. Межпространственное выравнивание энергии по каналу (push и pull)
         Set<InterdimensionalEnergyTransmitterBlockEntity> peers = CHANNELS.get(be.channel);
-        if (peers != null && peers.size() > 1 && be.stored > 0) {
+        if (peers != null && peers.size() > 1) {
             int maxTransfer = IO_RATE * CYCLE_TICKS;
             for (InterdimensionalEnergyTransmitterBlockEntity peer : peers) {
                 if (peer == be || peer.isRemoved() || peer.level == null) continue;
@@ -156,6 +156,16 @@ public class InterdimensionalEnergyTransmitterBlockEntity extends BlockEntity {
                         peer.stored += move;
                         be.setChanged();
                         peer.setChanged();
+                        maxTransfer -= move;
+                        if (maxTransfer <= 0) break;
+                    }
+                } else if (diff < -1) {
+                    int move = Math.min((-diff) / 2, Math.min(maxTransfer, CAPACITY - be.stored));
+                    if (move > 0) {
+                        peer.stored -= move;
+                        be.stored += move;
+                        peer.setChanged();
+                        be.setChanged();
                         maxTransfer -= move;
                         if (maxTransfer <= 0) break;
                     }
