@@ -25,6 +25,9 @@
 - [Examples](Scripting-Examples)
 - [Administration](Scripting-Administration)
 
+**Dimension addon**
+- [Silicon Plane](Dimension-Addon)
+
 **Other**
 - [Troubleshooting](Troubleshooting)
 - [Building from Source](Building-from-Source)

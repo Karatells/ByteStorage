@@ -28,9 +28,13 @@ An optional addon, **Simple Byte Storage: Scripting**, adds a Logic Bus and a Lo
 
 **Scripting addon**
 - [Scripting Overview](Scripting-Overview)
+- [Online Script Library](Scripting-Library)
 - [Scripting API](Scripting-API)
 - [Scripting Examples](Scripting-Examples)
 - [Scripting Administration](Scripting-Administration) — config, security model, limits
+
+**Dimension addon**
+- [Silicon Plane Dimension](Dimension-Addon) — Rift Gate portal, 8 biomes, 4 mobs, endgame machines, 1M cells, Optic Wood Set
 
 **Other**
 - [Troubleshooting](Troubleshooting)
@@ -42,7 +46,7 @@ An optional addon, **Simple Byte Storage: Scripting**, adds a Logic Bus and a Lo
 |---|---|
 | Minecraft / Loader | 1.20.1 / Forge 47.2.0+ |
 | Mod id | `simple_bytestorage` |
-| Addon mod id | `simple_bytestorage_scripting` (optional) |
+| Optional addons | `simple_bytestorage_scripting`, `simple_bytestorage_dimension` |
 | Storage model | 1 item = 1 byte, unlimited item types |
 | Languages | English, Russian, Ukrainian |
 | Optional integrations | JEI |

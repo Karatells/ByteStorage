@@ -17,7 +17,12 @@ $$\text{Занято байт} = \sum \text{Количество всех хра
 ---
 
 ## ⬇️ Скачать
-Готовые сборки — на странице [Releases](https://github.com/Karatells/ByteStorage/releases/latest): `simple_bytestorage-<версия>.jar` (мод) и необязательный `simple_bytestorage_scripting-<версия>.jar` (скрипты). Подробнее: [docs/wiki/Downloads.md](docs/wiki/Downloads.md).
+Готовые сборки — на странице [Releases](https://github.com/Karatells/ByteStorage/releases/latest):
+- `simple_bytestorage-<версия>.jar` — основной мод;
+- `simple_bytestorage_scripting-<версия>.jar` — необязательный аддон скриптов (Logic Bus + Logic Terminal);
+- `simple_bytestorage_dimension-<версия>.jar` — необязательный аддон измерения **Silicon Plane** (8 биомов, 4 моба, 7 руд, эндгейм-машины, ячейки до 1M и Optic Wood Set).
+
+Подробнее: [docs/wiki/Downloads.md](docs/wiki/Downloads.md) и [docs/wiki/Dimension-Addon.md](docs/wiki/Dimension-Addon.md).
 
 ## 📖 Документация
 Полная документация (на английском) — в [`docs/wiki`](docs/wiki/Home.md); при включённой GitHub Wiki публикуется туда автоматически. Внутриигровой справочник: предмет «Guide» (книга + кабель).

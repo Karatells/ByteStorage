@@ -9,6 +9,7 @@ All releases: https://github.com/Karatells/ByteStorage/releases
 |---|---|---|
 | `simple_bytestorage-<version>.jar` | **Yes** | The main mod. |
 | `simple_bytestorage_scripting-<version>.jar` | No | The scripting addon (Logic Bus + Logic Terminal). Needs the main mod. |
+| `simple_bytestorage_dimension-<version>.jar` | No | The Silicon Plane dimension addon (8 biomes, 4 mobs, endgame machines, 1M cells, Optic Wood Set). Needs the main mod. |
 
 Releases are published only for versions that are announced as releases. Builds of every commit are available only as GitHub Actions artifacts (for testers) and may be unstable.
 
@@ -22,22 +23,22 @@ Releases are published only for versions that are announced as releases. Builds 
 ## Installation
 
 1. Install Forge for Minecraft 1.20.1.
-2. Put `simple_bytestorage-<version>.jar` into the `mods` folder. Add the scripting jar there too if you want scripting.
+2. Put `simple_bytestorage-<version>.jar` into the `mods` folder. Add the scripting and/or dimension addon jars there too if you want them.
 3. On a server, install the same jars on the server **and** on every client.
 4. Start the game, then craft the **Guide Book** (book + cable) for an in-game manual.
 
 ## Updating
 
-Replace the jar(s) with the newer version. Keep the main mod and the addon on the same version.
+Replace the jar(s) with the newer version. Keep the main mod and any installed addons on the same version.
 
-Removing the scripting addon from a world deletes any placed Logic Buses and Logic Terminals.
+Removing an optional addon from a world deletes any blocks, items, or dimension data belonging to that addon.
 
 ## Versions
 
 | Version | Notes |
 |---|---|
+| 1.4.0 | Network Interface, Portable/Energy Cells, Cable Facades, Online Script Library, and the new Silicon Plane Dimension addon. |
+| 1.3.1 | Bugfix and GUI polish release. |
 | 1.0.0 | First stable release. |
 
-Version numbers have four parts (`1.0.1.1`); the last one is the build number.
-
-Version numbers have four parts (`1.0.1.1`); the last one is the build number.
+Development builds have four parts (`1.4.0.40`); stable releases use three parts (`1.4.0`).

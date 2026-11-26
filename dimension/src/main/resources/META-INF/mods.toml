@@ -4,7 +4,7 @@ license="MIT"
 
 [[mods]]
 modId="simple_bytestorage_dimension"
-version="1.4.0.40"
+version="1.4.0"
 displayName="Simple Byte Storage: Silicon Plane"
 authors="Simple Byte Storage Team"
 description='''

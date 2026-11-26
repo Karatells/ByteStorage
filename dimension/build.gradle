@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'com.simpleae'
-version = '1.4.0.40'
+version = '1.4.0'
 archivesBaseName = 'simple_bytestorage_dimension'
 
 evaluationDependsOn(':')
