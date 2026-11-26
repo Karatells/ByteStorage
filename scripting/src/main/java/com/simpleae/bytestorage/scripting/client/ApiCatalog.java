@@ -14,7 +14,7 @@ import java.util.TreeSet;
 final class ApiCatalog {
 
     static final Set<String> GLOBALS = Set.of("net", "stock", "recipes", "journal", "store", "redstone", "display",
-            "bus", "side", "buses", "log", "time", "alert", "busId", "ui");
+            "bus", "side", "buses", "log", "time", "alert", "busId", "ui", "include", "require");
 
     private static final List<String> DIRECTIONS = List.of("down", "up", "north", "south", "west", "east");
     private static final List<String> STOCK_MODES = List.of("always", "night", "day", "energy");
@@ -40,6 +40,8 @@ final class ApiCatalog {
         global("alert", "alert(text)", true, "Raise an alert: journal entry and chat warning (needs allowAlerts).");
         global("busId", "this bus id", false, "The identifier assigned to this bus.");
         global("ui", "panel API", false, "Draw a panel with text, bars, buttons and items in the Logic Terminal's Panel tab.");
+        global("include", "include(id)", true, "Import a reusable JS library by id (e.g. \"simplebytestorage/format\") and return its exports.");
+        global("require", "require(id)", true, "Alias for include(id): import a reusable JS library and return its exports.");
         global("onButton", "handler", false, "Optional. Called with the id of a panel button the player pressed.");
         global("tick", "handler", false, "Optional. Called every run of the bus.");
         global("onCraft", "handler", false, "Optional. Called when a craft finishes; e has type, id, count, text.");
@@ -168,7 +170,24 @@ final class ApiCatalog {
         return result;
     }
 
+    private static List<String> matchLibraries(String prefix) {
+        String p = prefix.toLowerCase(Locale.ROOT);
+        List<String> result = new ArrayList<>();
+        for (ScriptLibraryIndex.LibraryEntry lib : OnlineScriptLibrary.cachedLibraries()) {
+            String id = lib.id();
+            int slash = id.indexOf('/');
+            String shortName = slash >= 0 ? id.substring(slash + 1) : id;
+            if (id.toLowerCase(Locale.ROOT).startsWith(p) || shortName.toLowerCase(Locale.ROOT).startsWith(p)) {
+                result.add(id);
+            }
+        }
+        return result;
+    }
+
     private static List<String> complete(String call, int argIndex, String prefix) {
+        if ((call.equals("include") || call.equals("require")) && argIndex == 0) {
+            return matchLibraries(prefix);
+        }
         if (call.equals("side") && argIndex == 0) {
             return matchValues(DIRECTIONS, prefix);
         }

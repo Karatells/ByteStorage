@@ -64,4 +64,50 @@ class ScriptLibraryTest {
         String hash = ScriptLibraryIndex.sha256Hex("hello".getBytes(StandardCharsets.UTF_8));
         assertEquals("2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824", hash);
     }
+
+    @Test
+    void parseLibrariesAndValidateIds() {
+        String json = """
+                {
+                  "format": 1,
+                  "scripts": [],
+                  "libraries": [
+                    {
+                      "id": "simplebytestorage/format",
+                      "name": "Formatting",
+                      "author": "SBS",
+                      "description": "Format numbers",
+                      "category": "display",
+                      "icon": "simple_bytestorage:network_display",
+                      "tags": ["format"],
+                      "exports": ["num(n)", "bytes(n)"],
+                      "minModVersion": "1.4.0",
+                      "maxModVersion": "*",
+                      "path": "libraries/simplebytestorage/format/lib.js",
+                      "sha256": "deadbeef",
+                      "size": 123
+                    },
+                    {
+                      "id": "evil/lib",
+                      "name": "Traversal",
+                      "path": "../evil.js"
+                    }
+                  ]
+                }
+                """;
+        ScriptLibraryIndex.IndexData all = ScriptLibraryIndex.parseAll(json);
+        assertEquals(0, all.scripts().size());
+        assertEquals(1, all.libraries().size());
+        ScriptLibraryIndex.LibraryEntry lib = all.libraries().get(0);
+        assertEquals("simplebytestorage/format", lib.id());
+        assertEquals(List.of("num(n)", "bytes(n)"), lib.exports());
+        assertEquals(1, ScriptLibraryIndex.filterLibrariesByCategory(all.libraries(), "display").size());
+        assertEquals(0, ScriptLibraryIndex.filterLibrariesByCategory(all.libraries(), "energy").size());
+
+        assertTrue(com.simpleae.bytestorage.scripting.script.LibraryRegistry.isValidId("simplebytestorage/format"));
+        assertTrue(com.simpleae.bytestorage.scripting.script.LibraryRegistry.isValidId("my_local-lib"));
+        assertFalse(com.simpleae.bytestorage.scripting.script.LibraryRegistry.isValidId("../secret"));
+        assertFalse(com.simpleae.bytestorage.scripting.script.LibraryRegistry.isValidId("/abs/path"));
+        assertFalse(com.simpleae.bytestorage.scripting.script.LibraryRegistry.isValidId("a/b/c"));
+    }
 }

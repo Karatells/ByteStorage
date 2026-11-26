@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Асинхронный клиентский загрузчик онлайн-библиотеки скриптов с GitHub.
+ * Асинхронный клиентский загрузчик онлайн-библиотеки скриптов и JS-библиотек с GitHub.
  * - Работает только по HTTPS, без редиректов, с таймаутом 6 сек и жёсткими лимитами размера.
  * - Проверяет SHA-256 каждого загруженного script.js против index.json.
  * - Никогда не запускает скрипт автоматически — только передаёт текст в редактор.
@@ -35,7 +35,7 @@ public final class OnlineScriptLibrary {
 
     private static volatile String cachedUrl = "";
     private static volatile long cachedAt = 0L;
-    private static volatile List<ScriptLibraryIndex.Entry> cachedEntries = null;
+    private static volatile ScriptLibraryIndex.IndexData cachedData = null;
 
     private OnlineScriptLibrary() {
     }
@@ -46,8 +46,14 @@ public final class OnlineScriptLibrary {
                 .orElse("1.4.0");
     }
 
+    /** Возвращает кэшированный список JS-библиотек для автодополнения include("..."). */
+    public static List<ScriptLibraryIndex.LibraryEntry> cachedLibraries() {
+        ScriptLibraryIndex.IndexData data = cachedData;
+        return data == null ? List.of() : data.libraries();
+    }
+
     public static void fetchIndex(String baseUrl, boolean forceRefresh,
-                                  Consumer<List<ScriptLibraryIndex.Entry>> onSuccess,
+                                  Consumer<ScriptLibraryIndex.IndexData> onSuccess,
                                   Consumer<String> onError) {
         String normalized = normalizeBase(baseUrl);
         if (normalized == null) {
@@ -55,18 +61,18 @@ public final class OnlineScriptLibrary {
             return;
         }
         long now = System.currentTimeMillis();
-        if (!forceRefresh && cachedEntries != null && normalized.equals(cachedUrl) && (now - cachedAt) < CACHE_TTL_MS) {
-            onSuccess.accept(cachedEntries);
+        if (!forceRefresh && cachedData != null && normalized.equals(cachedUrl) && (now - cachedAt) < CACHE_TTL_MS) {
+            onSuccess.accept(cachedData);
             return;
         }
         Thread t = new Thread(() -> {
             try {
                 byte[] bytes = download(normalized + "/index.json", MAX_INDEX_BYTES);
-                List<ScriptLibraryIndex.Entry> list = ScriptLibraryIndex.parseIndex(new String(bytes, StandardCharsets.UTF_8));
+                ScriptLibraryIndex.IndexData data = ScriptLibraryIndex.parseAll(new String(bytes, StandardCharsets.UTF_8));
                 cachedUrl = normalized;
                 cachedAt = System.currentTimeMillis();
-                cachedEntries = list;
-                Minecraft.getInstance().execute(() -> onSuccess.accept(list));
+                cachedData = data;
+                Minecraft.getInstance().execute(() -> onSuccess.accept(data));
             } catch (Exception ex) {
                 LOG.warn("Failed to load online script library from {}: {}", normalized, ex.getMessage());
                 Minecraft.getInstance().execute(() -> onError.accept("Offline or failed to load library"));

@@ -270,6 +270,11 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
             dirty = false;
             String error = runtime.compile(script);
             if (error != null) {
+                if (error.startsWith(LogicRuntime.LOADING_PREFIX)) {
+                    dirty = true;
+                    status = "loading " + error.substring(LogicRuntime.LOADING_PREFIX.length()) + "...";
+                    return;
+                }
                 fail(error);
                 return;
             }
@@ -277,6 +282,10 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
         }
         String error = runtime.tick();
         if (error != null) {
+            if (error.startsWith(LogicRuntime.LOADING_PREFIX)) {
+                status = "loading " + error.substring(LogicRuntime.LOADING_PREFIX.length()) + "...";
+                return;
+            }
             fail(error);
         }
     }
@@ -294,12 +303,21 @@ public class LogicBusBlockEntity extends BlockEntity implements IGridNode, BusCo
             dirty = false;
             String error = runtime.compile(script);
             if (error != null) {
+                if (error.startsWith(LogicRuntime.LOADING_PREFIX)) {
+                    dirty = true;
+                    status = "loading " + error.substring(LogicRuntime.LOADING_PREFIX.length()) + "...";
+                    return false;
+                }
                 fail(error);
                 return false;
             }
         }
         String error = runtime.tick();
         if (error != null) {
+            if (error.startsWith(LogicRuntime.LOADING_PREFIX)) {
+                status = "loading " + error.substring(LogicRuntime.LOADING_PREFIX.length()) + "...";
+                return false;
+            }
             fail(error);
             return false;
         }

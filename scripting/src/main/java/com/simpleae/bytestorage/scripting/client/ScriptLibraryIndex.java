@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Чистая логика онлайн-библиотеки скриптов: парсинг index.json, проверка совместимости версий и SHA-256.
+ * Чистая логика онлайн-библиотеки скриптов и JS-библиотек: парсинг index.json,
+ * проверка совместимости версий и SHA-256.
  * Не зависит от классов Minecraft — полностью покрыта юнит-тестами.
  */
 public final class ScriptLibraryIndex {
@@ -39,7 +40,32 @@ public final class ScriptLibraryIndex {
     ) {
     }
 
+    public record LibraryEntry(
+            String id,
+            String name,
+            String author,
+            String description,
+            String category,
+            String icon,
+            List<String> tags,
+            List<String> exports,
+            String minModVersion,
+            String maxModVersion,
+            String path,
+            String sha256,
+            int size
+    ) {
+    }
+
+    public record IndexData(List<Entry> scripts, List<LibraryEntry> libraries) {
+        public static final IndexData EMPTY = new IndexData(List.of(), List.of());
+    }
+
     private ScriptLibraryIndex() {
+    }
+
+    public static IndexData parseAll(String jsonText) {
+        return new IndexData(parseIndex(jsonText), parseLibraries(jsonText));
     }
 
     public static List<Entry> parseIndex(String jsonText) {
@@ -61,16 +87,8 @@ public final class ScriptLibraryIndex {
             if (id.isEmpty() || path.isEmpty() || path.contains("..") || path.startsWith("/")) {
                 continue;
             }
-            List<String> tags = new ArrayList<>();
-            if (o.has("tags") && o.get("tags").isJsonArray()) {
-                for (JsonElement t : o.getAsJsonArray("tags")) {
-                    if (t.isJsonPrimitive()) tags.add(t.getAsString());
-                }
-            }
-            String category = str(o, "category", "other").toLowerCase(Locale.ROOT);
-            if (!CATEGORIES.contains(category) || category.equals("all")) {
-                category = "other";
-            }
+            List<String> tags = strList(o, "tags");
+            String category = normalizeCategory(str(o, "category", "other"));
             out.add(new Entry(
                     id,
                     name,
@@ -91,6 +109,47 @@ public final class ScriptLibraryIndex {
         return out;
     }
 
+    public static List<LibraryEntry> parseLibraries(String jsonText) {
+        List<LibraryEntry> out = new ArrayList<>();
+        if (jsonText == null || jsonText.isBlank()) {
+            return out;
+        }
+        JsonObject root = JsonParser.parseString(jsonText).getAsJsonObject();
+        if (!root.has("libraries") || !root.get("libraries").isJsonArray()) {
+            return out;
+        }
+        JsonArray arr = root.getAsJsonArray("libraries");
+        for (JsonElement el : arr) {
+            if (!el.isJsonObject()) continue;
+            JsonObject o = el.getAsJsonObject();
+            String id = str(o, "id", "");
+            String name = str(o, "name", id);
+            String path = str(o, "path", "");
+            if (id.isEmpty() || path.isEmpty() || path.contains("..") || path.startsWith("/")) {
+                continue;
+            }
+            List<String> tags = strList(o, "tags");
+            List<String> exports = strList(o, "exports");
+            String category = normalizeCategory(str(o, "category", "other"));
+            out.add(new LibraryEntry(
+                    id,
+                    name,
+                    str(o, "author", "unknown"),
+                    str(o, "description", ""),
+                    category,
+                    str(o, "icon", "simple_bytestorage_scripting:script_disk"),
+                    List.copyOf(tags),
+                    List.copyOf(exports),
+                    str(o, "minModVersion", "1.4.0"),
+                    str(o, "maxModVersion", "*"),
+                    path,
+                    str(o, "sha256", "").toLowerCase(Locale.ROOT),
+                    o.has("size") && o.get("size").isJsonPrimitive() ? o.get("size").getAsInt() : 0
+            ));
+        }
+        return out;
+    }
+
     public static List<Entry> filterByCategory(List<Entry> entries, String category) {
         if (entries == null || category == null || category.equals("all")) {
             return entries == null ? List.of() : entries;
@@ -99,6 +158,37 @@ public final class ScriptLibraryIndex {
         for (Entry e : entries) {
             if (category.equals(e.category())) {
                 out.add(e);
+            }
+        }
+        return out;
+    }
+
+    public static List<LibraryEntry> filterLibrariesByCategory(List<LibraryEntry> entries, String category) {
+        if (entries == null || category == null || category.equals("all")) {
+            return entries == null ? List.of() : entries;
+        }
+        List<LibraryEntry> out = new ArrayList<>();
+        for (LibraryEntry e : entries) {
+            if (category.equals(e.category())) {
+                out.add(e);
+            }
+        }
+        return out;
+    }
+
+    private static String normalizeCategory(String raw) {
+        String category = raw.toLowerCase(Locale.ROOT);
+        if (!CATEGORIES.contains(category) || category.equals("all")) {
+            return "other";
+        }
+        return category;
+    }
+
+    private static List<String> strList(JsonObject o, String key) {
+        List<String> out = new ArrayList<>();
+        if (o.has(key) && o.get(key).isJsonArray()) {
+            for (JsonElement t : o.getAsJsonArray(key)) {
+                if (t.isJsonPrimitive()) out.add(t.getAsString());
             }
         }
         return out;

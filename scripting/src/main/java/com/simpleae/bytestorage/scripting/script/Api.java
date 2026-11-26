@@ -30,9 +30,14 @@ import java.util.Map;
 final class Api {
 
     private static final int LIST_LIMIT = 512;
+    private static final int MAX_INCLUDE_DEPTH = 4;
+    private static final int MAX_INCLUDES_PER_RUNTIME = 12;
 
     private final BusContext bus;
     private final Scriptable scope;
+    private final LibraryResolver libraryResolver;
+    private final Map<String, Object> moduleCache = new java.util.HashMap<>();
+    private final java.util.Set<String> loadingStack = new java.util.LinkedHashSet<>();
     Budget budget;
 
     private static final class Endpoint extends org.mozilla.javascript.NativeObject {
@@ -44,8 +49,13 @@ final class Api {
     }
 
     Api(BusContext bus, Scriptable scope) {
+        this(bus, scope, LibraryRegistry.INSTANCE);
+    }
+
+    Api(BusContext bus, Scriptable scope, LibraryResolver libraryResolver) {
         this.bus = bus;
         this.scope = scope;
+        this.libraryResolver = libraryResolver != null ? libraryResolver : LibraryRegistry.INSTANCE;
     }
 
     /** Панель, которую скрипт собирает в текущем запуске (null — ui.* не вызывался). */
@@ -190,8 +200,62 @@ final class Api {
             return Undefined.instance;
         }));
         ScriptableObject.putProperty(scope, "time", new Fn(scope, "time", (c, s, a) -> bus.level().getGameTime()));
+        Fn includeFn = new Fn(scope, "include", (c, s, a) -> executeInclude(c, str(a, 0)));
+        ScriptableObject.putProperty(scope, "include", includeFn);
+        ScriptableObject.putProperty(scope, "require", includeFn);
         installStoreAndRedstone(cx);
         installControl(cx);
+    }
+
+    private Object executeInclude(Context cx, String rawId) {
+        budget.spendCall();
+        if (rawId == null || rawId.isBlank()) {
+            throw org.mozilla.javascript.ScriptRuntime.typeError("include(id): library id is required");
+        }
+        String id = rawId.trim().toLowerCase(Locale.ROOT);
+        if (moduleCache.containsKey(id)) {
+            return moduleCache.get(id);
+        }
+        if (loadingStack.contains(id)) {
+            throw org.mozilla.javascript.ScriptRuntime.typeError("include(): circular dependency detected for '" + id + "'");
+        }
+        if (loadingStack.size() >= MAX_INCLUDE_DEPTH) {
+            throw org.mozilla.javascript.ScriptRuntime.typeError("include(): max nesting depth (" + MAX_INCLUDE_DEPTH + ") exceeded");
+        }
+        if (moduleCache.size() >= MAX_INCLUDES_PER_RUNTIME) {
+            throw org.mozilla.javascript.ScriptRuntime.typeError("include(): max included libraries (" + MAX_INCLUDES_PER_RUNTIME + ") exceeded");
+        }
+
+        LibraryResolver.Resolution res = libraryResolver.resolve(id);
+        switch (res.status()) {
+            case LOADING -> throw new LibraryLoadingException(res.message());
+            case OK -> {
+            }
+            default -> throw org.mozilla.javascript.ScriptRuntime.typeError("include(): " + res.message());
+        }
+
+        loadingStack.add(id);
+        try {
+            Scriptable libScope = cx.newObject(scope);
+            libScope.setPrototype(scope);
+            libScope.setParentScope(null);
+
+            Scriptable exportsObj = cx.newObject(scope);
+            Scriptable moduleObj = cx.newObject(scope);
+            ScriptableObject.putProperty(moduleObj, "exports", exportsObj);
+            ScriptableObject.putProperty(moduleObj, "id", id);
+            ScriptableObject.putProperty(libScope, "exports", exportsObj);
+            ScriptableObject.putProperty(libScope, "module", moduleObj);
+
+            org.mozilla.javascript.Script libScript = cx.compileString(res.source(), "lib:" + id, 1, null);
+            libScript.exec(cx, libScope);
+
+            Object exported = ScriptableObject.getProperty(moduleObj, "exports");
+            moduleCache.put(id, exported);
+            return exported;
+        } finally {
+            loadingStack.remove(id);
+        }
     }
 
     private void installStoreAndRedstone(Context cx) {

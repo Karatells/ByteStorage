@@ -125,6 +125,7 @@ public class SimpleAeScripting {
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(ScriptingPackets::register);
+        event.enqueueWork(() -> com.simpleae.bytestorage.scripting.script.LibraryRegistry.INSTANCE.preloadAsync());
         // Макрос Беспроводного терминала: запускает все Логические шины с идентификатором, равным названию макроса
         event.enqueueWork(() -> com.simpleae.bytestorage.api.WirelessMacros.register((player, grid, macro) -> {
             int done = 0;

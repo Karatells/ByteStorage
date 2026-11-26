@@ -50,7 +50,9 @@ public class LogicTerminalScreen extends Screen {
     private int panelContentHeight = 0;
     private int libraryScroll = 0;
     private int libraryCatIdx = 0;
+    private boolean libraryShowLibs = false;
     private List<ScriptLibraryIndex.Entry> libraryEntries = null;
+    private List<ScriptLibraryIndex.LibraryEntry> libraryModules = null;
     private String libraryError = null;
     private boolean libraryLoading = false;
     private String libraryStatus = null;
@@ -215,9 +217,10 @@ public class LogicTerminalScreen extends Screen {
         this.libraryError = null;
         this.libraryStatus = null;
         OnlineScriptLibrary.fetchIndex(state.onlineLibraryUrl, force,
-                entries -> {
+                data -> {
                     this.libraryLoading = false;
-                    this.libraryEntries = entries;
+                    this.libraryEntries = data.scripts();
+                    this.libraryModules = data.libraries();
                 },
                 err -> {
                     this.libraryLoading = false;
@@ -298,6 +301,39 @@ public class LogicTerminalScreen extends Screen {
         return ScriptLibraryIndex.filterByCategory(libraryEntries, currentCategory());
     }
 
+    private List<ScriptLibraryIndex.LibraryEntry> filteredModules() {
+        return ScriptLibraryIndex.filterLibrariesByCategory(libraryModules, currentCategory());
+    }
+
+    private static String jsAliasForLibrary(String libId) {
+        int slash = libId.lastIndexOf('/');
+        String raw = slash >= 0 ? libId.substring(slash + 1) : libId;
+        StringBuilder sb = new StringBuilder();
+        for (char c : raw.toCharArray()) {
+            if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_') {
+                sb.append(c);
+            } else {
+                sb.append('_');
+            }
+        }
+        String alias = sb.toString();
+        if (alias.isEmpty() || Character.isDigit(alias.charAt(0))) {
+            alias = "lib_" + alias;
+        }
+        return alias;
+    }
+
+    private void insertLibraryInclude(ScriptLibraryIndex.LibraryEntry lib) {
+        String existing = this.editor.getValue();
+        String needle = "include(\"" + lib.id() + "\")";
+        if (!existing.contains(needle) && !existing.contains("include('" + lib.id() + "')")) {
+            String stmt = "var " + jsAliasForLibrary(lib.id()) + " = include(\"" + lib.id() + "\");\n";
+            this.editor.setValue(stmt + existing);
+        }
+        this.libraryStatus = null;
+        selectTab(0);
+    }
+
     private static net.minecraft.world.item.ItemStack resolveIcon(String iconId) {
         net.minecraft.resources.ResourceLocation rl = iconId == null ? null : net.minecraft.resources.ResourceLocation.tryParse(iconId);
         net.minecraft.world.item.Item item = rl == null ? null : net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(rl);
@@ -334,15 +370,26 @@ public class LogicTerminalScreen extends Screen {
             return;
         }
 
-        // Верхняя полоска: фильтр категории + кнопка обновления
-        List<ScriptLibraryIndex.Entry> visible = filteredLibrary();
+        // Верхняя полоска: переключатель Scripts/Libs + фильтр категории + кнопка обновления
+        int scriptCount = libraryEntries == null ? 0 : libraryEntries.size();
+        int libCount = libraryModules == null ? 0 : libraryModules.size();
+        String modeText = Component.translatable(libraryShowLibs
+                ? "gui.simple_bytestorage_scripting.library.mode.libs"
+                : "gui.simple_bytestorage_scripting.library.mode.scripts").getString()
+                + " (" + (libraryShowLibs ? libCount : scriptCount) + ")";
+        boolean modeHover = mouseX >= rx + 2 && mouseX < rx + 70 && mouseY >= ry + 2 && mouseY < ry + LIB_HEADER_H;
+        g.fill(rx + 2, ry + 2, rx + 70, ry + LIB_HEADER_H, modeHover ? GuiStyle.ACCENT_DIM : GuiStyle.PANEL_BG);
+        g.drawString(this.font, this.font.plainSubstrByWidth(modeText, 64),
+                rx + 5, ry + 4, libraryShowLibs ? GuiStyle.TEXT_GOOD : GuiStyle.ACCENT, false);
+
+        int visibleCount = libraryShowLibs ? filteredModules().size() : filteredLibrary().size();
         String cat = currentCategory();
         String catName = Component.translatable("gui.simple_bytestorage_scripting.cat." + cat).getString();
-        String catLabel = catName + " (" + visible.size() + ")";
-        boolean catHover = mouseX >= rx + 2 && mouseX < rx + AREA_W - 46 && mouseY >= ry + 2 && mouseY < ry + LIB_HEADER_H;
-        g.fill(rx + 2, ry + 2, rx + AREA_W - 46, ry + LIB_HEADER_H, catHover ? GuiStyle.ACCENT_FAINT : GuiStyle.PANEL_BG);
-        g.drawString(this.font, this.font.plainSubstrByWidth(catLabel, AREA_W - 56),
-                rx + 6, ry + 4, GuiStyle.ACCENT, false);
+        String catLabel = catName + " (" + visibleCount + ")";
+        boolean catHover = mouseX >= rx + 72 && mouseX < rx + AREA_W - 46 && mouseY >= ry + 2 && mouseY < ry + LIB_HEADER_H;
+        g.fill(rx + 72, ry + 2, rx + AREA_W - 46, ry + LIB_HEADER_H, catHover ? GuiStyle.ACCENT_FAINT : GuiStyle.PANEL_BG);
+        g.drawString(this.font, this.font.plainSubstrByWidth(catLabel, AREA_W - 124),
+                rx + 76, ry + 4, GuiStyle.ACCENT, false);
 
         boolean refHover = mouseX >= rx + AREA_W - 44 && mouseX < rx + AREA_W - 2 && mouseY >= ry + 2 && mouseY < ry + LIB_HEADER_H;
         g.fill(rx + AREA_W - 44, ry + 2, rx + AREA_W - 2, ry + LIB_HEADER_H, refHover ? GuiStyle.ACCENT_FAINT : GuiStyle.PANEL_BG);
@@ -350,13 +397,65 @@ public class LogicTerminalScreen extends Screen {
         g.drawString(this.font, this.font.plainSubstrByWidth(refTxt, 38),
                 rx + AREA_W - 41, ry + 4, GuiStyle.TEXT_LABEL, false);
 
-        if (visible.isEmpty()) {
-            g.drawString(this.font, Component.translatable("gui.simple_bytestorage_scripting.library.empty"),
+        if (visibleCount == 0) {
+            g.drawString(this.font, Component.translatable(libraryShowLibs
+                    ? "gui.simple_bytestorage_scripting.library.empty_libs"
+                    : "gui.simple_bytestorage_scripting.library.empty"),
                     rx + 6, ry + LIB_HEADER_H + 6, GuiStyle.TEXT_MUTED, false);
             return;
         }
 
         String curVer = OnlineScriptLibrary.currentModVersion();
+        if (libraryShowLibs) {
+            List<ScriptLibraryIndex.LibraryEntry> visibleLibs = filteredModules();
+            ScriptLibraryIndex.LibraryEntry hoveredLib = null;
+            for (int row = 0; row < LIB_ROWS; row++) {
+                int idx = libraryScroll + row;
+                if (idx >= visibleLibs.size()) break;
+                ScriptLibraryIndex.LibraryEntry lib = visibleLibs.get(idx);
+                int y = ry + LIB_HEADER_H + 2 + row * LIB_ROW_H;
+                boolean compat = ScriptLibraryIndex.isCompatible(curVer, lib.minModVersion(), lib.maxModVersion());
+                boolean hover = mouseX >= rx + 2 && mouseX < rx + AREA_W - 2 && mouseY >= y && mouseY < y + LIB_ROW_H - 1;
+                if (hover) {
+                    hoveredLib = lib;
+                    g.fill(rx + 2, y, rx + AREA_W - 2, y + LIB_ROW_H - 1, GuiStyle.ACCENT_FAINT);
+                }
+                g.renderItem(resolveIcon(lib.icon()), rx + 4, y + 2);
+                String badge = compat ? "LIB" : ("REQ " + lib.minModVersion());
+                int badgeW = this.font.width(badge);
+                g.drawString(this.font, this.font.plainSubstrByWidth(lib.name(), AREA_W - badgeW - 34),
+                        rx + 23, y + 2, compat ? GuiStyle.TEXT_TITLE : GuiStyle.TEXT_MUTED, false);
+                g.drawString(this.font, badge, rx + AREA_W - badgeW - 5, y + 2,
+                        compat ? GuiStyle.TEXT_GOOD : GuiStyle.TEXT_BAD, false);
+                g.drawString(this.font, this.font.plainSubstrByWidth(lib.id(), AREA_W - 30),
+                        rx + 23, y + 11, GuiStyle.TEXT_MUTED, false);
+            }
+            if (libraryStatus != null) {
+                g.drawString(this.font, this.font.plainSubstrByWidth(libraryStatus, AREA_W - 10),
+                        rx + 5, ry + AREA_H - 10, GuiStyle.ACCENT, false);
+            }
+            if (hoveredLib != null) {
+                List<Component> tip = new ArrayList<>();
+                tip.add(Component.literal(hoveredLib.name()).withStyle(net.minecraft.ChatFormatting.AQUA));
+                tip.add(Component.literal("include(\"" + hoveredLib.id() + "\")").withStyle(net.minecraft.ChatFormatting.YELLOW));
+                if (!hoveredLib.description().isEmpty()) {
+                    tip.add(Component.literal(hoveredLib.description()).withStyle(net.minecraft.ChatFormatting.GRAY));
+                }
+                if (!hoveredLib.exports().isEmpty()) {
+                    tip.add(Component.literal("Exports: " + String.join(", ", hoveredLib.exports()))
+                            .withStyle(net.minecraft.ChatFormatting.DARK_AQUA));
+                }
+                boolean compat = ScriptLibraryIndex.isCompatible(curVer, hoveredLib.minModVersion(), hoveredLib.maxModVersion());
+                tip.add(Component.translatable(compat
+                        ? "gui.simple_bytestorage_scripting.library.click_include"
+                        : "gui.simple_bytestorage_scripting.library.incompatible", hoveredLib.minModVersion())
+                        .withStyle(compat ? net.minecraft.ChatFormatting.GREEN : net.minecraft.ChatFormatting.RED));
+                g.renderComponentTooltip(this.font, tip, mouseX, mouseY);
+            }
+            return;
+        }
+
+        List<ScriptLibraryIndex.Entry> visible = filteredLibrary();
         ScriptLibraryIndex.Entry hoveredEntry = null;
         for (int row = 0; row < LIB_ROWS; row++) {
             int idx = libraryScroll + row;
@@ -414,16 +513,33 @@ public class LogicTerminalScreen extends Screen {
         if (mouseY >= ry + 2 && mouseY < ry + LIB_HEADER_H) {
             if (mouseX >= rx + AREA_W - 44) {
                 loadOnlineLibrary(true);
+            } else if (mouseX < rx + 70) {
+                libraryShowLibs = !libraryShowLibs;
+                libraryScroll = 0;
             } else {
                 libraryCatIdx = (libraryCatIdx + 1) % ScriptLibraryIndex.CATEGORIES.size();
                 libraryScroll = 0;
             }
             return true;
         }
-        List<ScriptLibraryIndex.Entry> visible = filteredLibrary();
-        if (visible.isEmpty() || libraryLoading || !canAct()) return true;
+        if (libraryLoading || !canAct()) return true;
         int row = (int) ((mouseY - (ry + LIB_HEADER_H + 2)) / LIB_ROW_H);
         int idx = libraryScroll + row;
+        if (libraryShowLibs) {
+            List<ScriptLibraryIndex.LibraryEntry> visibleLibs = filteredModules();
+            if (row >= 0 && row < LIB_ROWS && idx >= 0 && idx < visibleLibs.size()) {
+                ScriptLibraryIndex.LibraryEntry lib = visibleLibs.get(idx);
+                String curVer = OnlineScriptLibrary.currentModVersion();
+                if (!ScriptLibraryIndex.isCompatible(curVer, lib.minModVersion(), lib.maxModVersion())) {
+                    libraryStatus = "Requires mod " + lib.minModVersion() + "+";
+                    return true;
+                }
+                insertLibraryInclude(lib);
+            }
+            return true;
+        }
+        List<ScriptLibraryIndex.Entry> visible = filteredLibrary();
+        if (visible.isEmpty()) return true;
         if (row >= 0 && row < LIB_ROWS && idx >= 0 && idx < visible.size()) {
             ScriptLibraryIndex.Entry e = visible.get(idx);
             String curVer = OnlineScriptLibrary.currentModVersion();
@@ -640,7 +756,8 @@ public class LogicTerminalScreen extends Screen {
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         if (libraryTab && libraryEntries != null && mouseX >= left + AREA_X && mouseX < left + AREA_X + AREA_W
                 && mouseY >= top + AREA_Y && mouseY < top + AREA_Y + AREA_H) {
-            int max = Math.max(0, filteredLibrary().size() - LIB_ROWS);
+            int total = libraryShowLibs ? filteredModules().size() : filteredLibrary().size();
+            int max = Math.max(0, total - LIB_ROWS);
             libraryScroll = Math.max(0, Math.min(max, libraryScroll - (int) Math.signum(delta)));
             return true;
         }

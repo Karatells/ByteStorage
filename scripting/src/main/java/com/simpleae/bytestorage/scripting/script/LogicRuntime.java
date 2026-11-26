@@ -18,7 +18,10 @@ import org.mozilla.javascript.UniqueTag;
  */
 public final class LogicRuntime {
 
+    public static final String LOADING_PREFIX = "__LOADING__:";
+
     private final BusContext bus;
+    private final LibraryResolver libraryResolver;
     private ScriptableObject scope;
     private Function tickFn;
     private Function onCraft;
@@ -32,15 +35,28 @@ public final class LogicRuntime {
     private Api api;
 
     public LogicRuntime(BusContext bus) {
+        this(bus, LibraryRegistry.INSTANCE);
+    }
+
+    public LogicRuntime(BusContext bus, LibraryResolver libraryResolver) {
         this.bus = bus;
+        this.libraryResolver = libraryResolver != null ? libraryResolver : LibraryRegistry.INSTANCE;
     }
 
     private Budget newBudget() {
         return new Budget(
-                ScriptingConfig.MAX_INSTRUCTIONS.get(),
-                ScriptingConfig.MAX_MILLIS.get(),
-                ScriptingConfig.MAX_ITEMS_PER_RUN.get(),
-                ScriptingConfig.MAX_CALLS_PER_RUN.get());
+                cfg(ScriptingConfig.MAX_INSTRUCTIONS),
+                cfg(ScriptingConfig.MAX_MILLIS),
+                cfg(ScriptingConfig.MAX_ITEMS_PER_RUN),
+                cfg(ScriptingConfig.MAX_CALLS_PER_RUN));
+    }
+
+    private static int cfg(net.minecraftforge.common.ForgeConfigSpec.IntValue value) {
+        try {
+            return value.get();
+        } catch (IllegalStateException ignored) {
+            return value.getDefault();
+        }
     }
 
     /** Компілює та виконує верхній рівень. Повертає текст помилки або null. */
@@ -58,7 +74,7 @@ public final class LogicRuntime {
             cx.putThreadLocal(SandboxFactory.BUDGET_KEY, budget);
             scope = cx.initSafeStandardObjects();
             hardenGlobals(scope);
-            api = new Api(bus, scope);
+            api = new Api(bus, scope, libraryResolver);
             api.beginRun(budget);
             api.install(cx);
             Script script = cx.compileString(source, "script", 1, null);
@@ -74,6 +90,8 @@ public final class LogicRuntime {
                 return "script must define function tick() or a handler (onCraft, onLowStock, onAlert, onButton, onMessage)";
             }
             return null;
+        } catch (LibraryLoadingException e) {
+            return LOADING_PREFIX + e.libraryId();
         } catch (RhinoException e) {
             return describe(e);
         } catch (ScriptBudgetExceeded e) {
@@ -162,6 +180,8 @@ public final class LogicRuntime {
             }
             api.finishRun();
             return null;
+        } catch (LibraryLoadingException e) {
+            return LOADING_PREFIX + e.libraryId();
         } catch (RhinoException e) {
             return describe(e);
         } catch (ScriptBudgetExceeded e) {
